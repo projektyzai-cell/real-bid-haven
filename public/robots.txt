@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /auth
+Disallow: /new-listing
+Disallow: /my-listings
+Disallow: /my-bids
