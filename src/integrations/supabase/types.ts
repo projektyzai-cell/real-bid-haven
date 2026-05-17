@@ -14,16 +14,147 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bids: {
+        Row: {
+          amount: number
+          bidder_id: string
+          created_at: string
+          id: string
+          property_id: string
+        }
+        Insert: {
+          amount: number
+          bidder_id: string
+          created_at?: string
+          id?: string
+          property_id: string
+        }
+        Update: {
+          amount?: number
+          bidder_id?: string
+          created_at?: string
+          id?: string
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bids_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string
+          email: string | null
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name: string
+          email?: string | null
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          email?: string | null
+          id?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          area_m2: number
+          bid_count: number
+          city: string
+          created_at: string
+          current_price: number
+          description: string
+          ends_at: string
+          id: string
+          image_url: string | null
+          owner_id: string
+          starting_price: number
+          status: Database["public"]["Enums"]["property_status"]
+          street: string
+          title: string
+        }
+        Insert: {
+          area_m2: number
+          bid_count?: number
+          city: string
+          created_at?: string
+          current_price?: number
+          description: string
+          ends_at: string
+          id?: string
+          image_url?: string | null
+          owner_id: string
+          starting_price: number
+          status?: Database["public"]["Enums"]["property_status"]
+          street: string
+          title: string
+        }
+        Update: {
+          area_m2?: number
+          bid_count?: number
+          city?: string
+          created_at?: string
+          current_price?: number
+          description?: string
+          ends_at?: string
+          id?: string
+          image_url?: string | null
+          owner_id?: string
+          starting_price?: number
+          status?: Database["public"]["Enums"]["property_status"]
+          street?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "buyer" | "seller" | "admin"
+      property_status: "active" | "ended" | "sold" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +281,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["buyer", "seller", "admin"],
+      property_status: ["active", "ended", "sold", "cancelled"],
+    },
   },
 } as const
