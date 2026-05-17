@@ -34,26 +34,31 @@ function PropertyDetailPage() {
     queryKey: ["property", id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("properties")
-        .select("*, profiles:owner_id(display_name, email)")
-        .eq("id", id)
-        .maybeSingle();
+        .from("properties").select("*").eq("id", id).maybeSingle();
       if (error) throw error;
       if (!data) throw notFound();
-      return data;
+      const { data: owner } = await supabase
+        .from("profiles").select("display_name, email").eq("id", data.owner_id).maybeSingle();
+      return { ...data, profiles: owner };
     },
   });
 
   const { data: bids } = useQuery({
     queryKey: ["bids", id],
     queryFn: async (): Promise<BidRow[]> => {
-      const { data, error } = await supabase
-        .from("bids")
-        .select("id, amount, created_at, bidder_id, profiles:bidder_id(display_name, email)")
-        .eq("property_id", id)
-        .order("created_at", { ascending: false });
+      const { data: rows, error } = await supabase
+        .from("bids").select("id, amount, created_at, bidder_id")
+        .eq("property_id", id).order("created_at", { ascending: false });
       if (error) throw error;
-      return (data ?? []) as unknown as BidRow[];
+      const ids = Array.from(new Set((rows ?? []).map((b) => b.bidder_id)));
+      const { data: profs } = ids.length
+        ? await supabase.from("profiles").select("id, display_name, email").in("id", ids)
+        : { data: [] };
+      const map = new Map((profs ?? []).map((p) => [p.id, p]));
+      return (rows ?? []).map((b) => {
+        const p = map.get(b.bidder_id);
+        return { ...b, profiles: p ? { display_name: p.display_name, email: p.email } : null };
+      });
     },
   });
 
