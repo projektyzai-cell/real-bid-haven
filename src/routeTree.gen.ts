@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -17,6 +18,11 @@ import { Route as AuthenticatedNewListingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
 
+const RegulaminRoute = RegulaminRouteImport.update({
+  id: '/regulamin',
+  path: '/regulamin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -55,6 +61,7 @@ const AuthenticatedMyBidsRoute = AuthenticatedMyBidsRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/regulamin': typeof RegulaminRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
@@ -63,6 +70,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/regulamin': typeof RegulaminRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
@@ -73,6 +81,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/regulamin': typeof RegulaminRoute
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
@@ -83,6 +92,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/regulamin'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
@@ -91,6 +101,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/regulamin'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
@@ -100,6 +111,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/regulamin'
     | '/_authenticated/my-bids'
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
@@ -110,11 +122,19 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  RegulaminRoute: typeof RegulaminRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/regulamin': {
+      id: '/regulamin'
+      path: '/regulamin'
+      fullPath: '/regulamin'
+      preLoaderRoute: typeof RegulaminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -187,8 +207,19 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  RegulaminRoute: RegulaminRoute,
   PropertiesIdRoute: PropertiesIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
