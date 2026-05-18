@@ -20,9 +20,9 @@ export function Navbar() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Home className="h-4 w-4" />
+            <Shield className="h-4 w-4" />
           </span>
-          <span className="text-lg">Estate<span className="text-muted-foreground">Bid</span></span>
+          <span className="text-lg">Stay<span className="text-muted-foreground">Safe</span></span>
         </Link>
 
         <nav className="flex items-center gap-2">
