@@ -59,6 +59,10 @@ function NewListingPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (!consentRights || !consentCommit) {
+      toast.error("Wymagana akceptacja oświadczeń sprzedawcy.");
+      return;
+    }
     const parsed = schema.safeParse({
       title: form.title.trim(),
       description: form.description.trim(),
