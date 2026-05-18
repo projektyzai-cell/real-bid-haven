@@ -12,7 +12,6 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Navbar } from "@/components/Navbar";
-import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -54,10 +53,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Stay Safe — Aukcje nieruchomości w czasie rzeczywistym" },
-      { name: "description", content: "Stay Safe — portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym." },
-      { property: "og:title", content: "Stay Safe — Aukcje nieruchomości" },
-      { property: "og:description", content: "Licytuj nieruchomości na żywo. Real-time bidding, anti-sniping, premium UI." },
+      { name: "description", content: "Portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym. Sprawdź ile Twoja nieruchomość jest warta" },
+      { property: "og:title", content: "Stay Safe — Aukcje nieruchomości w czasie rzeczywistym" },
+      { property: "og:description", content: "Portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym. Sprawdź ile Twoja nieruchomość jest warta" },
       { property: "og:type", content: "website" },
+      { name: "twitter:title", content: "Stay Safe — Aukcje nieruchomości w czasie rzeczywistym" },
+      { name: "twitter:description", content: "Portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym. Sprawdź ile Twoja nieruchomość jest warta" },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ec313ec2-5bc9-422b-a0d6-8dde96fa084b/id-preview-ef73c0be--d6d7cf5e-de49-4031-b01e-bbab2aa59558.lovable.app-1779090990790.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/ec313ec2-5bc9-422b-a0d6-8dde96fa084b/id-preview-ef73c0be--d6d7cf5e-de49-4031-b01e-bbab2aa59558.lovable.app-1779090990790.png" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
     links: [{ rel: "stylesheet", href: appCss }],
   }),
@@ -109,7 +113,6 @@ function RootComponent() {
           <main className="flex-1">
             <Outlet />
           </main>
-          <Footer />
         </div>
         <Toaster position="top-right" richColors closeButton />
       </AuthProvider>
