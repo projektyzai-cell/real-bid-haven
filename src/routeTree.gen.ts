@@ -18,6 +18,7 @@ import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
+import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
 
 const RegulaminRoute = RegulaminRouteImport.update({
   id: '/regulamin',
@@ -63,6 +64,11 @@ const AuthenticatedMyBidsRoute = AuthenticatedMyBidsRouteImport.update({
   path: '/my-bids',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
+  id: '/chats/$id',
+  path: '/chats/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -73,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/chats/$id': typeof AuthenticatedChatsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -83,6 +90,7 @@ export interface FileRoutesByTo {
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/chats/$id': typeof AuthenticatedChatsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -95,6 +103,7 @@ export interface FileRoutesById {
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -107,6 +116,7 @@ export interface FileRouteTypes {
     | '/my-listings'
     | '/new-listing'
     | '/properties/$id'
+    | '/chats/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -117,6 +127,7 @@ export interface FileRouteTypes {
     | '/my-listings'
     | '/new-listing'
     | '/properties/$id'
+    | '/chats/$id'
   id:
     | '__root__'
     | '/'
@@ -128,6 +139,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
     | '/properties/$id'
+    | '/_authenticated/chats/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -204,6 +216,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyBidsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/chats/$id': {
+      id: '/_authenticated/chats/$id'
+      path: '/chats/$id'
+      fullPath: '/chats/$id'
+      preLoaderRoute: typeof AuthenticatedChatsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -211,12 +230,14 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
   AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
+  AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
   AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
+  AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
