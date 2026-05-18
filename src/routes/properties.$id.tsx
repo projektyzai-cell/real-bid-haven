@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { MapPin, Gavel, Mail, Trophy } from "lucide-react";
+import { MapPin, Gavel, MessageCircle, Trophy, Clock } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPLN, maskName, getCountdown } from "@/lib/format";
 
 export const Route = createFileRoute("/properties/$id")({
-  head: () => ({ meta: [{ title: "Szczegóły ogłoszenia — EstateBid" }] }),
+  head: () => ({ meta: [{ title: "Szczegóły ogłoszenia — Stay Safe" }] }),
   component: PropertyDetailPage,
 });
 
@@ -21,7 +21,8 @@ interface BidRow {
   amount: number;
   created_at: string;
   bidder_id: string;
-  profiles: { display_name: string; email: string | null } | null;
+  status: string;
+  profiles: { display_name: string } | null;
 }
 
 function PropertyDetailPage() {
@@ -38,8 +39,11 @@ function PropertyDetailPage() {
       if (error) throw error;
       if (!data) throw notFound();
       const { data: owner } = await supabase
-        .from("profiles").select("display_name, email").eq("id", data.owner_id).maybeSingle();
-      return { ...data, profiles: owner };
+        .from("profiles").select("display_name").eq("id", data.owner_id).maybeSingle();
+      return { ...data, profiles: owner } as typeof data & {
+        winning_bid_id: string | null;
+        profiles: { display_name: string } | null;
+      };
     },
   });
 
@@ -47,18 +51,30 @@ function PropertyDetailPage() {
     queryKey: ["bids", id],
     queryFn: async (): Promise<BidRow[]> => {
       const { data: rows, error } = await supabase
-        .from("bids").select("id, amount, created_at, bidder_id")
+        .from("bids").select("id, amount, created_at, bidder_id, status")
         .eq("property_id", id).order("created_at", { ascending: false });
       if (error) throw error;
-      const ids = Array.from(new Set((rows ?? []).map((b) => b.bidder_id)));
+      const list = (rows ?? []) as unknown as Omit<BidRow, "profiles">[];
+      const ids = Array.from(new Set(list.map((b) => b.bidder_id)));
       const { data: profs } = ids.length
-        ? await supabase.from("profiles").select("id, display_name, email").in("id", ids)
-        : { data: [] };
+        ? await supabase.from("profiles").select("id, display_name").in("id", ids)
+        : { data: [] as { id: string; display_name: string }[] };
       const map = new Map((profs ?? []).map((p) => [p.id, p]));
-      return (rows ?? []).map((b) => {
+      return list.map((b) => {
         const p = map.get(b.bidder_id);
-        return { ...b, profiles: p ? { display_name: p.display_name, email: p.email } : null };
+        return { ...b, profiles: p ? { display_name: p.display_name } : null };
       });
+    },
+  });
+
+  const myBid = bids?.find((b) => b.bidder_id === user?.id);
+  const { data: chatId } = useQuery({
+    queryKey: ["chat-for-bid", myBid?.id],
+    enabled: !!myBid && myBid.status === "accepted",
+    queryFn: async (): Promise<string | null> => {
+      const { data } = await supabase
+        .from("chats" as never).select("id").eq("bid_id", myBid!.id).maybeSingle();
+      return (data as unknown as { id: string } | null)?.id ?? null;
     },
   });
 
@@ -69,8 +85,9 @@ function PropertyDetailPage() {
   const minBid = Math.max(Number(property.current_price), Number(property.starting_price));
   const c = getCountdown(property.ends_at);
   const ownedByMe = user?.id === property.owner_id;
-  const topBid = bids?.[0];
-  const isWinner = c.ended && user?.id === topBid?.bidder_id;
+  const myBidAccepted = myBid?.status === "accepted";
+  const myBidRejected = myBid?.status === "rejected";
+  const myBidPending = c.ended && myBid && myBid.status === "pending";
 
   async function handleBid(e: React.FormEvent) {
     e.preventDefault();
@@ -80,6 +97,9 @@ function PropertyDetailPage() {
       toast.error(`Oferta musi być wyższa niż ${formatPLN(minBid)}`);
       return;
     }
+    if (!window.confirm(
+      "Złożenie Oferty ma charakter wiążący i stanowi zobowiązanie do zawarcia umowy sprzedaży nieruchomości w razie jej akceptacji przez Sprzedawcę.\n\nCzy potwierdzasz?",
+    )) return;
     setSubmitting(true);
     const { error } = await supabase.from("bids").insert({
       property_id: id, bidder_id: user.id, amount: value,
@@ -114,22 +134,58 @@ function PropertyDetailPage() {
           </p>
         </div>
 
-        {isWinner && (
+        {myBidAccepted && (
           <div className="rounded-3xl border-2 border-primary/30 bg-primary/5 p-6">
             <div className="flex items-center gap-2 text-primary">
               <Trophy className="h-5 w-5" />
-              <h3 className="font-semibold">Gratulacje! Wygrałeś tę aukcję</h3>
+              <h3 className="font-semibold">Twoja oferta została zaakceptowana</h3>
             </div>
             <p className="mt-2 text-sm">
-              Skontaktuj się ze sprzedającym, aby sfinalizować transakcję:
+              Skontaktuj się ze sprzedającym przez wewnętrzny chat, aby sfinalizować transakcję.
             </p>
-            <a href={`mailto:${property.profiles?.email}`}
-              className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground">
-              <Mail className="h-4 w-4" />
-              {property.profiles?.email}
-            </a>
+            {chatId && (
+              <Link to="/chats/$id" params={{ id: chatId }}
+                className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground">
+                <MessageCircle className="h-4 w-4" /> Otwórz chat ze sprzedawcą
+              </Link>
+            )}
           </div>
         )}
+
+        {myBidPending && (
+          <div className="rounded-3xl border bg-card p-6">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="h-5 w-5" />
+              <h3 className="font-semibold">Oczekuje na decyzję sprzedawcy</h3>
+            </div>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Aukcja się zakończyła. Sprzedawca może zaakceptować lub odrzucić Twoją ofertę.
+            </p>
+          </div>
+        )}
+
+        {myBidRejected && (
+          <div className="rounded-3xl border bg-card p-6">
+            <h3 className="font-semibold">Twoja oferta została odrzucona</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Sprzedawca nie wybrał Twojej oferty. Dziękujemy za udział w licytacji.
+            </p>
+          </div>
+        )}
+
+        {ownedByMe && c.ended && (
+          <div className="rounded-3xl border bg-card p-6">
+            <h3 className="font-semibold">Panel sprzedawcy</h3>
+            <p className="mt-2 text-sm text-muted-foreground">
+              Zarządzaj zakończoną aukcją w sekcji „Moje ogłoszenia".
+            </p>
+            <Link to="/my-listings"
+              className="mt-3 inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2 text-sm text-primary-foreground">
+              Przejdź do panelu
+            </Link>
+          </div>
+        )}
+
         <Link to="/" className="inline-block text-sm text-muted-foreground hover:text-foreground">
           ← Wróć do listy
         </Link>
@@ -167,6 +223,12 @@ function PropertyDetailPage() {
               Zaloguj się, aby licytować
             </Link>
           )}
+          {!c.ended && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Składając ofertę akceptujesz jej wiążący charakter (§4{" "}
+              <Link to="/regulamin" className="underline">Regulaminu</Link>).
+            </p>
+          )}
         </div>
 
         <div className="rounded-3xl bg-card p-6 shadow-card">
@@ -194,7 +256,15 @@ function PropertyDetailPage() {
                           {new Date(b.created_at).toLocaleString("pl-PL")}
                         </span>
                       </div>
-                      <div className="text-xs text-muted-foreground">{name}</div>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span>{name}</span>
+                        {b.status === "accepted" && (
+                          <Badge className="rounded-full bg-primary text-[10px]">Zaakceptowana</Badge>
+                        )}
+                        {b.status === "rejected" && (
+                          <Badge variant="outline" className="rounded-full text-[10px]">Odrzucona</Badge>
+                        )}
+                      </div>
                     </div>
                   </li>
                 );
