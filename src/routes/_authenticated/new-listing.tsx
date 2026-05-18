@@ -12,9 +12,10 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { Upload } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export const Route = createFileRoute("/_authenticated/new-listing")({
-  head: () => ({ meta: [{ title: "Dodaj ogłoszenie — EstateBid" }] }),
+  head: () => ({ meta: [{ title: "Dodaj ogłoszenie — Stay Safe" }] }),
   component: NewListingPage,
 });
 
@@ -34,6 +35,8 @@ function NewListingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [consentRights, setConsentRights] = useState(false);
+  const [consentCommit, setConsentCommit] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -56,6 +59,10 @@ function NewListingPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (!consentRights || !consentCommit) {
+      toast.error("Wymagana akceptacja oświadczeń sprzedawcy.");
+      return;
+    }
     const parsed = schema.safeParse({
       title: form.title.trim(),
       description: form.description.trim(),
@@ -100,6 +107,11 @@ function NewListingPage() {
       if (error) throw error;
       // grant 'seller' role (silently)
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
+      // save seller consents
+      await supabase.from("user_consents" as never).insert([
+        { user_id: user.id, consent_type: "seller_property_rights", granted: true },
+        { user_id: user.id, consent_type: "seller_commit_to_sell", granted: true },
+      ] as never);
       toast.success("Ogłoszenie dodane!");
       navigate({ to: "/properties/$id", params: { id: inserted.id } });
     } catch (err) {
@@ -189,7 +201,21 @@ function NewListingPage() {
           </label>
         </div>
 
-        <Button type="submit" disabled={submitting} size="lg" className="w-full rounded-xl">
+        <div className="space-y-2 rounded-2xl border bg-background/40 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Oświadczenia sprzedawcy (wymagane)
+          </p>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={consentRights} onCheckedChange={(v) => setConsentRights(v === true)} className="mt-0.5" />
+            <span>Oświadczam, że posiadam prawo do dysponowania nieruchomością oraz że informacje zawarte w ogłoszeniu są zgodne z prawdą.</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={consentCommit} onCheckedChange={(v) => setConsentCommit(v === true)} className="mt-0.5" />
+            <span>Zobowiązuję się do zawarcia umowy sprzedaży w przypadku podjęcia decyzji o przyjęciu Oferty.</span>
+          </label>
+        </div>
+
+        <Button type="submit" disabled={submitting || !consentRights || !consentCommit} size="lg" className="w-full rounded-xl">
           {submitting ? "Publikuję..." : "Opublikuj ogłoszenie"}
         </Button>
       </form>

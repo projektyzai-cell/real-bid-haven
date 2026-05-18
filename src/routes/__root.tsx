@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -52,9 +53,9 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "EstateBid — Aukcje nieruchomości w czasie rzeczywistym" },
-      { name: "description", content: "Portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym." },
-      { property: "og:title", content: "EstateBid — Aukcje nieruchomości" },
+      { title: "Stay Safe — Aukcje nieruchomości w czasie rzeczywistym" },
+      { name: "description", content: "Stay Safe — portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym." },
+      { property: "og:title", content: "Stay Safe — Aukcje nieruchomości" },
       { property: "og:description", content: "Licytuj nieruchomości na żywo. Real-time bidding, anti-sniping, premium UI." },
       { property: "og:type", content: "website" },
     ],
@@ -108,6 +109,7 @@ function RootComponent() {
           <main className="flex-1">
             <Outlet />
           </main>
+          <Footer />
         </div>
         <Toaster position="top-right" richColors closeButton />
       </AuthProvider>

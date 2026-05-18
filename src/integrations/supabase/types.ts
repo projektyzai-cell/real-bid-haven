@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           id: string
           property_id: string
+          status: string
         }
         Insert: {
           amount: number
@@ -28,6 +29,7 @@ export type Database = {
           created_at?: string
           id?: string
           property_id: string
+          status?: string
         }
         Update: {
           amount?: number
@@ -35,6 +37,7 @@ export type Database = {
           created_at?: string
           id?: string
           property_id?: string
+          status?: string
         }
         Relationships: [
           {
@@ -42,6 +45,65 @@ export type Database = {
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chats: {
+        Row: {
+          bid_id: string
+          buyer_id: string
+          created_at: string
+          id: string
+          property_id: string
+          seller_id: string
+        }
+        Insert: {
+          bid_id: string
+          buyer_id: string
+          created_at?: string
+          id?: string
+          property_id: string
+          seller_id: string
+        }
+        Update: {
+          bid_id?: string
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          property_id?: string
+          seller_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          chat_id: string
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          chat_id: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "chats"
             referencedColumns: ["id"]
           },
         ]
@@ -83,6 +145,7 @@ export type Database = {
           status: Database["public"]["Enums"]["property_status"]
           street: string
           title: string
+          winning_bid_id: string | null
         }
         Insert: {
           area_m2: number
@@ -99,6 +162,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           street: string
           title: string
+          winning_bid_id?: string | null
         }
         Update: {
           area_m2?: number
@@ -115,6 +179,31 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           street?: string
           title?: string
+          winning_bid_id?: string | null
+        }
+        Relationships: []
+      }
+      user_consents: {
+        Row: {
+          consent_type: string
+          granted: boolean
+          granted_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          consent_type: string
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          consent_type?: string
+          granted?: boolean
+          granted_at?: string
+          id?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -144,6 +233,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_bid: { Args: { _bid_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -151,6 +241,11 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_chat_participant: {
+        Args: { _chat_id: string; _user_id: string }
+        Returns: boolean
+      }
+      reject_bid: { Args: { _bid_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "buyer" | "seller" | "admin"

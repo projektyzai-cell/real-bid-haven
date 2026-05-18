@@ -9,6 +9,8 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as RegulaminRouteImport } from './routes/regulamin'
+import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -16,7 +18,19 @@ import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
 
+const RegulaminRoute = RegulaminRouteImport.update({
+  id: '/regulamin',
+  path: '/regulamin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
+  id: '/polityka-prywatnosci',
+  path: '/polityka-prywatnosci',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
@@ -51,70 +65,120 @@ const AuthenticatedMyBidsRoute = AuthenticatedMyBidsRouteImport.update({
   path: '/my-bids',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
+  id: '/chats/$id',
+  path: '/chats/$id',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
+  '/regulamin': typeof RegulaminRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/chats/$id': typeof AuthenticatedChatsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
+  '/regulamin': typeof RegulaminRoute
+  '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/chats/$id': typeof AuthenticatedChatsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
+  '/regulamin': typeof RegulaminRoute
+  '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/polityka-prywatnosci'
+    | '/regulamin'
+    | '/messages'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
     | '/properties/$id'
+    | '/chats/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/polityka-prywatnosci'
+    | '/regulamin'
+    | '/messages'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
     | '/properties/$id'
+    | '/chats/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/polityka-prywatnosci'
+    | '/regulamin'
+    | '/_authenticated/messages'
     | '/_authenticated/my-bids'
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
     | '/properties/$id'
+    | '/_authenticated/chats/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
+  RegulaminRoute: typeof RegulaminRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/regulamin': {
+      id: '/regulamin'
+      path: '/regulamin'
+      fullPath: '/regulamin'
+      preLoaderRoute: typeof RegulaminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/polityka-prywatnosci': {
+      id: '/polityka-prywatnosci'
+      path: '/polityka-prywatnosci'
+      fullPath: '/polityka-prywatnosci'
+      preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
@@ -164,19 +228,37 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMyBidsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/messages': {
+      id: '/_authenticated/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/chats/$id': {
+      id: '/_authenticated/chats/$id'
+      path: '/chats/$id'
+      fullPath: '/chats/$id'
+      preLoaderRoute: typeof AuthenticatedChatsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
   AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
+  AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
   AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
+  AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -187,18 +269,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
+  RegulaminRoute: RegulaminRoute,
   PropertiesIdRoute: PropertiesIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

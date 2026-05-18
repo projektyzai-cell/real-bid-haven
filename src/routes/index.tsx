@@ -11,8 +11,8 @@ import { useAuth } from "@/hooks/use-auth";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "EstateBid — Marketplace aukcji nieruchomości" },
-      { name: "description", content: "Przeglądaj i licytuj nieruchomości w czasie rzeczywistym. Mieszkania, domy, lofty, apartamenty." },
+      { title: "Stay Safe — Marketplace aukcji nieruchomości" },
+      { name: "description", content: "Stay Safe — przeglądaj i licytuj nieruchomości w czasie rzeczywistym. Mieszkania, domy, lofty, apartamenty." },
     ],
   }),
   component: HomePage,
