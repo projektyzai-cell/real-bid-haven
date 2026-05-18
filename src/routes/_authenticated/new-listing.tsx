@@ -35,6 +35,8 @@ function NewListingPage() {
   const [submitting, setSubmitting] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
+  const [consentRights, setConsentRights] = useState(false);
+  const [consentCommit, setConsentCommit] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
