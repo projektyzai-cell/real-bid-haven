@@ -201,7 +201,21 @@ function NewListingPage() {
           </label>
         </div>
 
-        <Button type="submit" disabled={submitting} size="lg" className="w-full rounded-xl">
+        <div className="space-y-2 rounded-2xl border bg-background/40 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Oświadczenia sprzedawcy (wymagane)
+          </p>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={consentRights} onCheckedChange={(v) => setConsentRights(v === true)} className="mt-0.5" />
+            <span>Oświadczam, że posiadam prawo do dysponowania nieruchomością oraz że informacje zawarte w ogłoszeniu są zgodne z prawdą.</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={consentCommit} onCheckedChange={(v) => setConsentCommit(v === true)} className="mt-0.5" />
+            <span>Zobowiązuję się do zawarcia umowy sprzedaży w przypadku podjęcia decyzji o przyjęciu Oferty.</span>
+          </label>
+        </div>
+
+        <Button type="submit" disabled={submitting || !consentRights || !consentCommit} size="lg" className="w-full rounded-xl">
           {submitting ? "Publikuję..." : "Opublikuj ogłoszenie"}
         </Button>
       </form>
