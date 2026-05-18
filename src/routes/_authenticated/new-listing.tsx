@@ -107,6 +107,11 @@ function NewListingPage() {
       if (error) throw error;
       // grant 'seller' role (silently)
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
+      // save seller consents
+      await supabase.from("user_consents" as never).insert([
+        { user_id: user.id, consent_type: "seller_property_rights", granted: true },
+        { user_id: user.id, consent_type: "seller_commit_to_sell", granted: true },
+      ] as never);
       toast.success("Ogłoszenie dodane!");
       navigate({ to: "/properties/$id", params: { id: inserted.id } });
     } catch (err) {
