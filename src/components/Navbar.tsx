@@ -56,6 +56,9 @@ export function Navbar() {
                   <DropdownMenuItem onClick={() => navigate({ to: "/my-bids" })}>
                     <Gavel className="h-4 w-4" /> Moje oferty
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}>
+                    <MessageCircle className="h-4 w-4" /> Wiadomości
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>
                     <LogOut className="h-4 w-4" /> Wyloguj
