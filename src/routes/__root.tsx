@@ -55,7 +55,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Stay Safe — Aukcje nieruchomości w czasie rzeczywistym" },
       { name: "description", content: "Stay Safe — portal aukcyjny nieruchomości. Licytuj mieszkania i domy w czasie rzeczywistym." },
-      { property: "og:title", content: "EstateBid — Aukcje nieruchomości" },
+      { property: "og:title", content: "Stay Safe — Aukcje nieruchomości" },
       { property: "og:description", content: "Licytuj nieruchomości na żywo. Real-time bidding, anti-sniping, premium UI." },
       { property: "og:type", content: "website" },
     ],
