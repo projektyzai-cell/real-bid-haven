@@ -245,9 +245,10 @@ function EndedAuctionPanel({
                       <Badge className="ml-2 rounded-full bg-primary">Najwyższa</Badge>
                     )}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {bids.names.get(b.bidder_id) ?? maskName(null)} ·{" "}
-                    {new Date(b.created_at).toLocaleString("pl-PL")}
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span>{bids.names.get(b.bidder_id) ?? maskName(null)}</span>
+                    <UserStars userId={b.bidder_id} />
+                    <span>· {new Date(b.created_at).toLocaleString("pl-PL")}</span>
                   </div>
                 </div>
                 {b.status === "rejected" ? (
