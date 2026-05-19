@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { CountdownTimer } from "@/components/CountdownTimer";
+import { UserStars } from "@/components/UserStars";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPLN, maskName, getCountdown } from "@/lib/format";
@@ -258,6 +259,8 @@ function PropertyDetailPage() {
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{name}</span>
+                        <UserStars userId={b.bidder_id} />
+
                         {b.status === "accepted" && (
                           <Badge className="rounded-full bg-primary text-[10px]">Zaakceptowana</Badge>
                         )}

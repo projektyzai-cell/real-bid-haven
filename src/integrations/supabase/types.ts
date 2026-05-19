@@ -141,6 +141,7 @@ export type Database = {
           id: string
           image_url: string | null
           owner_id: string
+          promoted: boolean
           starting_price: number
           status: Database["public"]["Enums"]["property_status"]
           street: string
@@ -158,6 +159,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           owner_id: string
+          promoted?: boolean
           starting_price: number
           status?: Database["public"]["Enums"]["property_status"]
           street: string
@@ -175,6 +177,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           owner_id?: string
+          promoted?: boolean
           starting_price?: number
           status?: Database["public"]["Enums"]["property_status"]
           street?: string
@@ -234,6 +237,7 @@ export type Database = {
     }
     Functions: {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
+      get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

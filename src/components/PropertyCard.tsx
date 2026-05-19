@@ -24,6 +24,7 @@ export interface Property {
   image_url: string | null;
   ends_at: string;
   status: string;
+  promoted?: boolean;
 }
 
 interface Props {
@@ -78,6 +79,7 @@ export function PropertyCard({ property, flash }: Props) {
       className={cn(
         "group flex flex-col overflow-hidden rounded-3xl bg-card shadow-card transition hover:shadow-glow",
         highlight && "animate-bid-flash",
+        property.promoted && "ring-2 ring-amber-400 shadow-glow border-2 border-amber-400/60",
       )}
     >
       <Link to="/properties/$id" params={{ id: property.id }} className="relative block">
@@ -98,6 +100,11 @@ export function PropertyCard({ property, flash }: Props) {
         <Badge className="absolute left-3 top-3 rounded-full bg-background/90 px-3 py-1 text-foreground backdrop-blur">
           {property.area_m2} m²
         </Badge>
+        {property.promoted && (
+          <Badge className="absolute left-3 bottom-3 rounded-full bg-amber-400 px-3 py-1 text-amber-950 font-semibold shadow-md">
+            ★ Promowane
+          </Badge>
+        )}
         {c.ended ? (
           <Badge className="absolute right-3 top-3 rounded-full bg-muted text-muted-foreground">
             Zakończone
