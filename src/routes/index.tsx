@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Sparkles } from "lucide-react";
 import { FiltersBar, type Filters } from "@/components/FiltersBar";
 import { PropertyCard, type Property } from "@/components/PropertyCard";
 import { supabase } from "@/integrations/supabase/client";
+import heroBg from "@/assets/hero-bg.jpg";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -69,18 +69,36 @@ function HomePage() {
 
   return (
     <div>
-      <section className="gradient-hero">
-        <div className="container mx-auto px-4 py-16 sm:py-20">
+      <section
+        className="relative overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: `url(${heroBg})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/80 to-background" />
+        <div className="container relative mx-auto px-4 py-20 sm:py-28">
           <div className="mx-auto max-w-3xl text-center">
-            <div className="inline-flex items-center gap-1.5 rounded-full border bg-background/70 px-3 py-1 text-xs font-medium backdrop-blur">
-              <Sparkles className="h-3 w-3" /> Aukcje na żywo · Anti-sniping · Real-time
-            </div>
-            <h1 className="mt-5 text-4xl font-bold tracking-tight sm:text-6xl">
-              Licytuj nieruchomości <span className="text-primary">w czasie rzeczywistym</span>
+            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
+              Stay Safe — <span className="text-primary">Prawdziwe ceny.</span> Rzeczywisty popyt.
             </h1>
-            <p className="mt-4 text-lg text-muted-foreground">
-              Mieszkania, domy i apartamenty. Każda oferta widoczna na żywo, bez odświeżania.
+            <p className="mt-3 text-lg font-medium text-foreground/90">
+              Nowy rynek nieruchomości.
             </p>
+            <div className="mx-auto mt-6 max-w-2xl space-y-3 rounded-3xl border bg-background/60 p-6 text-left text-sm leading-relaxed text-muted-foreground backdrop-blur-md sm:text-base">
+              <p>
+                <strong className="text-foreground">Stay Safe</strong> to platforma, która łączy sprzedających i kupujących w prosty i przejrzysty sposób, dając obu stronom realną przewagę na rynku nieruchomości.
+              </p>
+              <p>
+                <strong className="text-foreground">Dla sprzedających</strong> to możliwość poznania bezkosztowo rzeczywistej wartości rynkowej nieruchomości na podstawie zainteresowania i ofert od potencjalnych kupujących. To także szansa, aby sprzedać nieruchomość szybko i na uczciwych warunkach – szczególnie wtedy, gdy liczy się czas i pewność transakcji.
+              </p>
+              <p>
+                <strong className="text-foreground">Dla kupujących</strong> Stay Safe to okazja, aby znaleźć nieruchomości w atrakcyjnych cenach, często poniżej standardowej oferty rynkowej, zwłaszcza gdy sprzedającemu zależy na szybkiej sprzedaży.
+              </p>
+              <p>
+                Bez pośredników, bez zbędnych formalności – tylko bezpośredni kontakt między stronami i realne oferty, które pokazują prawdziwy obraz rynku.
+              </p>
+              <p className="text-center font-semibold text-foreground">
+                Stay Safe – mądrze kupuj, bezpiecznie sprzedawaj!
+              </p>
+            </div>
             {!user && (
               <div className="mt-7 flex justify-center gap-3">
                 <Link to="/auth">
