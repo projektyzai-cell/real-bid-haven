@@ -61,8 +61,8 @@ function NewListingPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
-    if (!consentRights || !consentCommit) {
-      toast.error("Wymagana akceptacja oświadczeń sprzedawcy.");
+    if (!consentRights) {
+      toast.error("Wymagana akceptacja oświadczenia sprzedawcy.");
       return;
     }
     const parsed = schema.safeParse({
@@ -103,7 +103,8 @@ function NewListingPage() {
           area_m2: parsed.data.area_m2,
           image_url: imageUrl,
           ends_at: endsAt,
-        })
+          promoted,
+        } as never)
         .select()
         .single();
       if (error) throw error;
@@ -112,7 +113,6 @@ function NewListingPage() {
       // save seller consents
       const consents: Array<{ user_id: string; consent_type: string; granted: boolean }> = [
         { user_id: user.id, consent_type: "seller_property_rights", granted: true },
-        { user_id: user.id, consent_type: "seller_commit_to_sell", granted: true },
       ];
       if (hasEnergyCert === "yes") {
         consents.push({ user_id: user.id, consent_type: "energy_cert_owned", granted: true });
@@ -251,21 +251,24 @@ function NewListingPage() {
           )}
         </div>
 
+        <label className="flex items-start gap-3 rounded-2xl border border-amber-400/40 bg-amber-50/40 p-4 text-sm dark:bg-amber-500/5">
+          <Checkbox checked={promoted} onCheckedChange={(v) => setPromoted(v === true)} className="mt-0.5" />
+          <span>
+            <strong>Promowane ogłoszenie</strong> — wyświetlane na samej górze strony głównej w wyróżnionej ramce.
+          </span>
+        </label>
+
         <div className="space-y-2 rounded-2xl border bg-background/40 p-4">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Oświadczenia sprzedawcy (wymagane)
+            Oświadczenie sprzedawcy (wymagane)
           </p>
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={consentRights} onCheckedChange={(v) => setConsentRights(v === true)} className="mt-0.5" />
             <span>Oświadczam, że posiadam prawo do dysponowania nieruchomością oraz że informacje zawarte w ogłoszeniu są zgodne z prawdą.</span>
           </label>
-          <label className="flex items-start gap-3 text-sm">
-            <Checkbox checked={consentCommit} onCheckedChange={(v) => setConsentCommit(v === true)} className="mt-0.5" />
-            <span>Zobowiązuję się do zawarcia umowy sprzedaży w przypadku podjęcia decyzji o przyjęciu Oferty.</span>
-          </label>
         </div>
 
-        <Button type="submit" disabled={submitting || !consentRights || !consentCommit} size="lg" className="w-full rounded-xl">
+        <Button type="submit" disabled={submitting || !consentRights} size="lg" className="w-full rounded-xl">
           {submitting ? "Publikuję..." : "Opublikuj ogłoszenie"}
         </Button>
       </form>
