@@ -12,6 +12,7 @@ import { Toaster } from "sonner";
 import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Navbar } from "@/components/Navbar";
+import { Footer } from "@/components/Footer";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -113,6 +114,7 @@ function RootComponent() {
           <main className="flex-1">
             <Outlet />
           </main>
+          <Footer />
         </div>
         <Toaster position="top-right" richColors closeButton />
       </AuthProvider>
