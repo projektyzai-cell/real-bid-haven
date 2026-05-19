@@ -37,6 +37,8 @@ function NewListingPage() {
   const [preview, setPreview] = useState<string | null>(null);
   const [consentRights, setConsentRights] = useState(false);
   const [consentCommit, setConsentCommit] = useState(false);
+  const [hasEnergyCert, setHasEnergyCert] = useState<"yes" | "no" | "">("");
+  const [wantsEnergyDiscount, setWantsEnergyDiscount] = useState(false);
   const [form, setForm] = useState({
     title: "",
     description: "",
@@ -108,10 +110,19 @@ function NewListingPage() {
       // grant 'seller' role (silently)
       await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
       // save seller consents
-      await supabase.from("user_consents" as never).insert([
+      const consents: Array<{ user_id: string; consent_type: string; granted: boolean }> = [
         { user_id: user.id, consent_type: "seller_property_rights", granted: true },
         { user_id: user.id, consent_type: "seller_commit_to_sell", granted: true },
-      ] as never);
+      ];
+      if (hasEnergyCert === "yes") {
+        consents.push({ user_id: user.id, consent_type: "energy_cert_owned", granted: true });
+      } else if (hasEnergyCert === "no") {
+        consents.push({ user_id: user.id, consent_type: "energy_cert_owned", granted: false });
+        if (wantsEnergyDiscount) {
+          consents.push({ user_id: user.id, consent_type: "energy_cert_discount_offer", granted: true });
+        }
+      }
+      await supabase.from("user_consents" as never).insert(consents as never);
       toast.success("Ogłoszenie dodane!");
       navigate({ to: "/properties/$id", params: { id: inserted.id } });
     } catch (err) {
@@ -199,6 +210,45 @@ function NewListingPage() {
             )}
             <input type="file" accept="image/*" onChange={onFile} className="hidden" />
           </label>
+        </div>
+
+        <div className="space-y-3 rounded-2xl border bg-background/40 p-4">
+          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Świadectwo charakterystyki energetycznej
+          </p>
+          <p className="text-sm">Czy posiadasz świadectwo charakterystyki energetycznej dla tej nieruchomości?</p>
+          <div className="flex gap-4 text-sm">
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="energy"
+                checked={hasEnergyCert === "yes"}
+                onChange={() => { setHasEnergyCert("yes"); setWantsEnergyDiscount(false); }}
+              />
+              Tak, posiadam
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="radio"
+                name="energy"
+                checked={hasEnergyCert === "no"}
+                onChange={() => setHasEnergyCert("no")}
+              />
+              Nie posiadam
+            </label>
+          </div>
+          {hasEnergyCert === "no" && (
+            <label className="flex items-start gap-3 rounded-xl bg-primary/5 p-3 text-sm">
+              <Checkbox
+                checked={wantsEnergyDiscount}
+                onCheckedChange={(v) => setWantsEnergyDiscount(v === true)}
+                className="mt-0.5"
+              />
+              <span>
+                Chcę skorzystać ze zniżki na wydanie świadectwa charakterystyki energetycznej. Otrzymam ofertę usługi poprzez wewnętrzny chat Stay Safe.
+              </span>
+            </label>
+          )}
         </div>
 
         <div className="space-y-2 rounded-2xl border bg-background/40 p-4">

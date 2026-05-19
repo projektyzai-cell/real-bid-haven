@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Shield, Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle } from "lucide-react";
+import { Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle } from "lucide-react";
+import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,9 +20,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 glass border-b border-border/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link to="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-            <Shield className="h-4 w-4" />
-          </span>
+          <img src={logo} alt="Stay Safe" className="h-10 w-10 rounded-full object-cover" />
           <span className="text-lg">Stay<span className="text-muted-foreground">Safe</span></span>
         </Link>
 
