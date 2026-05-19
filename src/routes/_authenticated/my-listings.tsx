@@ -218,8 +218,9 @@ function EndedAuctionPanel({
             <div className="text-xs uppercase tracking-wide text-primary">Zaakceptowana oferta</div>
             <div className="mt-1 flex items-baseline justify-between gap-2">
               <span className="text-2xl font-bold tabular-nums">{formatPLN(accepted.amount)}</span>
-              <span className="text-sm text-muted-foreground">
+              <span className="flex items-center gap-1.5 text-sm text-muted-foreground">
                 {bids.names.get(accepted.bidder_id) ?? "Kupujący"}
+                <UserStars userId={accepted.bidder_id} />
               </span>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
