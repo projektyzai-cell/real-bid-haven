@@ -36,7 +36,7 @@ function NewListingPage() {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [consentRights, setConsentRights] = useState(false);
-  const [consentCommit, setConsentCommit] = useState(false);
+  const [promoted, setPromoted] = useState(false);
   const [hasEnergyCert, setHasEnergyCert] = useState<"yes" | "no" | "">("");
   const [wantsEnergyDiscount, setWantsEnergyDiscount] = useState(false);
   const [form, setForm] = useState({
