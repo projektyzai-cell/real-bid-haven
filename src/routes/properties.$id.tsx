@@ -258,6 +258,8 @@ function PropertyDetailPage() {
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span>{name}</span>
+                        <UserStars userId={b.bidder_id} />
+
                         {b.status === "accepted" && (
                           <Badge className="rounded-full bg-primary text-[10px]">Zaakceptowana</Badge>
                         )}
