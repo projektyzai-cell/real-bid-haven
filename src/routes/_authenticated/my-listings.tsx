@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard, type Property } from "@/components/PropertyCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { UserStars } from "@/components/UserStars";
 import { formatPLN, maskName } from "@/lib/format";
 
 export const Route = createFileRoute("/_authenticated/my-listings")({
