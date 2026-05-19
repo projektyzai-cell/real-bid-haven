@@ -44,8 +44,9 @@ function HomePage() {
     },
   });
 
-  const filtered = useMemo(() => {
-    if (!data) return [];
+  const { promoted, active, ended } = useMemo(() => {
+    if (!data) return { promoted: [], active: [], ended: [] };
+    const now = Date.now();
     let out = data.filter((p) => {
       if (filters.city && !p.city.toLowerCase().includes(filters.city.toLowerCase())) return false;
       const price = Math.max(Number(p.current_price), Number(p.starting_price));
@@ -64,8 +65,16 @@ function HomePage() {
         new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime()); break;
       default: break;
     }
-    return out;
+    const activeOnly = out.filter((p) => new Date(p.ends_at).getTime() > now);
+    const endedOnly = out.filter((p) => new Date(p.ends_at).getTime() <= now);
+    return {
+      promoted: activeOnly.filter((p) => p.promoted),
+      active: activeOnly.filter((p) => !p.promoted),
+      ended: endedOnly,
+    };
   }, [data, filters]);
+
+  const totalCount = promoted.length + active.length + ended.length;
 
   return (
     <div>
@@ -119,7 +128,7 @@ function HomePage() {
               <div key={i} className="h-96 animate-pulse rounded-3xl bg-muted" />
             ))}
           </div>
-        ) : filtered.length === 0 ? (
+        ) : totalCount === 0 ? (
           <div className="rounded-3xl border border-dashed bg-card p-12 text-center">
             <h3 className="text-lg font-semibold">Brak ogłoszeń spełniających kryteria</h3>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -134,10 +143,41 @@ function HomePage() {
             )}
           </div>
         ) : (
-          <div className="grid gap-6 pb-16 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtered.map((p) => (
-              <PropertyCard key={`${p.id}-${p.current_price}-${p.bid_count}`} property={p} flash />
-            ))}
+          <div className="space-y-12 pb-16">
+            {promoted.length > 0 && (
+              <section>
+                <h2 className="mb-4 flex items-center gap-2 text-xl font-bold tracking-tight">
+                  <span className="text-amber-500">★</span> Ogłoszenia promowane
+                </h2>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {promoted.map((p) => (
+                    <PropertyCard key={`${p.id}-${p.current_price}-${p.bid_count}`} property={p} flash />
+                  ))}
+                </div>
+              </section>
+            )}
+            {active.length > 0 && (
+              <section>
+                <h2 className="mb-4 text-xl font-bold tracking-tight">Aktualne aukcje</h2>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {active.map((p) => (
+                    <PropertyCard key={`${p.id}-${p.current_price}-${p.bid_count}`} property={p} flash />
+                  ))}
+                </div>
+              </section>
+            )}
+            {ended.length > 0 && (
+              <section>
+                <h2 className="mb-4 text-xl font-bold tracking-tight text-muted-foreground">
+                  Zakończone aukcje
+                </h2>
+                <div className="grid gap-6 opacity-90 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {ended.map((p) => (
+                    <PropertyCard key={`${p.id}-${p.current_price}-${p.bid_count}`} property={p} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </div>
