@@ -1,85 +1,71 @@
-## Zakres prac
+## Cel
+Przebudowa aplikacji w platformę Super-App z 3 gałęziami funkcjonalnymi i wspólnym kontem.
 
-### 1. Panel sprzedawcy — zakończone aukcje
-Rozbudowa `/my-listings` o sekcję "Zakończone aukcje" z możliwością:
-- przeglądu wszystkich ofert z zakończonej licytacji (posortowanych po kwocie),
-- **Akceptuj ofertę** (status `accepted`) lub **Odrzuć** (status `rejected`),
-- po akceptacji uruchamia się chat między sprzedającym a kupującym.
+## Architektura nawigacji
+- Nowa strona główna `/` = **Dashboard** z 3 kafelkami (Wycena Live, Ogłoszenia, Marketplace Najmu)
+- `/wycena-live` — obecna strona główna (przeniesiona)
+- `/wycena-live/:id` — szczegóły aukcji (przeniesione z `/properties/:id`)
+- `/ogloszenia` — klasyczny marketplace (lista + filtry + AI search)
+- `/ogloszenia/:id` — szczegóły ogłoszenia sprzedaży
+- `/ogloszenia/nowe` — dodaj ogłoszenie (z KW)
+- `/najem` — Odwrócony marketplace (rozdroże: jako najemca / jako wynajmujący)
+- `/najem/nowe-zapytanie` — formularz potrzeb najemcy
+- `/najem/zapytania` — lista aktywnych zapytań dla wynajmujących
+- `/najem/zapytania/:id` — szczegóły + formularz oferty
+- `/najem/moje-zapytania` — panel najemcy z ofertami
+- Górna belka nawigacji: zakładki do 3 modułów, profil, wyloguj
 
-Zmiana logiki strony szczegółów: kontakt ze sprzedającym odblokowuje się tylko, gdy oferta kupującego ma status `accepted` (nie automatycznie po zakończeniu).
+## Baza danych (migracja)
+**Modyfikacje istniejących tabel**:
+- `profiles`: dodać `first_name`, `last_name`, `phone`
+- `properties`: dodać `kind` enum (`live_valuation` | `sale_listing`), `kw_number` (nullable, unique gdzie kind='sale_listing' i status='active'), `price` (dla sprzedaży)
+- Indeks unikalności KW dla aktywnych ogłoszeń sprzedaży
 
-### 2. Chat wewnątrz strony
-Nowa tabela `chats` (powiązana z `bids.id` po akceptacji) + `messages` (sender_id, content, created_at).
-Realtime przez Supabase Realtime na tabeli `messages`. Trasa `/chats/$id` z prostym UI (bąbelki, autoscroll, pole input). Lista aktywnych chatów w panelu `/my-listings` (sprzedawca) i `/my-bids` (kupujący, gdy jego oferta zaakceptowana).
+**Nowe tabele**:
+- `rental_requests` (zapytania najemców): user_id, location_city, location_district, location_area_geom (text), adults_count, has_children, pets_caged, pets_other, accepts_deposit, accepts_tenant_report, requires_furnished, accepts_insurance, accepts_notarial_lease, active_days, expires_at, status (active/closed)
+- `rental_offers` (oferty wynajmujących): request_id, landlord_id, price, description, status (pending/accepted/rejected)
+- `rental_chats`: request_id, offer_id, tenant_id, landlord_id (analogicznie do `chats`)
+- Funkcja `accept_rental_offer(_offer_id)` — akceptacja + tworzenie chatu
+- Rozszerzenie `messages` o `rental_chat_id` lub osobna tabela `rental_messages`
 
-### 3. Strony prawne
-- `/regulamin` — pełna treść regulaminu Stay Safe (sekcje §1–§12),
-- `/polityka-prywatnosci` — pełna polityka RODO (sekcje §1–§8).
+**Aktualizacja `handle_new_user`**: zapis first_name/last_name/phone z `raw_user_meta_data`
 
-Linki w stopce na każdej stronie + na stronie głównej. Aktualizacja brandingu: "EstateBid" → **Stay Safe** w navbar/footer/meta.
+## Auth
+- Rozszerzenie formularza rejestracji o: imię, nazwisko, telefon, **checkbox akceptacji regulaminu** (wymagany)
+- Link "Przypomnij hasło" → `supabase.auth.resetPasswordForEmail` 
+- Nowa strona `/reset-password` do ustawienia nowego hasła
 
-### 4. Checkboxy rejestracji
-Formularz `/auth` (zakładka Rejestracja) dostaje sekcję zgód:
+## Komponenty / strony do utworzenia
+- `src/routes/index.tsx` — przebudowa na Dashboard
+- `src/routes/wycena-live.tsx` (kopia obecnego index)
+- `src/routes/wycena-live.$id.tsx` (kopia properties.$id)
+- `src/routes/ogloszenia.tsx`
+- `src/routes/ogloszenia.$id.tsx`
+- `src/routes/_authenticated/ogloszenia.nowe.tsx`
+- `src/routes/najem.tsx`
+- `src/routes/_authenticated/najem.nowe-zapytanie.tsx`
+- `src/routes/najem.zapytania.tsx`
+- `src/routes/najem.zapytania.$id.tsx`
+- `src/routes/_authenticated/najem.moje-zapytania.tsx`
+- `src/routes/reset-password.tsx`
+- `src/components/AISearchBar.tsx` (Lovable AI z `google/gemini-2.5-flash-lite` — server fn zwraca przefiltrowane ID)
+- Aktualizacja `Navbar.tsx` (zakładki modułów), `regulamin.tsx` (nowa treść), `auth.tsx`
 
-**Obowiązkowe** (blokują rejestrację):
-- Akceptacja Regulaminu (z linkiem)
-- Polityka Prywatności (z linkiem)
-- Wiążący charakter Oferty
-- Status prawny (pełna zdolność do czynności prawnych)
+## AI Hyper-Lokalizacja
+- Server function `searchListingsAI` używająca `LOVABLE_API_KEY` → `https://ai.gateway.lovable.dev/v1/chat/completions` z modelem `google/gemini-2.5-flash-lite`, zwraca strukturyzowane filtry (miasto, max cena, słowa kluczowe), które są aplikowane do query.
 
-**Opcjonalne** (domyślnie odznaczone):
-- Zgoda e-mail marketing
-- Zgoda telefon/SMS
-- Klauzula AML/KYC
-- Klauzula dot. automatycznego zawieszenia konta (4 negatywne opinie)
-- Klauzula "Pro" (Platforma to wyłącznie dostawca infrastruktury)
+## Regulamin
+- Pełna podmiana treści w `src/routes/regulamin.tsx`
+- Checkbox `accept_terms` wymagany w rejestracji + zapis w `user_consents`
 
-Wybrane zgody zapisywane w nowej tabeli `user_consents` (user_id, consent_type, granted, granted_at).
+## Out of scope (uproszczenia MVP)
+- "Map area" dla lokalizacji najemcy: input miasto + dzielnica (bez mapy interaktywnej) — placeholder
+- "Raport weryfikacji najemcy" / "ubezpieczenie OC" — tylko checkboxy preferencji (bez integracji)
 
-Dodatkowo: przy pierwszej licytacji popup z checkbox "Wiążący charakter Oferty" (jeśli wcześniej nie potwierdzony w tej sesji).
-
-Dla sprzedawców — przy dodawaniu pierwszego ogłoszenia (`/new-listing`) dwa wymagane checkboxy:
-- prawo do dysponowania nieruchomością + prawdziwość informacji,
-- zobowiązanie do zawarcia umowy w razie akceptacji oferty.
-
-### 5. Migracja bazy
-
-```text
-properties:
-  + winning_bid_id UUID NULL    -- id zaakceptowanej oferty
-  + auction_status TEXT         -- 'pending_review' | 'accepted' | 'rejected'
-                                -- (logika: derived from winning_bid_id + ends_at)
-
-bids:
-  + status TEXT DEFAULT 'pending'  -- 'pending' | 'accepted' | 'rejected'
-
-chats (nowa):
-  id, property_id, seller_id, buyer_id, bid_id, created_at
-  -- unikalne (bid_id)
-  -- RLS: SELECT/INSERT tylko gdy auth.uid() IN (seller_id, buyer_id)
-
-messages (nowa):
-  id, chat_id, sender_id, content, created_at
-  -- RLS: SELECT/INSERT tylko jeśli user należy do chat-u (security definer fn)
-
-user_consents (nowa):
-  id, user_id, consent_type TEXT, granted BOOLEAN, granted_at
-  -- RLS: SELECT/INSERT własne
-```
-
-Funkcja `accept_bid(bid_id)` (SECURITY DEFINER): sprawdza, że wywołujący jest właścicielem `properties`, że aukcja się zakończyła, ustawia `bids.status='accepted'`, ustawia pozostałe oferty na `rejected`, ustawia `properties.winning_bid_id`, tworzy `chats` row.
-
-Realtime publikacja: dodaje `messages`, `chats`, `bids`.
-
-### 6. Aktualizacje UI
-- `Navbar` + nowy `Footer` z linkami (Regulamin, Polityka, kontakt).
-- Strona główna: hero z linkami do Regulaminu w stopce.
-- `/properties/$id`: sekcja "Wygrałeś" zamieniona na "Oczekuje akceptacji sprzedawcy" → po akceptacji "Skontaktuj się ze sprzedawcą [Otwórz chat]".
-
-### 7. Pliki do zmiany
-**Nowe:** `src/routes/regulamin.tsx`, `src/routes/polityka-prywatnosci.tsx`, `src/routes/_authenticated/chats.$id.tsx`, `src/components/Footer.tsx`, `src/components/ConsentCheckboxes.tsx`, `src/components/ChatWindow.tsx`, migracja SQL.
-**Edytowane:** `src/routes/auth.tsx`, `src/routes/_authenticated/my-listings.tsx`, `src/routes/_authenticated/my-bids.tsx`, `src/routes/_authenticated/new-listing.tsx`, `src/routes/properties.$id.tsx`, `src/components/Navbar.tsx`, `src/routes/__root.tsx` (RealtimeBridge + footer), `src/routes/index.tsx` (linki w stopce).
-
----
-
-Po akceptacji planu uruchomię migrację bazy, a następnie zaimplementuję pełną funkcjonalność w jednej iteracji.
+## Kolejność wykonania
+1. Migracja DB (schema + funkcje + RLS)
+2. Auth: pełen formularz + reset hasła + checkbox regulaminu
+3. Restrukturyzacja routingu: Dashboard + przeniesienie Wyceny Live
+4. Moduł Ogłoszenia (lista, filtry, KW, formularz, AI search)
+5. Moduł Najem (zapytanie, oferty, chat)
+6. Regulamin + Footer/Navbar update

@@ -113,19 +113,28 @@ export type Database = {
           created_at: string
           display_name: string
           email: string | null
+          first_name: string | null
           id: string
+          last_name: string | null
+          phone: string | null
         }
         Insert: {
           created_at?: string
           display_name: string
           email?: string | null
+          first_name?: string | null
           id: string
+          last_name?: string | null
+          phone?: string | null
         }
         Update: {
           created_at?: string
           display_name?: string
           email?: string | null
+          first_name?: string | null
           id?: string
+          last_name?: string | null
+          phone?: string | null
         }
         Relationships: []
       }
@@ -140,8 +149,11 @@ export type Database = {
           ends_at: string
           id: string
           image_url: string | null
+          kind: Database["public"]["Enums"]["property_kind"]
+          kw_number: string | null
           owner_id: string
           promoted: boolean
+          sale_price: number | null
           starting_price: number
           status: Database["public"]["Enums"]["property_status"]
           street: string
@@ -158,8 +170,11 @@ export type Database = {
           ends_at: string
           id?: string
           image_url?: string | null
+          kind?: Database["public"]["Enums"]["property_kind"]
+          kw_number?: string | null
           owner_id: string
           promoted?: boolean
+          sale_price?: number | null
           starting_price: number
           status?: Database["public"]["Enums"]["property_status"]
           street: string
@@ -176,13 +191,185 @@ export type Database = {
           ends_at?: string
           id?: string
           image_url?: string | null
+          kind?: Database["public"]["Enums"]["property_kind"]
+          kw_number?: string | null
           owner_id?: string
           promoted?: boolean
+          sale_price?: number | null
           starting_price?: number
           status?: Database["public"]["Enums"]["property_status"]
           street?: string
           title?: string
           winning_bid_id?: string | null
+        }
+        Relationships: []
+      }
+      rental_chats: {
+        Row: {
+          created_at: string
+          id: string
+          landlord_id: string
+          offer_id: string
+          request_id: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          landlord_id: string
+          offer_id: string
+          request_id: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          landlord_id?: string
+          offer_id?: string
+          request_id?: string
+          tenant_id?: string
+        }
+        Relationships: []
+      }
+      rental_messages: {
+        Row: {
+          chat_id: string
+          content: string
+          created_at: string
+          id: string
+          sender_id: string
+        }
+        Insert: {
+          chat_id: string
+          content: string
+          created_at?: string
+          id?: string
+          sender_id: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "rental_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_offers: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          landlord_id: string
+          monthly_price: number
+          property_address: string | null
+          request_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          landlord_id: string
+          monthly_price: number
+          property_address?: string | null
+          request_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          landlord_id?: string
+          monthly_price?: number
+          property_address?: string | null
+          request_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_offers_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "rental_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rental_requests: {
+        Row: {
+          accepts_deposit: boolean
+          accepts_insurance: boolean
+          accepts_notarial_lease: boolean
+          accepts_tenant_report: boolean
+          active_days: number
+          adults_count: number
+          area_description: string | null
+          budget_max: number | null
+          city: string
+          created_at: string
+          district: string | null
+          expires_at: string
+          has_children: boolean
+          id: string
+          notes: string | null
+          pets_caged: boolean
+          pets_other: boolean
+          requires_furnished: boolean
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          accepts_deposit?: boolean
+          accepts_insurance?: boolean
+          accepts_notarial_lease?: boolean
+          accepts_tenant_report?: boolean
+          active_days?: number
+          adults_count?: number
+          area_description?: string | null
+          budget_max?: number | null
+          city: string
+          created_at?: string
+          district?: string | null
+          expires_at: string
+          has_children?: boolean
+          id?: string
+          notes?: string | null
+          pets_caged?: boolean
+          pets_other?: boolean
+          requires_furnished?: boolean
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          accepts_deposit?: boolean
+          accepts_insurance?: boolean
+          accepts_notarial_lease?: boolean
+          accepts_tenant_report?: boolean
+          active_days?: number
+          adults_count?: number
+          area_description?: string | null
+          budget_max?: number | null
+          city?: string
+          created_at?: string
+          district?: string | null
+          expires_at?: string
+          has_children?: boolean
+          id?: string
+          notes?: string | null
+          pets_caged?: boolean
+          pets_other?: boolean
+          requires_furnished?: boolean
+          status?: string
+          tenant_id?: string
         }
         Relationships: []
       }
@@ -237,6 +424,7 @@ export type Database = {
     }
     Functions: {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
+      accept_rental_offer: { Args: { _offer_id: string }; Returns: string }
       get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
@@ -249,10 +437,16 @@ export type Database = {
         Args: { _chat_id: string; _user_id: string }
         Returns: boolean
       }
+      is_rental_chat_participant: {
+        Args: { _chat_id: string; _user_id: string }
+        Returns: boolean
+      }
+      kw_taken: { Args: { _kw: string }; Returns: boolean }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
     }
     Enums: {
       app_role: "buyer" | "seller" | "admin"
+      property_kind: "live_valuation" | "sale_listing"
       property_status: "active" | "ended" | "sold" | "cancelled"
     }
     CompositeTypes: {
@@ -382,6 +576,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["buyer", "seller", "admin"],
+      property_kind: ["live_valuation", "sale_listing"],
       property_status: ["active", "ended", "sold", "cancelled"],
     },
   },
