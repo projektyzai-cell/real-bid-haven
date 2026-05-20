@@ -4,7 +4,7 @@ export const Route = createFileRoute("/regulamin")({
   head: () => ({
     meta: [
       { title: "Regulamin — Stay Safe" },
-      { name: "description", content: "Regulamin platformy transakcyjnej Stay Safe (staysafe.pl)." },
+      { name: "description", content: "Regulamin serwisu internetowego Stay Safe (staysafe.pl)." },
     ],
   }),
   component: RegulaminPage,
@@ -22,90 +22,71 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 function RegulaminPage() {
   return (
     <article className="container mx-auto max-w-3xl px-4 py-12">
-      <h1 className="text-3xl font-bold tracking-tight">Regulamin platformy transakcyjnej Stay Safe</h1>
-      <p className="mt-2 text-sm text-muted-foreground">staysafe.pl · obowiązujący od dnia [●]</p>
+      <h1 className="text-3xl font-bold tracking-tight">Regulamin serwisu internetowego staysafe.pl</h1>
+      <p className="mt-2 text-sm text-muted-foreground">Wersja obowiązująca od dnia: 20 maja 2026 r.</p>
 
-      <Section title="§1. Informacje ogólne">
-        <p>1. Platforma internetowa dostępna pod adresem staysafe.pl (dalej: „Platforma”) prowadzona jest przez podmiot prowadzący działalność gospodarczą pod nazwą Stay Safe, NIP: 5252651283 (dalej: „Operator”).</p>
-        <p>2. Platforma stanowi system teleinformatyczny umożliwiający: publikowanie ogłoszeń sprzedaży nieruchomości, przeprowadzanie licytacji online, komunikację pomiędzy Użytkownikami.</p>
-        <p>3. Platforma nie jest biurem nieruchomości, pośrednikiem w obrocie nieruchomościami ani stroną umów sprzedaży.</p>
-        <p>4. Operator nie świadczy usług doradztwa prawnego, finansowego ani inwestycyjnego.</p>
+      <Section title="1. Postanowienia ogólne i definicje">
+        <p>Niniejszy Regulamin określa zasady korzystania z platformy internetowej dostępnej pod adresem www.staysafe.pl (zwanej dalej „Serwisem”).</p>
+        <p>Operatorem i właścicielem Serwisu jest <strong>Stay Safe spółka z ograniczoną odpowiedzialnością</strong> z siedzibą w Warszawie, posiadająca NIP: <strong>5252651283</strong> (zwana dalej „Usługodawcą”).</p>
+        <p>Użytkownik – każda osoba fizyczna posiadająca pełną zdolność do czynności prawnych, osoba prawna lub jednostka organizacyjna, która utworzyła Konto w Serwisie.</p>
+        <p>Moduły Serwisu – trzy odrębne gałęzie funkcjonalne platformy:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li><strong>Wycena Live</strong> – moduł służący do badania potencjału rynkowego nieruchomości poprzez zbieranie niewiążących ofert zakupu.</li>
+          <li><strong>Ogłoszenia Nieruchomości</strong> – tradycyjny marketplace ogłoszeń sprzedaży nieruchomości.</li>
+          <li><strong>Odwrócony Marketplace Najmu</strong> – moduł łączący sprecyzowane zapytania ofertowe Najemców z odpowiedziami Wynajmujących.</li>
+        </ul>
       </Section>
 
-      <Section title="§2. Model działania Platformy">
-        <p>1. Platforma działa w modelu marketplace C2C/B2C.</p>
-        <p>2. Operator udostępnia wyłącznie infrastrukturę technologiczną.</p>
-        <p>3. Umowa sprzedaży nieruchomości zawierana jest wyłącznie pomiędzy Sprzedającym a Kupującym.</p>
-        <p>4. Złożenie Oferty przez Kupującego stanowi wiążące oświadczenie woli.</p>
-        <p>5. Licytacja nie stanowi oferty w rozumieniu art. 66 Kodeksu cywilnego po stronie Sprzedającego.</p>
-        <p>6. Sprzedający nie jest zobowiązany do zawarcia umowy sprzedaży.</p>
+      <Section title="2. Oświadczenie o charakterze działalności (status platformy)">
+        <p className="font-semibold text-foreground">⚠️ KLUCZOWE POSTANOWIENIE:</p>
+        <p>Usługodawca (Stay Safe sp. z o.o.) oświadcza, że nie jest agencją nieruchomości, biurem pośrednictwa, maklerem, doradcą inwestycyjnym ani stroną jakichkolwiek transakcji zawieranych pomiędzy Użytkownikami Serwisu.</p>
+        <p>Serwis pełni wyłącznie funkcję platformy technologicznej (miejsca wymiany informacji) i dostarcza narzędzia informatyczne umożliwiające Użytkownikom samodzielne nawiązywanie kontaktów.</p>
+        <p>Usługodawca nie pośredniczy w obrocie nieruchomościami, nie bierze udziału w negocjacjach, nie sporządza umów cywilnoprawnych ani aktów notarialnych oraz nie pobiera prowizji od wartości zawieranych transakcji sprzedaży lub najmu.</p>
+        <p>Wszelkie czynności podejmowane przez Użytkowników w ramach Serwisu (składanie ofert, licytacja, akceptacja potrzeb najmu) mają charakter bezpośredni między tymi Użytkownikami.</p>
       </Section>
 
-      <Section title="§3. Rejestracja i status Użytkownika">
-        <p>1. Korzystanie z funkcji licytacyjnych wymaga rejestracji.</p>
-        <p>2. Operator może przeprowadzić proces identyfikacji i weryfikacji (KYC).</p>
-        <p>3. Operator może uzależnić pełną aktywację Konta od: weryfikacji tożsamości, weryfikacji dokumentów nieruchomości, dodatkowych czynności compliance.</p>
-        <p>4. Operator może odmówić świadczenia usług bez podania przyczyny.</p>
+      <Section title="3. Jedno Konto dla wszystkich funkcjonalności">
+        <p>Korzystanie z pełnych funkcjonalności wszystkich trzech Modułów Serwisu wymaga rejestracji jednego, wspólnego Konta.</p>
+        <p>Podczas rejestracji Użytkownik zobowiązany jest podać prawdziwe dane: imię, nazwisko, adres e-mail, numer telefonu oraz bezpieczne hasło.</p>
+        <p>Serwis umożliwia procedurę przypomnienia i resetowania hasła poprzez wysłanie unikalnego linku autoryzacyjnego na adres e-mail powiązany z Kontem.</p>
       </Section>
 
-      <Section title="§4. Zasady licytacji">
-        <p>1. Oferta złożona przez Kupującego: jest nieodwołalna, ma charakter wiążący, może stanowić podstawę dochodzenia roszczeń przez Sprzedającego.</p>
-        <p>2. Kupujący ponosi pełną odpowiedzialność za skutki złożonej Oferty.</p>
-        <p>3. Sprzedający może zakończyć licytację bez wyboru zwycięzcy.</p>
-        <p>4. Operator nie gwarantuje finalizacji transakcji.</p>
-        <p>5. Zwycięzca licytacji uzyskuje dostęp do wewnętrznego systemu komunikacji umożliwiającego bezpośredni kontakt stron.</p>
+      <Section title="4. Zasady korzystania z Modułu „Wycena Live”">
+        <p>Zamieszczane w tym module ogłoszenia oraz spływające od licytujących kwoty <strong>nie stanowią oferty handlowej</strong> w rozumieniu art. 66 Kodeksu Cywilnego.</p>
+        <p>Proces licytacji służy wyłącznie celom poglądowym i analitycznym (badanie popytu rynkowego).</p>
+        <p>Żadna ze stron (ani Wystawiający, ani Licytujący) nie jest prawnie zobowiązana do zawarcia umowy sprzedaży nieruchomości na podstawie wyników licytacji w tym module.</p>
+        <p>Serwis automatycznie maskuje dane osób licytujących w celach ochrony prywatności, prezentując jedynie skrócone identyfikatory (social proof).</p>
       </Section>
 
-      <Section title="§5. System reputacyjny i sankcje">
-        <p>1. W przypadku niewywiązania się z Oferty Sprzedający może wystawić Negatywną opinię.</p>
-        <p>2. 3 Negatywne opinie skutkują statusem ostrzegawczym.</p>
-        <p>3. 4 Negatywna opinia powoduje automatyczne zawieszenie Konta.</p>
-        <p>4. Operator może zawiesić Konto natychmiast w przypadku: podejrzenia manipulacji cenowej, działania w zmowie, nadużyć finansowych, naruszenia przepisów AML.</p>
-        <p>5. Operator może usunąć Konto bez prawa do odszkodowania.</p>
+      <Section title="5. Zasady korzystania z Modułu „Ogłoszenia Nieruchomości”">
+        <p>Wystawiający ogłoszenie sprzedaży zobowiązany jest do podania prawidłowego numeru Księgi Wieczystej (KW) nieruchomości.</p>
+        <p>Serwis stosuje automatyczną <strong>blokadę unikalności</strong> – niemożliwe jest dodanie dwóch aktywnych ogłoszeń z tym samym numerem KW.</p>
+        <p>Numer KW służy weryfikacji unikalności wewnątrz systemu i jest <strong>całkowicie ukryty</strong> przed innymi Użytkownikami przeglądającymi Serwis.</p>
+        <p>Wyszukiwarka frazowa oraz algorytm asystenta AI Hyper-Lokalizacji działają w oparciu o treści wprowadzone przez Użytkowników. Usługodawca nie gwarantuje stuprocentowej dokładności dopasowań algorytmicznych, które mają charakter wyłącznie pomocniczy.</p>
       </Section>
 
-      <Section title="§6. Compliance, AML i przeciwdziałanie nadużyciom">
-        <p>1. Operator może wdrażać procedury: KYC (Know Your Customer), AML (Anti-Money Laundering), monitoringu transakcyjnego.</p>
-        <p>2. Operator może: analizować aktywność Użytkowników, wstrzymać dostęp do Konta, przekazać dane organom państwowym.</p>
-        <p>3. Użytkownik zobowiązuje się do korzystania z Platformy zgodnie z prawem.</p>
-        <p>4. Operator nie ponosi odpowiedzialności za działania Użytkowników sprzeczne z prawem.</p>
+      <Section title="6. Zasady korzystania z „Odwróconego Marketplace'u Najmu”">
+        <p>Najemca określa swoje preferencje mieszkaniowe za pomocą formularza (liczba osób, dzieci, zwierzęta, zgoda na kaucję, ubezpieczenie OC, najem okazjonalny, raport weryfikacji). Wypełniając formularz, oświadcza, że zaznaczone opcje są zgodne z prawdą.</p>
+        <p>Zapytanie Najemcy jest aktywne przez wskazaną przez niego liczbę dni. W tym czasie Wynajmujący mogą przesyłać dedykowane oferty.</p>
+        <p>Narzędzie komunikacji (czat w czasie rzeczywistym) zostaje uruchomione <strong>dopiero i wyłącznie</strong> w momencie, gdy Najemca manualnie kliknie przycisk „Akceptuj ofertę" przy propozycji danego Wynajmującego.</p>
+        <p>Przed akceptacją oferty przez Najemcę, Wynajmujący nie ma technicznej możliwości bezpośredniego kontaktu z Najemcą za pośrednictwem Serwisu.</p>
       </Section>
 
-      <Section title="§7. Odpowiedzialność i wyłączenia">
-        <p>1. Operator nie ponosi odpowiedzialności za: brak zawarcia umowy, niewypłacalność którejkolwiek ze stron, wady prawne nieruchomości, szkody pośrednie i utracone korzyści.</p>
-        <p>2. Odpowiedzialność Operatora ograniczona jest do kwoty faktycznie uiszczonych opłat przez Użytkownika w okresie 12 miesięcy poprzedzających zdarzenie.</p>
-        <p>3. Operator nie ponosi odpowiedzialności za: przerwy techniczne, siłę wyższą, działania podmiotów trzecich.</p>
-        <p>4. Żadne postanowienie Regulaminu nie ogranicza odpowiedzialności za szkody wyrządzone umyślnie.</p>
+      <Section title="7. Wyłączenie odpowiedzialności Usługodawcy">
+        <p>Usługodawca nie ponosi odpowiedzialności za:</p>
+        <ul className="list-disc pl-6 space-y-1">
+          <li>Prawdziwość, rzetelność oraz aktualność informacji, opisów, parametrów i zdjęć zamieszczanych przez Użytkowników (w tym stan prawny nieruchomości weryfikowany przez KW).</li>
+          <li>Wypłacalność, wiarygodność oraz intencje zakupowe lub płatnicze Użytkowników.</li>
+          <li>Wywiązanie się stron z ustaleń dokonanych na wewnętrznym czacie Serwisu.</li>
+          <li>Jakiekolwiek szkody powstałe w wyniku zawarcia (lub niezawarcia) umów sprzedaży bądź najmu nieruchomości.</li>
+        </ul>
+        <p>Usługodawca nie weryfikuje fizycznego stanu nieruchomości ani dokumentów tożsamości Użytkowników. Użytkownicy są zobowiązani do zachowania należytej staranności i samodzielnej weryfikacji kontrahentów poza Serwisem.</p>
       </Section>
 
-      <Section title="§8. Brak gwarancji">
-        <p>1. Platforma udostępniana jest w formule „as is”.</p>
-        <p>2. Operator nie gwarantuje: osiągnięcia określonej ceny sprzedaży, zainteresowania licytacją, skuteczności transakcji.</p>
-      </Section>
-
-      <Section title="§9. Opłaty i model biznesowy">
-        <p>1. Operator może pobierać: opłaty publikacyjne, opłaty promocyjne, prowizje transakcyjne.</p>
-        <p>2. Szczegółowy model przychodowy określony jest w Cenniku.</p>
-        <p>3. Operator zastrzega możliwość wprowadzenia w przyszłości: wadium, opłat rezerwacyjnych, depozytów zabezpieczających.</p>
-      </Section>
-
-      <Section title="§10. Własność intelektualna">
-        <p>1. Wszelkie prawa do Platformy należą do Operatora.</p>
-        <p>2. Zabronione jest kopiowanie, dekompilacja, scraping danych bez zgody Operatora.</p>
-      </Section>
-
-      <Section title="§11. Dane osobowe">
-        <p>1. Dane przetwarzane są zgodnie z RODO.</p>
-        <p>2. Szczegóły określa{" "}
-          <Link to="/polityka-prywatnosci" className="underline">Polityka Prywatności</Link>.
-        </p>
-      </Section>
-
-      <Section title="§12. Postanowienia końcowe">
-        <p>1. Regulamin podlega prawu polskiemu.</p>
-        <p>2. Wszelkie spory rozstrzygane będą przez sąd właściwy dla siedziby Operatora.</p>
-        <p>3. Operator może zmienić Regulamin z ważnych przyczyn prawnych, technologicznych lub biznesowych.</p>
-        <p>4. Zmiany obowiązują od dnia publikacji.</p>
+      <Section title="8. Reklamacje i postanowienia końcowe">
+        <p>Wszelkie błędy techniczne w działaniu Serwisu, czatu, filtrów czy systemu kont należy zgłaszać drogą elektroniczną na adres e-mail: <a href="mailto:kontakt@staysafe.pl" className="underline">kontakt@staysafe.pl</a>.</p>
+        <p>Usługodawca rozpatruje reklamacje techniczne w terminie 14 dni od ich zgłoszenia.</p>
+        <p>W sprawach nieuregulowanych niniejszym Regulaminem zastosowanie mają przepisy prawa polskiego, w szczególności Kodeksu Cywilnego oraz Ustawy o świadczeniu usług drogą elektroniczną.</p>
       </Section>
 
       <Link to="/" className="mt-10 inline-block text-sm text-muted-foreground hover:text-foreground">
