@@ -9,18 +9,39 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as WycenaLiveRouteImport } from './routes/wycena-live'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
+import { Route as OgloszeniaRouteImport } from './routes/ogloszenia'
+import { Route as NajemRouteImport } from './routes/najem'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
+import { Route as OgloszeniaIdRouteImport } from './routes/ogloszenia.$id'
+import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
+import { Route as AuthenticatedOgloszeniaNoweRouteImport } from './routes/_authenticated/ogloszenia.nowe'
+import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
+import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
 import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
+import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
+const WycenaLiveRoute = WycenaLiveRouteImport.update({
+  id: '/wycena-live',
+  path: '/wycena-live',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegulaminRoute = RegulaminRouteImport.update({
   id: '/regulamin',
   path: '/regulamin',
@@ -29,6 +50,16 @@ const RegulaminRoute = RegulaminRouteImport.update({
 const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
   id: '/polityka-prywatnosci',
   path: '/polityka-prywatnosci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OgloszeniaRoute = OgloszeniaRouteImport.update({
+  id: '/ogloszenia',
+  path: '/ogloszenia',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NajemRoute = NajemRouteImport.update({
+  id: '/najem',
+  path: '/najem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -50,6 +81,16 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   path: '/properties/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OgloszeniaIdRoute = OgloszeniaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => OgloszeniaRoute,
+} as any)
+const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
+  id: '/zapytania',
+  path: '/zapytania',
+  getParentRoute: () => NajemRoute,
+} as any)
 const AuthenticatedNewListingRoute = AuthenticatedNewListingRouteImport.update({
   id: '/new-listing',
   path: '/new-listing',
@@ -70,101 +111,214 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => NajemZapytaniaRoute,
+} as any)
+const AuthenticatedOgloszeniaNoweRoute =
+  AuthenticatedOgloszeniaNoweRouteImport.update({
+    id: '/ogloszenia/nowe',
+    path: '/ogloszenia/nowe',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemNoweZapytanieRoute =
+  AuthenticatedNajemNoweZapytanieRouteImport.update({
+    id: '/najem/nowe-zapytanie',
+    path: '/najem/nowe-zapytanie',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemMojeZapytaniaRoute =
+  AuthenticatedNajemMojeZapytaniaRouteImport.update({
+    id: '/najem/moje-zapytania',
+    path: '/najem/moje-zapytania',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
   id: '/chats/$id',
   path: '/chats/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedNajemChatsIdRoute =
+  AuthenticatedNajemChatsIdRouteImport.update({
+    id: '/najem/chats/$id',
+    path: '/najem/chats/$id',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/najem': typeof NajemRouteWithChildren
+  '/ogloszenia': typeof OgloszeniaRouteWithChildren
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/wycena-live': typeof WycenaLiveRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
+  '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
+  '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
+  '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
+  '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
+  '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/najem': typeof NajemRouteWithChildren
+  '/ogloszenia': typeof OgloszeniaRouteWithChildren
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/wycena-live': typeof WycenaLiveRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
+  '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
+  '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
+  '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
+  '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
+  '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/najem': typeof NajemRouteWithChildren
+  '/ogloszenia': typeof OgloszeniaRouteWithChildren
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/wycena-live': typeof WycenaLiveRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
+  '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
+  '/_authenticated/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
+  '/_authenticated/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
+  '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
+  '/_authenticated/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/najem'
+    | '/ogloszenia'
     | '/polityka-prywatnosci'
     | '/regulamin'
+    | '/reset-password'
+    | '/wycena-live'
     | '/messages'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
+    | '/najem/zapytania'
+    | '/ogloszenia/$id'
     | '/properties/$id'
     | '/chats/$id'
+    | '/najem/moje-zapytania'
+    | '/najem/nowe-zapytanie'
+    | '/ogloszenia/nowe'
+    | '/najem/zapytania/$id'
+    | '/najem/chats/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/najem'
+    | '/ogloszenia'
     | '/polityka-prywatnosci'
     | '/regulamin'
+    | '/reset-password'
+    | '/wycena-live'
     | '/messages'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
+    | '/najem/zapytania'
+    | '/ogloszenia/$id'
     | '/properties/$id'
     | '/chats/$id'
+    | '/najem/moje-zapytania'
+    | '/najem/nowe-zapytanie'
+    | '/ogloszenia/nowe'
+    | '/najem/zapytania/$id'
+    | '/najem/chats/$id'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/najem'
+    | '/ogloszenia'
     | '/polityka-prywatnosci'
     | '/regulamin'
+    | '/reset-password'
+    | '/wycena-live'
     | '/_authenticated/messages'
     | '/_authenticated/my-bids'
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
+    | '/najem/zapytania'
+    | '/ogloszenia/$id'
     | '/properties/$id'
     | '/_authenticated/chats/$id'
+    | '/_authenticated/najem/moje-zapytania'
+    | '/_authenticated/najem/nowe-zapytanie'
+    | '/_authenticated/ogloszenia/nowe'
+    | '/najem/zapytania/$id'
+    | '/_authenticated/najem/chats/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  NajemRoute: typeof NajemRouteWithChildren
+  OgloszeniaRoute: typeof OgloszeniaRouteWithChildren
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  WycenaLiveRoute: typeof WycenaLiveRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/wycena-live': {
+      id: '/wycena-live'
+      path: '/wycena-live'
+      fullPath: '/wycena-live'
+      preLoaderRoute: typeof WycenaLiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/regulamin': {
       id: '/regulamin'
       path: '/regulamin'
@@ -177,6 +331,20 @@ declare module '@tanstack/react-router' {
       path: '/polityka-prywatnosci'
       fullPath: '/polityka-prywatnosci'
       preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ogloszenia': {
+      id: '/ogloszenia'
+      path: '/ogloszenia'
+      fullPath: '/ogloszenia'
+      preLoaderRoute: typeof OgloszeniaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/najem': {
+      id: '/najem'
+      path: '/najem'
+      fullPath: '/najem'
+      preLoaderRoute: typeof NajemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -207,6 +375,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PropertiesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/ogloszenia/$id': {
+      id: '/ogloszenia/$id'
+      path: '/$id'
+      fullPath: '/ogloszenia/$id'
+      preLoaderRoute: typeof OgloszeniaIdRouteImport
+      parentRoute: typeof OgloszeniaRoute
+    }
+    '/najem/zapytania': {
+      id: '/najem/zapytania'
+      path: '/zapytania'
+      fullPath: '/najem/zapytania'
+      preLoaderRoute: typeof NajemZapytaniaRouteImport
+      parentRoute: typeof NajemRoute
+    }
     '/_authenticated/new-listing': {
       id: '/_authenticated/new-listing'
       path: '/new-listing'
@@ -235,11 +417,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/najem/zapytania/$id': {
+      id: '/najem/zapytania/$id'
+      path: '/$id'
+      fullPath: '/najem/zapytania/$id'
+      preLoaderRoute: typeof NajemZapytaniaIdRouteImport
+      parentRoute: typeof NajemZapytaniaRoute
+    }
+    '/_authenticated/ogloszenia/nowe': {
+      id: '/_authenticated/ogloszenia/nowe'
+      path: '/ogloszenia/nowe'
+      fullPath: '/ogloszenia/nowe'
+      preLoaderRoute: typeof AuthenticatedOgloszeniaNoweRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/nowe-zapytanie': {
+      id: '/_authenticated/najem/nowe-zapytanie'
+      path: '/najem/nowe-zapytanie'
+      fullPath: '/najem/nowe-zapytanie'
+      preLoaderRoute: typeof AuthenticatedNajemNoweZapytanieRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/moje-zapytania': {
+      id: '/_authenticated/najem/moje-zapytania'
+      path: '/najem/moje-zapytania'
+      fullPath: '/najem/moje-zapytania'
+      preLoaderRoute: typeof AuthenticatedNajemMojeZapytaniaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/chats/$id': {
       id: '/_authenticated/chats/$id'
       path: '/chats/$id'
       fullPath: '/chats/$id'
       preLoaderRoute: typeof AuthenticatedChatsIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/chats/$id': {
+      id: '/_authenticated/najem/chats/$id'
+      path: '/najem/chats/$id'
+      fullPath: '/najem/chats/$id'
+      preLoaderRoute: typeof AuthenticatedNajemChatsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
@@ -251,6 +468,10 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
   AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
   AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
+  AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
+  AuthenticatedNajemNoweZapytanieRoute: typeof AuthenticatedNajemNoweZapytanieRoute
+  AuthenticatedOgloszeniaNoweRoute: typeof AuthenticatedOgloszeniaNoweRoute
+  AuthenticatedNajemChatsIdRoute: typeof AuthenticatedNajemChatsIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -259,18 +480,60 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
   AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
   AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
+  AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,
+  AuthenticatedNajemNoweZapytanieRoute: AuthenticatedNajemNoweZapytanieRoute,
+  AuthenticatedOgloszeniaNoweRoute: AuthenticatedOgloszeniaNoweRoute,
+  AuthenticatedNajemChatsIdRoute: AuthenticatedNajemChatsIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface NajemZapytaniaRouteChildren {
+  NajemZapytaniaIdRoute: typeof NajemZapytaniaIdRoute
+}
+
+const NajemZapytaniaRouteChildren: NajemZapytaniaRouteChildren = {
+  NajemZapytaniaIdRoute: NajemZapytaniaIdRoute,
+}
+
+const NajemZapytaniaRouteWithChildren = NajemZapytaniaRoute._addFileChildren(
+  NajemZapytaniaRouteChildren,
+)
+
+interface NajemRouteChildren {
+  NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+}
+
+const NajemRouteChildren: NajemRouteChildren = {
+  NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+}
+
+const NajemRouteWithChildren = NajemRoute._addFileChildren(NajemRouteChildren)
+
+interface OgloszeniaRouteChildren {
+  OgloszeniaIdRoute: typeof OgloszeniaIdRoute
+}
+
+const OgloszeniaRouteChildren: OgloszeniaRouteChildren = {
+  OgloszeniaIdRoute: OgloszeniaIdRoute,
+}
+
+const OgloszeniaRouteWithChildren = OgloszeniaRoute._addFileChildren(
+  OgloszeniaRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  NajemRoute: NajemRouteWithChildren,
+  OgloszeniaRoute: OgloszeniaRouteWithChildren,
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  WycenaLiveRoute: WycenaLiveRoute,
   PropertiesIdRoute: PropertiesIdRoute,
 }
 export const routeTree = rootRouteImport

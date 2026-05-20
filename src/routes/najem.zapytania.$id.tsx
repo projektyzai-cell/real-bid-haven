@@ -73,10 +73,11 @@ function RequestDetailPage() {
     return <div className="container mx-auto px-4 py-16 text-muted-foreground">Ładowanie...</div>;
   }
 
-  const r = data.request as Record<string, unknown> & {
+  const r = data.request as unknown as {
+    [k: string]: unknown;
     city: string; district: string | null; budget_max: number | null;
     adults_count: number; area_description: string | null; notes: string | null;
-    expires_at: string;
+    expires_at: string; tenant_id: string;
   };
   const daysLeft = Math.max(0, Math.ceil((new Date(r.expires_at).getTime() - Date.now()) / 86_400_000));
 
