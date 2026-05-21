@@ -34,13 +34,9 @@ function SaleDetailPage() {
   return (
     <div className="container mx-auto grid gap-8 px-4 py-10 lg:grid-cols-3">
       <div className="lg:col-span-2 space-y-6">
-        <div className="overflow-hidden rounded-3xl bg-card shadow-card">
-          {p.image_url ? (
-            <img src={p.image_url} alt={p.title} className="aspect-[16/10] w-full object-cover" />
-          ) : (
-            <div className="aspect-[16/10] w-full bg-muted" />
-          )}
-        </div>
+        <Gallery images={((p as unknown as { images?: string[] }).images ?? []).length > 0
+          ? (p as unknown as { images: string[] }).images
+          : (p.image_url ? [p.image_url] : [])} title={p.title} />
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="rounded-full">{p.area_m2} m²</Badge>

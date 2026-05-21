@@ -21,9 +21,7 @@ function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [phone, setPhone] = useState("");
+  const [nick, setNick] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetMode, setResetMode] = useState(false);
@@ -40,21 +38,13 @@ function AuthPage() {
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
     if (!acceptTerms) { toast.error("Akceptacja Regulaminu jest wymagana."); return; }
-    if (!firstName.trim() || !lastName.trim() || !phone.trim()) {
-      toast.error("Imię, nazwisko i telefon są wymagane.");
-      return;
-    }
+    if (!nick.trim()) { toast.error("Podaj nick."); return; }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email, password,
       options: {
         emailRedirectTo: `${window.location.origin}/`,
-        data: {
-          first_name: firstName.trim(),
-          last_name: lastName.trim(),
-          phone: phone.trim(),
-          display_name: `${firstName.trim()} ${lastName.trim()}`,
-        },
+        data: { display_name: nick.trim() },
       },
     });
     if (error) { setLoading(false); toast.error(error.message); return; }
@@ -66,7 +56,7 @@ function AuthPage() {
       ] as never);
     }
     setLoading(false);
-    toast.success("Konto utworzone! Sprawdź email aby potwierdzić.");
+    toast.success("Konto utworzone! Kliknij link weryfikacyjny w wiadomości e-mail, aby aktywować konto.");
   }
 
   async function resetPwd(e: React.FormEvent) {
@@ -85,8 +75,8 @@ function AuthPage() {
     return (
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center px-4 py-12">
         <div className="w-full rounded-3xl border bg-card p-8 shadow-card">
-          <h1 className="text-2xl font-semibold">Przypomnij hasło</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Wyślemy link resetujący na podany adres e-mail.</p>
+          <h1 className="text-2xl font-semibold">Zapomniałem hasła</h1>
+          <p className="mt-1 text-sm text-muted-foreground">Podaj adres e-mail, którym zakładałeś konto. Wyślemy link do ustawienia nowego hasła.</p>
           <form onSubmit={resetPwd} className="mt-6 space-y-4">
             <div>
               <Label htmlFor="r-email">E-mail</Label>
@@ -94,7 +84,7 @@ function AuthPage() {
                 onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
             </div>
             <Button type="submit" disabled={loading} className="w-full rounded-xl">
-              {loading ? "Wysyłam..." : "Wyślij link"}
+              {loading ? "Wysyłam..." : "Wyślij link resetujący"}
             </Button>
             <button type="button" onClick={() => setResetMode(false)}
               className="block w-full text-center text-sm text-muted-foreground hover:underline">
@@ -135,30 +125,18 @@ function AuthPage() {
               </Button>
               <button type="button" onClick={() => setResetMode(true)}
                 className="block w-full text-center text-sm text-primary hover:underline">
-                Przypomnij hasło
+                Zapomniałem hasła
               </button>
             </form>
           </TabsContent>
 
           <TabsContent value="signup">
             <form onSubmit={signUp} className="mt-4 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <Label htmlFor="fn">Imię</Label>
-                  <Input id="fn" required value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)} className="mt-1.5 rounded-xl" />
-                </div>
-                <div>
-                  <Label htmlFor="ln">Nazwisko</Label>
-                  <Input id="ln" required value={lastName}
-                    onChange={(e) => setLastName(e.target.value)} className="mt-1.5 rounded-xl" />
-                </div>
-              </div>
               <div>
-                <Label htmlFor="ph">Numer telefonu</Label>
-                <Input id="ph" type="tel" required value={phone}
-                  onChange={(e) => setPhone(e.target.value)} className="mt-1.5 rounded-xl"
-                  placeholder="+48 ..." />
+                <Label htmlFor="nick">Nick</Label>
+                <Input id="nick" required value={nick} maxLength={40}
+                  onChange={(e) => setNick(e.target.value)} className="mt-1.5 rounded-xl"
+                  placeholder="np. JanK" />
               </div>
               <div>
                 <Label htmlFor="email2">E-mail</Label>
@@ -166,8 +144,8 @@ function AuthPage() {
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
               <div>
-                <Label htmlFor="password2">Hasło (min. 6 znaków)</Label>
-                <Input id="password2" type="password" required minLength={6} value={password}
+                <Label htmlFor="password2">Hasło (min. 8 znaków)</Label>
+                <Input id="password2" type="password" required minLength={8} value={password}
                   onChange={(e) => setPassword(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
               <label className="flex items-start gap-3 rounded-2xl border bg-background/50 p-3 text-sm">
@@ -180,6 +158,9 @@ function AuthPage() {
                   i akceptuję ich treść.
                 </span>
               </label>
+              <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
+                Po rejestracji wyślemy Ci e-mail z linkiem weryfikacyjnym. Kliknij go, aby aktywować konto.
+              </p>
               <Button type="submit" disabled={loading || !acceptTerms} className="w-full rounded-xl">
                 {loading ? "Tworzę konto..." : "Załóż konto"}
               </Button>

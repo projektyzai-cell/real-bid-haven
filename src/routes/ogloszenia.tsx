@@ -36,6 +36,7 @@ function OgloszeniaPage() {
   const [areaMin, setAreaMin] = useState("");
   const [areaMax, setAreaMax] = useState("");
   const [phrase, setPhrase] = useState("");
+  const [sort, setSort] = useState<"newest" | "price_asc" | "price_desc" | "ppm_asc" | "ppm_desc">("newest");
   const [aiQuery, setAiQuery] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
   const aiSearch = useServerFn(aiHyperSearch);
@@ -56,7 +57,7 @@ function OgloszeniaPage() {
   const filtered = useMemo(() => {
     if (!data) return [];
     const ph = phrase.trim().toLowerCase();
-    return data.filter((p) => {
+    let out = data.filter((p) => {
       if (city && !p.city.toLowerCase().includes(city.toLowerCase())) return false;
       if (priceMin && Number(p.sale_price) < Number(priceMin)) return false;
       if (priceMax && Number(p.sale_price) > Number(priceMax)) return false;
@@ -65,7 +66,15 @@ function OgloszeniaPage() {
       if (ph && !`${p.title} ${p.description}`.toLowerCase().includes(ph)) return false;
       return true;
     });
-  }, [data, city, priceMin, priceMax, areaMin, areaMax, phrase]);
+    const ppm = (p: SaleListing) => Number(p.area_m2) > 0 ? Number(p.sale_price) / Number(p.area_m2) : 0;
+    switch (sort) {
+      case "price_asc": out = [...out].sort((a, b) => Number(a.sale_price) - Number(b.sale_price)); break;
+      case "price_desc": out = [...out].sort((a, b) => Number(b.sale_price) - Number(a.sale_price)); break;
+      case "ppm_asc": out = [...out].sort((a, b) => ppm(a) - ppm(b)); break;
+      case "ppm_desc": out = [...out].sort((a, b) => ppm(b) - ppm(a)); break;
+    }
+    return out;
+  }, [data, city, priceMin, priceMax, areaMin, areaMax, phrase, sort]);
 
   const promoted = filtered.filter((p) => p.promoted);
   const standard = filtered.filter((p) => !p.promoted);
@@ -93,7 +102,7 @@ function OgloszeniaPage() {
             <div>
               <h1 className="text-3xl font-bold tracking-tight">Ogłoszenia nieruchomości</h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Klasyczny marketplace sprzedaży. Filtruj, szukaj fraz albo opisz potrzeby AI Hyper-Lokalizacją.
+                Klasyczny marketplace sprzedaży nowej generacji. Wyszukuj produkty po frazach, filtruj oferty lub po prostu opisz swoje potrzeby — AI z technologią Hyper-Lokalizacji znajdzie idealne dopasowanie w Twojej okolicy.
               </p>
             </div>
             {user && (
@@ -134,6 +143,23 @@ function OgloszeniaPage() {
             <Input type="number" placeholder="m² max" value={areaMax} onChange={(e) => setAreaMax(e.target.value)} className="rounded-xl" />
           </div>
         </div>
+        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
+          <span className="text-muted-foreground">Sortuj:</span>
+          {([
+            ["newest", "Najnowsze"],
+            ["price_asc", "Cena: rosnąco"],
+            ["price_desc", "Cena: malejąco"],
+            ["ppm_asc", "Cena/m²: rosnąco"],
+            ["ppm_desc", "Cena/m²: malejąco"],
+          ] as const).map(([k, label]) => (
+            <button key={k} type="button" onClick={() => setSort(k)}
+              className={`rounded-full px-3 py-1 text-xs transition ${sort === k ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+
 
         {isLoading ? (
           <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">

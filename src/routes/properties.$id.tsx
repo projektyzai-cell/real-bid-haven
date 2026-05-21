@@ -11,6 +11,7 @@ import { UserStars } from "@/components/UserStars";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPLN, maskName, getCountdown } from "@/lib/format";
+import { MultiImageUpload } from "@/components/MultiImageUpload";
 
 export const Route = createFileRoute("/properties/$id")({
   head: () => ({ meta: [{ title: "Szczegóły ogłoszenia — Stay Safe" }] }),
@@ -98,9 +99,6 @@ function PropertyDetailPage() {
       toast.error(`Oferta musi być wyższa niż ${formatPLN(minBid)}`);
       return;
     }
-    if (!window.confirm(
-      "Złożenie Oferty ma charakter wiążący i stanowi zobowiązanie do zawarcia umowy sprzedaży nieruchomości w razie jej akceptacji przez Sprzedawcę.\n\nCzy potwierdzasz?",
-    )) return;
     setSubmitting(true);
     const { error } = await supabase.from("bids").insert({
       property_id: id, bidder_id: user.id, amount: value,
@@ -174,6 +172,16 @@ function PropertyDetailPage() {
           </div>
         )}
 
+        {ownedByMe && !c.ended && (
+          <OwnerLivePanel
+            propertyId={property.id}
+            bidCount={property.bid_count}
+            description={property.description}
+            images={(property as unknown as { images?: string[] }).images ?? []}
+            mainImageIndex={(property as unknown as { main_image_index?: number }).main_image_index ?? 0}
+          />
+        )}
+
         {ownedByMe && c.ended && (
           <div className="rounded-3xl border bg-card p-6">
             <h3 className="font-semibold">Panel sprzedawcy</h3>
@@ -201,7 +209,7 @@ function PropertyDetailPage() {
             {formatPLN(minBid)}
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
-            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"} · cena wywoławcza {formatPLN(property.starting_price)}
+            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
           </div>
 
           <div className="mt-4">
@@ -223,12 +231,6 @@ function PropertyDetailPage() {
             <Link to="/auth" className="mt-3 block text-center text-sm text-primary hover:underline">
               Zaloguj się, aby licytować
             </Link>
-          )}
-          {!c.ended && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Składając ofertę akceptujesz jej wiążący charakter (§4{" "}
-              <Link to="/regulamin" className="underline">Regulaminu</Link>).
-            </p>
           )}
         </div>
 
@@ -276,6 +278,83 @@ function PropertyDetailPage() {
           )}
         </div>
       </aside>
+    </div>
+  );
+}
+
+function OwnerLivePanel({
+  propertyId, bidCount, description, images, mainImageIndex,
+}: {
+  propertyId: string; bidCount: number; description: string;
+  images: string[]; mainImageIndex: number;
+}) {
+  const [editing, setEditing] = useState(false);
+  const [desc, setDesc] = useState(description);
+  const [imgs, setImgs] = useState<string[]>(images);
+  const [main, setMain] = useState<number>(mainImageIndex);
+  const [busy, setBusy] = useState(false);
+  const canEdit = bidCount === 0;
+
+  async function endNow() {
+    if (!window.confirm("Zakończyć aukcję teraz? Tej operacji nie można cofnąć.")) return;
+    setBusy(true);
+    const { error } = await supabase.from("properties")
+      .update({ ends_at: new Date().toISOString() } as never)
+      .eq("id", propertyId);
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success("Aukcja zakończona"); window.location.reload(); }
+  }
+
+  async function save() {
+    setBusy(true);
+    const mainUrl = imgs[main] ?? imgs[0] ?? null;
+    const { error } = await supabase.from("properties").update({
+      description: desc.trim(),
+      images: imgs,
+      main_image_index: main,
+      image_url: mainUrl,
+    } as never).eq("id", propertyId);
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success("Zapisano zmiany"); setEditing(false); window.location.reload(); }
+  }
+
+  return (
+    <div className="rounded-3xl border bg-card p-6 space-y-3">
+      <h3 className="font-semibold">Panel sprzedawcy</h3>
+      <p className="text-sm text-muted-foreground">
+        {canEdit
+          ? "Możesz edytować opis i zdjęcia do momentu pierwszej oferty."
+          : "Pierwsza oferta została już złożona — edycja opisu i zdjęć została zablokowana."}
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {canEdit && (
+          <Button size="sm" variant="outline" onClick={() => setEditing((v) => !v)} className="rounded-xl">
+            {editing ? "Anuluj edycję" : "Edytuj opis / zdjęcia"}
+          </Button>
+        )}
+        <Button size="sm" variant="destructive" onClick={endNow} disabled={busy} className="rounded-xl">
+          Zakończ aukcję teraz
+        </Button>
+      </div>
+      {editing && canEdit && (
+        <div className="space-y-3 rounded-2xl border bg-background/40 p-4">
+          <div>
+            <label className="text-xs font-medium uppercase text-muted-foreground">Opis</label>
+            <textarea value={desc} onChange={(e) => setDesc(e.target.value)} rows={5}
+              className="mt-1 w-full rounded-xl border bg-background p-3 text-sm" />
+          </div>
+          <div>
+            <label className="text-xs font-medium uppercase text-muted-foreground">Zdjęcia</label>
+            <div className="mt-1">
+              <MultiImageUpload value={imgs} mainIndex={main}
+                onChange={(u, m) => { setImgs(u); setMain(m); }} />
+            </div>
+          </div>
+          <Button size="sm" onClick={save} disabled={busy} className="rounded-xl">Zapisz zmiany</Button>
+        </div>
+      )}
     </div>
   );
 }

@@ -27,7 +27,7 @@ function PrivacyPage() {
 
       <Section title="§1. Administrator danych osobowych">
         <p>1. Administratorem danych osobowych jest podmiot prowadzący działalność gospodarczą pod nazwą Stay Safe, NIP: 5252651283 (dalej: „Administrator”).</p>
-        <p>2. Kontakt z Administratorem możliwy jest poprzez adres e-mail: [adres e-mail].</p>
+        <p>2. Kontakt z Administratorem możliwy jest poprzez adres e-mail: <a href="mailto:kontakt@staysafe.pl" className="underline">kontakt@staysafe.pl</a>.</p>
       </Section>
 
       <Section title="§2. Zakres przetwarzanych danych">
