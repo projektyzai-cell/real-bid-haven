@@ -17,7 +17,7 @@ function NajemHub() {
       <div className="mx-auto max-w-3xl text-center">
         <h1 className="text-4xl font-bold tracking-tight">Odwrócony marketplace najmu</h1>
         <p className="mt-3 text-muted-foreground">
-          To najemcy publikują swoje potrzeby. Wynajmujący wybierają, do kogo skierować ofertę. Czat aktywuje się dopiero po akceptacji oferty przez najemcę.
+          Najemcy określają swoje potrzeby, a inteligentny system dopasowuje wyłącznie oferty najmu zgodne z ich kryteriami i lokalizacją. To nowoczesny model działania, który odwraca schemat znany z tradycyjnych portali — zamiast przeglądać setki przypadkowych ogłoszeń, użytkownicy otrzymują tylko realnie dopasowane oferty. Wynajmujący trafiają bezpośrednio do zainteresowanych najemców, a gdy pojawi się idealne dopasowanie, obie strony mogą od razu rozpocząć rozmowę przez wygodny czat na platformie.
         </p>
       </div>
 
@@ -47,9 +47,9 @@ function NajemHub() {
           </div>
           <h2 className="mt-5 text-xl font-semibold">Jestem wynajmującym</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Przeglądaj aktywne zapytania najemców i wysyłaj im dedykowane oferty swojego mieszkania.
+            Umieść swoją ofertę wynajmu nieruchomości w naszej bazie i czekaj na zgłoszenie się najemcy, który spełnia Twoje kryteria i wymogi.
           </p>
-          <span className="mt-4 inline-flex text-sm font-medium text-amber-700">Zobacz zapytania →</span>
+          <span className="mt-4 inline-flex text-sm font-medium text-amber-700">Wystaw ofertę najmu →</span>
         </Link>
       </div>
     </div>
