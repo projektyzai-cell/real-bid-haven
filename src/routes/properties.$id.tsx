@@ -98,9 +98,6 @@ function PropertyDetailPage() {
       toast.error(`Oferta musi być wyższa niż ${formatPLN(minBid)}`);
       return;
     }
-    if (!window.confirm(
-      "Złożenie Oferty ma charakter wiążący i stanowi zobowiązanie do zawarcia umowy sprzedaży nieruchomości w razie jej akceptacji przez Sprzedawcę.\n\nCzy potwierdzasz?",
-    )) return;
     setSubmitting(true);
     const { error } = await supabase.from("bids").insert({
       property_id: id, bidder_id: user.id, amount: value,
@@ -201,7 +198,7 @@ function PropertyDetailPage() {
             {formatPLN(minBid)}
           </div>
           <div className="mt-1 text-sm text-muted-foreground">
-            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"} · cena wywoławcza {formatPLN(property.starting_price)}
+            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
           </div>
 
           <div className="mt-4">
@@ -223,12 +220,6 @@ function PropertyDetailPage() {
             <Link to="/auth" className="mt-3 block text-center text-sm text-primary hover:underline">
               Zaloguj się, aby licytować
             </Link>
-          )}
-          {!c.ended && (
-            <p className="mt-3 text-xs text-muted-foreground">
-              Składając ofertę akceptujesz jej wiążący charakter (§4{" "}
-              <Link to="/regulamin" className="underline">Regulaminu</Link>).
-            </p>
           )}
         </div>
 
