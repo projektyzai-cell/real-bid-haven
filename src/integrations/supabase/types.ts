@@ -149,8 +149,10 @@ export type Database = {
           ends_at: string
           id: string
           image_url: string | null
+          images: string[]
           kind: Database["public"]["Enums"]["property_kind"]
           kw_number: string | null
+          main_image_index: number
           owner_id: string
           promoted: boolean
           sale_price: number | null
@@ -170,8 +172,10 @@ export type Database = {
           ends_at: string
           id?: string
           image_url?: string | null
+          images?: string[]
           kind?: Database["public"]["Enums"]["property_kind"]
           kw_number?: string | null
+          main_image_index?: number
           owner_id: string
           promoted?: boolean
           sale_price?: number | null
@@ -191,8 +195,10 @@ export type Database = {
           ends_at?: string
           id?: string
           image_url?: string | null
+          images?: string[]
           kind?: Database["public"]["Enums"]["property_kind"]
           kw_number?: string | null
+          main_image_index?: number
           owner_id?: string
           promoted?: boolean
           sale_price?: number | null
@@ -228,6 +234,84 @@ export type Database = {
           offer_id?: string
           request_id?: string
           tenant_id?: string
+        }
+        Relationships: []
+      }
+      rental_listings: {
+        Row: {
+          accepts_children: boolean
+          accepts_pets: boolean
+          apt_no: string | null
+          area_m2: number
+          city: string
+          created_at: string
+          description: string
+          expires_at: string
+          has_energy_cert: boolean
+          id: string
+          images: string[]
+          kind: string
+          kw_number: string | null
+          landlord_id: string
+          main_image_index: number
+          monthly_price: number
+          notarial_required: boolean
+          promoted: boolean
+          rooms: number
+          status: string
+          street: string
+          title: string
+          wants_energy_cert_discount: boolean
+        }
+        Insert: {
+          accepts_children?: boolean
+          accepts_pets?: boolean
+          apt_no?: string | null
+          area_m2: number
+          city: string
+          created_at?: string
+          description?: string
+          expires_at?: string
+          has_energy_cert?: boolean
+          id?: string
+          images?: string[]
+          kind?: string
+          kw_number?: string | null
+          landlord_id: string
+          main_image_index?: number
+          monthly_price: number
+          notarial_required?: boolean
+          promoted?: boolean
+          rooms?: number
+          status?: string
+          street: string
+          title: string
+          wants_energy_cert_discount?: boolean
+        }
+        Update: {
+          accepts_children?: boolean
+          accepts_pets?: boolean
+          apt_no?: string | null
+          area_m2?: number
+          city?: string
+          created_at?: string
+          description?: string
+          expires_at?: string
+          has_energy_cert?: boolean
+          id?: string
+          images?: string[]
+          kind?: string
+          kw_number?: string | null
+          landlord_id?: string
+          main_image_index?: number
+          monthly_price?: number
+          notarial_required?: boolean
+          promoted?: boolean
+          rooms?: number
+          status?: string
+          street?: string
+          title?: string
+          wants_energy_cert_discount?: boolean
         }
         Relationships: []
       }
@@ -373,6 +457,39 @@ export type Database = {
         }
         Relationships: []
       }
+      sale_inquiries: {
+        Row: {
+          buyer_id: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          message: string
+          property_id: string
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          property_id: string
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          property_id?: string
+          seller_id?: string
+        }
+        Relationships: []
+      }
       user_consents: {
         Row: {
           consent_type: string
@@ -425,6 +542,7 @@ export type Database = {
     Functions: {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
       accept_rental_offer: { Args: { _offer_id: string }; Returns: string }
+      extend_rental_listing: { Args: { _id: string }; Returns: string }
       get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
