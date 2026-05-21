@@ -171,6 +171,16 @@ function PropertyDetailPage() {
           </div>
         )}
 
+        {ownedByMe && !c.ended && (
+          <OwnerLivePanel
+            propertyId={property.id}
+            bidCount={property.bid_count}
+            description={property.description}
+            images={(property as unknown as { images?: string[] }).images ?? []}
+            mainImageIndex={(property as unknown as { main_image_index?: number }).main_image_index ?? 0}
+          />
+        )}
+
         {ownedByMe && c.ended && (
           <div className="rounded-3xl border bg-card p-6">
             <h3 className="font-semibold">Panel sprzedawcy</h3>
