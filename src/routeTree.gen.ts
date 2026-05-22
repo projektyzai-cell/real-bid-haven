@@ -13,11 +13,11 @@ import { Route as WycenaLiveRouteImport } from './routes/wycena-live'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
-import { Route as OgloszeniaRouteImport } from './routes/ogloszenia'
 import { Route as NajemRouteImport } from './routes/najem'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as OgloszeniaIndexRouteImport } from './routes/ogloszenia.index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as OgloszeniaIdRouteImport } from './routes/ogloszenia.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
@@ -54,11 +54,6 @@ const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
   path: '/polityka-prywatnosci',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OgloszeniaRoute = OgloszeniaRouteImport.update({
-  id: '/ogloszenia',
-  path: '/ogloszenia',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NajemRoute = NajemRouteImport.update({
   id: '/najem',
   path: '/najem',
@@ -76,6 +71,11 @@ const AuthenticatedRoute = AuthenticatedRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const OgloszeniaIndexRoute = OgloszeniaIndexRouteImport.update({
+  id: '/ogloszenia/',
+  path: '/ogloszenia/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PropertiesIdRoute = PropertiesIdRouteImport.update({
@@ -164,7 +164,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/najem': typeof NajemRouteWithChildren
-  '/ogloszenia': typeof OgloszeniaRouteWithChildren
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -176,6 +175,7 @@ export interface FileRoutesByFullPath {
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/ogloszenia/': typeof OgloszeniaIndexRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -189,7 +189,6 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/najem': typeof NajemRouteWithChildren
-  '/ogloszenia': typeof OgloszeniaRouteWithChildren
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -201,6 +200,7 @@ export interface FileRoutesByTo {
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/ogloszenia': typeof OgloszeniaIndexRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -216,7 +216,6 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
   '/najem': typeof NajemRouteWithChildren
-  '/ogloszenia': typeof OgloszeniaRouteWithChildren
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -228,6 +227,7 @@ export interface FileRoutesById {
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
+  '/ogloszenia/': typeof OgloszeniaIndexRoute
   '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -243,7 +243,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/najem'
-    | '/ogloszenia'
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
@@ -255,6 +254,7 @@ export interface FileRouteTypes {
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
+    | '/ogloszenia/'
     | '/chats/$id'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
@@ -268,7 +268,6 @@ export interface FileRouteTypes {
     | '/'
     | '/auth'
     | '/najem'
-    | '/ogloszenia'
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
@@ -280,6 +279,7 @@ export interface FileRouteTypes {
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
+    | '/ogloszenia'
     | '/chats/$id'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
@@ -294,7 +294,6 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/auth'
     | '/najem'
-    | '/ogloszenia'
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
@@ -306,6 +305,7 @@ export interface FileRouteTypes {
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
+    | '/ogloszenia/'
     | '/_authenticated/chats/$id'
     | '/_authenticated/najem/moje-oferty'
     | '/_authenticated/najem/moje-zapytania'
@@ -321,12 +321,12 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
   NajemRoute: typeof NajemRouteWithChildren
-  OgloszeniaRoute: typeof OgloszeniaRouteWithChildren
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WycenaLiveRoute: typeof WycenaLiveRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
+  OgloszeniaIndexRoute: typeof OgloszeniaIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -359,13 +359,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ogloszenia': {
-      id: '/ogloszenia'
-      path: '/ogloszenia'
-      fullPath: '/ogloszenia'
-      preLoaderRoute: typeof OgloszeniaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/najem': {
       id: '/najem'
       path: '/najem'
@@ -392,6 +385,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ogloszenia/': {
+      id: '/ogloszenia/'
+      path: '/ogloszenia'
+      fullPath: '/ogloszenia/'
+      preLoaderRoute: typeof OgloszeniaIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/properties/$id': {
@@ -556,30 +556,28 @@ const NajemRouteChildren: NajemRouteChildren = {
 
 const NajemRouteWithChildren = NajemRoute._addFileChildren(NajemRouteChildren)
 
-interface OgloszeniaRouteChildren {
-  OgloszeniaIdRoute: typeof OgloszeniaIdRoute
-}
-
-const OgloszeniaRouteChildren: OgloszeniaRouteChildren = {
-  OgloszeniaIdRoute: OgloszeniaIdRoute,
-}
-
-const OgloszeniaRouteWithChildren = OgloszeniaRoute._addFileChildren(
-  OgloszeniaRouteChildren,
-)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
   NajemRoute: NajemRouteWithChildren,
-  OgloszeniaRoute: OgloszeniaRouteWithChildren,
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WycenaLiveRoute: WycenaLiveRoute,
   PropertiesIdRoute: PropertiesIdRoute,
+  OgloszeniaIndexRoute: OgloszeniaIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
