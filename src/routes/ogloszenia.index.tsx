@@ -12,7 +12,7 @@ import { aiHyperSearch } from "@/lib/ai-search.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/ogloszenia")({
+export const Route = createFileRoute("/ogloszenia/")({
   head: () => ({
     meta: [
       { title: "Ogłoszenia nieruchomości — Stay Safe" },
