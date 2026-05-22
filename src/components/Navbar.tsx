@@ -63,6 +63,9 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowe-zapytanie" })}>
                   <Plus className="h-4 w-4" /> Zapytanie najemcy
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
+                  <Plus className="h-4 w-4" /> Oferta wynajmującego
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/my-listings" })}>
                   <List className="h-4 w-4" /> Moje nieruchomości
@@ -72,6 +75,9 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                   <KeyRound className="h-4 w-4" /> Moje zapytania najmu
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-oferty" })}>
+                  <Building2 className="h-4 w-4" /> Moje oferty najmu
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}>
                   <MessageCircle className="h-4 w-4" /> Wiadomości
