@@ -5,8 +5,8 @@ import heroBg from "@/assets/hero-bg.jpg";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Stay Safe — Platforma nieruchomości" },
-      { name: "description", content: "Stay Safe to platforma 3 w 1: Wycena Live, Ogłoszenia nieruchomości i Odwrócony marketplace najmu." },
+      { title: "Stay Safe — tam, gdzie nieruchomości mają swoją prawdziwą cenę" },
+      { name: "description", content: "Inteligentna platforma nieruchomości: realna wartość rynkowa w czasie rzeczywistym, marketplace ofert i odwrócony najem." },
     ],
   }),
   component: DashboardPage,
@@ -16,25 +16,25 @@ const modules = [
   {
     to: "/wycena-live" as const,
     icon: Gavel,
-    title: "Wycena Live",
-    description: "Wystaw nieruchomość i sprawdź jej realną wartość rynkową w czasie rzeczywistym — bez kosztów, bez pośredników.",
-    cta: "Przejdź do aukcji",
+    title: "Silnik Wartości Live",
+    description: "Wycena w czasie rzeczywistym. Wystaw nieruchomość i zobacz jej realną wartość rynkową na podstawie reakcji rynku — natychmiast. Bez opłat. Bez pośredników. Bez zgadywania.",
+    cta: "Uruchom wycenę",
     color: "from-primary/20 to-primary/5",
   },
   {
     to: "/ogloszenia" as const,
     icon: Building2,
-    title: "Ogłoszenia nieruchomości",
-    description: "Klasyczny marketplace sprzedaży z filtrami, wyszukiwarką frazową i asystentem AI Hyper-Lokalizacja.",
-    cta: "Zobacz ogłoszenia",
+    title: "Rynek Ofert",
+    description: "Nowoczesny marketplace z zaawansowanymi filtrami, wyszukiwaniem semantycznym i asystentem AI, który rozumie lokalny kontekst. Znajduj nieruchomości szybciej i precyzyjniej.",
+    cta: "Przeglądaj oferty",
     color: "from-emerald-500/20 to-emerald-500/5",
   },
   {
     to: "/najem" as const,
     icon: KeyRound,
-    title: "Odwrócony marketplace najmu",
-    description: "Najemcy publikują swoje potrzeby, wynajmujący proponują dedykowane oferty. Czat aktywny dopiero po akceptacji.",
-    cta: "Wejdź do najmu",
+    title: "Przepływ Najmu",
+    description: "Najemcy publikują swoje potrzeby otrzymując jedynie dopasowane oferty z bazy ofert, bez przeglądania setek ofert. Kontakt uruchamiany jest dopiero po akceptacji — pełna kontrola i prywatność.",
+    cta: "Wejdź w przepływ",
     color: "from-amber-500/20 to-amber-500/5",
   },
 ];
@@ -47,19 +47,19 @@ function DashboardPage() {
         style={{ backgroundImage: `url(${heroBg})` }}
       >
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/85 to-background" />
-        <div className="container relative mx-auto px-4 py-16 sm:py-24">
+        <div className="container relative mx-auto px-4 py-8 sm:py-10">
           <div className="mx-auto max-w-3xl text-center">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Stay Safe — <span className="text-primary">Prawdziwe ceny.</span>
+            <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+              Stay Safe — <span className="text-primary">tam, gdzie nieruchomości mają swoją prawdziwą cenę.</span>
             </h1>
-            <p className="mt-3 text-lg text-foreground/90">
-              Trzy moduły, jedno konto. Wybierz, jak chcesz dziś działać na rynku nieruchomości.
+            <p className="mt-2 text-sm text-foreground/90 sm:text-base">
+              Stay Safe to inteligentna platforma nieruchomości, która pokazuje realną wartość rynkową w czasie rzeczywistym, łączy kupujących i sprzedających bez pośredników, wprowadza dynamiczny rynek ofert i popytu oraz upraszcza decyzje inwestycyjne.
             </p>
           </div>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-12">
+      <section className="container mx-auto px-4 py-8">
         <div className="grid gap-6 md:grid-cols-3">
           {modules.map(({ to, icon: Icon, title, description, cta, color }) => (
             <Link key={to} to={to}

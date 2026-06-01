@@ -8,8 +8,8 @@ import { formatPLN } from "@/lib/format";
 export const Route = createFileRoute("/najem")({
   head: () => ({
     meta: [
-      { title: "Odwrócony marketplace najmu — Stay Safe" },
-      { name: "description", content: "Najemcy publikują potrzeby, wynajmujący proponują dedykowane oferty." },
+      { title: "Przepływ Najmu — Stay Safe" },
+      { name: "description", content: "Najemcy publikują potrzeby, otrzymują dopasowane oferty. Kontakt po akceptacji — pełna kontrola i prywatność." },
     ],
   }),
   component: NajemHub,
@@ -37,9 +37,9 @@ function NajemHub() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Odwrócony marketplace najmu</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Przepływ Najmu</h1>
         <p className="mt-3 text-muted-foreground">
-          Najemcy określają swoje potrzeby, a inteligentny system dopasowuje wyłącznie oferty najmu zgodne z ich kryteriami i lokalizacją. To nowoczesny model działania, który odwraca schemat znany z tradycyjnych portali — zamiast przeglądać setki przypadkowych ogłoszeń, użytkownicy otrzymują tylko realnie dopasowane oferty. Wynajmujący trafiają bezpośrednio do zainteresowanych najemców, a gdy pojawi się idealne dopasowanie, obie strony mogą od razu rozpocząć rozmowę przez wygodny czat na platformie.
+          Najemcy publikują swoje potrzeby otrzymując jedynie dopasowane oferty z bazy ofert, bez przeglądania setek ofert. Kontakt uruchamiany jest dopiero po akceptacji — pełna kontrola i prywatność.
         </p>
       </div>
 
@@ -54,7 +54,7 @@ function NajemHub() {
           </div>
           <h2 className="mt-5 text-xl font-semibold">Jestem najemcą</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Opisz swoje potrzeby (lokalizacja, budżet, zwierzęta, kaucja). Wynajmujący prześlą Ci dedykowane oferty.
+            Opisz swoje potrzeby (lokalizacja, budżet, zwierzęta, kaucja). System dopasuje oferty z bazy wynajmujących.
           </p>
           <span className="mt-4 inline-flex text-sm font-medium text-primary">Stwórz zapytanie →</span>
         </Link>
