@@ -7,6 +7,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { MultiImageUpload } from "@/components/MultiImageUpload";
@@ -24,7 +27,12 @@ const schema = z.object({
   sale_price: z.number().positive().max(1_000_000_000),
   area_m2: z.number().positive().max(100000),
   kw_number: z.string().max(40).optional().or(z.literal("")),
+  building_no: z.string().max(20).optional().or(z.literal("")),
+  apt_no: z.string().max(20).optional().or(z.literal("")),
 });
+
+type Market = "primary" | "secondary";
+type Ownership = "cooperative_with_kw" | "cooperative_no_kw" | "separate_property";
 
 function NewSaleListingPage() {
   const { user } = useAuth();
@@ -34,9 +42,12 @@ function NewSaleListingPage() {
   const [mainIdx, setMainIdx] = useState(0);
   const [promoted, setPromoted] = useState(false);
   const [consent, setConsent] = useState(false);
+  const [market, setMarket] = useState<Market>("secondary");
+  const [ownership, setOwnership] = useState<Ownership>("separate_property");
   const [form, setForm] = useState({
     title: "", description: "", city: "", street: "",
     sale_price: "", area_m2: "", kw_number: "",
+    building_no: "", apt_no: "",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -51,6 +62,8 @@ function NewSaleListingPage() {
       sale_price: Number(form.sale_price),
       area_m2: Number(form.area_m2),
       kw_number: form.kw_number.trim().toUpperCase(),
+      building_no: form.building_no.trim(),
+      apt_no: form.apt_no.trim(),
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
 
@@ -84,6 +97,10 @@ function NewSaleListingPage() {
         ends_at: farFuture,
         kind: "sale_listing",
         kw_number: kw,
+        market_type: market,
+        ownership_type: ownership,
+        building_no: parsed.data.building_no || null,
+        apt_no: parsed.data.apt_no || null,
         promoted,
       } as never).select().single();
 
@@ -130,12 +147,45 @@ function NewSaleListingPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
+            <Label>Rynek</Label>
+            <Select value={market} onValueChange={(v) => setMarket(v as Market)}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="secondary">Rynek wtórny</SelectItem>
+                <SelectItem value="primary">Rynek pierwotny</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Forma własności</Label>
+            <Select value={ownership} onValueChange={(v) => setOwnership(v as Ownership)}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="separate_property">Odrębna nieruchomość</SelectItem>
+                <SelectItem value="cooperative_with_kw">Spółdzielczo-własnościowe prawo do lokalu z założoną KW</SelectItem>
+                <SelectItem value="cooperative_no_kw">Spółdzielczo-własnościowe prawo do lokalu bez założonej KW</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
             <Label>Miejscowość</Label>
             <Input required value={form.city} onChange={(e) => set("city", e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
           <div>
             <Label>Ulica</Label>
             <Input required value={form.street} onChange={(e) => set("street", e.target.value)} className="mt-1.5 rounded-xl" />
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Numer budynku <span className="text-muted-foreground">(opcjonalnie)</span></Label>
+            <Input value={form.building_no} onChange={(e) => set("building_no", e.target.value)} className="mt-1.5 rounded-xl" />
+          </div>
+          <div>
+            <Label>Numer lokalu <span className="text-muted-foreground">(opcjonalnie)</span></Label>
+            <Input value={form.apt_no} onChange={(e) => set("apt_no", e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
         </div>
         <div>

@@ -21,6 +21,7 @@ import { Route as OgloszeniaIndexRouteImport } from './routes/ogloszenia.index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as OgloszeniaIdRouteImport } from './routes/ogloszenia.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
+import { Route as AuthenticatedPolubioneRouteImport } from './routes/_authenticated/polubione'
 import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
@@ -92,6 +93,11 @@ const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
   id: '/zapytania',
   path: '/zapytania',
   getParentRoute: () => NajemRoute,
+} as any)
+const AuthenticatedPolubioneRoute = AuthenticatedPolubioneRouteImport.update({
+  id: '/polubione',
+  path: '/polubione',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedNewListingRoute = AuthenticatedNewListingRouteImport.update({
   id: '/new-listing',
@@ -172,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
+  '/polubione': typeof AuthenticatedPolubioneRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -197,6 +204,7 @@ export interface FileRoutesByTo {
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
+  '/polubione': typeof AuthenticatedPolubioneRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -224,6 +232,7 @@ export interface FileRoutesById {
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
+  '/_authenticated/polubione': typeof AuthenticatedPolubioneRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -251,6 +260,7 @@ export interface FileRouteTypes {
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
+    | '/polubione'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -276,6 +286,7 @@ export interface FileRouteTypes {
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
+    | '/polubione'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -302,6 +313,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-bids'
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
+    | '/_authenticated/polubione'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -416,6 +428,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NajemZapytaniaRouteImport
       parentRoute: typeof NajemRoute
     }
+    '/_authenticated/polubione': {
+      id: '/_authenticated/polubione'
+      path: '/polubione'
+      fullPath: '/polubione'
+      preLoaderRoute: typeof AuthenticatedPolubioneRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/new-listing': {
       id: '/_authenticated/new-listing'
       path: '/new-listing'
@@ -508,6 +527,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
   AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
+  AuthenticatedPolubioneRoute: typeof AuthenticatedPolubioneRoute
   AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -522,6 +542,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
   AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
+  AuthenticatedPolubioneRoute: AuthenticatedPolubioneRoute,
   AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,

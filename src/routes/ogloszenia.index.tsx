@@ -11,21 +11,25 @@ import { formatPLN } from "@/lib/format";
 import { aiHyperSearch } from "@/lib/ai-search.functions";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { FavoriteButton } from "@/components/FavoriteButton";
 
 export const Route = createFileRoute("/ogloszenia/")({
   head: () => ({
     meta: [
-      { title: "Ogłoszenia nieruchomości — Stay Safe" },
-      { name: "description", content: "Klasyczny marketplace ogłoszeń sprzedaży nieruchomości z filtrami i asystentem AI." },
+      { title: "Rynek Ofert — Stay Safe" },
+      { name: "description", content: "Nowoczesny marketplace z zaawansowanymi filtrami, wyszukiwaniem semantycznym i asystentem AI." },
     ],
   }),
   component: OgloszeniaPage,
 });
 
+type Market = "all" | "primary" | "secondary";
+
 interface SaleListing {
   id: string; owner_id: string; title: string; description: string;
   city: string; street: string; sale_price: number; area_m2: number;
   image_url: string | null; promoted: boolean; created_at: string;
+  market_type: "primary" | "secondary" | null;
 }
 
 function OgloszeniaPage() {
@@ -36,6 +40,7 @@ function OgloszeniaPage() {
   const [areaMin, setAreaMin] = useState("");
   const [areaMax, setAreaMax] = useState("");
   const [phrase, setPhrase] = useState("");
+  const [market, setMarket] = useState<Market>("all");
   const [sort, setSort] = useState<"newest" | "price_asc" | "price_desc" | "ppm_asc" | "ppm_desc">("newest");
   const [aiQuery, setAiQuery] = useState("");
   const [aiLoading, setAiLoading] = useState(false);
@@ -45,7 +50,7 @@ function OgloszeniaPage() {
     queryKey: ["sale-listings"],
     queryFn: async (): Promise<SaleListing[]> => {
       const { data, error } = await supabase
-        .from("properties").select("id, owner_id, title, description, city, street, sale_price, area_m2, image_url, promoted, created_at")
+        .from("properties").select("id, owner_id, title, description, city, street, sale_price, area_m2, image_url, promoted, created_at, market_type")
         .eq("kind", "sale_listing")
         .eq("status", "active")
         .order("created_at", { ascending: false }).limit(500);
@@ -63,6 +68,7 @@ function OgloszeniaPage() {
       if (priceMax && Number(p.sale_price) > Number(priceMax)) return false;
       if (areaMin && Number(p.area_m2) < Number(areaMin)) return false;
       if (areaMax && Number(p.area_m2) > Number(areaMax)) return false;
+      if (market !== "all" && p.market_type !== market) return false;
       if (ph && !`${p.title} ${p.description}`.toLowerCase().includes(ph)) return false;
       return true;
     });
@@ -74,7 +80,7 @@ function OgloszeniaPage() {
       case "ppm_desc": out = [...out].sort((a, b) => ppm(b) - ppm(a)); break;
     }
     return out;
-  }, [data, city, priceMin, priceMax, areaMin, areaMax, phrase, sort]);
+  }, [data, city, priceMin, priceMax, areaMin, areaMax, phrase, market, sort]);
 
   const promoted = filtered.filter((p) => p.promoted);
   const standard = filtered.filter((p) => !p.promoted);
@@ -100,9 +106,9 @@ function OgloszeniaPage() {
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Ogłoszenia nieruchomości</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Rynek Ofert</h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-                Klasyczny marketplace sprzedaży nowej generacji. Wyszukuj produkty po frazach, filtruj oferty lub po prostu opisz swoje potrzeby — AI z technologią Hyper-Lokalizacji znajdzie idealne dopasowanie w Twojej okolicy.
+                Nowoczesny marketplace z zaawansowanymi filtrami, wyszukiwaniem semantycznym i asystentem AI, który rozumie lokalny kontekst. Znajduj nieruchomości szybciej i precyzyjniej.
               </p>
             </div>
             {user && (
@@ -143,8 +149,19 @@ function OgloszeniaPage() {
             <Input type="number" placeholder="m² max" value={areaMax} onChange={(e) => setAreaMax(e.target.value)} className="rounded-xl" />
           </div>
         </div>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Sortuj:</span>
+        <div className="mt-3 flex flex-wrap items-center gap-3 text-sm">
+          <span className="text-muted-foreground">Rynek:</span>
+          {([
+            ["all", "Wszystkie"],
+            ["primary", "Pierwotny"],
+            ["secondary", "Wtórny"],
+          ] as const).map(([k, label]) => (
+            <button key={k} type="button" onClick={() => setMarket(k)}
+              className={`rounded-full px-3 py-1 text-xs transition ${market === k ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/70"}`}>
+              {label}
+            </button>
+          ))}
+          <span className="ml-3 text-muted-foreground">Sortuj:</span>
           {([
             ["newest", "Najnowsze"],
             ["price_asc", "Cena: rosnąco"],
@@ -196,6 +213,7 @@ function OgloszeniaPage() {
 }
 
 function SaleCard({ p, promoted }: { p: SaleListing; promoted?: boolean }) {
+  const ppm = Number(p.area_m2) > 0 ? Math.round(Number(p.sale_price) / Number(p.area_m2)) : 0;
   return (
     <Link to="/ogloszenia/$id" params={{ id: p.id }}
       className={`group block overflow-hidden rounded-3xl bg-card shadow-card transition hover:shadow-glow hover:-translate-y-0.5 ${promoted ? "ring-2 ring-amber-400 border-2 border-amber-400/60" : ""}`}>
@@ -209,6 +227,14 @@ function SaleCard({ p, promoted }: { p: SaleListing; promoted?: boolean }) {
           </div>
         )}
         <Badge className="absolute left-3 top-3 rounded-full bg-background/90 text-foreground backdrop-blur">{p.area_m2} m²</Badge>
+        {p.market_type && (
+          <Badge className="absolute left-3 top-12 rounded-full bg-background/90 text-foreground backdrop-blur text-[10px]">
+            {p.market_type === "primary" ? "Rynek pierwotny" : "Rynek wtórny"}
+          </Badge>
+        )}
+        <div className="absolute right-3 top-3">
+          <FavoriteButton propertyId={p.id} />
+        </div>
         {promoted && (
           <Badge className="absolute left-3 bottom-3 rounded-full bg-amber-400 text-amber-950 font-semibold">★ Promowane</Badge>
         )}
@@ -218,7 +244,14 @@ function SaleCard({ p, promoted }: { p: SaleListing; promoted?: boolean }) {
         <p className="mt-1 flex items-center gap-1 text-sm text-muted-foreground">
           <MapPin className="h-3.5 w-3.5" /> {p.city} · {p.street}
         </p>
-        <div className="mt-3 text-2xl font-bold tabular-nums text-primary">{formatPLN(p.sale_price)}</div>
+        <div className="mt-3 flex items-baseline justify-between gap-2">
+          <div className="text-2xl font-bold tabular-nums text-primary">{formatPLN(p.sale_price)}</div>
+          {ppm > 0 && (
+            <div className="text-xs text-muted-foreground tabular-nums">
+              {formatPLN(ppm)} / m²
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );
