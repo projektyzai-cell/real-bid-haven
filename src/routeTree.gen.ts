@@ -84,9 +84,9 @@ const PropertiesIdRoute = PropertiesIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const OgloszeniaIdRoute = OgloszeniaIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => OgloszeniaRoute,
+  id: '/ogloszenia/$id',
+  path: '/ogloszenia/$id',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
   id: '/zapytania',
@@ -325,6 +325,7 @@ export interface RootRouteChildren {
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WycenaLiveRoute: typeof WycenaLiveRoute
+  OgloszeniaIdRoute: typeof OgloszeniaIdRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
   OgloszeniaIndexRoute: typeof OgloszeniaIndexRoute
 }
@@ -403,10 +404,10 @@ declare module '@tanstack/react-router' {
     }
     '/ogloszenia/$id': {
       id: '/ogloszenia/$id'
-      path: '/$id'
+      path: '/ogloszenia/$id'
       fullPath: '/ogloszenia/$id'
       preLoaderRoute: typeof OgloszeniaIdRouteImport
-      parentRoute: typeof OgloszeniaRoute
+      parentRoute: typeof rootRouteImport
     }
     '/najem/zapytania': {
       id: '/najem/zapytania'
@@ -565,6 +566,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WycenaLiveRoute: WycenaLiveRoute,
+  OgloszeniaIdRoute: OgloszeniaIdRoute,
   PropertiesIdRoute: PropertiesIdRoute,
   OgloszeniaIndexRoute: OgloszeniaIndexRoute,
 }
