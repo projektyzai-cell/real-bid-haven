@@ -11,6 +11,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+import { FavoriteButton } from "@/components/FavoriteButton";
+
+const OWNERSHIP_LABEL: Record<string, string> = {
+  separate_property: "Odrębna nieruchomość",
+  cooperative_with_kw: "Spółdzielczo-własnościowe prawo do lokalu z założoną KW",
+  cooperative_no_kw: "Spółdzielczo-własnościowe prawo do lokalu bez założonej KW",
+};
 
 export const Route = createFileRoute("/ogloszenia/$id")({
   head: () => ({ meta: [{ title: "Ogłoszenie — Stay Safe" }] }),
@@ -98,12 +105,21 @@ function SaleDetailPage() {
     setSending(true);
     const { error } = await supabase.from("sale_inquiries" as never).insert({
       property_id: id, buyer_id: user.id, seller_id: p.owner_id,
-      message: msg.trim(), contact_email: user.email, contact_phone: phone.trim() || null,
+      message: msg.trim(),
+      contact_email: user.email ?? null,
+      contact_phone: phone.trim() || null,
     } as never);
     setSending(false);
-    if (error) toast.error(error.message);
+    if (error) { console.error(error); toast.error(error.message || "Nie udało się wysłać wiadomości"); }
     else { toast.success("Wiadomość wysłana do sprzedającego."); setMsg(""); setPhone(""); }
   }
+
+  const pAny = p as unknown as {
+    market_type?: "primary" | "secondary" | null;
+    ownership_type?: string | null;
+    building_no?: string | null;
+    apt_no?: string | null;
+  };
 
   return (
     <div className="container mx-auto grid gap-8 px-4 py-10 lg:grid-cols-3">
@@ -114,7 +130,20 @@ function SaleDetailPage() {
             <Badge className="rounded-full">{p.area_m2} m²</Badge>
             <Badge variant="outline" className="rounded-full">
               <MapPin className="h-3 w-3" /> {p.city} · {p.street}
+              {pAny.building_no ? ` ${pAny.building_no}` : ""}
+              {pAny.apt_no ? `/${pAny.apt_no}` : ""}
             </Badge>
+            {pAny.market_type && (
+              <Badge variant="secondary" className="rounded-full">
+                {pAny.market_type === "primary" ? "Rynek pierwotny" : "Rynek wtórny"}
+              </Badge>
+            )}
+            {pAny.ownership_type && OWNERSHIP_LABEL[pAny.ownership_type] && (
+              <Badge variant="outline" className="rounded-full">
+                {OWNERSHIP_LABEL[pAny.ownership_type]}
+              </Badge>
+            )}
+            <FavoriteButton propertyId={id} variant="button" />
           </div>
           <h1 className="mt-3 text-3xl font-semibold">{p.title}</h1>
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{p.description}</p>

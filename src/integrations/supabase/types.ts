@@ -76,6 +76,27 @@ export type Database = {
         }
         Relationships: []
       }
+      favorites: {
+        Row: {
+          created_at: string
+          id: string
+          property_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          property_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          property_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           chat_id: string
@@ -140,8 +161,10 @@ export type Database = {
       }
       properties: {
         Row: {
+          apt_no: string | null
           area_m2: number
           bid_count: number
+          building_no: string | null
           city: string
           created_at: string
           current_price: number
@@ -153,7 +176,9 @@ export type Database = {
           kind: Database["public"]["Enums"]["property_kind"]
           kw_number: string | null
           main_image_index: number
+          market_type: Database["public"]["Enums"]["market_type"] | null
           owner_id: string
+          ownership_type: Database["public"]["Enums"]["ownership_type"] | null
           promoted: boolean
           sale_price: number | null
           starting_price: number
@@ -163,8 +188,10 @@ export type Database = {
           winning_bid_id: string | null
         }
         Insert: {
+          apt_no?: string | null
           area_m2: number
           bid_count?: number
+          building_no?: string | null
           city: string
           created_at?: string
           current_price?: number
@@ -176,7 +203,9 @@ export type Database = {
           kind?: Database["public"]["Enums"]["property_kind"]
           kw_number?: string | null
           main_image_index?: number
+          market_type?: Database["public"]["Enums"]["market_type"] | null
           owner_id: string
+          ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
           promoted?: boolean
           sale_price?: number | null
           starting_price: number
@@ -186,8 +215,10 @@ export type Database = {
           winning_bid_id?: string | null
         }
         Update: {
+          apt_no?: string | null
           area_m2?: number
           bid_count?: number
+          building_no?: string | null
           city?: string
           created_at?: string
           current_price?: number
@@ -199,7 +230,9 @@ export type Database = {
           kind?: Database["public"]["Enums"]["property_kind"]
           kw_number?: string | null
           main_image_index?: number
+          market_type?: Database["public"]["Enums"]["market_type"] | null
           owner_id?: string
+          ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
           promoted?: boolean
           sale_price?: number | null
           starting_price?: number
@@ -564,6 +597,11 @@ export type Database = {
     }
     Enums: {
       app_role: "buyer" | "seller" | "admin"
+      market_type: "primary" | "secondary"
+      ownership_type:
+        | "cooperative_with_kw"
+        | "cooperative_no_kw"
+        | "separate_property"
       property_kind: "live_valuation" | "sale_listing"
       property_status: "active" | "ended" | "sold" | "cancelled"
     }
@@ -694,6 +732,12 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["buyer", "seller", "admin"],
+      market_type: ["primary", "secondary"],
+      ownership_type: [
+        "cooperative_with_kw",
+        "cooperative_no_kw",
+        "separate_property",
+      ],
       property_kind: ["live_valuation", "sale_listing"],
       property_status: ["active", "ended", "sold", "cancelled"],
     },

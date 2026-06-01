@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Home, Building2, KeyRound } from "lucide-react";
+import { Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Home, Building2, KeyRound, Heart } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import {
@@ -9,9 +9,9 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const tabs = [
-  { to: "/wycena-live", label: "Wycena Live", icon: Gavel },
-  { to: "/ogloszenia", label: "Ogłoszenia", icon: Building2 },
-  { to: "/najem", label: "Najem", icon: KeyRound },
+  { to: "/wycena-live", label: "Silnik Wartości Live", icon: Gavel },
+  { to: "/ogloszenia", label: "Rynek Ofert", icon: Building2 },
+  { to: "/najem", label: "Przepływ Najmu", icon: KeyRound },
 ] as const;
 
 export function Navbar() {
@@ -78,6 +78,9 @@ export function Navbar() {
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-oferty" })}>
                   <Building2 className="h-4 w-4" /> Moje oferty najmu
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/polubione" })}>
+                  <Heart className="h-4 w-4" /> Polubione
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}>
                   <MessageCircle className="h-4 w-4" /> Wiadomości

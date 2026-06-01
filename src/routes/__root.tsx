@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { AuthProvider } from "@/hooks/use-auth";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
+import { CookieConsent } from "@/components/CookieConsent";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -116,6 +117,7 @@ function RootComponent() {
           </main>
           <Footer />
         </div>
+        <CookieConsent />
         <Toaster position="top-right" richColors closeButton />
       </AuthProvider>
     </QueryClientProvider>
