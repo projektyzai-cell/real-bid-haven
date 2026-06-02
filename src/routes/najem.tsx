@@ -8,7 +8,7 @@ import { formatPLN } from "@/lib/format";
 export const Route = createFileRoute("/najem")({
   head: () => ({
     meta: [
-      { title: "Przepływ Najmu — Stay Safe" },
+      { title: "Strefa najmu — Stay Safe" },
       { name: "description", content: "Najemcy publikują potrzeby, otrzymują dopasowane oferty. Kontakt po akceptacji — pełna kontrola i prywatność." },
     ],
   }),
@@ -37,7 +37,7 @@ function NajemHub() {
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="mx-auto max-w-3xl text-center">
-        <h1 className="text-4xl font-bold tracking-tight">Przepływ Najmu</h1>
+        <h1 className="text-4xl font-bold tracking-tight">Strefa najmu</h1>
         <p className="mt-3 text-muted-foreground">
           Najemcy publikują swoje potrzeby otrzymując jedynie dopasowane oferty z bazy ofert, bez przeglądania setek ofert. Kontakt uruchamiany jest dopiero po akceptacji — pełna kontrola i prywatność.
         </p>

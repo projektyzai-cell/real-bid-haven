@@ -39,6 +39,11 @@ function AuthPage() {
     e.preventDefault();
     if (!acceptTerms) { toast.error("Akceptacja Regulaminu jest wymagana."); return; }
     if (!nick.trim()) { toast.error("Podaj nick."); return; }
+    const pwdRe = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
+    if (!pwdRe.test(password)) {
+      toast.error("Hasło musi mieć min. 8 znaków, zawierać wielką literę, cyfrę i znak specjalny.");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email, password,
@@ -144,7 +149,7 @@ function AuthPage() {
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
               <div>
-                <Label htmlFor="password2">Hasło (min. 8 znaków)</Label>
+                <Label htmlFor="password2">Hasło (min. 8 znaków, wielka litera, cyfra, znak specjalny)</Label>
                 <Input id="password2" type="password" required minLength={8} value={password}
                   onChange={(e) => setPassword(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>

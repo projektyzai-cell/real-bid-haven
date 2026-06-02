@@ -44,10 +44,13 @@ function NewSaleListingPage() {
   const [consent, setConsent] = useState(false);
   const [market, setMarket] = useState<Market>("secondary");
   const [ownership, setOwnership] = useState<Ownership>("separate_property");
+  const [floor, setFloor] = useState<string>("");
+  const [heating, setHeating] = useState<string>("");
+  const [offerType, setOfferType] = useState<"private" | "agent">("private");
   const [form, setForm] = useState({
     title: "", description: "", city: "", street: "",
     sale_price: "", area_m2: "", kw_number: "",
-    building_no: "", apt_no: "",
+    building_no: "", apt_no: "", monthly_rent: "",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
@@ -102,6 +105,10 @@ function NewSaleListingPage() {
         building_no: parsed.data.building_no || null,
         apt_no: parsed.data.apt_no || null,
         promoted,
+        floor: floor || null,
+        heating_type: heating || null,
+        monthly_rent_amount: form.monthly_rent ? Number(form.monthly_rent) : null,
+        offer_type: offerType,
       } as never).select().single();
 
       if (error) {
@@ -141,7 +148,7 @@ function NewSaleListingPage() {
           </div>
           <div>
             <Label>Metraż (m²)</Label>
-            <Input required type="number" min={1} step="0.1" value={form.area_m2}
+            <Input required type="number" min={1} step="0.01" value={form.area_m2}
               onChange={(e) => set("area_m2", e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
         </div>
@@ -186,6 +193,47 @@ function NewSaleListingPage() {
           <div>
             <Label>Numer lokalu <span className="text-muted-foreground">(opcjonalnie)</span></Label>
             <Input value={form.apt_no} onChange={(e) => set("apt_no", e.target.value)} className="mt-1.5 rounded-xl" />
+          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Piętro</Label>
+            <Select value={floor} onValueChange={setFloor}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz piętro" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="parter">Parter</SelectItem>
+                {Array.from({ length: 15 }, (_, i) => i + 1).map((n) => (
+                  <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                ))}
+                <SelectItem value=">15">powyżej 15</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Rodzaj ogrzewania</Label>
+            <Select value={heating} onValueChange={setHeating}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="city">Miejskie</SelectItem>
+                <SelectItem value="own">Własne</SelectItem>
+                <SelectItem value="other">Inne</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Czynsz administracyjny (PLN/mc, opcjonalnie)</Label>
+            <Input type="number" min={0} step="0.01" value={form.monthly_rent}
+              onChange={(e) => set("monthly_rent", e.target.value)} className="mt-1.5 rounded-xl" />
+          </div>
+          <div>
+            <Label>Rodzaj oferty</Label>
+            <Select value={offerType} onValueChange={(v) => setOfferType(v as "private" | "agent")}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">Prywatna</SelectItem>
+                <SelectItem value="agent">Pośrednik</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
         <div>

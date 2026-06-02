@@ -22,8 +22,11 @@ function NewRentalListing() {
     title: "", description: "", kind: "apartment",
     city: "", street: "", apt_no: "", kw_number: "",
     rooms: 2, area_m2: 40, monthly_price: 2500,
+    rent_base: 2000, utilities_fee: 500, min_lease_months: 12,
     accepts_pets: false, accepts_children: true, notarial_required: false,
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
+    requires_insurance: false, insurance_payer: "tenant",
+    requires_deposit: true,
   });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
@@ -42,7 +45,13 @@ function NewRentalListing() {
       title: form.title.trim(), description: form.description.trim(),
       kind: form.kind, city: form.city.trim(), street: form.street.trim(),
       apt_no: form.apt_no.trim() || null, kw_number: form.kw_number.trim() || null,
-      rooms: form.rooms, area_m2: form.area_m2, monthly_price: form.monthly_price,
+      rooms: form.rooms, area_m2: form.area_m2,
+      monthly_price: (form.rent_base || 0) + (form.utilities_fee || 0),
+      rent_base: form.rent_base, utilities_fee: form.utilities_fee,
+      min_lease_months: form.min_lease_months,
+      requires_insurance: form.requires_insurance,
+      insurance_payer: form.requires_insurance ? form.insurance_payer : null,
+      requires_deposit: form.requires_deposit,
       accepts_pets: form.accepts_pets, accepts_children: form.accepts_children,
       notarial_required: form.notarial_required, has_energy_cert: form.has_energy_cert,
       wants_energy_cert_discount: form.wants_energy_cert_discount,
@@ -93,15 +102,44 @@ function NewRentalListing() {
           </div>
           <div>
             <Label>Metraż (m²)</Label>
-            <Input type="number" min={1} step="0.1" value={form.area_m2} onChange={(e) => setF("area_m2", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+            <Input type="number" min={1} step="0.01" value={form.area_m2} onChange={(e) => setF("area_m2", Number(e.target.value))} className="mt-1.5 rounded-xl" />
           </div>
           <div>
-            <Label>Czynsz miesięczny (PLN)</Label>
-            <Input type="number" min={0} value={form.monthly_price} onChange={(e) => setF("monthly_price", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+            <Label>Odstępne (czynsz najmu, PLN/mc)</Label>
+            <Input type="number" min={0} step="0.01" value={form.rent_base} onChange={(e) => setF("rent_base", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+          </div>
+          <div>
+            <Label>Opłaty eksploatacyjne (PLN/mc)</Label>
+            <Input type="number" min={0} step="0.01" value={form.utilities_fee} onChange={(e) => setF("utilities_fee", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+          </div>
+          <div>
+            <Label>Min. okres najmu (miesiące)</Label>
+            <Input type="number" min={1} value={form.min_lease_months} onChange={(e) => setF("min_lease_months", Number(e.target.value))} className="mt-1.5 rounded-xl" />
           </div>
           <div>
             <Label>Numer KW (opcjonalnie)</Label>
             <Input value={form.kw_number} onChange={(e) => setF("kw_number", e.target.value)} className="mt-1.5 rounded-xl" />
+          </div>
+          <div className="md:col-span-2 grid gap-3 sm:grid-cols-2">
+            <label className="flex items-center gap-2 rounded-xl border bg-background/50 p-3 text-sm">
+              <Checkbox checked={form.requires_deposit} onCheckedChange={(v) => setF("requires_deposit", v === true)} />
+              Wymagana kaucja
+            </label>
+            <label className="flex items-center gap-2 rounded-xl border bg-background/50 p-3 text-sm">
+              <Checkbox checked={form.requires_insurance} onCheckedChange={(v) => setF("requires_insurance", v === true)} />
+              Wymagam wykupienia ubezpieczenia
+            </label>
+            {form.requires_insurance && (
+              <div className="sm:col-span-2">
+                <Label>Koszt ubezpieczenia ponosi</Label>
+                <select value={form.insurance_payer} onChange={(e) => setF("insurance_payer", e.target.value)}
+                  className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                  <option value="tenant">Najemca</option>
+                  <option value="landlord">Wynajmujący</option>
+                  <option value="shared">Po połowie</option>
+                </select>
+              </div>
+            )}
           </div>
         </div>
 

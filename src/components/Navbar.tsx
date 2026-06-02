@@ -9,9 +9,9 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 
 const tabs = [
-  { to: "/wycena-live", label: "Silnik Wartości Live", icon: Gavel },
-  { to: "/ogloszenia", label: "Rynek Ofert", icon: Building2 },
-  { to: "/najem", label: "Przepływ Najmu", icon: KeyRound },
+  { to: "/wycena-live", label: "Rynkowa wycena nieruchomości", icon: Gavel },
+  { to: "/ogloszenia", label: "Oferty sprzedaży", icon: Building2 },
+  { to: "/najem", label: "Strefa najmu", icon: KeyRound },
 ] as const;
 
 export function Navbar() {
