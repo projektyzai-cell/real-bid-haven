@@ -195,6 +195,47 @@ function NewSaleListingPage() {
             <Input value={form.apt_no} onChange={(e) => set("apt_no", e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
         </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Piętro</Label>
+            <Select value={floor} onValueChange={setFloor}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz piętro" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="parter">Parter</SelectItem>
+                {Array.from({ length: 15 }, (_, i) => i + 1).map((n) => (
+                  <SelectItem key={n} value={String(n)}>{n}</SelectItem>
+                ))}
+                <SelectItem value=">15">powyżej 15</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Rodzaj ogrzewania</Label>
+            <Select value={heating} onValueChange={setHeating}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="city">Miejskie</SelectItem>
+                <SelectItem value="own">Własne</SelectItem>
+                <SelectItem value="other">Inne</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label>Czynsz administracyjny (PLN/mc, opcjonalnie)</Label>
+            <Input type="number" min={0} step="0.01" value={form.monthly_rent}
+              onChange={(e) => set("monthly_rent", e.target.value)} className="mt-1.5 rounded-xl" />
+          </div>
+          <div>
+            <Label>Rodzaj oferty</Label>
+            <Select value={offerType} onValueChange={(v) => setOfferType(v as "private" | "agent")}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="private">Prywatna</SelectItem>
+                <SelectItem value="agent">Pośrednik</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
         <div>
           <Label>Numer Księgi Wieczystej (KW) — opcjonalnie</Label>
           <Input value={form.kw_number}
