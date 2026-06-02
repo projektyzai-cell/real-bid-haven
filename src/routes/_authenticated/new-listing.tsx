@@ -123,7 +123,7 @@ function NewListingPage() {
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <Label>Metraż (m²)</Label>
-            <Input type="number" min={1} step="0.1" value={form.area_m2}
+            <Input type="number" min={1} step="0.01" value={form.area_m2}
               onChange={(e) => set("area_m2", e.target.value)}
               className="mt-1.5 rounded-xl" required />
           </div>

@@ -93,7 +93,7 @@ function NewRentalListing() {
           </div>
           <div>
             <Label>Metraż (m²)</Label>
-            <Input type="number" min={1} step="0.1" value={form.area_m2} onChange={(e) => setF("area_m2", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+            <Input type="number" min={1} step="0.01" value={form.area_m2} onChange={(e) => setF("area_m2", Number(e.target.value))} className="mt-1.5 rounded-xl" />
           </div>
           <div>
             <Label>Czynsz miesięczny (PLN)</Label>
