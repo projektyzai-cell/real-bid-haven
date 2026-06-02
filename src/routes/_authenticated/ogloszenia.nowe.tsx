@@ -105,6 +105,10 @@ function NewSaleListingPage() {
         building_no: parsed.data.building_no || null,
         apt_no: parsed.data.apt_no || null,
         promoted,
+        floor: floor || null,
+        heating_type: heating || null,
+        monthly_rent_amount: form.monthly_rent ? Number(form.monthly_rent) : null,
+        offer_type: offerType,
       } as never).select().single();
 
       if (error) {
