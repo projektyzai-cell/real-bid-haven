@@ -16,7 +16,7 @@ import { FavoriteButton } from "@/components/FavoriteButton";
 export const Route = createFileRoute("/ogloszenia/")({
   head: () => ({
     meta: [
-      { title: "Rynek Ofert — Stay Safe" },
+      { title: "Oferty sprzedaży — Stay Safe" },
       { name: "description", content: "Nowoczesny marketplace z zaawansowanymi filtrami, wyszukiwaniem semantycznym i asystentem AI." },
     ],
   }),
@@ -106,7 +106,7 @@ function OgloszeniaPage() {
         <div className="container mx-auto px-4 py-10">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Rynek Ofert</h1>
+              <h1 className="text-3xl font-bold tracking-tight">Oferty sprzedaży</h1>
               <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
                 Nowoczesny marketplace z zaawansowanymi filtrami, wyszukiwaniem semantycznym i asystentem AI, który rozumie lokalny kontekst. Znajduj nieruchomości szybciej i precyzyjniej.
               </p>
