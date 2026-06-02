@@ -16,7 +16,7 @@ const modules = [
   {
     to: "/wycena-live" as const,
     icon: Gavel,
-    title: "Silnik Wartości Live",
+    title: "Rynkowa wycena nieruchomości",
     description: "Wycena w czasie rzeczywistym. Wystaw nieruchomość i zobacz jej realną wartość rynkową na podstawie reakcji rynku — natychmiast. Bez opłat. Bez pośredników. Bez zgadywania.",
     cta: "Uruchom wycenę",
     color: "from-primary/20 to-primary/5",
@@ -24,7 +24,7 @@ const modules = [
   {
     to: "/ogloszenia" as const,
     icon: Building2,
-    title: "Rynek Ofert",
+    title: "Oferty sprzedaży",
     description: "Nowoczesny marketplace z zaawansowanymi filtrami, wyszukiwaniem semantycznym i asystentem AI, który rozumie lokalny kontekst. Znajduj nieruchomości szybciej i precyzyjniej.",
     cta: "Przeglądaj oferty",
     color: "from-emerald-500/20 to-emerald-500/5",
@@ -32,7 +32,7 @@ const modules = [
   {
     to: "/najem" as const,
     icon: KeyRound,
-    title: "Przepływ Najmu",
+    title: "Strefa najmu",
     description: "Najemcy publikują swoje potrzeby otrzymując jedynie dopasowane oferty z bazy ofert, bez przeglądania setek ofert. Kontakt uruchamiany jest dopiero po akceptacji — pełna kontrola i prywatność.",
     cta: "Wejdź w przepływ",
     color: "from-amber-500/20 to-amber-500/5",
