@@ -22,8 +22,11 @@ function NewRentalListing() {
     title: "", description: "", kind: "apartment",
     city: "", street: "", apt_no: "", kw_number: "",
     rooms: 2, area_m2: 40, monthly_price: 2500,
+    rent_base: 2000, utilities_fee: 500, min_lease_months: 12,
     accepts_pets: false, accepts_children: true, notarial_required: false,
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
+    requires_insurance: false, insurance_payer: "tenant",
+    requires_deposit: true,
   });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
@@ -42,7 +45,13 @@ function NewRentalListing() {
       title: form.title.trim(), description: form.description.trim(),
       kind: form.kind, city: form.city.trim(), street: form.street.trim(),
       apt_no: form.apt_no.trim() || null, kw_number: form.kw_number.trim() || null,
-      rooms: form.rooms, area_m2: form.area_m2, monthly_price: form.monthly_price,
+      rooms: form.rooms, area_m2: form.area_m2,
+      monthly_price: (form.rent_base || 0) + (form.utilities_fee || 0),
+      rent_base: form.rent_base, utilities_fee: form.utilities_fee,
+      min_lease_months: form.min_lease_months,
+      requires_insurance: form.requires_insurance,
+      insurance_payer: form.requires_insurance ? form.insurance_payer : null,
+      requires_deposit: form.requires_deposit,
       accepts_pets: form.accepts_pets, accepts_children: form.accepts_children,
       notarial_required: form.notarial_required, has_energy_cert: form.has_energy_cert,
       wants_energy_cert_discount: form.wants_energy_cert_discount,
