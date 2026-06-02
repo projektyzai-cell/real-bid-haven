@@ -51,26 +51,29 @@ export type Database = {
       }
       chats: {
         Row: {
-          bid_id: string
+          bid_id: string | null
           buyer_id: string
           created_at: string
           id: string
+          inquiry_id: string | null
           property_id: string
           seller_id: string
         }
         Insert: {
-          bid_id: string
+          bid_id?: string | null
           buyer_id: string
           created_at?: string
           id?: string
+          inquiry_id?: string | null
           property_id: string
           seller_id: string
         }
         Update: {
-          bid_id?: string
+          bid_id?: string | null
           buyer_id?: string
           created_at?: string
           id?: string
+          inquiry_id?: string | null
           property_id?: string
           seller_id?: string
         }
@@ -133,29 +136,17 @@ export type Database = {
         Row: {
           created_at: string
           display_name: string
-          email: string | null
-          first_name: string | null
           id: string
-          last_name: string | null
-          phone: string | null
         }
         Insert: {
           created_at?: string
           display_name: string
-          email?: string | null
-          first_name?: string | null
           id: string
-          last_name?: string | null
-          phone?: string | null
         }
         Update: {
           created_at?: string
           display_name?: string
-          email?: string | null
-          first_name?: string | null
           id?: string
-          last_name?: string | null
-          phone?: string | null
         }
         Relationships: []
       }
@@ -170,6 +161,8 @@ export type Database = {
           current_price: number
           description: string
           ends_at: string
+          floor: string | null
+          heating_type: string | null
           id: string
           image_url: string | null
           images: string[]
@@ -177,6 +170,8 @@ export type Database = {
           kw_number: string | null
           main_image_index: number
           market_type: Database["public"]["Enums"]["market_type"] | null
+          monthly_rent_amount: number | null
+          offer_type: string | null
           owner_id: string
           ownership_type: Database["public"]["Enums"]["ownership_type"] | null
           promoted: boolean
@@ -197,6 +192,8 @@ export type Database = {
           current_price?: number
           description: string
           ends_at: string
+          floor?: string | null
+          heating_type?: string | null
           id?: string
           image_url?: string | null
           images?: string[]
@@ -204,6 +201,8 @@ export type Database = {
           kw_number?: string | null
           main_image_index?: number
           market_type?: Database["public"]["Enums"]["market_type"] | null
+          monthly_rent_amount?: number | null
+          offer_type?: string | null
           owner_id: string
           ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
           promoted?: boolean
@@ -224,6 +223,8 @@ export type Database = {
           current_price?: number
           description?: string
           ends_at?: string
+          floor?: string | null
+          heating_type?: string | null
           id?: string
           image_url?: string | null
           images?: string[]
@@ -231,6 +232,8 @@ export type Database = {
           kw_number?: string | null
           main_image_index?: number
           market_type?: Database["public"]["Enums"]["market_type"] | null
+          monthly_rent_amount?: number | null
+          offer_type?: string | null
           owner_id?: string
           ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
           promoted?: boolean
@@ -283,17 +286,23 @@ export type Database = {
           has_energy_cert: boolean
           id: string
           images: string[]
+          insurance_payer: string | null
           kind: string
           kw_number: string | null
           landlord_id: string
           main_image_index: number
+          min_lease_months: number | null
           monthly_price: number
           notarial_required: boolean
           promoted: boolean
+          rent_base: number | null
+          requires_deposit: boolean
+          requires_insurance: boolean
           rooms: number
           status: string
           street: string
           title: string
+          utilities_fee: number | null
           wants_energy_cert_discount: boolean
         }
         Insert: {
@@ -308,17 +317,23 @@ export type Database = {
           has_energy_cert?: boolean
           id?: string
           images?: string[]
+          insurance_payer?: string | null
           kind?: string
           kw_number?: string | null
           landlord_id: string
           main_image_index?: number
+          min_lease_months?: number | null
           monthly_price: number
           notarial_required?: boolean
           promoted?: boolean
+          rent_base?: number | null
+          requires_deposit?: boolean
+          requires_insurance?: boolean
           rooms?: number
           status?: string
           street: string
           title: string
+          utilities_fee?: number | null
           wants_energy_cert_discount?: boolean
         }
         Update: {
@@ -333,17 +348,23 @@ export type Database = {
           has_energy_cert?: boolean
           id?: string
           images?: string[]
+          insurance_payer?: string | null
           kind?: string
           kw_number?: string | null
           landlord_id?: string
           main_image_index?: number
+          min_lease_months?: number | null
           monthly_price?: number
           notarial_required?: boolean
           promoted?: boolean
+          rent_base?: number | null
+          requires_deposit?: boolean
+          requires_insurance?: boolean
           rooms?: number
           status?: string
           street?: string
           title?: string
+          utilities_fee?: number | null
           wants_energy_cert_discount?: boolean
         }
         Relationships: []
