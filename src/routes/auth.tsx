@@ -149,7 +149,7 @@ function AuthPage() {
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
               <div>
-                <Label htmlFor="password2">Hasło (min. 8 znaków)</Label>
+                <Label htmlFor="password2">Hasło (min. 8 znaków, wielka litera, cyfra, znak specjalny)</Label>
                 <Input id="password2" type="password" required minLength={8} value={password}
                   onChange={(e) => setPassword(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
