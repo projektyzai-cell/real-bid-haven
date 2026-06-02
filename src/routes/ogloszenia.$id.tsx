@@ -1,13 +1,13 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { MapPin, Phone, Mail, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
@@ -19,6 +19,10 @@ const OWNERSHIP_LABEL: Record<string, string> = {
   cooperative_no_kw: "Spółdzielczo-własnościowe prawo do lokalu bez założonej KW",
 };
 
+const HEATING_LABEL: Record<string, string> = {
+  city: "Miejskie", own: "Własne", other: "Inne",
+};
+
 export const Route = createFileRoute("/ogloszenia/$id")({
   head: () => ({ meta: [{ title: "Ogłoszenie — Stay Safe" }] }),
   component: SaleDetailPage,
@@ -27,9 +31,7 @@ export const Route = createFileRoute("/ogloszenia/$id")({
 function Gallery({ images, title }: { images: string[]; title: string }) {
   const [open, setOpen] = useState(false);
   const [idx, setIdx] = useState(0);
-  if (images.length === 0) {
-    return <div className="aspect-[16/10] rounded-3xl bg-muted" />;
-  }
+  if (images.length === 0) return <div className="aspect-[16/10] rounded-3xl bg-muted" />;
   const main = images[idx] ?? images[0];
   return (
     <>
@@ -74,8 +76,10 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
 function SaleDetailPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [msg, setMsg] = useState("");
-  const [phone, setPhone] = useState("");
+  const [gdpr, setGdpr] = useState(false);
+  const [terms, setTerms] = useState(false);
   const [sending, setSending] = useState(false);
 
   const { data, isLoading } = useQuery({
@@ -86,7 +90,7 @@ function SaleDetailPage() {
       if (error) throw error;
       if (!data) throw notFound();
       const { data: owner } = await supabase
-        .from("profiles").select("display_name, phone, email").eq("id", data.owner_id).maybeSingle();
+        .from("profiles").select("display_name").eq("id", data.owner_id).maybeSingle();
       return { property: data, owner };
     },
   });
@@ -101,17 +105,32 @@ function SaleDetailPage() {
   async function sendInquiry(e: React.FormEvent) {
     e.preventDefault();
     if (!user) { toast.error("Zaloguj się, aby wysłać wiadomość"); return; }
+    if (user.id === p.owner_id) { toast.error("Nie możesz wysłać wiadomości do siebie"); return; }
     if (!msg.trim()) { toast.error("Napisz wiadomość"); return; }
+    if (!gdpr || !terms) { toast.error("Zaakceptuj wymagane zgody"); return; }
     setSending(true);
-    const { error } = await supabase.from("sale_inquiries" as never).insert({
-      property_id: id, buyer_id: user.id, seller_id: p.owner_id,
-      message: msg.trim(),
-      contact_email: user.email ?? null,
-      contact_phone: phone.trim() || null,
-    } as never);
-    setSending(false);
-    if (error) { console.error(error); toast.error(error.message || "Nie udało się wysłać wiadomości"); }
-    else { toast.success("Wiadomość wysłana do sprzedającego."); setMsg(""); setPhone(""); }
+    try {
+      // Find existing inquiry chat (bid_id IS NULL) or create one
+      const { data: existing } = await supabase.from("chats" as never)
+        .select("id").eq("property_id", id).eq("buyer_id", user.id).is("bid_id", null).maybeSingle();
+      let chatId = (existing as { id?: string } | null)?.id ?? null;
+      if (!chatId) {
+        const { data: newChat, error: chatErr } = await supabase.from("chats" as never).insert({
+          property_id: id, seller_id: p.owner_id, buyer_id: user.id, bid_id: null,
+        } as never).select("id").single();
+        if (chatErr) throw chatErr;
+        chatId = (newChat as { id: string }).id;
+      }
+      const { error: msgErr } = await supabase.from("messages" as never).insert({
+        chat_id: chatId, sender_id: user.id, content: msg.trim().slice(0, 4000),
+      } as never);
+      if (msgErr) throw msgErr;
+      toast.success("Wiadomość wysłana. Otwieram czat…");
+      navigate({ to: "/chats/$id", params: { id: chatId } });
+    } catch (err) {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Nie udało się wysłać wiadomości");
+    } finally { setSending(false); }
   }
 
   const pAny = p as unknown as {
@@ -119,6 +138,10 @@ function SaleDetailPage() {
     ownership_type?: string | null;
     building_no?: string | null;
     apt_no?: string | null;
+    floor?: string | null;
+    heating_type?: string | null;
+    monthly_rent_amount?: number | null;
+    offer_type?: string | null;
   };
 
   return (
@@ -134,7 +157,7 @@ function SaleDetailPage() {
               {pAny.apt_no ? `/${pAny.apt_no}` : ""}
             </Badge>
             {pAny.market_type && (
-              <Badge variant="secondary" className="rounded-full">
+              <Badge variant="outline" className="rounded-full">
                 {pAny.market_type === "primary" ? "Rynek pierwotny" : "Rynek wtórny"}
               </Badge>
             )}
@@ -143,9 +166,23 @@ function SaleDetailPage() {
                 {OWNERSHIP_LABEL[pAny.ownership_type]}
               </Badge>
             )}
+            {pAny.offer_type && (
+              <Badge variant="outline" className="rounded-full">
+                {pAny.offer_type === "agent" ? "Pośrednik" : "Prywatna"}
+              </Badge>
+            )}
             <FavoriteButton propertyId={id} variant="button" />
           </div>
           <h1 className="mt-3 text-3xl font-semibold">{p.title}</h1>
+
+          {(pAny.floor || pAny.heating_type || pAny.monthly_rent_amount) && (
+            <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card/50 p-4 text-sm sm:grid-cols-3">
+              {pAny.floor && (<div><dt className="text-xs text-muted-foreground">Piętro</dt><dd className="font-medium">{pAny.floor}</dd></div>)}
+              {pAny.heating_type && (<div><dt className="text-xs text-muted-foreground">Ogrzewanie</dt><dd className="font-medium">{HEATING_LABEL[pAny.heating_type] ?? pAny.heating_type}</dd></div>)}
+              {pAny.monthly_rent_amount != null && (<div><dt className="text-xs text-muted-foreground">Czynsz administracyjny</dt><dd className="font-medium">{formatPLN(pAny.monthly_rent_amount)} / mc</dd></div>)}
+            </dl>
+          )}
+
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{p.description}</p>
         </div>
         <Link to="/ogloszenia" className="inline-block text-sm text-muted-foreground hover:text-foreground">
@@ -165,17 +202,10 @@ function SaleDetailPage() {
         </div>
         <div className="rounded-3xl bg-card p-6 shadow-card">
           <h3 className="font-semibold">Sprzedający</h3>
-          <p className="mt-2 text-sm">{data.owner?.display_name ?? "Użytkownik"}</p>
-          {data.owner?.phone && (
-            <a href={`tel:${data.owner.phone}`} className="mt-2 flex items-center gap-2 text-sm text-primary hover:underline">
-              <Phone className="h-4 w-4" /> {data.owner.phone}
-            </a>
-          )}
-          {data.owner?.email && (
-            <a href={`mailto:${data.owner.email}`} className="mt-1 flex items-center gap-2 text-sm text-primary hover:underline">
-              <Mail className="h-4 w-4" /> {data.owner.email}
-            </a>
-          )}
+          <p className="mt-2 text-sm">{data.owner?.display_name ?? "Użytkownik Stay Safe"}</p>
+          <p className="mt-2 text-xs text-muted-foreground">
+            Dane kontaktowe sprzedającego nie są udostępniane. Wyślij wiadomość poprzez czat Stay Safe.
+          </p>
         </div>
 
         <form onSubmit={sendInquiry} className="space-y-3 rounded-3xl bg-card p-6 shadow-card">
@@ -186,20 +216,27 @@ function SaleDetailPage() {
             </p>
           )}
           <div>
-            <Label htmlFor="phone">Twój telefon (opcjonalnie)</Label>
-            <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
             <Label htmlFor="msg">Wiadomość</Label>
-            <Textarea id="msg" required value={msg} onChange={(e) => setMsg(e.target.value)} rows={4}
-              className="mt-1.5 rounded-xl" placeholder="Dzień dobry, jestem zainteresowany/a tym ogłoszeniem…" />
+            <Textarea id="msg" required value={msg} onChange={(e) => setMsg(e.target.value)} rows={5}
+              maxLength={2000} className="mt-1.5 rounded-xl"
+              placeholder="Dzień dobry, jestem zainteresowany/a tym ogłoszeniem…" />
           </div>
-          <Button type="submit" disabled={sending || !user} className="w-full rounded-xl">
-            {sending ? "Wysyłam…" : "Wyślij zapytanie"}
+          <label className="flex items-start gap-2 text-xs text-muted-foreground">
+            <Checkbox checked={gdpr} onCheckedChange={(v) => setGdpr(v === true)} className="mt-0.5" />
+            <span>
+              Wyrażam zgodę na przetwarzanie moich danych osobowych powierzonych przy okazji kontaktu poprzez wewnętrzny czat Stay Safe w celu prowadzenia korespondencji ze sprzedającym, zgodnie z{" "}
+              <Link to="/polityka-prywatnosci" target="_blank" className="underline">Polityką Prywatności</Link>.
+            </span>
+          </label>
+          <label className="flex items-start gap-2 text-xs text-muted-foreground">
+            <Checkbox checked={terms} onCheckedChange={(v) => setTerms(v === true)} className="mt-0.5" />
+            <span>
+              Oświadczam, że nie będę wykorzystywać czatu do działań niezgodnych z prawem, spamu, gróźb ani prób oszustwa. Przyjmuję do wiadomości, że treści mogą być moderowane oraz że Stay Safe nie pośredniczy w transakcji.
+            </span>
+          </label>
+          <Button type="submit" disabled={sending || !user || !gdpr || !terms} className="w-full rounded-xl">
+            {sending ? "Wysyłam…" : "Wyślij wiadomość"}
           </Button>
-          <p className="text-xs text-muted-foreground">
-            Stay Safe nie pośredniczy w transakcji. Kontakt odbywa się bezpośrednio między stronami.
-          </p>
         </form>
       </aside>
     </div>
