@@ -44,10 +44,13 @@ function NewSaleListingPage() {
   const [consent, setConsent] = useState(false);
   const [market, setMarket] = useState<Market>("secondary");
   const [ownership, setOwnership] = useState<Ownership>("separate_property");
+  const [floor, setFloor] = useState<string>("");
+  const [heating, setHeating] = useState<string>("");
+  const [offerType, setOfferType] = useState<"private" | "agent">("private");
   const [form, setForm] = useState({
     title: "", description: "", city: "", street: "",
     sale_price: "", area_m2: "", kw_number: "",
-    building_no: "", apt_no: "",
+    building_no: "", apt_no: "", monthly_rent: "",
   });
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
 
