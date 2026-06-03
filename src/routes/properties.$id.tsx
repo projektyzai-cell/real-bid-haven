@@ -95,8 +95,13 @@ function PropertyDetailPage() {
     e.preventDefault();
     if (!user) { toast.error("Zaloguj się, aby licytować"); return; }
     const value = Number(amount);
-    if (!value || value <= minBid) {
-      toast.error(`Oferta musi być wyższa niż ${formatPLN(minBid)}`);
+    const minRequired = minBid + 1000;
+    if (!value || value < minRequired) {
+      toast.error(`Minimalne podbicie to 1000 zł — oferta musi wynosić co najmniej ${formatPLN(minRequired)}.`);
+      return;
+    }
+    if ((value - minBid) % 1000 !== 0) {
+      toast.error("Podbicie musi być wielokrotnością 1000 zł powyżej aktualnej ceny.");
       return;
     }
     setSubmitting(true);
