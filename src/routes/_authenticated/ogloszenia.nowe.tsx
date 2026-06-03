@@ -33,6 +33,8 @@ const schema = z.object({
 
 type Market = "primary" | "secondary";
 type Ownership = "cooperative_with_kw" | "cooperative_no_kw" | "separate_property";
+type PropertyType = "mieszkanie" | "lokal_uslugowy" | "garaz" | "dzialka";
+type PlotType = "rolna" | "budowlana" | "przemyslowa" | "inna";
 
 function NewSaleListingPage() {
   const { user } = useAuth();
@@ -47,6 +49,8 @@ function NewSaleListingPage() {
   const [floor, setFloor] = useState<string>("");
   const [heating, setHeating] = useState<string>("");
   const [offerType, setOfferType] = useState<"private" | "agent">("private");
+  const [propType, setPropType] = useState<PropertyType | "">("");
+  const [plotType, setPlotType] = useState<PlotType | "">("");
   const [form, setForm] = useState({
     title: "", description: "", city: "", street: "",
     sale_price: "", area_m2: "", kw_number: "",
