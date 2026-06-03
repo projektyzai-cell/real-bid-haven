@@ -53,29 +53,35 @@ export type Database = {
         Row: {
           bid_id: string | null
           buyer_id: string
+          buyer_last_read_at: string
           created_at: string
           id: string
           inquiry_id: string | null
           property_id: string
           seller_id: string
+          seller_last_read_at: string
         }
         Insert: {
           bid_id?: string | null
           buyer_id: string
+          buyer_last_read_at?: string
           created_at?: string
           id?: string
           inquiry_id?: string | null
           property_id: string
           seller_id: string
+          seller_last_read_at?: string
         }
         Update: {
           bid_id?: string | null
           buyer_id?: string
+          buyer_last_read_at?: string
           created_at?: string
           id?: string
           inquiry_id?: string | null
           property_id?: string
           seller_id?: string
+          seller_last_read_at?: string
         }
         Relationships: []
       }
@@ -174,7 +180,9 @@ export type Database = {
           offer_type: string | null
           owner_id: string
           ownership_type: Database["public"]["Enums"]["ownership_type"] | null
+          plot_type: Database["public"]["Enums"]["plot_type"] | null
           promoted: boolean
+          property_type: Database["public"]["Enums"]["property_type"] | null
           sale_price: number | null
           starting_price: number
           status: Database["public"]["Enums"]["property_status"]
@@ -205,7 +213,9 @@ export type Database = {
           offer_type?: string | null
           owner_id: string
           ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
+          plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
+          property_type?: Database["public"]["Enums"]["property_type"] | null
           sale_price?: number | null
           starting_price: number
           status?: Database["public"]["Enums"]["property_status"]
@@ -236,7 +246,9 @@ export type Database = {
           offer_type?: string | null
           owner_id?: string
           ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
+          plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
+          property_type?: Database["public"]["Enums"]["property_type"] | null
           sale_price?: number | null
           starting_price?: number
           status?: Database["public"]["Enums"]["property_status"]
@@ -251,25 +263,31 @@ export type Database = {
           created_at: string
           id: string
           landlord_id: string
+          landlord_last_read_at: string
           offer_id: string
           request_id: string
           tenant_id: string
+          tenant_last_read_at: string
         }
         Insert: {
           created_at?: string
           id?: string
           landlord_id: string
+          landlord_last_read_at?: string
           offer_id: string
           request_id: string
           tenant_id: string
+          tenant_last_read_at?: string
         }
         Update: {
           created_at?: string
           id?: string
           landlord_id?: string
+          landlord_last_read_at?: string
           offer_id?: string
           request_id?: string
           tenant_id?: string
+          tenant_last_read_at?: string
         }
         Relationships: []
       }
@@ -294,7 +312,9 @@ export type Database = {
           min_lease_months: number | null
           monthly_price: number
           notarial_required: boolean
+          plot_type: Database["public"]["Enums"]["plot_type"] | null
           promoted: boolean
+          property_type: Database["public"]["Enums"]["property_type"] | null
           rent_base: number | null
           requires_deposit: boolean
           requires_insurance: boolean
@@ -325,7 +345,9 @@ export type Database = {
           min_lease_months?: number | null
           monthly_price: number
           notarial_required?: boolean
+          plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
+          property_type?: Database["public"]["Enums"]["property_type"] | null
           rent_base?: number | null
           requires_deposit?: boolean
           requires_insurance?: boolean
@@ -356,7 +378,9 @@ export type Database = {
           min_lease_months?: number | null
           monthly_price?: number
           notarial_required?: boolean
+          plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
+          property_type?: Database["public"]["Enums"]["property_type"] | null
           rent_base?: number | null
           requires_deposit?: boolean
           requires_insurance?: boolean
@@ -623,8 +647,10 @@ export type Database = {
         | "cooperative_with_kw"
         | "cooperative_no_kw"
         | "separate_property"
+      plot_type: "rolna" | "budowlana" | "przemyslowa" | "inna"
       property_kind: "live_valuation" | "sale_listing"
       property_status: "active" | "ended" | "sold" | "cancelled"
+      property_type: "mieszkanie" | "lokal_uslugowy" | "garaz" | "dzialka"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -759,8 +785,10 @@ export const Constants = {
         "cooperative_no_kw",
         "separate_property",
       ],
+      plot_type: ["rolna", "budowlana", "przemyslowa", "inna"],
       property_kind: ["live_valuation", "sale_listing"],
       property_status: ["active", "ended", "sold", "cancelled"],
+      property_type: ["mieszkanie", "lokal_uslugowy", "garaz", "dzialka"],
     },
   },
 } as const
