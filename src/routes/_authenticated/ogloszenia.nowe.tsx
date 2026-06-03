@@ -115,6 +115,8 @@ function NewSaleListingPage() {
         heating_type: heating || null,
         monthly_rent_amount: form.monthly_rent ? Number(form.monthly_rent) : null,
         offer_type: offerType,
+        property_type: propType,
+        plot_type: propType === "dzialka" ? plotType : null,
       } as never).select().single();
 
       if (error) {
