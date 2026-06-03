@@ -61,6 +61,8 @@ function NewSaleListingPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user || !consent) { toast.error("Wymagane oświadczenie sprzedawcy"); return; }
+    if (!propType) { toast.error("Wybierz rodzaj nieruchomości."); return; }
+    if (propType === "dzialka" && !plotType) { toast.error("Wybierz rodzaj działki."); return; }
     const parsed = schema.safeParse({
       title: form.title.trim(),
       description: form.description.trim(),
