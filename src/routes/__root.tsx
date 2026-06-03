@@ -118,7 +118,7 @@ function RootComponent() {
           <Footer />
         </div>
         <CookieConsent />
-        <Toaster position="top-right" richColors closeButton />
+        <Toaster position="bottom-right" richColors closeButton expand={false} />
       </AuthProvider>
     </QueryClientProvider>
   );
