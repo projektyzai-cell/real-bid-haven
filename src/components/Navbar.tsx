@@ -89,8 +89,14 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => navigate({ to: "/polubione" })}>
                   <Heart className="h-4 w-4" /> Polubione
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}>
+                <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
+                  className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
                   <MessageCircle className="h-4 w-4" /> Wiadomości
+                  {unread > 0 && (
+                    <span className="ml-auto rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-bold text-yellow-950">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>
