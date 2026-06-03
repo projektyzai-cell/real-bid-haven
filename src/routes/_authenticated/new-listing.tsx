@@ -19,6 +19,10 @@ export const Route = createFileRoute("/_authenticated/new-listing")({
   component: NewListingPage,
 });
 
+type PropertyType = "mieszkanie" | "lokal_uslugowy" | "garaz" | "dzialka";
+type PlotType = "rolna" | "budowlana" | "przemyslowa" | "inna";
+type EnergyState = "yes" | "no" | "exempt" | "";
+
 const schema = z.object({
   title: z.string().min(5, "Min. 5 znaków").max(140),
   description: z.string().min(20, "Min. 20 znaków").max(4000),
@@ -26,6 +30,7 @@ const schema = z.object({
   street: z.string().min(2).max(120),
   area_m2: z.number().positive("Metraż > 0").max(100000),
   duration_days: z.number().int().positive().max(60),
+  kw_number: z.string().max(40).optional().or(z.literal("")),
 });
 
 function NewListingPage() {
@@ -36,10 +41,12 @@ function NewListingPage() {
   const [mainIdx, setMainIdx] = useState(0);
   const [consentRights, setConsentRights] = useState(false);
   const [promoted, setPromoted] = useState(false);
-  const [hasEnergyCert, setHasEnergyCert] = useState<"yes" | "no" | "">("");
+  const [hasEnergyCert, setHasEnergyCert] = useState<EnergyState>("");
   const [wantsEnergyDiscount, setWantsEnergyDiscount] = useState(false);
+  const [propType, setPropType] = useState<PropertyType | "">("");
+  const [plotType, setPlotType] = useState<PlotType | "">("");
   const [form, setForm] = useState({
-    title: "", description: "", city: "", street: "", area_m2: "", duration: "7",
+    title: "", description: "", city: "", street: "", area_m2: "", duration: "7", kw_number: "",
   });
 
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
@@ -48,6 +55,8 @@ function NewListingPage() {
     e.preventDefault();
     if (!user) return;
     if (!consentRights) { toast.error("Wymagana akceptacja oświadczenia sprzedawcy."); return; }
+    if (!propType) { toast.error("Wybierz rodzaj nieruchomości."); return; }
+    if (propType === "dzialka" && !plotType) { toast.error("Wybierz rodzaj działki."); return; }
     const parsed = schema.safeParse({
       title: form.title.trim(),
       description: form.description.trim(),
@@ -55,10 +64,20 @@ function NewListingPage() {
       street: form.street.trim(),
       area_m2: Number(form.area_m2),
       duration_days: Number(form.duration),
+      kw_number: form.kw_number.trim().toUpperCase(),
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSubmitting(true);
     try {
+      const kw = parsed.data.kw_number && parsed.data.kw_number.length > 0 ? parsed.data.kw_number : null;
+      if (kw) {
+        const { data: taken } = await supabase.rpc("kw_taken", { _kw: kw });
+        if (taken === true) {
+          toast.error("Ogłoszenie dla tej nieruchomości zostało już wystawione w portalu.");
+          setSubmitting(false);
+          return;
+        }
+      }
       const endsAt = new Date(Date.now() + parsed.data.duration_days * 86_400_000).toISOString();
       const mainUrl = images[mainIdx] ?? images[0] ?? null;
       const { data: inserted, error } = await supabase
@@ -76,9 +95,17 @@ function NewListingPage() {
           main_image_index: mainIdx,
           ends_at: endsAt,
           promoted,
+          kw_number: kw,
+          property_type: propType,
+          plot_type: propType === "dzialka" ? plotType : null,
         } as never).select().single();
       if (error) throw error;
-      await supabase.from("user_roles").insert({ user_id: user.id, role: "seller" });
+
+      // best-effort: dodaj rolę "seller" (ignoruj konflikt — może już mieć)
+      await supabase.from("user_roles")
+        .insert({ user_id: user.id, role: "seller" } as never)
+        .then(() => {}, () => {});
+
       const consents: Array<{ user_id: string; consent_type: string; granted: boolean }> = [
         { user_id: user.id, consent_type: "seller_property_rights", granted: true },
       ];
@@ -89,12 +116,14 @@ function NewListingPage() {
         if (wantsEnergyDiscount) {
           consents.push({ user_id: user.id, consent_type: "energy_cert_discount_offer", granted: true });
         }
+      } else if (hasEnergyCert === "exempt") {
+        consents.push({ user_id: user.id, consent_type: "energy_cert_exempt", granted: true });
       }
       await supabase.from("user_consents" as never).insert(consents as never);
       toast.success("Ogłoszenie dodane!");
       navigate({ to: "/properties/$id", params: { id: inserted.id } });
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Wystąpił błąd");
+      toast.error(err instanceof Error ? err.message : "Wystąpił błąd podczas dodawania ogłoszenia.");
     } finally {
       setSubmitting(false);
     }
@@ -118,6 +147,35 @@ function NewListingPage() {
           <Label>Pełny opis</Label>
           <Textarea value={form.description} onChange={(e) => set("description", e.target.value)}
             rows={5} className="mt-1.5 rounded-xl" required />
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Rodzaj nieruchomości</Label>
+            <Select value={propType} onValueChange={(v) => setPropType(v as PropertyType)}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mieszkanie">Mieszkanie</SelectItem>
+                <SelectItem value="lokal_uslugowy">Lokal usługowy</SelectItem>
+                <SelectItem value="garaz">Garaż / miejsce postojowe</SelectItem>
+                <SelectItem value="dzialka">Działka</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {propType === "dzialka" && (
+            <div>
+              <Label>Rodzaj działki</Label>
+              <Select value={plotType} onValueChange={(v) => setPlotType(v as PlotType)}>
+                <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rolna">Rolna</SelectItem>
+                  <SelectItem value="budowlana">Budowlana</SelectItem>
+                  <SelectItem value="przemyslowa">Przemysłowa</SelectItem>
+                  <SelectItem value="inna">Inna</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">
@@ -156,6 +214,16 @@ function NewListingPage() {
         </div>
 
         <div>
+          <Label>Numer Księgi Wieczystej (KW) — opcjonalnie</Label>
+          <Input value={form.kw_number}
+            onChange={(e) => set("kw_number", e.target.value.toUpperCase())}
+            placeholder="np. WA1M/00012345/6" className="mt-1.5 rounded-xl font-mono" />
+          <p className="mt-1 text-xs text-muted-foreground">
+            🔒 Numer KW nie jest upubliczniany — pełni wyłącznie funkcję eliminacji duplikatów ogłoszeń.
+          </p>
+        </div>
+
+        <div>
           <Label>Zdjęcia nieruchomości</Label>
           <div className="mt-1.5">
             <MultiImageUpload value={images} mainIndex={mainIdx}
@@ -168,7 +236,7 @@ function NewListingPage() {
             Świadectwo charakterystyki energetycznej
           </p>
           <p className="text-sm">Czy posiadasz świadectwo charakterystyki energetycznej?</p>
-          <div className="flex gap-4 text-sm">
+          <div className="flex flex-wrap gap-4 text-sm">
             <label className="flex items-center gap-2">
               <input type="radio" name="energy" checked={hasEnergyCert === "yes"}
                 onChange={() => { setHasEnergyCert("yes"); setWantsEnergyDiscount(false); }} />
@@ -178,6 +246,11 @@ function NewListingPage() {
               <input type="radio" name="energy" checked={hasEnergyCert === "no"}
                 onChange={() => setHasEnergyCert("no")} />
               Nie posiadam
+            </label>
+            <label className="flex items-center gap-2">
+              <input type="radio" name="energy" checked={hasEnergyCert === "exempt"}
+                onChange={() => { setHasEnergyCert("exempt"); setWantsEnergyDiscount(false); }} />
+              Nieruchomość zwolniona z tego obowiązku
             </label>
           </div>
           {hasEnergyCert === "no" && (
