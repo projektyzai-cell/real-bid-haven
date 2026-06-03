@@ -150,6 +150,34 @@ function NewSaleListingPage() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
+            <Label>Rodzaj nieruchomości</Label>
+            <Select value={propType} onValueChange={(v) => setPropType(v as PropertyType)}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mieszkanie">Mieszkanie</SelectItem>
+                <SelectItem value="lokal_uslugowy">Lokal usługowy</SelectItem>
+                <SelectItem value="garaz">Garaż / miejsce postojowe</SelectItem>
+                <SelectItem value="dzialka">Działka</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {propType === "dzialka" && (
+            <div>
+              <Label>Rodzaj działki</Label>
+              <Select value={plotType} onValueChange={(v) => setPlotType(v as PlotType)}>
+                <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rolna">Rolna</SelectItem>
+                  <SelectItem value="budowlana">Budowlana</SelectItem>
+                  <SelectItem value="przemyslowa">Przemysłowa</SelectItem>
+                  <SelectItem value="inna">Inna</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
             <Label>Cena (PLN)</Label>
             <Input required type="number" min={1} value={form.sale_price}
               onChange={(e) => set("sale_price", e.target.value)} className="mt-1.5 rounded-xl" />
