@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,10 +18,39 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+function PasswordInput({ id, value, onChange, autoComplete }: {
+  id: string; value: string; onChange: (v: string) => void; autoComplete?: string;
+}) {
+  const [show, setShow] = useState(false);
+  return (
+    <div className="relative mt-1.5">
+      <Input id={id} type={show ? "text" : "password"} required value={value}
+        autoComplete={autoComplete}
+        onChange={(e) => onChange(e.target.value)} className="rounded-xl pr-10" />
+      <button type="button" onClick={() => setShow((v) => !v)}
+        aria-label={show ? "Ukryj hasło" : "Pokaż hasło"}
+        className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:bg-muted">
+        {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+      </button>
+    </div>
+  );
+}
+
+function mapAuthError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid login") || m.includes("invalid credentials")) return "Nieprawidłowy e-mail lub hasło.";
+  if (m.includes("email not confirmed")) return "Konto nie zostało jeszcze aktywowane. Sprawdź pocztę.";
+  if (m.includes("user already registered")) return "Konto z tym adresem e-mail już istnieje.";
+  if (m.includes("rate limit")) return "Zbyt wiele prób. Spróbuj ponownie za chwilę.";
+  if (m.includes("password should be")) return "Hasło nie spełnia wymagań.";
+  return message;
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -31,8 +61,8 @@ function AuthPage() {
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) toast.error(error.message);
-    else { toast.success("Zalogowano"); navigate({ to: "/" }); }
+    if (error) toast.error(mapAuthError(error.message));
+    else { toast.success("Zalogowano pomyślnie"); navigate({ to: "/" }); }
   }
 
   async function signUp(e: React.FormEvent) {
@@ -44,6 +74,10 @@ function AuthPage() {
       toast.error("Hasło musi mieć min. 8 znaków, zawierać wielką literę, cyfrę i znak specjalny.");
       return;
     }
+    if (password !== password2) {
+      toast.error("Hasła nie są identyczne. Wpisz to samo hasło w obu polach.");
+      return;
+    }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email, password,
@@ -52,7 +86,7 @@ function AuthPage() {
         data: { display_name: nick.trim() },
       },
     });
-    if (error) { setLoading(false); toast.error(error.message); return; }
+    if (error) { setLoading(false); toast.error(mapAuthError(error.message)); return; }
     const userId = data.user?.id ?? data.session?.user.id;
     if (userId) {
       await supabase.from("user_consents" as never).insert([
@@ -66,14 +100,14 @@ function AuthPage() {
 
   async function resetPwd(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) { toast.error("Podaj adres e-mail"); return; }
+    if (!email) { toast.error("Podaj adres e-mail przypisany do konta."); return; }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
-    if (error) toast.error(error.message);
-    else { toast.success("Wysłano link resetujący na e-mail."); setResetMode(false); }
+    if (error) toast.error(mapAuthError(error.message));
+    else { toast.success("Jeśli konto istnieje, wysłaliśmy link do zmiany hasła. Sprawdź pocztę."); setResetMode(false); }
   }
 
   if (resetMode) {
@@ -81,15 +115,15 @@ function AuthPage() {
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center px-4 py-12">
         <div className="w-full rounded-3xl border bg-card p-8 shadow-card">
           <h1 className="text-2xl font-semibold">Zapomniałem hasła</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Podaj adres e-mail, którym zakładałeś konto. Wyślemy link do ustawienia nowego hasła.</p>
+          <p className="mt-1 text-sm text-muted-foreground">Podaj adres e-mail, którym zakładałeś konto. Wyślemy na ten adres link do ustawienia nowego hasła.</p>
           <form onSubmit={resetPwd} className="mt-6 space-y-4">
             <div>
-              <Label htmlFor="r-email">E-mail</Label>
+              <Label htmlFor="r-email">E-mail przypisany do konta</Label>
               <Input id="r-email" type="email" required value={email}
                 onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
             </div>
             <Button type="submit" disabled={loading} className="w-full rounded-xl">
-              {loading ? "Wysyłam..." : "Wyślij link resetujący"}
+              {loading ? "Wysyłam..." : "Wyślij link do zmiany hasła"}
             </Button>
             <button type="button" onClick={() => setResetMode(false)}
               className="block w-full text-center text-sm text-muted-foreground hover:underline">
@@ -122,8 +156,7 @@ function AuthPage() {
               </div>
               <div>
                 <Label htmlFor="password">Hasło</Label>
-                <Input id="password" type="password" required value={password}
-                  onChange={(e) => setPassword(e.target.value)} className="mt-1.5 rounded-xl" />
+                <PasswordInput id="password" value={password} onChange={setPassword} autoComplete="current-password" />
               </div>
               <Button type="submit" disabled={loading} className="w-full rounded-xl">
                 {loading ? "Logowanie..." : "Zaloguj"}
@@ -150,8 +183,14 @@ function AuthPage() {
               </div>
               <div>
                 <Label htmlFor="password2">Hasło (min. 8 znaków, wielka litera, cyfra, znak specjalny)</Label>
-                <Input id="password2" type="password" required minLength={8} value={password}
-                  onChange={(e) => setPassword(e.target.value)} className="mt-1.5 rounded-xl" />
+                <PasswordInput id="password2" value={password} onChange={setPassword} autoComplete="new-password" />
+              </div>
+              <div>
+                <Label htmlFor="password3">Powtórz hasło</Label>
+                <PasswordInput id="password3" value={password2} onChange={setPassword2} autoComplete="new-password" />
+                {password2.length > 0 && password !== password2 && (
+                  <p className="mt-1 text-xs text-destructive">Hasła nie są identyczne.</p>
+                )}
               </div>
               <label className="flex items-start gap-3 rounded-2xl border bg-background/50 p-3 text-sm">
                 <Checkbox checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} className="mt-0.5" />

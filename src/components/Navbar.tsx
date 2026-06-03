@@ -7,6 +7,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
+import { useUnreadMessages } from "@/hooks/use-unread-messages";
 
 const tabs = [
   { to: "/wycena-live", label: "Rynkowa wycena nieruchomości", icon: Gavel },
@@ -17,6 +18,7 @@ const tabs = [
 export function Navbar() {
   const { user, displayName, signOut } = useAuth();
   const navigate = useNavigate();
+  const unread = useUnreadMessages();
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/60">
@@ -44,8 +46,13 @@ export function Navbar() {
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full">
+                <Button variant="outline" size="icon" className="relative rounded-full">
                   <UserIcon className="h-4 w-4" />
+                  {unread > 0 && (
+                    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-yellow-400 px-1 text-[10px] font-bold text-yellow-950 ring-2 ring-background">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-60 rounded-2xl">
@@ -82,8 +89,14 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => navigate({ to: "/polubione" })}>
                   <Heart className="h-4 w-4" /> Polubione
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}>
+                <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
+                  className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
                   <MessageCircle className="h-4 w-4" /> Wiadomości
+                  {unread > 0 && (
+                    <span className="ml-auto rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-bold text-yellow-950">
+                      {unread > 9 ? "9+" : unread}
+                    </span>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>

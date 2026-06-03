@@ -95,8 +95,13 @@ function PropertyDetailPage() {
     e.preventDefault();
     if (!user) { toast.error("Zaloguj się, aby licytować"); return; }
     const value = Number(amount);
-    if (!value || value <= minBid) {
-      toast.error(`Oferta musi być wyższa niż ${formatPLN(minBid)}`);
+    const minRequired = minBid + 1000;
+    if (!value || value < minRequired) {
+      toast.error(`Minimalne podbicie to 1000 zł — oferta musi wynosić co najmniej ${formatPLN(minRequired)}.`);
+      return;
+    }
+    if ((value - minBid) % 1000 !== 0) {
+      toast.error("Podbicie musi być wielokrotnością 1000 zł powyżej aktualnej ceny.");
       return;
     }
     setSubmitting(true);
@@ -218,8 +223,8 @@ function PropertyDetailPage() {
 
           {!c.ended && !ownedByMe && (
             <form onSubmit={handleBid} className="mt-4 flex gap-2">
-              <Input type="number" min={minBid + 1} step="1000"
-                placeholder={`Min. ${formatPLN(minBid + 1000)}`}
+              <Input type="number" min={minBid + 1000} step="1000"
+                placeholder={`Min. ${formatPLN(minBid + 1000)} (krok 1000 zł)`}
                 value={amount} onChange={(e) => setAmount(e.target.value)}
                 disabled={!user || submitting} className="rounded-xl" />
               <Button type="submit" disabled={!user || submitting} className="rounded-xl">

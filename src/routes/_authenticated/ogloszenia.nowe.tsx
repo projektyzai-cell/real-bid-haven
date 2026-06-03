@@ -33,6 +33,8 @@ const schema = z.object({
 
 type Market = "primary" | "secondary";
 type Ownership = "cooperative_with_kw" | "cooperative_no_kw" | "separate_property";
+type PropertyType = "mieszkanie" | "lokal_uslugowy" | "garaz" | "dzialka";
+type PlotType = "rolna" | "budowlana" | "przemyslowa" | "inna";
 
 function NewSaleListingPage() {
   const { user } = useAuth();
@@ -47,6 +49,8 @@ function NewSaleListingPage() {
   const [floor, setFloor] = useState<string>("");
   const [heating, setHeating] = useState<string>("");
   const [offerType, setOfferType] = useState<"private" | "agent">("private");
+  const [propType, setPropType] = useState<PropertyType | "">("");
+  const [plotType, setPlotType] = useState<PlotType | "">("");
   const [form, setForm] = useState({
     title: "", description: "", city: "", street: "",
     sale_price: "", area_m2: "", kw_number: "",
@@ -57,6 +61,8 @@ function NewSaleListingPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user || !consent) { toast.error("Wymagane oświadczenie sprzedawcy"); return; }
+    if (!propType) { toast.error("Wybierz rodzaj nieruchomości."); return; }
+    if (propType === "dzialka" && !plotType) { toast.error("Wybierz rodzaj działki."); return; }
     const parsed = schema.safeParse({
       title: form.title.trim(),
       description: form.description.trim(),
@@ -109,6 +115,8 @@ function NewSaleListingPage() {
         heating_type: heating || null,
         monthly_rent_amount: form.monthly_rent ? Number(form.monthly_rent) : null,
         offer_type: offerType,
+        property_type: propType,
+        plot_type: propType === "dzialka" ? plotType : null,
       } as never).select().single();
 
       if (error) {
@@ -139,6 +147,34 @@ function NewSaleListingPage() {
         <div>
           <Label>Opis</Label>
           <Textarea required rows={5} value={form.description} onChange={(e) => set("description", e.target.value)} className="mt-1.5 rounded-xl" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <Label>Rodzaj nieruchomości</Label>
+            <Select value={propType} onValueChange={(v) => setPropType(v as PropertyType)}>
+              <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="mieszkanie">Mieszkanie</SelectItem>
+                <SelectItem value="lokal_uslugowy">Lokal usługowy</SelectItem>
+                <SelectItem value="garaz">Garaż / miejsce postojowe</SelectItem>
+                <SelectItem value="dzialka">Działka</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          {propType === "dzialka" && (
+            <div>
+              <Label>Rodzaj działki</Label>
+              <Select value={plotType} onValueChange={(v) => setPlotType(v as PlotType)}>
+                <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="rolna">Rolna</SelectItem>
+                  <SelectItem value="budowlana">Budowlana</SelectItem>
+                  <SelectItem value="przemyslowa">Przemysłowa</SelectItem>
+                  <SelectItem value="inna">Inna</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
