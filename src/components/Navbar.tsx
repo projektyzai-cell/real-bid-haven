@@ -18,6 +18,7 @@ const tabs = [
 export function Navbar() {
   const { user, displayName, signOut } = useAuth();
   const navigate = useNavigate();
+  const unread = useUnreadMessages();
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/60">
