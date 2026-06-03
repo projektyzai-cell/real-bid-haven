@@ -223,8 +223,8 @@ function PropertyDetailPage() {
 
           {!c.ended && !ownedByMe && (
             <form onSubmit={handleBid} className="mt-4 flex gap-2">
-              <Input type="number" min={minBid + 1} step="1000"
-                placeholder={`Min. ${formatPLN(minBid + 1000)}`}
+              <Input type="number" min={minBid + 1000} step="1000"
+                placeholder={`Min. ${formatPLN(minBid + 1000)} (krok 1000 zł)`}
                 value={amount} onChange={(e) => setAmount(e.target.value)}
                 disabled={!user || submitting} className="rounded-xl" />
               <Button type="submit" disabled={!user || submitting} className="rounded-xl">
