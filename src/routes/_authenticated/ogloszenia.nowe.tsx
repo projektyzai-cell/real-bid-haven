@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { MultiImageUpload } from "@/components/MultiImageUpload";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const Route = createFileRoute("/_authenticated/ogloszenia/nowe")({
   head: () => ({ meta: [{ title: "Dodaj ogłoszenie sprzedaży — Stay Safe" }] }),
