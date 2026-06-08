@@ -13,6 +13,7 @@ import {
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { MultiImageUpload } from "@/components/MultiImageUpload";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const Route = createFileRoute("/_authenticated/ogloszenia/nowe")({
   head: () => ({ meta: [{ title: "Dodaj ogłoszenie sprzedaży — Stay Safe" }] }),
@@ -52,7 +53,7 @@ function NewSaleListingPage() {
   const [propType, setPropType] = useState<PropertyType | "">("");
   const [plotType, setPlotType] = useState<PlotType | "">("");
   const [form, setForm] = useState({
-    title: "", description: "", city: "", street: "",
+    title: "", description: "", city: "", street: "", district: "",
     sale_price: "", area_m2: "", kw_number: "",
     building_no: "", apt_no: "", monthly_rent: "",
   });
@@ -117,6 +118,7 @@ function NewSaleListingPage() {
         offer_type: offerType,
         property_type: propType,
         plot_type: propType === "dzialka" ? plotType : null,
+        district: form.district.trim() || null,
       } as never).select().single();
 
       if (error) {
@@ -211,15 +213,13 @@ function NewSaleListingPage() {
             </Select>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label>Miejscowość</Label>
-            <Input required value={form.city} onChange={(e) => set("city", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
-            <Label>Ulica</Label>
-            <Input required value={form.street} onChange={(e) => set("street", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
+        <div>
+          <Label className="mb-2 block">Lokalizacja</Label>
+          <LocationPicker
+            required
+            value={{ city: form.city, district: form.district, street: form.street }}
+            onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district, street: v.street }))}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

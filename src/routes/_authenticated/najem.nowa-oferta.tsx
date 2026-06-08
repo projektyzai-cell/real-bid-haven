@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MultiImageUpload } from "@/components/MultiImageUpload";
+import { LocationPicker } from "@/components/LocationPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -20,7 +21,7 @@ function NewRentalListing() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "", description: "", kind: "apartment",
-    city: "", street: "", apt_no: "", kw_number: "",
+    city: "", street: "", district: "", apt_no: "", kw_number: "",
     rooms: 2, area_m2: 40, monthly_price: 2500,
     rent_base: 2000, utilities_fee: 500, min_lease_months: 12,
     accepts_pets: false, accepts_children: true, notarial_required: false,
@@ -44,6 +45,7 @@ function NewRentalListing() {
       landlord_id: user.id,
       title: form.title.trim(), description: form.description.trim(),
       kind: form.kind, city: form.city.trim(), street: form.street.trim(),
+      district: form.district.trim() || null,
       apt_no: form.apt_no.trim() || null, kw_number: form.kw_number.trim() || null,
       rooms: form.rooms, area_m2: form.area_m2,
       monthly_price: (form.rent_base || 0) + (form.utilities_fee || 0),
@@ -84,13 +86,13 @@ function NewRentalListing() {
               <option value="room">Pokój</option>
             </select>
           </div>
-          <div>
-            <Label>Miasto</Label>
-            <Input required value={form.city} onChange={(e) => setF("city", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
-            <Label>Ulica</Label>
-            <Input required value={form.street} onChange={(e) => setF("street", e.target.value)} className="mt-1.5 rounded-xl" />
+          <div className="md:col-span-2">
+            <Label className="mb-2 block">Lokalizacja</Label>
+            <LocationPicker
+              required
+              value={{ city: form.city, district: form.district, street: form.street }}
+              onChange={(v) => setForm((s) => ({ ...s, city: v.city, district: v.district, street: v.street }))}
+            />
           </div>
           <div>
             <Label>Nr lokalu (opcjonalnie)</Label>

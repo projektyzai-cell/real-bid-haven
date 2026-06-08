@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
   head: () => ({ meta: [{ title: "Nowe zapytanie najemcy — Stay Safe" }] }),
@@ -88,15 +89,14 @@ function NewRentalRequestPage() {
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5 rounded-3xl border bg-card p-6 shadow-card">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label>Miejscowość</Label>
-            <Input required value={form.city} onChange={(e) => set("city", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
-            <Label>Dzielnica (opcjonalnie)</Label>
-            <Input value={form.district} onChange={(e) => set("district", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
+        <div>
+          <Label className="mb-2 block">Preferowana lokalizacja</Label>
+          <LocationPicker
+            required
+            value={{ city: form.city, district: form.district, street: "" }}
+            onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district }))}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">Ulica nie jest wymagana — wystarczy miasto i opcjonalnie dzielnica.</p>
         </div>
         <div>
           <Label>Preferowany obszar — opis (opcjonalnie)</Label>
