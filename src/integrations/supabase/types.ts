@@ -219,6 +219,7 @@ export type Database = {
           created_at: string
           current_price: number
           description: string
+          district: string | null
           ends_at: string
           floor: string | null
           heating_type: string | null
@@ -252,6 +253,7 @@ export type Database = {
           created_at?: string
           current_price?: number
           description: string
+          district?: string | null
           ends_at: string
           floor?: string | null
           heating_type?: string | null
@@ -285,6 +287,7 @@ export type Database = {
           created_at?: string
           current_price?: number
           description?: string
+          district?: string | null
           ends_at?: string
           floor?: string | null
           heating_type?: string | null
@@ -353,6 +356,7 @@ export type Database = {
           city: string
           created_at: string
           description: string
+          district: string | null
           expires_at: string
           has_energy_cert: boolean
           id: string
@@ -386,6 +390,7 @@ export type Database = {
           city: string
           created_at?: string
           description?: string
+          district?: string | null
           expires_at?: string
           has_energy_cert?: boolean
           id?: string
@@ -419,6 +424,7 @@ export type Database = {
           city?: string
           created_at?: string
           description?: string
+          district?: string | null
           expires_at?: string
           has_energy_cert?: boolean
           id?: string
