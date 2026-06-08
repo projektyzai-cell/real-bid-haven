@@ -55,10 +55,17 @@ async function watermark(file: File): Promise<File> {
       ctx.strokeText(stamp, pad, canvas.height - pad);
       ctx.fillText(stamp, pad, canvas.height - pad);
 
+      // Spróbuj WebP (lepsza kompresja). Fallback do JPEG, jeśli przeglądarka nie wspiera.
       canvas.toBlob((blob) => {
-        if (!blob) { reject(new Error("Blob")); return; }
-        resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
-      }, "image/jpeg", 0.88);
+        if (blob && blob.type === "image/webp") {
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" }));
+          return;
+        }
+        canvas.toBlob((jpg) => {
+          if (!jpg) { reject(new Error("Blob")); return; }
+          resolve(new File([jpg], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        }, "image/jpeg", 0.85);
+      }, "image/webp", 0.82);
     };
     img.onerror = () => reject(new Error("Image load failed"));
     img.src = URL.createObjectURL(file);
@@ -78,9 +85,10 @@ export function MultiImageUpload({ value, mainIndex, onChange, bucket = "propert
       const urls: string[] = [];
       for (const f of files) {
         const wm = await watermark(f);
-        const path = `${user.id}/${crypto.randomUUID()}.jpg`;
+        const ext = wm.type === "image/webp" ? "webp" : "jpg";
+        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
         const { error } = await supabase.storage.from(bucket).upload(path, wm, {
-          upsert: false, contentType: "image/jpeg",
+          upsert: false, contentType: wm.type,
         });
         if (error) throw error;
         urls.push(supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl);
@@ -127,7 +135,7 @@ export function MultiImageUpload({ value, mainIndex, onChange, bucket = "propert
         <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed bg-muted/40 p-6 transition hover:bg-muted">
           <Upload className="h-6 w-6 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            {busy ? "Wgrywam…" : `Dodaj zdjęcia (zostanie nałożony znak wodny Stay Safe) — ${value.length}/${max}`}
+            {busy ? "Wgrywam…" : `Dodaj zdjęcia (auto-kompresja WebP + znak wodny Stay Safe) — ${value.length}/${max}`}
           </span>
           <input type="file" accept="image/*" multiple onChange={onFiles} className="hidden" disabled={busy} />
         </label>
