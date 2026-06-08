@@ -86,13 +86,13 @@ function NewRentalListing() {
               <option value="room">Pokój</option>
             </select>
           </div>
-          <div>
-            <Label>Miasto</Label>
-            <Input required value={form.city} onChange={(e) => setF("city", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
-            <Label>Ulica</Label>
-            <Input required value={form.street} onChange={(e) => setF("street", e.target.value)} className="mt-1.5 rounded-xl" />
+          <div className="md:col-span-2">
+            <Label className="mb-2 block">Lokalizacja</Label>
+            <LocationPicker
+              required
+              value={{ city: form.city, district: form.district, street: form.street }}
+              onChange={(v) => setForm((s) => ({ ...s, city: v.city, district: v.district, street: v.street }))}
+            />
           </div>
           <div>
             <Label>Nr lokalu (opcjonalnie)</Label>
