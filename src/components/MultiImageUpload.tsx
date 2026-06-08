@@ -55,10 +55,17 @@ async function watermark(file: File): Promise<File> {
       ctx.strokeText(stamp, pad, canvas.height - pad);
       ctx.fillText(stamp, pad, canvas.height - pad);
 
+      // Spróbuj WebP (lepsza kompresja). Fallback do JPEG, jeśli przeglądarka nie wspiera.
       canvas.toBlob((blob) => {
-        if (!blob) { reject(new Error("Blob")); return; }
-        resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
-      }, "image/jpeg", 0.88);
+        if (blob && blob.type === "image/webp") {
+          resolve(new File([blob], file.name.replace(/\.[^.]+$/, ".webp"), { type: "image/webp" }));
+          return;
+        }
+        canvas.toBlob((jpg) => {
+          if (!jpg) { reject(new Error("Blob")); return; }
+          resolve(new File([jpg], file.name.replace(/\.[^.]+$/, ".jpg"), { type: "image/jpeg" }));
+        }, "image/jpeg", 0.85);
+      }, "image/webp", 0.82);
     };
     img.onerror = () => reject(new Error("Image load failed"));
     img.src = URL.createObjectURL(file);
