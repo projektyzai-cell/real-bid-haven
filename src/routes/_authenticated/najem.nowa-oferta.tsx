@@ -45,6 +45,7 @@ function NewRentalListing() {
       landlord_id: user.id,
       title: form.title.trim(), description: form.description.trim(),
       kind: form.kind, city: form.city.trim(), street: form.street.trim(),
+      district: form.district.trim() || null,
       apt_no: form.apt_no.trim() || null, kw_number: form.kw_number.trim() || null,
       rooms: form.rooms, area_m2: form.area_m2,
       monthly_price: (form.rent_base || 0) + (form.utilities_fee || 0),
