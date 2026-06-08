@@ -118,6 +118,7 @@ function NewSaleListingPage() {
         offer_type: offerType,
         property_type: propType,
         plot_type: propType === "dzialka" ? plotType : null,
+        district: form.district.trim() || null,
       } as never).select().single();
 
       if (error) {
