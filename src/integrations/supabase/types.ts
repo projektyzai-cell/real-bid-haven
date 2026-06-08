@@ -85,6 +85,59 @@ export type Database = {
         }
         Relationships: []
       }
+      cities: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          voivodeship: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          voivodeship?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          voivodeship?: string | null
+        }
+        Relationships: []
+      }
+      districts: {
+        Row: {
+          city_id: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "districts_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string
@@ -567,6 +620,45 @@ export type Database = {
           seller_id?: string
         }
         Relationships: []
+      }
+      streets: {
+        Row: {
+          city_id: string
+          created_at: string
+          district_id: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          city_id: string
+          created_at?: string
+          district_id?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          city_id?: string
+          created_at?: string
+          district_id?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "streets_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "streets_district_id_fkey"
+            columns: ["district_id"]
+            isOneToOne: false
+            referencedRelation: "districts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_consents: {
         Row: {
