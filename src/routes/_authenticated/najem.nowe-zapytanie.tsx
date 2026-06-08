@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
+import { LocationPicker } from "@/components/LocationPicker";
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
   head: () => ({ meta: [{ title: "Nowe zapytanie najemcy — Stay Safe" }] }),
