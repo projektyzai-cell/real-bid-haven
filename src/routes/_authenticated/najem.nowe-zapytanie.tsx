@@ -98,6 +98,7 @@ function NewRentalRequestPage() {
           />
           <p className="mt-1 text-xs text-muted-foreground">Ulica nie jest wymagana — wystarczy miasto i opcjonalnie dzielnica.</p>
         </div>
+        <div>
           <Label>Preferowany obszar — opis (opcjonalnie)</Label>
           <Textarea value={form.area_description} onChange={(e) => set("area_description", e.target.value)}
             placeholder="np. blisko parku, niedaleko stacji metra Wilanowska" rows={2} className="mt-1.5 rounded-xl" />
