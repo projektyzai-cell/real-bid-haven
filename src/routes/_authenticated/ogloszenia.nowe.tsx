@@ -53,7 +53,7 @@ function NewSaleListingPage() {
   const [propType, setPropType] = useState<PropertyType | "">("");
   const [plotType, setPlotType] = useState<PlotType | "">("");
   const [form, setForm] = useState({
-    title: "", description: "", city: "", street: "",
+    title: "", description: "", city: "", street: "", district: "",
     sale_price: "", area_m2: "", kw_number: "",
     building_no: "", apt_no: "", monthly_rent: "",
   });
