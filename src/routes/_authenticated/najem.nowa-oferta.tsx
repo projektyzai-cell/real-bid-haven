@@ -21,7 +21,7 @@ function NewRentalListing() {
   const navigate = useNavigate();
   const [form, setForm] = useState({
     title: "", description: "", kind: "apartment",
-    city: "", street: "", apt_no: "", kw_number: "",
+    city: "", street: "", district: "", apt_no: "", kw_number: "",
     rooms: 2, area_m2: 40, monthly_price: 2500,
     rent_base: 2000, utilities_fee: 500, min_lease_months: 12,
     accepts_pets: false, accepts_children: true, notarial_required: false,
