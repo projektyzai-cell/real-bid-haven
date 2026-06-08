@@ -213,15 +213,13 @@ function NewSaleListingPage() {
             </Select>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <Label>Miejscowość</Label>
-            <Input required value={form.city} onChange={(e) => set("city", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
-            <Label>Ulica</Label>
-            <Input required value={form.street} onChange={(e) => set("street", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
+        <div>
+          <Label className="mb-2 block">Lokalizacja</Label>
+          <LocationPicker
+            required
+            value={{ city: form.city, district: form.district, street: form.street }}
+            onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district, street: v.street }))}
+          />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
