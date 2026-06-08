@@ -135,7 +135,7 @@ export function MultiImageUpload({ value, mainIndex, onChange, bucket = "propert
         <label className="flex cursor-pointer flex-col items-center gap-2 rounded-2xl border-2 border-dashed bg-muted/40 p-6 transition hover:bg-muted">
           <Upload className="h-6 w-6 text-muted-foreground" />
           <span className="text-sm text-muted-foreground">
-            {busy ? "Wgrywam…" : `Dodaj zdjęcia (zostanie nałożony znak wodny Stay Safe) — ${value.length}/${max}`}
+            {busy ? "Wgrywam…" : `Dodaj zdjęcia (auto-kompresja WebP + znak wodny Stay Safe) — ${value.length}/${max}`}
           </span>
           <input type="file" accept="image/*" multiple onChange={onFiles} className="hidden" disabled={busy} />
         </label>
