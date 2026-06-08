@@ -85,9 +85,10 @@ export function MultiImageUpload({ value, mainIndex, onChange, bucket = "propert
       const urls: string[] = [];
       for (const f of files) {
         const wm = await watermark(f);
-        const path = `${user.id}/${crypto.randomUUID()}.jpg`;
+        const ext = wm.type === "image/webp" ? "webp" : "jpg";
+        const path = `${user.id}/${crypto.randomUUID()}.${ext}`;
         const { error } = await supabase.storage.from(bucket).upload(path, wm, {
-          upsert: false, contentType: "image/jpeg",
+          upsert: false, contentType: wm.type,
         });
         if (error) throw error;
         urls.push(supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl);
