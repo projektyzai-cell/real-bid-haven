@@ -103,7 +103,6 @@ function NewListingPage() {
           plot_area_m2: propType === "dom" && house.plot_area ? Number(house.plot_area) : null,
           year_built: propType === "dom" && house.year_built ? Number(house.year_built) : null,
           has_basement: propType === "dom" ? house.basement : null,
-          starting_price: 0,
         } as never).select().single();
       if (error) throw error;
 
