@@ -222,6 +222,7 @@ export type Database = {
           district: string | null
           ends_at: string
           floor: string | null
+          has_basement: boolean | null
           heating_type: string | null
           id: string
           image_url: string | null
@@ -234,6 +235,7 @@ export type Database = {
           offer_type: string | null
           owner_id: string
           ownership_type: Database["public"]["Enums"]["ownership_type"] | null
+          plot_area_m2: number | null
           plot_type: Database["public"]["Enums"]["plot_type"] | null
           promoted: boolean
           property_type: Database["public"]["Enums"]["property_type"] | null
@@ -242,7 +244,10 @@ export type Database = {
           status: Database["public"]["Enums"]["property_status"]
           street: string
           title: string
+          usable_area_m2: number | null
+          views_count: number
           winning_bid_id: string | null
+          year_built: number | null
         }
         Insert: {
           apt_no?: string | null
@@ -256,6 +261,7 @@ export type Database = {
           district?: string | null
           ends_at: string
           floor?: string | null
+          has_basement?: boolean | null
           heating_type?: string | null
           id?: string
           image_url?: string | null
@@ -268,6 +274,7 @@ export type Database = {
           offer_type?: string | null
           owner_id: string
           ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
+          plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
           property_type?: Database["public"]["Enums"]["property_type"] | null
@@ -276,7 +283,10 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           street: string
           title: string
+          usable_area_m2?: number | null
+          views_count?: number
           winning_bid_id?: string | null
+          year_built?: number | null
         }
         Update: {
           apt_no?: string | null
@@ -290,6 +300,7 @@ export type Database = {
           district?: string | null
           ends_at?: string
           floor?: string | null
+          has_basement?: boolean | null
           heating_type?: string | null
           id?: string
           image_url?: string | null
@@ -302,6 +313,7 @@ export type Database = {
           offer_type?: string | null
           owner_id?: string
           ownership_type?: Database["public"]["Enums"]["ownership_type"] | null
+          plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
           property_type?: Database["public"]["Enums"]["property_type"] | null
@@ -310,7 +322,10 @@ export type Database = {
           status?: Database["public"]["Enums"]["property_status"]
           street?: string
           title?: string
+          usable_area_m2?: number | null
+          views_count?: number
           winning_bid_id?: string | null
+          year_built?: number | null
         }
         Relationships: []
       }
@@ -358,6 +373,7 @@ export type Database = {
           description: string
           district: string | null
           expires_at: string
+          has_basement: boolean | null
           has_energy_cert: boolean
           id: string
           images: string[]
@@ -369,6 +385,7 @@ export type Database = {
           min_lease_months: number | null
           monthly_price: number
           notarial_required: boolean
+          plot_area_m2: number | null
           plot_type: Database["public"]["Enums"]["plot_type"] | null
           promoted: boolean
           property_type: Database["public"]["Enums"]["property_type"] | null
@@ -379,8 +396,11 @@ export type Database = {
           status: string
           street: string
           title: string
+          usable_area_m2: number | null
           utilities_fee: number | null
+          views_count: number
           wants_energy_cert_discount: boolean
+          year_built: number | null
         }
         Insert: {
           accepts_children?: boolean
@@ -392,6 +412,7 @@ export type Database = {
           description?: string
           district?: string | null
           expires_at?: string
+          has_basement?: boolean | null
           has_energy_cert?: boolean
           id?: string
           images?: string[]
@@ -403,6 +424,7 @@ export type Database = {
           min_lease_months?: number | null
           monthly_price: number
           notarial_required?: boolean
+          plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
           property_type?: Database["public"]["Enums"]["property_type"] | null
@@ -413,8 +435,11 @@ export type Database = {
           status?: string
           street: string
           title: string
+          usable_area_m2?: number | null
           utilities_fee?: number | null
+          views_count?: number
           wants_energy_cert_discount?: boolean
+          year_built?: number | null
         }
         Update: {
           accepts_children?: boolean
@@ -426,6 +451,7 @@ export type Database = {
           description?: string
           district?: string | null
           expires_at?: string
+          has_basement?: boolean | null
           has_energy_cert?: boolean
           id?: string
           images?: string[]
@@ -437,6 +463,7 @@ export type Database = {
           min_lease_months?: number | null
           monthly_price?: number
           notarial_required?: boolean
+          plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
           property_type?: Database["public"]["Enums"]["property_type"] | null
@@ -447,8 +474,11 @@ export type Database = {
           status?: string
           street?: string
           title?: string
+          usable_area_m2?: number | null
           utilities_fee?: number | null
+          views_count?: number
           wants_energy_cert_discount?: boolean
+          year_built?: number | null
         }
         Relationships: []
       }
@@ -718,6 +748,7 @@ export type Database = {
     Functions: {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
       accept_rental_offer: { Args: { _offer_id: string }; Returns: string }
+      cleanup_old_listings: { Args: never; Returns: undefined }
       extend_rental_listing: { Args: { _id: string }; Returns: string }
       get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
@@ -727,6 +758,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_property_views: { Args: { _id: string }; Returns: undefined }
+      increment_rental_views: { Args: { _id: string }; Returns: undefined }
       is_chat_participant: {
         Args: { _chat_id: string; _user_id: string }
         Returns: boolean
@@ -737,6 +770,10 @@ export type Database = {
       }
       kw_taken: { Args: { _kw: string }; Returns: boolean }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
+      resume_property_listing: {
+        Args: { _days: number; _id: string }
+        Returns: string
+      }
     }
     Enums: {
       app_role: "buyer" | "seller" | "admin"
@@ -748,7 +785,12 @@ export type Database = {
       plot_type: "rolna" | "budowlana" | "przemyslowa" | "inna"
       property_kind: "live_valuation" | "sale_listing"
       property_status: "active" | "ended" | "sold" | "cancelled"
-      property_type: "mieszkanie" | "lokal_uslugowy" | "garaz" | "dzialka"
+      property_type:
+        | "mieszkanie"
+        | "lokal_uslugowy"
+        | "garaz"
+        | "dzialka"
+        | "dom"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -886,7 +928,13 @@ export const Constants = {
       plot_type: ["rolna", "budowlana", "przemyslowa", "inna"],
       property_kind: ["live_valuation", "sale_listing"],
       property_status: ["active", "ended", "sold", "cancelled"],
-      property_type: ["mieszkanie", "lokal_uslugowy", "garaz", "dzialka"],
+      property_type: [
+        "mieszkanie",
+        "lokal_uslugowy",
+        "garaz",
+        "dzialka",
+        "dom",
+      ],
     },
   },
 } as const
