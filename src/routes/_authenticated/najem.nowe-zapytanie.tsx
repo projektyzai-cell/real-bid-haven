@@ -22,9 +22,10 @@ const schema = z.object({
   area_description: z.string().max(500).optional(),
   budget_max: z.number().positive().max(100000).optional(),
   adults_count: z.number().int().min(1).max(20),
-  active_days: z.number().int().min(1).max(60),
+  active_days: z.number().int().refine((v) => [7, 14, 30].includes(v), { message: "Czas: 7, 14 lub 30 dni" }),
   notes: z.string().max(1000).optional(),
 });
+
 
 function NewRentalRequestPage() {
   const { user } = useAuth();
@@ -115,9 +116,14 @@ function NewRentalRequestPage() {
               onChange={(e) => set("adults_count", e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
           <div>
-            <Label>Aktywne przez (dni)</Label>
-            <Input type="number" min={1} max={60} required value={form.active_days}
-              onChange={(e) => set("active_days", e.target.value)} className="mt-1.5 rounded-xl" />
+            <Label>Aktywne przez</Label>
+            <select required value={form.active_days}
+              onChange={(e) => set("active_days", e.target.value)}
+              className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+              <option value="7">7 dni</option>
+              <option value="14">14 dni</option>
+              <option value="30">30 dni</option>
+            </select>
           </div>
         </div>
 

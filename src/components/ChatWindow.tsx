@@ -35,20 +35,44 @@ export function ChatWindow({ chatId }: { chatId: string }) {
     },
   });
 
+  // Oznacz wiadomości jako przeczytane (znika żółty badge)
+  async function markRead() {
+    if (!user) return;
+    const { data: chat } = await supabase.from("chats" as never)
+      .select("seller_id, buyer_id").eq("id", chatId).maybeSingle();
+    const c = chat as { seller_id: string; buyer_id: string } | null;
+    if (!c) return;
+    const patch = c.seller_id === user.id
+      ? { seller_last_read_at: new Date().toISOString() }
+      : c.buyer_id === user.id
+        ? { buyer_last_read_at: new Date().toISOString() }
+        : null;
+    if (!patch) return;
+    await supabase.from("chats" as never).update(patch as never).eq("id", chatId);
+    queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+  }
+
   useEffect(() => {
     const ch = supabase
       .channel(`chat-${chatId}`)
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "messages", filter: `chat_id=eq.${chatId}` },
-        () => queryClient.invalidateQueries({ queryKey: ["messages", chatId] }),
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["messages", chatId] });
+          markRead();
+        },
       )
       .subscribe();
+    markRead();
     return () => { supabase.removeChannel(ch); };
-  }, [chatId, queryClient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chatId, queryClient, user?.id]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages && messages.length > 0) markRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
   async function send(e: React.FormEvent) {

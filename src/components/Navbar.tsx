@@ -1,10 +1,14 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Home, Building2, KeyRound, Heart } from "lucide-react";
+import {
+  Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Home, Building2,
+  KeyRound, Heart, Settings, Search,
+} from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+  DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { useUnreadMessages } from "@/hooks/use-unread-messages";
@@ -55,40 +59,83 @@ export function Navbar() {
                   )}
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-60 rounded-2xl">
+              <DropdownMenuContent align="end" className="w-64 rounded-2xl">
                 <DropdownMenuLabel className="font-normal">
                   <div className="text-xs text-muted-foreground">Zalogowany jako</div>
                   <div className="truncate font-medium">{displayName ?? user.email}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/new-listing" })}>
-                  <Plus className="h-4 w-4" /> Wystaw na Wycenę Live
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/ogloszenia/nowe" })}>
-                  <Plus className="h-4 w-4" /> Dodaj ogłoszenie sprzedaży
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowe-zapytanie" })}>
-                  <Plus className="h-4 w-4" /> Zapytanie najemcy
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
-                  <Plus className="h-4 w-4" /> Oferta wynajmującego
-                </DropdownMenuItem>
+
+                {/* 1) Wyceny rynkowe */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Gavel className="h-4 w-4" /> Wyceny rynkowe
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent className="rounded-2xl">
+                      <DropdownMenuItem onClick={() => navigate({ to: "/wycena-live" })}>
+                        <Search className="h-4 w-4" /> Przeglądaj wyceny
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/new-listing" })}>
+                        <Plus className="h-4 w-4" /> Wystaw nowe ogłoszenie
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                {/* 2) Strefa ogłoszeń */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <Building2 className="h-4 w-4" /> Strefa ogłoszeń
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent className="rounded-2xl">
+                      <DropdownMenuItem onClick={() => navigate({ to: "/ogloszenia" })}>
+                        <Search className="h-4 w-4" /> Przeglądaj ogłoszenia
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/ogloszenia/nowe" })}>
+                        <Plus className="h-4 w-4" /> Dodaj nowe ogłoszenie
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/my-listings" })}>
+                        <List className="h-4 w-4" /> Moje ogłoszenia
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/my-bids" })}>
+                        <Gavel className="h-4 w-4" /> Moje oferty (licytacje)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/polubione" })}>
+                        <Heart className="h-4 w-4" /> Polubione
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
+                {/* 3) Strefa najmu */}
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <KeyRound className="h-4 w-4" /> Strefa najmu
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent className="rounded-2xl">
+                      <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Najemca</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
+                        <List className="h-4 w-4" /> Moje zapytania
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowe-zapytanie" })}>
+                        <Plus className="h-4 w-4" /> Dodaj nowe zapytanie
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Wynajmujący</DropdownMenuLabel>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-oferty" })}>
+                        <Building2 className="h-4 w-4" /> Moje ogłoszenia wynajmu
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
+                        <Plus className="h-4 w-4" /> Dodaj nowe ogłoszenie wynajmu
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
+
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => navigate({ to: "/my-listings" })}>
-                  <List className="h-4 w-4" /> Moje nieruchomości
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/my-bids" })}>
-                  <Gavel className="h-4 w-4" /> Moje oferty
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
-                  <KeyRound className="h-4 w-4" /> Moje zapytania najmu
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-oferty" })}>
-                  <Building2 className="h-4 w-4" /> Moje oferty najmu
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => navigate({ to: "/polubione" })}>
-                  <Heart className="h-4 w-4" /> Polubione
-                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
                   className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
                   <MessageCircle className="h-4 w-4" /> Wiadomości
@@ -97,6 +144,9 @@ export function Navbar() {
                       {unread > 9 ? "9+" : unread}
                     </span>
                   )}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/ustawienia" })}>
+                  <Settings className="h-4 w-4" /> Ustawienia
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>

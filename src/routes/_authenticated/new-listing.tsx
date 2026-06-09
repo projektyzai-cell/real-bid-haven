@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/new-listing")({
   component: NewListingPage,
 });
 
-type PropertyType = "mieszkanie" | "lokal_uslugowy" | "garaz" | "dzialka";
+type PropertyType = "mieszkanie" | "dom" | "lokal_uslugowy" | "garaz" | "dzialka";
 type PlotType = "rolna" | "budowlana" | "przemyslowa" | "inna";
 type EnergyState = "yes" | "no" | "exempt" | "";
 
@@ -45,6 +45,7 @@ function NewListingPage() {
   const [wantsEnergyDiscount, setWantsEnergyDiscount] = useState(false);
   const [propType, setPropType] = useState<PropertyType | "">("");
   const [plotType, setPlotType] = useState<PlotType | "">("");
+  const [house, setHouse] = useState({ usable_area: "", plot_area: "", year_built: "", basement: false });
   const [form, setForm] = useState({
     title: "", description: "", city: "", street: "", area_m2: "", duration: "7", kw_number: "",
   });
@@ -98,6 +99,10 @@ function NewListingPage() {
           kw_number: kw,
           property_type: propType,
           plot_type: propType === "dzialka" ? plotType : null,
+          usable_area_m2: propType === "dom" && house.usable_area ? Number(house.usable_area) : null,
+          plot_area_m2: propType === "dom" && house.plot_area ? Number(house.plot_area) : null,
+          year_built: propType === "dom" && house.year_built ? Number(house.year_built) : null,
+          has_basement: propType === "dom" ? house.basement : null,
         } as never).select().single();
       if (error) throw error;
 
@@ -156,6 +161,7 @@ function NewListingPage() {
               <SelectTrigger className="mt-1.5 rounded-xl"><SelectValue placeholder="Wybierz" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="mieszkanie">Mieszkanie</SelectItem>
+                <SelectItem value="dom">Dom</SelectItem>
                 <SelectItem value="lokal_uslugowy">Lokal usługowy</SelectItem>
                 <SelectItem value="garaz">Garaż / miejsce postojowe</SelectItem>
                 <SelectItem value="dzialka">Działka</SelectItem>
@@ -177,6 +183,37 @@ function NewListingPage() {
             </div>
           )}
         </div>
+
+        {propType === "dom" && (
+          <div className="space-y-3 rounded-2xl border bg-background/40 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Dom — informacje dodatkowe (opcjonalnie)</p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <div>
+                <Label>Pow. użytkowa (m²)</Label>
+                <Input type="number" min={0} step="0.1" value={house.usable_area}
+                  onChange={(e) => setHouse((p) => ({ ...p, usable_area: e.target.value }))}
+                  className="mt-1.5 rounded-xl" />
+              </div>
+              <div>
+                <Label>Pow. działki (m²)</Label>
+                <Input type="number" min={0} step="0.1" value={house.plot_area}
+                  onChange={(e) => setHouse((p) => ({ ...p, plot_area: e.target.value }))}
+                  className="mt-1.5 rounded-xl" />
+              </div>
+              <div>
+                <Label>Rok budowy</Label>
+                <Input type="number" min={1800} max={new Date().getFullYear()} value={house.year_built}
+                  onChange={(e) => setHouse((p) => ({ ...p, year_built: e.target.value }))}
+                  className="mt-1.5 rounded-xl" />
+              </div>
+            </div>
+            <label className="flex items-center gap-2 text-sm">
+              <Checkbox checked={house.basement}
+                onCheckedChange={(v) => setHouse((p) => ({ ...p, basement: v === true }))} />
+              Dom jest podpiwniczony
+            </label>
+          </div>
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <div>

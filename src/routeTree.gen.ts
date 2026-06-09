@@ -21,6 +21,7 @@ import { Route as OgloszeniaIndexRouteImport } from './routes/ogloszenia.index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as OgloszeniaIdRouteImport } from './routes/ogloszenia.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
+import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
 import { Route as AuthenticatedPolubioneRouteImport } from './routes/_authenticated/polubione'
 import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
@@ -93,6 +94,11 @@ const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
   id: '/zapytania',
   path: '/zapytania',
   getParentRoute: () => NajemRoute,
+} as any)
+const AuthenticatedUstawieniaRoute = AuthenticatedUstawieniaRouteImport.update({
+  id: '/ustawienia',
+  path: '/ustawienia',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedPolubioneRoute = AuthenticatedPolubioneRouteImport.update({
   id: '/polubione',
@@ -179,6 +185,7 @@ export interface FileRoutesByFullPath {
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/polubione': typeof AuthenticatedPolubioneRoute
+  '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -205,6 +212,7 @@ export interface FileRoutesByTo {
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/polubione': typeof AuthenticatedPolubioneRoute
+  '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -233,6 +241,7 @@ export interface FileRoutesById {
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
   '/_authenticated/polubione': typeof AuthenticatedPolubioneRoute
+  '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -261,6 +270,7 @@ export interface FileRouteTypes {
     | '/my-listings'
     | '/new-listing'
     | '/polubione'
+    | '/ustawienia'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -287,6 +297,7 @@ export interface FileRouteTypes {
     | '/my-listings'
     | '/new-listing'
     | '/polubione'
+    | '/ustawienia'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -314,6 +325,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
     | '/_authenticated/polubione'
+    | '/_authenticated/ustawienia'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -428,6 +440,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NajemZapytaniaRouteImport
       parentRoute: typeof NajemRoute
     }
+    '/_authenticated/ustawienia': {
+      id: '/_authenticated/ustawienia'
+      path: '/ustawienia'
+      fullPath: '/ustawienia'
+      preLoaderRoute: typeof AuthenticatedUstawieniaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/polubione': {
       id: '/_authenticated/polubione'
       path: '/polubione'
@@ -528,6 +547,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
   AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
   AuthenticatedPolubioneRoute: typeof AuthenticatedPolubioneRoute
+  AuthenticatedUstawieniaRoute: typeof AuthenticatedUstawieniaRoute
   AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -543,6 +563,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
   AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
   AuthenticatedPolubioneRoute: AuthenticatedPolubioneRoute,
+  AuthenticatedUstawieniaRoute: AuthenticatedUstawieniaRoute,
   AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,
@@ -594,13 +615,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
