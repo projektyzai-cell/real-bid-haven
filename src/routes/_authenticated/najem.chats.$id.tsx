@@ -60,16 +60,38 @@ function RentalChatPage() {
     },
   });
 
+  async function markRead() {
+    if (!user || !chat) return;
+    const c = chat.chat;
+    const patch = c.tenant_id === user.id
+      ? { tenant_last_read_at: new Date().toISOString() }
+      : c.landlord_id === user.id
+        ? { landlord_last_read_at: new Date().toISOString() }
+        : null;
+    if (!patch) return;
+    await supabase.from("rental_chats" as never).update(patch as never).eq("id", id);
+    queryClient.invalidateQueries({ queryKey: ["unread-messages"] });
+  }
+
   useEffect(() => {
     const ch = supabase.channel(`rental-chat-${id}`)
       .on("postgres_changes",
         { event: "INSERT", schema: "public", table: "rental_messages", filter: `chat_id=eq.${id}` },
-        () => queryClient.invalidateQueries({ queryKey: ["rental-messages", id] }),
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["rental-messages", id] });
+          markRead();
+        },
       ).subscribe();
+    markRead();
     return () => { supabase.removeChannel(ch); };
-  }, [id, queryClient]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, queryClient, user?.id, chat?.chat.id]);
 
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages && messages.length > 0) markRead();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages]);
 
   async function send(e: React.FormEvent) {
     e.preventDefault();
