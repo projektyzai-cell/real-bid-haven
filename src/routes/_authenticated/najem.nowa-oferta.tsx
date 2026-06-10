@@ -59,6 +59,10 @@ function NewRentalListing() {
       notarial_required: form.notarial_required, has_energy_cert: form.has_energy_cert,
       wants_energy_cert_discount: form.wants_energy_cert_discount,
       promoted: form.promoted, images, main_image_index: mainIdx,
+      usable_area_m2: form.kind === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
+      plot_area_m2: form.kind === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
+      year_built: form.year_built ? Number(form.year_built) : null,
+      has_basement: form.kind === "house" ? form.has_basement : null,
     } as never);
     setBusy(false);
     if (error) { toast.error(error.message); return; }
