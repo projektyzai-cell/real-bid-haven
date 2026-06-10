@@ -117,6 +117,42 @@ function NewRentalRequestPage() {
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5 rounded-3xl border bg-card p-6 shadow-card">
+        <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Paszport Najemcy StaySafe</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Posiadanie aktualnego paszportu znacząco zwiększa szansę na odpowiedź wynajmującego.
+              </p>
+              <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm">
+                <Checkbox
+                  checked={passportChecked}
+                  onCheckedChange={(v) => setPassportChecked(!!v)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Mam już aktualny Paszport Najemcy
+                  {hasPassport && (
+                    <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold">
+                      <BadgeCheck className="h-3 w-3" /> Wykryto
+                    </span>
+                  )}
+                </span>
+              </label>
+              {!passportChecked && (
+                <a
+                  href="/najem/paszport"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]"
+                >
+                  Stwórz Paszport w nowej karcie <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
         <div>
           <Label className="mb-2 block">Preferowana lokalizacja</Label>
           <LocationPicker
