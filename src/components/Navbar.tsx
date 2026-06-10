@@ -135,9 +135,8 @@ export function Navbar() {
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
-                    </DropdownMenuSubContent>
-                  </DropdownMenuPortal>
-                </DropdownMenuSub>
+
+
 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
