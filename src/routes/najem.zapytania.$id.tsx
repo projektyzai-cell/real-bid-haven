@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+import { BioDisplay } from "@/components/BioField";
 
 export const Route = createFileRoute("/najem/zapytania/$id")({
   head: () => ({ meta: [{ title: "Zapytanie najmu — Stay Safe" }] }),
@@ -78,6 +79,7 @@ function RequestDetailPage() {
     city: string; district: string | null; budget_max: number | null;
     adults_count: number; area_description: string | null; notes: string | null;
     expires_at: string; tenant_id: string;
+    personal_bio_original: string | null; personal_bio_pl: string | null; personal_bio_lang: string | null;
   };
   const daysLeft = Math.max(0, Math.ceil((new Date(r.expires_at).getTime() - Date.now()) / 86_400_000));
 
@@ -103,6 +105,13 @@ function RequestDetailPage() {
           {r.notes && (
             <p className="mt-2 text-sm text-muted-foreground"><strong>Notatka:</strong> {r.notes}</p>
           )}
+          <div className="mt-4">
+            <BioDisplay
+              original={r.personal_bio_original}
+              originalLang={r.personal_bio_lang}
+              translated={r.personal_bio_pl}
+            />
+          </div>
           <div className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
             {Object.entries(flagLabels).map(([k, label]) => {
               const v = r[k] === true;
