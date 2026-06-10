@@ -72,12 +72,20 @@ function MyRequestsPage() {
 
   useEffect(() => {
     if (!reqIds.length) return;
+    const ids = new Set(reqIds);
     const ch = supabase.channel("my-rental-offers-rt")
-      .on("postgres_changes", { event: "*", schema: "public", table: "rental_offers" }, () => {
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "rental_offers" }, (payload) => {
+        const row = payload.new as { request_id?: string };
+        if (row.request_id && ids.has(row.request_id)) {
+          toast.success("🎯 Smart Match: nowa oferta na Twoje zapytanie!");
+        }
+        queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
+      })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "rental_offers" }, () => {
         queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
       }).subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [reqIds.length, queryClient]);
+  }, [reqIds.join(","), queryClient]);
 
   async function acceptOffer(offerId: string) {
     if (!window.confirm("Akceptując ofertę aktywujesz prywatny czat z wynajmującym. Kontynuować?")) return;
