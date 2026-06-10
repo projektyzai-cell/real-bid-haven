@@ -29,6 +29,7 @@ import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
+import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
 import { Route as AuthenticatedOgloszeniaNoweRouteImport } from './routes/_authenticated/ogloszenia.nowe'
 import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
 import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
@@ -136,6 +137,11 @@ const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => NajemZapytaniaRoute,
 } as any)
+const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
+  id: '/oferty/$id',
+  path: '/oferty/$id',
+  getParentRoute: () => NajemRoute,
+} as any)
 const AuthenticatedOgloszeniaNoweRoute =
   AuthenticatedOgloszeniaNoweRouteImport.update({
     id: '/ogloszenia/nowe',
@@ -202,6 +208,7 @@ export interface FileRoutesByFullPath {
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
+  '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
   '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
@@ -230,6 +237,7 @@ export interface FileRoutesByTo {
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
+  '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
   '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
@@ -260,6 +268,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/_authenticated/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/_authenticated/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
+  '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
   '/_authenticated/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
@@ -290,6 +299,7 @@ export interface FileRouteTypes {
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
     | '/ogloszenia/nowe'
+    | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
     | '/najem/chats/$id'
@@ -318,6 +328,7 @@ export interface FileRouteTypes {
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
     | '/ogloszenia/nowe'
+    | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty'
     | '/najem/chats/$id'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/nowa-oferta'
     | '/_authenticated/najem/nowe-zapytanie'
     | '/_authenticated/ogloszenia/nowe'
+    | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
     | '/_authenticated/najem/chats/$id'
@@ -508,6 +520,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NajemZapytaniaIdRouteImport
       parentRoute: typeof NajemZapytaniaRoute
     }
+    '/najem/oferty/$id': {
+      id: '/najem/oferty/$id'
+      path: '/oferty/$id'
+      fullPath: '/najem/oferty/$id'
+      preLoaderRoute: typeof NajemOfertyIdRouteImport
+      parentRoute: typeof NajemRoute
+    }
     '/_authenticated/ogloszenia/nowe': {
       id: '/_authenticated/ogloszenia/nowe'
       path: '/ogloszenia/nowe'
@@ -610,11 +629,13 @@ const NajemZapytaniaRouteWithChildren = NajemZapytaniaRoute._addFileChildren(
 
 interface NajemRouteChildren {
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+  NajemOfertyIdRoute: typeof NajemOfertyIdRoute
   NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
 }
 
 const NajemRouteChildren: NajemRouteChildren = {
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+  NajemOfertyIdRoute: NajemOfertyIdRoute,
   NajemOfertyIndexRoute: NajemOfertyIndexRoute,
 }
 
