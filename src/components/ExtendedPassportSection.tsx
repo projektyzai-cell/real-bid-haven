@@ -157,10 +157,10 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     if (!e.date_from || !e.property_kind) { toast.error("Data od i typ lokalu są wymagane."); return; }
     const payload = { ...e, user_id: userId };
     if (e.id) {
-      const { error } = await supabase.from("lease_history_entries" as never).update(payload).eq("id", e.id);
+      const { error } = await supabase.from("lease_history_entries" as never).update(payload as never).eq("id", e.id);
       if (error) return toast.error(error.message);
     } else {
-      const { data, error } = await supabase.from("lease_history_entries" as never).insert(payload).select("id").single();
+      const { data, error } = await supabase.from("lease_history_entries" as never).insert(payload as never).select("id").single();
       if (error) return toast.error(error.message);
       updateHistory(i, { id: (data as { id: string }).id });
     }
