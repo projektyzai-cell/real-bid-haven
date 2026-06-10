@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
-import { MapPin, Gavel, MessageCircle, Trophy, Clock } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MapPin, Gavel, MessageCircle, Trophy, Clock, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,10 @@ function PropertyDetailPage() {
   const { user } = useAuth();
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
+
+  useEffect(() => {
+    supabase.rpc("increment_property_views" as never, { _id: id } as never).then(() => {});
+  }, [id]);
 
   const { data: property, isLoading } = useQuery({
     queryKey: ["property", id],
@@ -213,8 +217,9 @@ function PropertyDetailPage() {
           <div className="mt-1 text-3xl font-bold tabular-nums text-live-foreground">
             {formatPLN(minBid)}
           </div>
-          <div className="mt-1 text-sm text-muted-foreground">
-            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
+          <div className="mt-1 flex items-center justify-between text-sm text-muted-foreground">
+            <span>{property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}</span>
+            <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{(property as unknown as { views_count?: number }).views_count ?? 0}</span>
           </div>
 
           <div className="mt-4">

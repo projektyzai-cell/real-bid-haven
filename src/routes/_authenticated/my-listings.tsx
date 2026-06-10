@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Plus, Check, X, MessageCircle, MapPin, Clock } from "lucide-react";
+import { Plus, Check, X, MessageCircle, MapPin, Clock, RotateCcw, Eye } from "lucide-react";
+import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { PropertyCard, type Property } from "@/components/PropertyCard";
@@ -199,13 +200,21 @@ function EndedAuctionPanel({
             <span className="text-muted-foreground">
               {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
             </span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Eye className="h-3 w-3" /> {(property as unknown as { views_count?: number }).views_count ?? 0} wyświetleń
+            </span>
           </div>
         </div>
-        {accepted && chatForProp && (
-          <Button onClick={() => onOpenChat(chatForProp)} className="rounded-xl">
-            <MessageCircle className="h-4 w-4" /> Otwórz chat
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {!accepted && (
+            <ResumeButton propertyId={property.id} endsAt={property.ends_at} onDone={onChanged} />
+          )}
+          {accepted && chatForProp && (
+            <Button onClick={() => onOpenChat(chatForProp)} className="rounded-xl">
+              <MessageCircle className="h-4 w-4" /> Otwórz chat
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mt-5">
@@ -268,6 +277,41 @@ function EndedAuctionPanel({
           </ul>
         )}
       </div>
+    </div>
+  );
+}
+
+function ResumeButton({ propertyId, endsAt, onDone }: { propertyId: string; endsAt: string; onDone: () => void }) {
+  const [days, setDays] = useState(7);
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const endedMs = new Date(endsAt).getTime();
+  const expired = Date.now() - endedMs > 90 * 86_400_000;
+  if (expired) return null;
+  async function resume() {
+    setBusy(true);
+    const { error } = await supabase.rpc("resume_property_listing" as never, { _id: propertyId, _days: days } as never);
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success("Aukcja wznowiona"); setOpen(false); onDone(); }
+  }
+  if (!open) {
+    return (
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)} className="rounded-xl">
+        <RotateCcw className="h-4 w-4" /> Wznów aukcję
+      </Button>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2 rounded-xl border bg-background/60 p-2">
+      <select value={days} onChange={(e) => setDays(Number(e.target.value))}
+        className="h-9 rounded-lg border bg-background px-2 text-sm">
+        {[1,3,7,14,30].map((d) => <option key={d} value={d}>{d} dni</option>)}
+      </select>
+      <Button size="sm" onClick={resume} disabled={busy} className="rounded-lg">
+        {busy ? "..." : "Wznów"}
+      </Button>
+      <Button size="sm" variant="ghost" onClick={() => setOpen(false)} className="rounded-lg">Anuluj</Button>
     </div>
   );
 }

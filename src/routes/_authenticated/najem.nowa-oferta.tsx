@@ -28,6 +28,7 @@ function NewRentalListing() {
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
     requires_insurance: false, insurance_payer: "tenant",
     requires_deposit: true,
+    usable_area_m2: "", plot_area_m2: "", year_built: "", has_basement: false,
   });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
@@ -58,6 +59,10 @@ function NewRentalListing() {
       notarial_required: form.notarial_required, has_energy_cert: form.has_energy_cert,
       wants_energy_cert_discount: form.wants_energy_cert_discount,
       promoted: form.promoted, images, main_image_index: mainIdx,
+      usable_area_m2: form.kind === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
+      plot_area_m2: form.kind === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
+      year_built: form.year_built ? Number(form.year_built) : null,
+      has_basement: form.kind === "house" ? form.has_basement : null,
     } as never);
     setBusy(false);
     if (error) { toast.error(error.message); return; }
@@ -122,6 +127,28 @@ function NewRentalListing() {
             <Label>Numer KW (opcjonalnie)</Label>
             <Input value={form.kw_number} onChange={(e) => setF("kw_number", e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
+          <div>
+            <Label>Rok budowy (opcjonalnie)</Label>
+            <Input type="number" min={1800} max={2100} value={form.year_built} onChange={(e) => setF("year_built", e.target.value as never)} className="mt-1.5 rounded-xl" />
+          </div>
+          {form.kind === "house" && (
+            <>
+              <div>
+                <Label>Powierzchnia użytkowa (m²)</Label>
+                <Input type="number" min={0} step="0.01" value={form.usable_area_m2}
+                  onChange={(e) => setF("usable_area_m2", e.target.value as never)} className="mt-1.5 rounded-xl" />
+              </div>
+              <div>
+                <Label>Powierzchnia działki (m²)</Label>
+                <Input type="number" min={0} step="0.01" value={form.plot_area_m2}
+                  onChange={(e) => setF("plot_area_m2", e.target.value as never)} className="mt-1.5 rounded-xl" />
+              </div>
+              <label className="flex items-center gap-2 rounded-xl border bg-background/50 p-3 text-sm md:col-span-2">
+                <Checkbox checked={form.has_basement} onCheckedChange={(v) => setF("has_basement", v === true)} />
+                Dom z piwnicą
+              </label>
+            </>
+          )}
           <div className="md:col-span-2 grid gap-3 sm:grid-cols-2">
             <label className="flex items-center gap-2 rounded-xl border bg-background/50 p-3 text-sm">
               <Checkbox checked={form.requires_deposit} onCheckedChange={(v) => setF("requires_deposit", v === true)} />

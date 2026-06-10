@@ -75,6 +75,12 @@ function NajemHub() {
         </Link>
       </div>
 
+      <div className="mt-6 text-center">
+        <Link to="/najem/oferty" className="text-sm text-primary underline-offset-4 hover:underline">
+          Lub przeglądaj wszystkie aktywne oferty najmu →
+        </Link>
+      </div>
+
       {promoted.length > 0 && (
         <section className="mt-14">
           <div className="mb-4 flex items-center gap-2">

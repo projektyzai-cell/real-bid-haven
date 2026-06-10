@@ -362,6 +362,44 @@ export type Database = {
         }
         Relationships: []
       }
+      rental_inquiries: {
+        Row: {
+          created_at: string
+          id: string
+          landlord_id: string
+          listing_id: string
+          message: string
+          status: string
+          tenant_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          landlord_id: string
+          listing_id: string
+          message: string
+          status?: string
+          tenant_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          landlord_id?: string
+          listing_id?: string
+          message?: string
+          status?: string
+          tenant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rental_inquiries_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       rental_listings: {
         Row: {
           accepts_children: boolean

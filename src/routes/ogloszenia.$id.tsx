@@ -1,8 +1,8 @@
 import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MapPin, X, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, X, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -81,6 +81,10 @@ function SaleDetailPage() {
   const [gdpr, setGdpr] = useState(false);
   const [terms, setTerms] = useState(false);
   const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    supabase.rpc("increment_property_views" as never, { _id: id } as never).then(() => {});
+  }, [id]);
 
   const { data, isLoading } = useQuery({
     queryKey: ["sale-listing", id],
@@ -172,6 +176,9 @@ function SaleDetailPage() {
               </Badge>
             )}
             <FavoriteButton propertyId={id} variant="button" />
+            <Badge variant="outline" className="rounded-full">
+              <Eye className="h-3 w-3" /> {(p as unknown as { views_count?: number }).views_count ?? 0}
+            </Badge>
           </div>
           <h1 className="mt-3 text-3xl font-semibold">{p.title}</h1>
 
