@@ -21,12 +21,14 @@ import { Route as OgloszeniaIndexRouteImport } from './routes/ogloszenia.index'
 import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
 import { Route as OgloszeniaIdRouteImport } from './routes/ogloszenia.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
+import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
 import { Route as AuthenticatedPolubioneRouteImport } from './routes/_authenticated/polubione'
 import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
@@ -98,6 +100,11 @@ const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
   path: '/zapytania',
   getParentRoute: () => NajemRoute,
 } as any)
+const AdminSetupRoute = AdminSetupRouteImport.update({
+  id: '/admin/setup',
+  path: '/admin/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedUstawieniaRoute = AuthenticatedUstawieniaRouteImport.update({
   id: '/ustawienia',
   path: '/ustawienia',
@@ -126,6 +133,11 @@ const AuthenticatedMyBidsRoute = AuthenticatedMyBidsRouteImport.update({
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const NajemOfertyIndexRoute = NajemOfertyIndexRouteImport.update({
@@ -199,12 +211,14 @@ export interface FileRoutesByFullPath {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/polubione': typeof AuthenticatedPolubioneRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
+  '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -229,12 +243,14 @@ export interface FileRoutesByTo {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
+  '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
   '/new-listing': typeof AuthenticatedNewListingRoute
   '/polubione': typeof AuthenticatedPolubioneRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
+  '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -261,12 +277,14 @@ export interface FileRoutesById {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
   '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
   '/_authenticated/polubione': typeof AuthenticatedPolubioneRoute
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
+  '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
@@ -293,12 +311,14 @@ export interface FileRouteTypes {
     | '/regulamin'
     | '/reset-password'
     | '/wycena-live'
+    | '/admin'
     | '/messages'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
     | '/polubione'
     | '/ustawienia'
+    | '/admin/setup'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -323,12 +343,14 @@ export interface FileRouteTypes {
     | '/regulamin'
     | '/reset-password'
     | '/wycena-live'
+    | '/admin'
     | '/messages'
     | '/my-bids'
     | '/my-listings'
     | '/new-listing'
     | '/polubione'
     | '/ustawienia'
+    | '/admin/setup'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -354,12 +376,14 @@ export interface FileRouteTypes {
     | '/regulamin'
     | '/reset-password'
     | '/wycena-live'
+    | '/_authenticated/admin'
     | '/_authenticated/messages'
     | '/_authenticated/my-bids'
     | '/_authenticated/my-listings'
     | '/_authenticated/new-listing'
     | '/_authenticated/polubione'
     | '/_authenticated/ustawienia'
+    | '/admin/setup'
     | '/najem/zapytania'
     | '/ogloszenia/$id'
     | '/properties/$id'
@@ -386,6 +410,7 @@ export interface RootRouteChildren {
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   WycenaLiveRoute: typeof WycenaLiveRoute
+  AdminSetupRoute: typeof AdminSetupRoute
   OgloszeniaIdRoute: typeof OgloszeniaIdRoute
   PropertiesIdRoute: typeof PropertiesIdRoute
   OgloszeniaIndexRoute: typeof OgloszeniaIndexRoute
@@ -477,6 +502,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NajemZapytaniaRouteImport
       parentRoute: typeof NajemRoute
     }
+    '/admin/setup': {
+      id: '/admin/setup'
+      path: '/admin/setup'
+      fullPath: '/admin/setup'
+      preLoaderRoute: typeof AdminSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/ustawienia': {
       id: '/_authenticated/ustawienia'
       path: '/ustawienia'
@@ -517,6 +549,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/messages'
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/najem/oferty/': {
@@ -600,6 +639,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteChildren {
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
@@ -617,6 +657,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
@@ -672,6 +713,7 @@ const rootRouteChildren: RootRouteChildren = {
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   WycenaLiveRoute: WycenaLiveRoute,
+  AdminSetupRoute: AdminSetupRoute,
   OgloszeniaIdRoute: OgloszeniaIdRoute,
   PropertiesIdRoute: PropertiesIdRoute,
   OgloszeniaIndexRoute: OgloszeniaIndexRoute,

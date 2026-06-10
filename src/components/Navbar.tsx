@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/use-auth";
 import { useUnreadMessages } from "@/hooks/use-unread-messages";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
   { to: "/wycena-live", label: "Rynkowa wycena nieruchomości", icon: Gavel },
@@ -23,6 +25,12 @@ export function Navbar() {
   const { user, displayName, signOut } = useAuth();
   const navigate = useNavigate();
   const unread = useUnreadMessages();
+  const [isAdmin, setIsAdmin] = useState(false);
+  useEffect(() => {
+    if (!user) { setIsAdmin(false); return; }
+    supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
+      .then(({ data }) => setIsAdmin(!!data));
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/60">
@@ -151,6 +159,12 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => navigate({ to: "/ustawienia" })}>
                   <Settings className="h-4 w-4" /> Ustawienia
                 </DropdownMenuItem>
+                {isAdmin && (
+                  <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}
+                    className="bg-gold/10 font-semibold text-gold focus:bg-gold/20">
+                    <ShieldCheck className="h-4 w-4" /> Panel administratora
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={signOut}>
                   <LogOut className="h-4 w-4" /> Wyloguj
