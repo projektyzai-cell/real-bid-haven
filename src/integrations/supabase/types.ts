@@ -159,6 +159,57 @@ export type Database = {
         }
         Relationships: []
       }
+      lease_history_entries: {
+        Row: {
+          address: string | null
+          city: string | null
+          contract_url: string | null
+          created_at: string
+          date_from: string
+          date_to: string | null
+          id: string
+          notes: string | null
+          prev_landlord_name: string | null
+          prev_landlord_phone: string | null
+          property_kind: string
+          references_available: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          contract_url?: string | null
+          created_at?: string
+          date_from: string
+          date_to?: string | null
+          id?: string
+          notes?: string | null
+          prev_landlord_name?: string | null
+          prev_landlord_phone?: string | null
+          property_kind: string
+          references_available?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          contract_url?: string | null
+          created_at?: string
+          date_from?: string
+          date_to?: string | null
+          id?: string
+          notes?: string | null
+          prev_landlord_name?: string | null
+          prev_landlord_phone?: string | null
+          property_kind?: string
+          references_available?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       lease_ratings: {
         Row: {
           created_at: string
@@ -323,18 +374,32 @@ export type Database = {
       }
       profiles: {
         Row: {
+          accepts_notarial_lease: boolean
+          bank_statement_urls: string[] | null
           created_at: string
           date_of_birth: string | null
           display_name: string
           document_country_code: string | null
           document_number_hash: string | null
+          employer_name: string | null
+          employment_contract_until: string | null
+          employment_contract_url: string | null
+          employment_type: string | null
           first_name: string | null
+          has_completed_internal_staysafe_lease: boolean
           has_pesel: boolean
+          has_tenant_insurance: boolean
           id: string
           identity_combo_hash: string | null
+          identity_doc_url: string | null
+          identity_source: string | null
+          identity_verification_status: string | null
+          income_verification_status: string | null
+          instagram_account_created_at: string | null
           instagram_username: string | null
           last_name: string | null
           linkedin_url: string | null
+          monthly_income_net: number | null
           passport_expires_at: string | null
           passport_issued_at: string | null
           passport_serial: string | null
@@ -342,25 +407,44 @@ export type Database = {
           personal_bio_original: string | null
           personal_bio_pl: string | null
           pesel_hash: string | null
+          social_facebook_url: string | null
           trusted_tenant_score: number
+          verified_employer: boolean
+          verified_facebook: boolean
           verified_identity: boolean
           verified_income: boolean
+          verified_instagram: boolean
           verified_linkedin: boolean
           verified_past_contract: boolean
+          willing_tenant_insurance: boolean
         }
         Insert: {
+          accepts_notarial_lease?: boolean
+          bank_statement_urls?: string[] | null
           created_at?: string
           date_of_birth?: string | null
           display_name: string
           document_country_code?: string | null
           document_number_hash?: string | null
+          employer_name?: string | null
+          employment_contract_until?: string | null
+          employment_contract_url?: string | null
+          employment_type?: string | null
           first_name?: string | null
+          has_completed_internal_staysafe_lease?: boolean
           has_pesel?: boolean
+          has_tenant_insurance?: boolean
           id: string
           identity_combo_hash?: string | null
+          identity_doc_url?: string | null
+          identity_source?: string | null
+          identity_verification_status?: string | null
+          income_verification_status?: string | null
+          instagram_account_created_at?: string | null
           instagram_username?: string | null
           last_name?: string | null
           linkedin_url?: string | null
+          monthly_income_net?: number | null
           passport_expires_at?: string | null
           passport_issued_at?: string | null
           passport_serial?: string | null
@@ -368,25 +452,44 @@ export type Database = {
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pesel_hash?: string | null
+          social_facebook_url?: string | null
           trusted_tenant_score?: number
+          verified_employer?: boolean
+          verified_facebook?: boolean
           verified_identity?: boolean
           verified_income?: boolean
+          verified_instagram?: boolean
           verified_linkedin?: boolean
           verified_past_contract?: boolean
+          willing_tenant_insurance?: boolean
         }
         Update: {
+          accepts_notarial_lease?: boolean
+          bank_statement_urls?: string[] | null
           created_at?: string
           date_of_birth?: string | null
           display_name?: string
           document_country_code?: string | null
           document_number_hash?: string | null
+          employer_name?: string | null
+          employment_contract_until?: string | null
+          employment_contract_url?: string | null
+          employment_type?: string | null
           first_name?: string | null
+          has_completed_internal_staysafe_lease?: boolean
           has_pesel?: boolean
+          has_tenant_insurance?: boolean
           id?: string
           identity_combo_hash?: string | null
+          identity_doc_url?: string | null
+          identity_source?: string | null
+          identity_verification_status?: string | null
+          income_verification_status?: string | null
+          instagram_account_created_at?: string | null
           instagram_username?: string | null
           last_name?: string | null
           linkedin_url?: string | null
+          monthly_income_net?: number | null
           passport_expires_at?: string | null
           passport_issued_at?: string | null
           passport_serial?: string | null
@@ -394,11 +497,16 @@ export type Database = {
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pesel_hash?: string | null
+          social_facebook_url?: string | null
           trusted_tenant_score?: number
+          verified_employer?: boolean
+          verified_facebook?: boolean
           verified_identity?: boolean
           verified_income?: boolean
+          verified_instagram?: boolean
           verified_linkedin?: boolean
           verified_past_contract?: boolean
+          willing_tenant_insurance?: boolean
         }
         Relationships: []
       }
@@ -796,6 +904,7 @@ export type Database = {
           adults_count: number
           area_description: string | null
           budget_max: number | null
+          children_count: number
           city: string
           created_at: string
           district: string | null
@@ -809,6 +918,11 @@ export type Database = {
           pets_caged: boolean
           pets_other: boolean
           requires_furnished: boolean
+          search_lat: number | null
+          search_lng: number | null
+          search_mode: string
+          search_radius_km: number | null
+          search_street: string | null
           status: string
           tenant_id: string
         }
@@ -821,6 +935,7 @@ export type Database = {
           adults_count?: number
           area_description?: string | null
           budget_max?: number | null
+          children_count?: number
           city: string
           created_at?: string
           district?: string | null
@@ -834,6 +949,11 @@ export type Database = {
           pets_caged?: boolean
           pets_other?: boolean
           requires_furnished?: boolean
+          search_lat?: number | null
+          search_lng?: number | null
+          search_mode?: string
+          search_radius_km?: number | null
+          search_street?: string | null
           status?: string
           tenant_id: string
         }
@@ -846,6 +966,7 @@ export type Database = {
           adults_count?: number
           area_description?: string | null
           budget_max?: number | null
+          children_count?: number
           city?: string
           created_at?: string
           district?: string | null
@@ -859,6 +980,11 @@ export type Database = {
           pets_caged?: boolean
           pets_other?: boolean
           requires_furnished?: boolean
+          search_lat?: number | null
+          search_lng?: number | null
+          search_mode?: string
+          search_radius_km?: number | null
+          search_street?: string | null
           status?: string
           tenant_id?: string
         }

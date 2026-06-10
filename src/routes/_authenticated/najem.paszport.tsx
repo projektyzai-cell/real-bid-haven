@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ShieldCheck, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { PassportSection } from "@/components/PassportSection";
+import { ExtendedPassportSection } from "@/components/ExtendedPassportSection";
 
 export const Route = createFileRoute("/_authenticated/najem/paszport")({
   head: () => ({ meta: [{ title: "Stwórz swój Paszport Najemcy — StaySafe" }] }),
@@ -26,6 +27,7 @@ function PassportPage() {
         Zbuduj transparentną deklarację tożsamości, dochodów i historii najmu. Twoje dane są przechowywane wyłącznie jako nieodwracalny hash (SHA-256).
       </p>
       {user && <PassportSection userId={user.id} />}
+      {user && <ExtendedPassportSection userId={user.id} />}
     </div>
   );
 }
