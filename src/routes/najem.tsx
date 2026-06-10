@@ -209,44 +209,107 @@ function RoleCard({ to, icon, eyebrow, title, desc, cta }: {
 }
 
 /* ---------- Quick verify widget ---------- */
+type PassportLookup = {
+  display_name: string;
+  trusted_tenant_score: number;
+  verified_linkedin: boolean;
+  verified_income: boolean;
+  verified_past_contract: boolean;
+  verified_identity: boolean;
+  passport_expires_at: string | null;
+  is_expired: boolean;
+};
+
 function QuickVerify() {
   const [q, setQ] = useState("");
-  const [submitted, setSubmitted] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [result, setResult] = useState<{ serial: string; data: PassportLookup | null } | null>(null);
+
+  async function check() {
+    const trimmed = q.trim().toUpperCase();
+    if (!trimmed) return toast.error("Wpisz numer paszportu (np. SS-XXXXXXXX)");
+    setBusy(true);
+    const { data, error } = await supabase.rpc("lookup_passport", { _serial: trimmed });
+    setBusy(false);
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+    const row = (data as PassportLookup[] | null)?.[0] ?? null;
+    setResult({ serial: trimmed, data: row });
+  }
 
   return (
     <section className="container mx-auto px-4 py-4">
       <div className="glass flex flex-col gap-3 rounded-2xl border border-[var(--gold)]/30 p-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex items-center gap-2 px-2 text-sm font-semibold sm:shrink-0">
           <ShieldCheck className="h-5 w-5 text-gold" />
-          Szybka weryfikacja StaySafe
+          Sprawdź Paszport StaySafe
         </div>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Wpisz nick lub link LinkedIn lokatora..."
-            className="rounded-xl border-border bg-background/40 pl-9"
+            onChange={(e) => setQ(e.target.value.toUpperCase())}
+            onKeyDown={(e) => e.key === "Enter" && check()}
+            placeholder="Numer paszportu (np. SS-XXXXXXXX)"
+            className="rounded-xl border-border bg-background/40 pl-9 font-mono uppercase"
           />
         </div>
         <Button
-          onClick={() => {
-            const trimmed = q.trim();
-            if (!trimmed) return toast.error("Wpisz nick lub link LinkedIn");
-            setSubmitted(trimmed);
-            toast.info("Weryfikacja w wersji beta — pełny silnik włączymy z paszportami (tura 3).");
-          }}
+          onClick={check}
+          disabled={busy}
           className="rounded-xl bg-navy text-navy-foreground hover:opacity-90 sm:shrink-0"
         >
-          Sprawdź Paszport
+          {busy ? "Sprawdzam…" : "Sprawdź Paszport"}
         </Button>
       </div>
-      {submitted && (
-        <div className="mt-3 rounded-2xl border border-dashed border-[var(--gold)]/30 bg-card/40 p-4 text-sm text-muted-foreground">
-          Brak aktywnego paszportu dla <span className="font-semibold text-foreground">{submitted}</span>. Funkcja w przygotowaniu.
+      {result && (
+        <div className="mt-3 rounded-2xl border border-[var(--gold)]/30 bg-card/40 p-4 text-sm">
+          {!result.data ? (
+            <div className="text-muted-foreground">
+              Nie znaleziono aktywnego paszportu dla <span className="font-mono font-semibold text-foreground">{result.serial}</span>.
+            </div>
+          ) : (
+            <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="font-semibold text-foreground">{result.data.display_name}</span>
+                  <span className="font-mono text-xs text-muted-foreground">{result.serial}</span>
+                  {result.data.is_expired ? (
+                    <span className="rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
+                      Wygasł
+                    </span>
+                  ) : (
+                    <span className="rounded-full border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
+                      Aktywny
+                    </span>
+                  )}
+                </div>
+                <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
+                  <VBadge ok={result.data.verified_identity} label="Tożsamość" />
+                  <VBadge ok={result.data.verified_linkedin} label="LinkedIn" />
+                  <VBadge ok={result.data.verified_income} label="Dochód" />
+                  <VBadge ok={result.data.verified_past_contract} label="Poprzednia umowa" />
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Score</div>
+                <div className="text-2xl font-black text-gold">{result.data.trusted_tenant_score}<span className="text-sm text-muted-foreground">/100</span></div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </section>
+  );
+}
+
+function VBadge({ ok, label }: { ok: boolean; label: string }) {
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold uppercase tracking-wide ${ok ? "border-[var(--gold)]/50 bg-[var(--gold)]/10 text-gold" : "border-border bg-card/40 text-muted-foreground"}`}>
+      {ok ? "✓" : "·"} {label}
+    </span>
   );
 }
 

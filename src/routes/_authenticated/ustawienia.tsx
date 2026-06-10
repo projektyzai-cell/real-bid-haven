@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { PassportSection } from "@/components/PassportSection";
 
 export const Route = createFileRoute("/_authenticated/ustawienia")({
   head: () => ({ meta: [{ title: "Ustawienia — Stay Safe" }] }),
@@ -84,6 +85,8 @@ function SettingsPage() {
           </Button>
         </form>
       </section>
+
+      {user && <PassportSection userId={user.id} />}
 
       <section className="mt-6 rounded-3xl border border-dashed bg-card/40 p-6 text-sm text-muted-foreground">
         <p>Wkrótce: powiadomienia mailowe, język interfejsu, zarządzanie zgodami.</p>
