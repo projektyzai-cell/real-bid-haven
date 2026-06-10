@@ -43,6 +43,7 @@ function InterestedTenantsPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [accepting, setAccepting] = useState<string | null>(null);
+  const [rate, setRate] = useState<{ transactionId: string; tenantId: string } | null>(null);
 
   const { data: rows = [], refetch } = useQuery({
     queryKey: ["lease-txns-landlord", user?.id],
@@ -119,17 +120,34 @@ function InterestedTenantsPage() {
             key={t.id}
             t={t}
             cta={
-              t.chat_id ? (
-                <Button size="sm" className="rounded-xl" onClick={() => navigate({ to: "/najem/chats/$id", params: { id: t.chat_id! } })}>
-                  <MessageCircle className="h-4 w-4" /> Otwórz czat
+              <div className="flex flex-col items-end gap-2">
+                {t.chat_id && (
+                  <Button size="sm" className="rounded-xl" onClick={() => navigate({ to: "/najem/chats/$id", params: { id: t.chat_id! } })}>
+                    <MessageCircle className="h-4 w-4" /> Otwórz czat
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setRate({ transactionId: t.id, tenantId: t.tenant_id })}
+                  className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10"
+                >
+                  <Star className="h-4 w-4" /> Oceń najemcę
                 </Button>
-              ) : (
-                <Badge className="rounded-full">Zaakceptowany</Badge>
-              )
+              </div>
             }
           />
         ))}
       </Section>
+
+      {rate && (
+        <RateLeaseDialog
+          open
+          onClose={() => setRate(null)}
+          direction={{ kind: "landlord-rates-tenant", transactionId: rate.transactionId, tenantId: rate.tenantId }}
+        />
+      )}
+
 
       {rows.length === 0 && (
         <div className="mt-8 rounded-3xl border border-dashed bg-card/40 p-12 text-center text-muted-foreground">
