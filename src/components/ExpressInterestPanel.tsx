@@ -31,6 +31,7 @@ export function ExpressInterestPanel({
   const [txn, setTxn] = useState<Txn | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [rateOpen, setRateOpen] = useState(false);
 
   const isOwner = userId === landlordId;
 
