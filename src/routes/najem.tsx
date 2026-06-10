@@ -163,48 +163,62 @@ function MiniBadge({ icon, label, tone }: { icon?: React.ReactNode; label: strin
 function RoleCards() {
   return (
     <section className="container mx-auto grid gap-5 px-4 pb-8 md:grid-cols-2 md:gap-6">
-      <RoleCard
-        to="/najem/nowe-zapytanie"
-        icon={<KeyRound className="h-6 w-6 text-gold" />}
-        eyebrow="Jestem najemcą"
-        title="Zbuduj swój Paszport Najemcy"
-        desc="Pokaż transparentną deklarację weryfikacji tożsamości, dochodów i household profilu."
-        cta="Stwórz swój paszport"
-      />
-      <RoleCard
-        to="/najem/nowa-oferta"
-        icon={<Building className="h-6 w-6 text-gold" />}
-        eyebrow="Jestem wynajmującym"
-        title="Wystaw ofertę i rekrutuj lokatorów"
-        desc="Uzyskaj dostęp do zweryfikowanych profili i historii najmu w 100% bezpiecznie."
-        cta="Wystaw ofertę i zarządzaj"
-      />
+      <TenantCard />
+      <Link to="/najem/nowa-oferta" className="group relative block">
+        <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-br from-[var(--gold)]/40 via-transparent to-[var(--gold)]/20 opacity-60 blur transition group-hover:opacity-100" />
+        <div className="glass relative h-full rounded-3xl p-6 transition group-hover:-translate-y-0.5">
+          <div className="flex items-start justify-between">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--gold)]/30 bg-background/40 backdrop-blur">
+              <Building className="h-6 w-6 text-gold" />
+            </div>
+            <span className="rounded-full border border-[var(--gold)]/40 px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold">PL/EN</span>
+          </div>
+          <div className="mt-4 text-lg font-semibold text-foreground/90">Jestem wynajmującym</div>
+          <h3 className="mt-2 text-base font-black uppercase tracking-wide">Wystaw ofertę i rekrutuj lokatorów</h3>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Uzyskaj dostęp do zweryfikowanych profili i historii najmu w 100% bezpiecznie.
+          </p>
+          <div className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
+            Wystaw ofertę i zarządzaj <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+          </div>
+        </div>
+      </Link>
     </section>
   );
 }
 
-function RoleCard({ to, icon, eyebrow, title, desc, cta }: {
-  to: "/najem/nowe-zapytanie" | "/najem/nowa-oferta";
-  icon: React.ReactNode; eyebrow: string; title: string; desc: string; cta: string;
-}) {
+function TenantCard() {
   return (
-    <Link to={to} className="group relative block">
+    <div className="group relative block">
       <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-br from-[var(--gold)]/40 via-transparent to-[var(--gold)]/20 opacity-60 blur transition group-hover:opacity-100" />
       <div className="glass relative h-full rounded-3xl p-6 transition group-hover:-translate-y-0.5">
         <div className="flex items-start justify-between">
           <div className="grid h-12 w-12 place-items-center rounded-2xl border border-[var(--gold)]/30 bg-background/40 backdrop-blur">
-            {icon}
+            <KeyRound className="h-6 w-6 text-gold" />
           </div>
           <span className="rounded-full border border-[var(--gold)]/40 px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold">PL/EN</span>
         </div>
-        <div className="mt-4 text-lg font-semibold text-foreground/90">{eyebrow}</div>
-        <h3 className="mt-2 text-base font-black uppercase tracking-wide">{title}</h3>
-        <p className="mt-2 text-sm text-muted-foreground">{desc}</p>
-        <div className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
-          {cta} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+        <div className="mt-4 text-lg font-semibold text-foreground/90">Jestem najemcą</div>
+        <h3 className="mt-2 text-base font-black uppercase tracking-wide">Paszport Najemcy lub gotowe dopasowanie</h3>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Zbuduj transparentną deklarację weryfikacji tożsamości, dochodów i household profilu — albo zleć wyszukanie ofert idealnie dopasowanych do Twoich kryteriów.
+        </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+          <Link
+            to="/najem/paszport"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]"
+          >
+            <ShieldCheck className="h-4 w-4" /> Stwórz swój paszport
+          </Link>
+          <Link
+            to="/najem/nowe-zapytanie"
+            className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-background/40 px-4 py-2 text-sm font-bold uppercase tracking-wide text-foreground transition hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/10 hover:text-gold"
+          >
+            <Search className="h-4 w-4" /> Zleć wyszukanie pasujących ofert
+          </Link>
         </div>
       </div>
-    </Link>
+    </div>
   );
 }
 

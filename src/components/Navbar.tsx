@@ -123,6 +123,12 @@ export function Navbar() {
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent className="rounded-2xl">
                       <DropdownMenuLabel className="text-[10px] uppercase text-muted-foreground">Najemca</DropdownMenuLabel>
+                      <DropdownMenuItem
+                        onClick={() => navigate({ to: "/najem/paszport" })}
+                        className="bg-gold/10 font-semibold text-gold focus:bg-gold/20"
+                      >
+                        <ShieldCheck className="h-4 w-4" /> Stwórz swój Paszport Najemcy
+                      </DropdownMenuItem>
                       <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> Moje zapytania
                       </DropdownMenuItem>
