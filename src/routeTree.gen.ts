@@ -31,6 +31,7 @@ import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.inde
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
 import { Route as AuthenticatedOgloszeniaNoweRouteImport } from './routes/_authenticated/ogloszenia.nowe'
+import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
 import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
 import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
 import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
@@ -148,6 +149,12 @@ const AuthenticatedOgloszeniaNoweRoute =
     path: '/ogloszenia/nowe',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemZainteresowaniRoute =
+  AuthenticatedNajemZainteresowaniRouteImport.update({
+    id: '/najem/zainteresowani',
+    path: '/najem/zainteresowani',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedNajemNoweZapytanieRoute =
   AuthenticatedNajemNoweZapytanieRouteImport.update({
     id: '/najem/nowe-zapytanie',
@@ -207,6 +214,7 @@ export interface FileRoutesByFullPath {
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
+  '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
+  '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
@@ -267,6 +276,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/_authenticated/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/_authenticated/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
+  '/_authenticated/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/_authenticated/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
@@ -298,6 +308,7 @@ export interface FileRouteTypes {
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
+    | '/najem/zainteresowani'
     | '/ogloszenia/nowe'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
+    | '/najem/zainteresowani'
     | '/ogloszenia/nowe'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
@@ -357,6 +369,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/moje-zapytania'
     | '/_authenticated/najem/nowa-oferta'
     | '/_authenticated/najem/nowe-zapytanie'
+    | '/_authenticated/najem/zainteresowani'
     | '/_authenticated/ogloszenia/nowe'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
@@ -534,6 +547,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedOgloszeniaNoweRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/najem/zainteresowani': {
+      id: '/_authenticated/najem/zainteresowani'
+      path: '/najem/zainteresowani'
+      fullPath: '/najem/zainteresowani'
+      preLoaderRoute: typeof AuthenticatedNajemZainteresowaniRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/najem/nowe-zapytanie': {
       id: '/_authenticated/najem/nowe-zapytanie'
       path: '/najem/nowe-zapytanie'
@@ -591,6 +611,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
   AuthenticatedNajemNowaOfertaRoute: typeof AuthenticatedNajemNowaOfertaRoute
   AuthenticatedNajemNoweZapytanieRoute: typeof AuthenticatedNajemNoweZapytanieRoute
+  AuthenticatedNajemZainteresowaniRoute: typeof AuthenticatedNajemZainteresowaniRoute
   AuthenticatedOgloszeniaNoweRoute: typeof AuthenticatedOgloszeniaNoweRoute
   AuthenticatedNajemChatsIdRoute: typeof AuthenticatedNajemChatsIdRoute
 }
@@ -607,6 +628,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,
   AuthenticatedNajemNowaOfertaRoute: AuthenticatedNajemNowaOfertaRoute,
   AuthenticatedNajemNoweZapytanieRoute: AuthenticatedNajemNoweZapytanieRoute,
+  AuthenticatedNajemZainteresowaniRoute: AuthenticatedNajemZainteresowaniRoute,
   AuthenticatedOgloszeniaNoweRoute: AuthenticatedOgloszeniaNoweRoute,
   AuthenticatedNajemChatsIdRoute: AuthenticatedNajemChatsIdRoute,
 }

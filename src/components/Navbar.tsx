@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Building2,
-  KeyRound, Heart, Settings, Search,
+  KeyRound, Heart, Settings, Search, ShieldCheck,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
@@ -129,6 +129,12 @@ export function Navbar() {
                       <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
                         <Plus className="h-4 w-4" /> Dodaj nowe ogłoszenie wynajmu
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/zainteresowani" })}>
+                        <ShieldCheck className="h-4 w-4" /> Zainteresowani najemcy
+                      </DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>

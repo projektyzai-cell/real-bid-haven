@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+import { ExpressInterestPanel } from "@/components/ExpressInterestPanel";
 
 export const Route = createFileRoute("/najem/oferty/$id")({
   head: () => ({ meta: [{ title: "Oferta najmu — Stay Safe" }] }),
@@ -180,6 +181,8 @@ function RentalDetailPage() {
             Dane kontaktowe wynajmującego nie są udostępniane. Wyślij wiadomość poprzez wewnętrzny czat Stay Safe.
           </p>
         </div>
+        {user && <ExpressInterestPanel listingId={r.id} userId={user.id} landlordId={r.landlord_id} />}
+
 
         {sent ? (
           <div className="rounded-3xl border-2 border-primary/30 bg-primary/5 p-6 text-sm">
