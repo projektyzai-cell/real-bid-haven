@@ -159,6 +159,79 @@ export type Database = {
         }
         Relationships: []
       }
+      lease_transactions: {
+        Row: {
+          accepted_at: string | null
+          cancelled_at: string | null
+          chat_id: string | null
+          completed_at: string | null
+          created_at: string
+          id: string
+          landlord_id: string
+          listing_id: string | null
+          passport_serial_snapshot: string | null
+          passport_shared_at: string | null
+          request_id: string | null
+          state: Database["public"]["Enums"]["lease_state"]
+          tenant_id: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          cancelled_at?: string | null
+          chat_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          landlord_id: string
+          listing_id?: string | null
+          passport_serial_snapshot?: string | null
+          passport_shared_at?: string | null
+          request_id?: string | null
+          state?: Database["public"]["Enums"]["lease_state"]
+          tenant_id: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          cancelled_at?: string | null
+          chat_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          landlord_id?: string
+          listing_id?: string | null
+          passport_serial_snapshot?: string | null
+          passport_shared_at?: string | null
+          request_id?: string | null
+          state?: Database["public"]["Enums"]["lease_state"]
+          tenant_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lease_transactions_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "rental_chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lease_transactions_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lease_transactions_request_id_fkey"
+            columns: ["request_id"]
+            isOneToOne: false
+            referencedRelation: "rental_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           chat_id: string
@@ -194,18 +267,81 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string
+          date_of_birth: string | null
           display_name: string
+          document_country_code: string | null
+          document_number_hash: string | null
+          first_name: string | null
+          has_pesel: boolean
           id: string
+          identity_combo_hash: string | null
+          instagram_username: string | null
+          last_name: string | null
+          linkedin_url: string | null
+          passport_expires_at: string | null
+          passport_issued_at: string | null
+          passport_serial: string | null
+          personal_bio_lang: string | null
+          personal_bio_original: string | null
+          personal_bio_pl: string | null
+          pesel_hash: string | null
+          trusted_tenant_score: number
+          verified_identity: boolean
+          verified_income: boolean
+          verified_linkedin: boolean
+          verified_past_contract: boolean
         }
         Insert: {
           created_at?: string
+          date_of_birth?: string | null
           display_name: string
+          document_country_code?: string | null
+          document_number_hash?: string | null
+          first_name?: string | null
+          has_pesel?: boolean
           id: string
+          identity_combo_hash?: string | null
+          instagram_username?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
+          passport_expires_at?: string | null
+          passport_issued_at?: string | null
+          passport_serial?: string | null
+          personal_bio_lang?: string | null
+          personal_bio_original?: string | null
+          personal_bio_pl?: string | null
+          pesel_hash?: string | null
+          trusted_tenant_score?: number
+          verified_identity?: boolean
+          verified_income?: boolean
+          verified_linkedin?: boolean
+          verified_past_contract?: boolean
         }
         Update: {
           created_at?: string
+          date_of_birth?: string | null
           display_name?: string
+          document_country_code?: string | null
+          document_number_hash?: string | null
+          first_name?: string | null
+          has_pesel?: boolean
           id?: string
+          identity_combo_hash?: string | null
+          instagram_username?: string | null
+          last_name?: string | null
+          linkedin_url?: string | null
+          passport_expires_at?: string | null
+          passport_issued_at?: string | null
+          passport_serial?: string | null
+          personal_bio_lang?: string | null
+          personal_bio_original?: string | null
+          personal_bio_pl?: string | null
+          pesel_hash?: string | null
+          trusted_tenant_score?: number
+          verified_identity?: boolean
+          verified_income?: boolean
+          verified_linkedin?: boolean
+          verified_past_contract?: boolean
         }
         Relationships: []
       }
@@ -610,6 +746,9 @@ export type Database = {
           has_children: boolean
           id: string
           notes: string | null
+          personal_bio_lang: string | null
+          personal_bio_original: string | null
+          personal_bio_pl: string | null
           pets_caged: boolean
           pets_other: boolean
           requires_furnished: boolean
@@ -632,6 +771,9 @@ export type Database = {
           has_children?: boolean
           id?: string
           notes?: string | null
+          personal_bio_lang?: string | null
+          personal_bio_original?: string | null
+          personal_bio_pl?: string | null
           pets_caged?: boolean
           pets_other?: boolean
           requires_furnished?: boolean
@@ -654,6 +796,9 @@ export type Database = {
           has_children?: boolean
           id?: string
           notes?: string | null
+          personal_bio_lang?: string | null
+          personal_bio_original?: string | null
+          personal_bio_pl?: string | null
           pets_caged?: boolean
           pets_other?: boolean
           requires_furnished?: boolean
@@ -786,8 +931,14 @@ export type Database = {
     Functions: {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
       accept_rental_offer: { Args: { _offer_id: string }; Returns: string }
+      accept_tenant: { Args: { _transaction_id: string }; Returns: undefined }
       cleanup_old_listings: { Args: never; Returns: undefined }
+      express_interest: {
+        Args: { _listing_id: string; _request_id?: string }
+        Returns: string
+      }
       extend_rental_listing: { Args: { _id: string }; Returns: string }
+      gen_passport_serial: { Args: never; Returns: string }
       get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
@@ -807,6 +958,19 @@ export type Database = {
         Returns: boolean
       }
       kw_taken: { Args: { _kw: string }; Returns: boolean }
+      lookup_passport: {
+        Args: { _serial: string }
+        Returns: {
+          display_name: string
+          is_expired: boolean
+          passport_expires_at: string
+          trusted_tenant_score: number
+          verified_identity: boolean
+          verified_income: boolean
+          verified_linkedin: boolean
+          verified_past_contract: boolean
+        }[]
+      }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
       resume_property_listing: {
         Args: { _days: number; _id: string }
@@ -815,6 +979,13 @@ export type Database = {
     }
     Enums: {
       app_role: "buyer" | "seller" | "admin"
+      lease_state:
+        | "matched"
+        | "interested_passport_shared"
+        | "chatting"
+        | "accepted"
+        | "completed"
+        | "cancelled"
       market_type: "primary" | "secondary"
       ownership_type:
         | "cooperative_with_kw"
@@ -957,6 +1128,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["buyer", "seller", "admin"],
+      lease_state: [
+        "matched",
+        "interested_passport_shared",
+        "chatting",
+        "accepted",
+        "completed",
+        "cancelled",
+      ],
       market_type: ["primary", "secondary"],
       ownership_type: [
         "cooperative_with_kw",
