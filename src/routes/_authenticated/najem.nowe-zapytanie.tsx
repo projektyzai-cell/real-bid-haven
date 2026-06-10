@@ -10,6 +10,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationPicker } from "@/components/LocationPicker";
+import { BioField } from "@/components/BioField";
+import { translateToPl, type BioLang } from "@/lib/bio-translate";
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
   head: () => ({ meta: [{ title: "Nowe zapytanie najemcy — Stay Safe" }] }),
@@ -35,6 +37,7 @@ function NewRentalRequestPage() {
     city: "", district: "", area_description: "", budget_max: "",
     adults_count: "1", active_days: "7", notes: "",
   });
+  const [bio, setBio] = useState<{ text: string; lang: BioLang }>({ text: "", lang: "pl" });
   const [flags, setFlags] = useState({
     has_children: false, pets_caged: false, pets_other: false,
     accepts_deposit: false, accepts_tenant_report: false,
@@ -58,10 +61,13 @@ function NewRentalRequestPage() {
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     setSubmitting(true);
     const expiresAt = new Date(Date.now() + parsed.data.active_days * 86_400_000).toISOString();
-    const { data, error } = await supabase.from("rental_requests" as never).insert({
+    const { error } = await supabase.from("rental_requests" as never).insert({
       tenant_id: user.id,
       ...parsed.data,
       ...flags,
+      personal_bio_original: bio.text.trim() || null,
+      personal_bio_lang: bio.text.trim() ? bio.lang : null,
+      personal_bio_pl: bio.text.trim() ? translateToPl(bio.text.trim(), bio.lang) : null,
       expires_at: expiresAt,
       status: "active",
     } as never).select("id").single();
