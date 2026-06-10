@@ -82,6 +82,10 @@ function SaleDetailPage() {
   const [terms, setTerms] = useState(false);
   const [sending, setSending] = useState(false);
 
+  useEffect(() => {
+    supabase.rpc("increment_property_views" as never, { _id: id } as never).then(() => {});
+  }, [id]);
+
   const { data, isLoading } = useQuery({
     queryKey: ["sale-listing", id],
     queryFn: async () => {
