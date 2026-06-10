@@ -112,14 +112,6 @@ function WycenaLivePage() {
                 </div>
               </section>
             )}
-            {ended.length > 0 && (
-              <section>
-                <h2 className="mb-4 text-xl font-bold text-muted-foreground">Zakończone aukcje</h2>
-                <div className="grid gap-6 opacity-90 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                  {ended.map((p) => <PropertyCard key={`${p.id}-${p.current_price}-${p.bid_count}`} property={p} />)}
-                </div>
-              </section>
-            )}
           </div>
         )}
       </div>
