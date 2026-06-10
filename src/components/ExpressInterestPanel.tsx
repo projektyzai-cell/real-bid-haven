@@ -63,7 +63,6 @@ export function ExpressInterestPanel({
     setBusy(true);
     const { data, error } = await supabase.rpc("express_interest", {
       _listing_id: listingId,
-      _request_id: undefined as unknown as string,
     });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
