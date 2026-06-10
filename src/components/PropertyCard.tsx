@@ -134,8 +134,9 @@ export function PropertyCard({ property, flash }: Props) {
             </div>
             <CountdownTimer endsAt={property.ends_at} compact />
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">
-            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
+          <div className="mt-1 flex items-center justify-between text-xs text-muted-foreground">
+            <span>{property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}</span>
+            <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{property.views_count ?? 0}</span>
           </div>
         </div>
 
