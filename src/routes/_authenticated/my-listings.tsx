@@ -200,13 +200,21 @@ function EndedAuctionPanel({
             <span className="text-muted-foreground">
               {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
             </span>
+            <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <Eye className="h-3 w-3" /> {(property as unknown as { views_count?: number }).views_count ?? 0} wyświetleń
+            </span>
           </div>
         </div>
-        {accepted && chatForProp && (
-          <Button onClick={() => onOpenChat(chatForProp)} className="rounded-xl">
-            <MessageCircle className="h-4 w-4" /> Otwórz chat
-          </Button>
-        )}
+        <div className="flex flex-wrap gap-2">
+          {!accepted && (
+            <ResumeButton propertyId={property.id} endsAt={property.ends_at} onDone={onChanged} />
+          )}
+          {accepted && chatForProp && (
+            <Button onClick={() => onOpenChat(chatForProp)} className="rounded-xl">
+              <MessageCircle className="h-4 w-4" /> Otwórz chat
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="mt-5">
