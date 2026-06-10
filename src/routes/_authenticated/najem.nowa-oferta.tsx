@@ -28,6 +28,7 @@ function NewRentalListing() {
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
     requires_insurance: false, insurance_payer: "tenant",
     requires_deposit: true,
+    usable_area_m2: "", plot_area_m2: "", year_built: "", has_basement: false,
   });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
