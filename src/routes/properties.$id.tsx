@@ -33,6 +33,10 @@ function PropertyDetailPage() {
   const [amount, setAmount] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    supabase.rpc("increment_property_views" as never, { _id: id } as never).then(() => {});
+  }, [id]);
+
   const { data: property, isLoading } = useQuery({
     queryKey: ["property", id],
     queryFn: async () => {
