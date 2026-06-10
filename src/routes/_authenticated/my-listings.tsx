@@ -280,3 +280,38 @@ function EndedAuctionPanel({
     </div>
   );
 }
+
+function ResumeButton({ propertyId, endsAt, onDone }: { propertyId: string; endsAt: string; onDone: () => void }) {
+  const [days, setDays] = useState(7);
+  const [busy, setBusy] = useState(false);
+  const [open, setOpen] = useState(false);
+  const endedMs = new Date(endsAt).getTime();
+  const expired = Date.now() - endedMs > 90 * 86_400_000;
+  if (expired) return null;
+  async function resume() {
+    setBusy(true);
+    const { error } = await supabase.rpc("resume_property_listing" as never, { _id: propertyId, _days: days } as never);
+    setBusy(false);
+    if (error) toast.error(error.message);
+    else { toast.success("Aukcja wznowiona"); setOpen(false); onDone(); }
+  }
+  if (!open) {
+    return (
+      <Button size="sm" variant="outline" onClick={() => setOpen(true)} className="rounded-xl">
+        <RotateCcw className="h-4 w-4" /> Wznów aukcję
+      </Button>
+    );
+  }
+  return (
+    <div className="flex items-center gap-2 rounded-xl border bg-background/60 p-2">
+      <select value={days} onChange={(e) => setDays(Number(e.target.value))}
+        className="h-9 rounded-lg border bg-background px-2 text-sm">
+        {[1,3,7,14,30].map((d) => <option key={d} value={d}>{d} dni</option>)}
+      </select>
+      <Button size="sm" onClick={resume} disabled={busy} className="rounded-lg">
+        {busy ? "..." : "Wznów"}
+      </Button>
+      <Button size="sm" variant="ghost" onClick={() => setOpen(false)} className="rounded-lg">Anuluj</Button>
+    </div>
+  );
+}
