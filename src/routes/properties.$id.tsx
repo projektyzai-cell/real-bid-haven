@@ -217,8 +217,9 @@ function PropertyDetailPage() {
           <div className="mt-1 text-3xl font-bold tabular-nums text-live-foreground">
             {formatPLN(minBid)}
           </div>
-          <div className="mt-1 text-sm text-muted-foreground">
-            {property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}
+          <div className="mt-1 flex items-center justify-between text-sm text-muted-foreground">
+            <span>{property.bid_count} {property.bid_count === 1 ? "oferta" : "ofert"}</span>
+            <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{(property as unknown as { views_count?: number }).views_count ?? 0}</span>
           </div>
 
           <div className="mt-4">
