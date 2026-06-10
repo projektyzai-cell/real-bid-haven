@@ -159,6 +159,63 @@ export type Database = {
         }
         Relationships: []
       }
+      lease_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          listing_id: string | null
+          ratee_id: string
+          rater_id: string
+          review: string | null
+          stars_communication: number
+          stars_quality: number
+          stars_reliability: number
+          target: Database["public"]["Enums"]["rating_target"]
+          transaction_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          ratee_id: string
+          rater_id: string
+          review?: string | null
+          stars_communication: number
+          stars_quality: number
+          stars_reliability: number
+          target: Database["public"]["Enums"]["rating_target"]
+          transaction_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          ratee_id?: string
+          rater_id?: string
+          review?: string | null
+          stars_communication?: number
+          stars_quality?: number
+          stars_reliability?: number
+          target?: Database["public"]["Enums"]["rating_target"]
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lease_ratings_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lease_ratings_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "lease_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lease_transactions: {
         Row: {
           accepted_at: string | null
@@ -958,6 +1015,13 @@ export type Database = {
         Returns: boolean
       }
       kw_taken: { Args: { _kw: string }; Returns: boolean }
+      listing_rating_summary: {
+        Args: { _listing_id: string }
+        Returns: {
+          avg_overall: number
+          total: number
+        }[]
+      }
       lookup_passport: {
         Args: { _serial: string }
         Returns: {
@@ -971,10 +1035,24 @@ export type Database = {
           verified_past_contract: boolean
         }[]
       }
+      ratings_revealed: { Args: { _transaction_id: string }; Returns: boolean }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
       resume_property_listing: {
         Args: { _days: number; _id: string }
         Returns: string
+      }
+      user_rating_summary: {
+        Args: {
+          _target: Database["public"]["Enums"]["rating_target"]
+          _user_id: string
+        }
+        Returns: {
+          avg_communication: number
+          avg_overall: number
+          avg_quality: number
+          avg_reliability: number
+          total: number
+        }[]
       }
     }
     Enums: {
@@ -1000,6 +1078,7 @@ export type Database = {
         | "garaz"
         | "dzialka"
         | "dom"
+      rating_target: "tenant" | "landlord" | "property"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1152,6 +1231,7 @@ export const Constants = {
         "dzialka",
         "dom",
       ],
+      rating_target: ["tenant", "landlord", "property"],
     },
   },
 } as const
