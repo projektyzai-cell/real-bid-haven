@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
+import { ShieldCheck, ExternalLink, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -43,6 +44,26 @@ function NewRentalRequestPage() {
     accepts_deposit: false, accepts_tenant_report: false,
     requires_furnished: false, accepts_insurance: false, accepts_notarial_lease: false,
   });
+  const [hasPassport, setHasPassport] = useState<boolean | null>(null);
+  const [passportChecked, setPassportChecked] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("passport_serial,passport_expires_at")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const active =
+          !!data?.passport_serial &&
+          !!data?.passport_expires_at &&
+          new Date(data.passport_expires_at) > new Date();
+        setHasPassport(active);
+        setPassportChecked(active);
+      });
+  }, [user]);
+
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const toggle = (k: keyof typeof flags) => setFlags((p) => ({ ...p, [k]: !p[k] }));
 
@@ -96,6 +117,42 @@ function NewRentalRequestPage() {
       </p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-5 rounded-3xl border bg-card p-6 shadow-card">
+        <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4">
+          <div className="flex items-start gap-3">
+            <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
+            <div className="flex-1">
+              <p className="text-sm font-semibold">Paszport Najemcy StaySafe</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">
+                Posiadanie aktualnego paszportu znacząco zwiększa szansę na odpowiedź wynajmującego.
+              </p>
+              <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm">
+                <Checkbox
+                  checked={passportChecked}
+                  onCheckedChange={(v) => setPassportChecked(!!v)}
+                  className="mt-0.5"
+                />
+                <span>
+                  Mam już aktualny Paszport Najemcy
+                  {hasPassport && (
+                    <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold">
+                      <BadgeCheck className="h-3 w-3" /> Wykryto
+                    </span>
+                  )}
+                </span>
+              </label>
+              {!passportChecked && (
+                <a
+                  href="/najem/paszport"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]"
+                >
+                  Stwórz Paszport w nowej karcie <ExternalLink className="h-3 w-3" />
+                </a>
+              )}
+            </div>
+          </div>
+        </div>
         <div>
           <Label className="mb-2 block">Preferowana lokalizacja</Label>
           <LocationPicker
