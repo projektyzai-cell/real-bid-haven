@@ -44,6 +44,26 @@ function NewRentalRequestPage() {
     accepts_deposit: false, accepts_tenant_report: false,
     requires_furnished: false, accepts_insurance: false, accepts_notarial_lease: false,
   });
+  const [hasPassport, setHasPassport] = useState<boolean | null>(null);
+  const [passportChecked, setPassportChecked] = useState(false);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("passport_serial,passport_expires_at")
+      .eq("id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        const active =
+          !!data?.passport_serial &&
+          !!data?.passport_expires_at &&
+          new Date(data.passport_expires_at) > new Date();
+        setHasPassport(active);
+        setPassportChecked(active);
+      });
+  }, [user]);
+
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const toggle = (k: keyof typeof flags) => setFlags((p) => ({ ...p, [k]: !p[k] }));
 
