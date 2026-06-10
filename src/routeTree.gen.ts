@@ -27,6 +27,7 @@ import { Route as AuthenticatedNewListingRouteImport } from './routes/_authentic
 import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
 import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as AuthenticatedOgloszeniaNoweRouteImport } from './routes/_authenticated/ogloszenia.nowe'
 import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
@@ -125,6 +126,11 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const NajemOfertyIndexRoute = NajemOfertyIndexRouteImport.update({
+  id: '/oferty/',
+  path: '/oferty/',
+  getParentRoute: () => NajemRoute,
+} as any)
 const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
+  '/najem/oferty/': typeof NajemOfertyIndexRoute
   '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
 }
 export interface FileRoutesByTo {
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
+  '/najem/oferty': typeof NajemOfertyIndexRoute
   '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
 }
 export interface FileRoutesById {
@@ -253,6 +261,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/_authenticated/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
+  '/najem/oferty/': typeof NajemOfertyIndexRoute
   '/_authenticated/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
 }
 export interface FileRouteTypes {
@@ -282,6 +291,7 @@ export interface FileRouteTypes {
     | '/najem/nowe-zapytanie'
     | '/ogloszenia/nowe'
     | '/najem/zapytania/$id'
+    | '/najem/oferty/'
     | '/najem/chats/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -309,6 +319,7 @@ export interface FileRouteTypes {
     | '/najem/nowe-zapytanie'
     | '/ogloszenia/nowe'
     | '/najem/zapytania/$id'
+    | '/najem/oferty'
     | '/najem/chats/$id'
   id:
     | '__root__'
@@ -337,6 +348,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/nowe-zapytanie'
     | '/_authenticated/ogloszenia/nowe'
     | '/najem/zapytania/$id'
+    | '/najem/oferty/'
     | '/_authenticated/najem/chats/$id'
   fileRoutesById: FileRoutesById
 }
@@ -482,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/najem/oferty/': {
+      id: '/najem/oferty/'
+      path: '/oferty'
+      fullPath: '/najem/oferty/'
+      preLoaderRoute: typeof NajemOfertyIndexRouteImport
+      parentRoute: typeof NajemRoute
+    }
     '/najem/zapytania/$id': {
       id: '/najem/zapytania/$id'
       path: '/$id'
@@ -591,10 +610,12 @@ const NajemZapytaniaRouteWithChildren = NajemZapytaniaRoute._addFileChildren(
 
 interface NajemRouteChildren {
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+  NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
 }
 
 const NajemRouteChildren: NajemRouteChildren = {
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+  NajemOfertyIndexRoute: NajemOfertyIndexRoute,
 }
 
 const NajemRouteWithChildren = NajemRoute._addFileChildren(NajemRouteChildren)
@@ -615,3 +636,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
