@@ -176,6 +176,9 @@ function SaleDetailPage() {
               </Badge>
             )}
             <FavoriteButton propertyId={id} variant="button" />
+            <Badge variant="outline" className="rounded-full">
+              <Eye className="h-3 w-3" /> {(p as unknown as { views_count?: number }).views_count ?? 0}
+            </Badge>
           </div>
           <h1 className="mt-3 text-3xl font-semibold">{p.title}</h1>
 
