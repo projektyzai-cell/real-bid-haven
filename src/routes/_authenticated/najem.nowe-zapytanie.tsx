@@ -143,6 +143,14 @@ function NewRentalRequestPage() {
           ))}
         </div>
 
+        <div className="rounded-2xl border bg-background/40 p-4">
+          <BioField
+            value={bio.text}
+            lang={bio.lang}
+            onChange={({ text, lang }) => setBio({ text, lang })}
+          />
+        </div>
+
         <div>
           <Label>Notatka dodatkowa</Label>
           <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} rows={3} className="mt-1.5 rounded-xl" />
