@@ -25,6 +25,7 @@ export interface Property {
   ends_at: string;
   status: string;
   promoted?: boolean;
+  views_count?: number;
 }
 
 interface Props {
