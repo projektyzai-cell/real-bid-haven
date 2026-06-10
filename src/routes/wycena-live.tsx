@@ -36,10 +36,12 @@ function WycenaLivePage() {
     },
   });
 
-  const { promoted, active, ended } = useMemo(() => {
-    if (!data) return { promoted: [], active: [], ended: [] };
+  const { promoted, active } = useMemo(() => {
+    if (!data) return { promoted: [], active: [] };
     const now = Date.now();
     let out = data.filter((p) => {
+      // ukryj zakończone z publicznej listy
+      if (new Date(p.ends_at).getTime() <= now) return false;
       if (filters.city && !p.city.toLowerCase().includes(filters.city.toLowerCase())) return false;
       const price = Math.max(Number(p.current_price), Number(p.starting_price));
       if (filters.priceMin && price < Number(filters.priceMin)) return false;
@@ -55,16 +57,13 @@ function WycenaLivePage() {
       case "popular": out = [...out].sort((a, b) => b.bid_count - a.bid_count); break;
       case "ending": out = [...out].sort((a, b) => new Date(a.ends_at).getTime() - new Date(b.ends_at).getTime()); break;
     }
-    const activeOnly = out.filter((p) => new Date(p.ends_at).getTime() > now);
-    const endedOnly = out.filter((p) => new Date(p.ends_at).getTime() <= now);
     return {
-      promoted: activeOnly.filter((p) => p.promoted),
-      active: activeOnly.filter((p) => !p.promoted),
-      ended: endedOnly,
+      promoted: out.filter((p) => p.promoted),
+      active: out.filter((p) => !p.promoted),
     };
   }, [data, filters]);
 
-  const totalCount = promoted.length + active.length + ended.length;
+  const totalCount = promoted.length + active.length;
 
   return (
     <div>
