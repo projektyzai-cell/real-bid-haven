@@ -106,24 +106,40 @@ export function ExpressInterestPanel({
   if (txn && txn.state !== "cancelled") {
     const accepted = txn.state === "accepted" || txn.state === "chatting" || txn.state === "completed";
     return (
-      <div className="rounded-3xl border border-[var(--gold)]/30 bg-card p-6">
-        <div className="flex items-center gap-2 font-semibold">
-          <CheckCircle2 className="h-5 w-5 text-gold" />
-          {accepted ? "Wynajmujący zaakceptował Twoje zgłoszenie" : "Paszport udostępniony"}
-        </div>
-        <p className="mt-2 text-sm text-muted-foreground">
-          {accepted
-            ? "Możesz teraz prowadzić rozmowę i ustalić szczegóły najmu."
-            : "Czekasz na decyzję wynajmującego. Otrzymasz powiadomienie."}
-        </p>
-        {accepted && txn.chat_id && (
-          <Link to="/najem/chats/$id" params={{ id: txn.chat_id }}>
-            <Button className="mt-4 w-full rounded-xl">
-              <MessageCircle className="mr-2 h-4 w-4" /> Otwórz czat
+      <>
+        <div className="rounded-3xl border border-[var(--gold)]/30 bg-card p-6">
+          <div className="flex items-center gap-2 font-semibold">
+            <CheckCircle2 className="h-5 w-5 text-gold" />
+            {accepted ? "Wynajmujący zaakceptował Twoje zgłoszenie" : "Paszport udostępniony"}
+          </div>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {accepted
+              ? "Możesz teraz prowadzić rozmowę i ustalić szczegóły najmu."
+              : "Czekasz na decyzję wynajmującego. Otrzymasz powiadomienie."}
+          </p>
+          {accepted && txn.chat_id && (
+            <Link to="/najem/chats/$id" params={{ id: txn.chat_id }}>
+              <Button className="mt-4 w-full rounded-xl">
+                <MessageCircle className="mr-2 h-4 w-4" /> Otwórz czat
+              </Button>
+            </Link>
+          )}
+          {accepted && (
+            <Button
+              variant="outline"
+              onClick={() => setRateOpen(true)}
+              className="mt-2 w-full rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10"
+            >
+              <Star className="mr-2 h-4 w-4" /> Oceń wynajmującego i lokal
             </Button>
-          </Link>
-        )}
-      </div>
+          )}
+        </div>
+        <RateLeaseDialog
+          open={rateOpen}
+          onClose={() => setRateOpen(false)}
+          direction={{ kind: "tenant-rates-landlord+property", transactionId: txn.id, landlordId, listingId }}
+        />
+      </>
     );
   }
 
