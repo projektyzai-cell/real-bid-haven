@@ -287,10 +287,10 @@ function QuickVerify() {
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                  <Badge ok={result.data.verified_identity} label="Tożsamość" />
-                  <Badge ok={result.data.verified_linkedin} label="LinkedIn" />
-                  <Badge ok={result.data.verified_income} label="Dochód" />
-                  <Badge ok={result.data.verified_past_contract} label="Poprzednia umowa" />
+                  <VBadge ok={result.data.verified_identity} label="Tożsamość" />
+                  <VBadge ok={result.data.verified_linkedin} label="LinkedIn" />
+                  <VBadge ok={result.data.verified_income} label="Dochód" />
+                  <VBadge ok={result.data.verified_past_contract} label="Poprzednia umowa" />
                 </div>
               </div>
               <div className="text-right">
@@ -305,7 +305,7 @@ function QuickVerify() {
   );
 }
 
-function Badge({ ok, label }: { ok: boolean; label: string }) {
+function VBadge({ ok, label }: { ok: boolean; label: string }) {
   return (
     <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 font-semibold uppercase tracking-wide ${ok ? "border-[var(--gold)]/50 bg-[var(--gold)]/10 text-gold" : "border-border bg-card/40 text-muted-foreground"}`}>
       {ok ? "✓" : "·"} {label}
