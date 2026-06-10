@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
-  Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Home, Building2,
+  Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Building2,
   KeyRound, Heart, Settings, Search,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
