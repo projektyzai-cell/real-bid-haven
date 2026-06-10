@@ -1,6 +1,6 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
-  Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Home, Building2,
+  Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Building2,
   KeyRound, Heart, Settings, Search,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
@@ -27,16 +27,14 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 glass border-b border-border/60">
       <div className="container mx-auto flex h-16 items-center justify-between gap-3 px-4">
-        <Link to="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight">
-          <img src={logo} alt="Stay Safe" className="h-10 w-10 rounded-full object-cover" />
-          <span className="text-lg hidden sm:inline">Stay<span className="text-muted-foreground">Safe</span></span>
+        <Link to="/najem" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight">
+          <img src={logo} alt="StaySafe" className="h-10 w-10 rounded-full object-cover ring-1 ring-[var(--gold)]/40" />
+          <span className="text-lg hidden sm:inline tracking-wide">
+            Stay<span className="text-gold">Safe</span>
+          </span>
         </Link>
 
         <nav className="flex items-center gap-1 overflow-x-auto">
-          <Link to="/" className="hidden md:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm hover:bg-muted"
-            activeProps={{ className: "bg-muted font-semibold" }} activeOptions={{ exact: true }}>
-            <Home className="h-4 w-4" /> Dashboard
-          </Link>
           {tabs.map(({ to, label, icon: Icon }) => (
             <Link key={to} to={to}
               className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm whitespace-nowrap hover:bg-muted"
