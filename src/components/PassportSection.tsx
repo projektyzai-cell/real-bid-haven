@@ -105,7 +105,7 @@ export function PassportSection({ userId }: { userId: string }) {
     const expires = new Date();
     expires.setDate(expires.getDate() + 90);
 
-    const update: Record<string, unknown> = {
+    const update = {
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       date_of_birth: dob,
@@ -116,7 +116,7 @@ export function PassportSection({ userId }: { userId: string }) {
       identity_combo_hash: combo,
       passport_serial: serialData as string,
       passport_expires_at: expires.toISOString(),
-    };
+    } as const;
 
     const { error } = await supabase.from("profiles").update(update).eq("id", userId);
     setBusy(false);
