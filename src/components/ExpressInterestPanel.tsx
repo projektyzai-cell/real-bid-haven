@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, Loader2, CheckCircle2, MessageCircle } from "lucide-react";
+import { ShieldCheck, Loader2, CheckCircle2, MessageCircle, Star } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
+import { RateLeaseDialog } from "@/components/RateLeaseDialog";
 import { supabase } from "@/integrations/supabase/client";
 
 type Profile = {
