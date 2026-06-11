@@ -39,6 +39,7 @@ import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_a
 import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
 import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
 import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
+import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
 import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
@@ -198,6 +199,12 @@ const AuthenticatedNajemMojeOfertyRoute =
     path: '/najem/moje-oferty',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemMojPaszportRoute =
+  AuthenticatedNajemMojPaszportRouteImport.update({
+    id: '/najem/moj-paszport',
+    path: '/najem/moj-paszport',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
   id: '/chats/$id',
   path: '/chats/$id',
@@ -231,6 +238,7 @@ export interface FileRoutesByFullPath {
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia/': typeof OgloszeniaIndexRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
@@ -264,6 +272,7 @@ export interface FileRoutesByTo {
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia': typeof OgloszeniaIndexRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
@@ -299,6 +308,7 @@ export interface FileRoutesById {
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia/': typeof OgloszeniaIndexRoute
   '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/_authenticated/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
@@ -334,6 +344,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/ogloszenia/'
     | '/chats/$id'
+    | '/najem/moj-paszport'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
@@ -367,6 +378,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/ogloszenia'
     | '/chats/$id'
+    | '/najem/moj-paszport'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
@@ -401,6 +413,7 @@ export interface FileRouteTypes {
     | '/properties/$id'
     | '/ogloszenia/'
     | '/_authenticated/chats/$id'
+    | '/_authenticated/najem/moj-paszport'
     | '/_authenticated/najem/moje-oferty'
     | '/_authenticated/najem/moje-zapytania'
     | '/_authenticated/najem/nowa-oferta'
@@ -641,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNajemMojeOfertyRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/najem/moj-paszport': {
+      id: '/_authenticated/najem/moj-paszport'
+      path: '/najem/moj-paszport'
+      fullPath: '/najem/moj-paszport'
+      preLoaderRoute: typeof AuthenticatedNajemMojPaszportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/chats/$id': {
       id: '/_authenticated/chats/$id'
       path: '/chats/$id'
@@ -667,6 +687,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedPolubioneRoute: typeof AuthenticatedPolubioneRoute
   AuthenticatedUstawieniaRoute: typeof AuthenticatedUstawieniaRoute
   AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
+  AuthenticatedNajemMojPaszportRoute: typeof AuthenticatedNajemMojPaszportRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
   AuthenticatedNajemNowaOfertaRoute: typeof AuthenticatedNajemNowaOfertaRoute
@@ -686,6 +707,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedPolubioneRoute: AuthenticatedPolubioneRoute,
   AuthenticatedUstawieniaRoute: AuthenticatedUstawieniaRoute,
   AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
+  AuthenticatedNajemMojPaszportRoute: AuthenticatedNajemMojPaszportRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,
   AuthenticatedNajemNowaOfertaRoute: AuthenticatedNajemNowaOfertaRoute,

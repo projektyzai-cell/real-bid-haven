@@ -129,6 +129,10 @@ export function Navbar() {
                       >
                         <ShieldCheck className="h-4 w-4" /> Stwórz swój Paszport Najemcy
                       </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/moj-paszport" })}>
+                        <ShieldCheck className="h-4 w-4" /> Mój Paszport
+                      </DropdownMenuItem>
+
                       <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> Moje zapytania
                       </DropdownMenuItem>
