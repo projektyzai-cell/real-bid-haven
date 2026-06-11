@@ -63,12 +63,22 @@ function AdminDashboard() {
 
   return (
     <div className="container mx-auto max-w-7xl px-4 py-8 space-y-8">
-      <div className="flex items-center gap-3">
-        <ShieldCheck className="h-9 w-9 text-gold" />
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Panel administratora</h1>
-          <p className="text-sm text-muted-foreground">Anti-fraud audit · Trusted Score moderation · Strike system</p>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <ShieldCheck className="h-9 w-9 text-gold" />
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">Panel administratora</h1>
+            <p className="text-sm text-muted-foreground">Anti-fraud audit · Trusted Score moderation · Strike system</p>
+          </div>
         </div>
+        <nav className="flex flex-wrap gap-2 text-sm">
+          <a href="/admin/passports" className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 font-semibold text-gold hover:bg-[var(--gold)]/20">
+            Aplikacje o paszport
+          </a>
+          <a href="/admin/passport-stats" className="rounded-xl border px-3 py-1.5 font-semibold hover:bg-muted">
+            Statystyki paszportów (XLS)
+          </a>
+        </nav>
       </div>
 
       {/* KPI */}
