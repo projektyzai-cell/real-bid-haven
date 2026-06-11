@@ -16,6 +16,8 @@ export type PassportData = {
   leaseCount: number;
   socials: { linkedin?: string | null; facebook?: string | null; instagram?: string | null };
   city?: string | null;
+  acceptsOccasionalLease?: boolean;
+  hasTenantInsurance?: boolean;
 };
 
 export function TenantPassportCard({ data }: { data: PassportData }) {
@@ -100,6 +102,21 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
           {data.socials.facebook && <Facebook className="h-4 w-4 text-[#D4AF37]" />}
           {data.socials.instagram && <Instagram className="h-4 w-4 text-[#D4AF37]" />}
         </div>
+
+        {/* Legal declarations */}
+        {(data.acceptsOccasionalLease || data.hasTenantInsurance) && (
+          <div className="mt-4 space-y-1.5 rounded-xl border border-[#D4AF37]/25 bg-black/20 p-3 text-[11px] text-white/80">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Deklaracje najemcy</div>
+            {data.acceptsOccasionalLease && (
+              <div className="flex items-start gap-1.5"><BadgeCheck className="mt-0.5 h-3.5 w-3.5 text-emerald-400" /><span>Zgadza się na umowę <strong>najmu okazjonalnego</strong> (notarialne poddanie się egzekucji).</span></div>
+            )}
+            {data.hasTenantInsurance && (
+              <div className="flex items-start gap-1.5"><BadgeCheck className="mt-0.5 h-3.5 w-3.5 text-emerald-400" /><span>Zgadza się wykupić <strong>ubezpieczenie OC najemcy</strong> na własny koszt.</span></div>
+            )}
+          </div>
+        )}
+
+
 
         {/* Footer QR */}
         <div className="mt-6 flex items-end justify-between border-t border-[#D4AF37]/20 pt-4">
