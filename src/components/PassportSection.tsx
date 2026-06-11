@@ -174,23 +174,20 @@ export function PassportSection({ userId }: { userId: string }) {
 
 
       {profile?.passport_serial && (
-        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-background/40 p-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-background/40 p-4 sm:grid-cols-2">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Numer</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Identyfikator anonimowy</div>
             <div className="font-mono text-sm font-semibold">{profile.passport_serial}</div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Ważny do</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Ważność hasha</div>
             <div className="text-sm font-semibold">
               {profile.passport_expires_at ? new Date(profile.passport_expires_at).toLocaleDateString("pl-PL") : "—"}
             </div>
           </div>
-          <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Trusted Tenant Score</div>
-            <div className="text-sm font-semibold text-gold">{profile.trusted_tenant_score}/100</div>
-          </div>
         </div>
       )}
+
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
