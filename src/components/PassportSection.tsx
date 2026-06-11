@@ -269,7 +269,7 @@ export function PassportSection({ userId }: { userId: string }) {
           ) : (
             <ShieldCheck className="mr-2 h-4 w-4" />
           )}
-          {isActive ? "Odnów na kolejne 90 dni" : isExpired ? "Aktywuj ponownie" : "Wystaw paszport"}
+          {isActive ? "Odśwież anonimizację (90 dni)" : isExpired ? "Aktywuj ponownie" : "Zanonimizuj moje dane"}
         </Button>
       </div>
     </section>
