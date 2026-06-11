@@ -406,6 +406,8 @@ export type Database = {
         Row: {
           accepts_notarial_lease: boolean
           bank_statement_urls: string[] | null
+          concierge_subscription: boolean
+          concierge_subscription_until: string | null
           created_at: string
           data_anonymized: boolean | null
           date_of_birth: string | null
@@ -471,6 +473,8 @@ export type Database = {
         Insert: {
           accepts_notarial_lease?: boolean
           bank_statement_urls?: string[] | null
+          concierge_subscription?: boolean
+          concierge_subscription_until?: string | null
           created_at?: string
           data_anonymized?: boolean | null
           date_of_birth?: string | null
@@ -536,6 +540,8 @@ export type Database = {
         Update: {
           accepts_notarial_lease?: boolean
           bank_statement_urls?: string[] | null
+          concierge_subscription?: boolean
+          concierge_subscription_until?: string | null
           created_at?: string
           data_anonymized?: boolean | null
           date_of_birth?: string | null
