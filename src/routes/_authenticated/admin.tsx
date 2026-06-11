@@ -1,19 +1,42 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
+import { useState } from "react";
+import { z } from "zod";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getAdminStats,
-  listRecentProfiles,
   listDuplicateAlerts,
 } from "@/lib/admin.functions";
+import { listPassportApplications } from "@/lib/admin-passport.functions";
+import {
+  adminListUsers,
+  adminGetUser,
+  adminListStaff,
+  adminCreateStaff,
+  adminRevokeStaffRole,
+  adminSendMessage,
+  adminListMessages,
+} from "@/lib/admin-users.functions";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
-  ShieldCheck, Users, KeyRound, Building2, Gavel, Star, AlertTriangle, ScrollText,
+  ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
+  Loader2, Clock, CheckCircle2, Mail, Trash2,
 } from "lucide-react";
 
+const tabSchema = z.object({
+  tab: z.enum(["apps", "passports", "users", "messages", "subadmins", "stats"]).default("apps").optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/admin")({
+  validateSearch: tabSchema,
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/auth" });
@@ -21,98 +44,539 @@ export const Route = createFileRoute("/_authenticated/admin")({
       .from("user_roles")
       .select("role")
       .eq("user_id", user.id)
-      .eq("role", "admin")
-      .maybeSingle();
-    if (!data) throw redirect({ to: "/" });
+      .in("role", ["admin", "passport_verifier"]);
+    if (!data || data.length === 0) throw redirect({ to: "/" });
+    const isAdmin = data.some((r: any) => r.role === "admin");
+    return { isAdmin };
   },
   component: AdminDashboard,
   errorComponent: ({ error }) => <div className="p-6 text-destructive">{error.message}</div>,
   notFoundComponent: () => <div className="p-6">404</div>,
 });
 
-const ICONS: Record<string, any> = {
-  profiles: Users,
-  rental_listings: KeyRound,
-  rental_requests: KeyRound,
-  rental_offers: KeyRound,
-  lease_transactions: ShieldCheck,
-  lease_ratings: Star,
-  properties: Building2,
-  bids: Gavel,
-};
-
-const LABELS: Record<string, string> = {
-  profiles: "Użytkownicy",
-  rental_listings: "Ogłoszenia wynajmu",
-  rental_requests: "Zapytania najemców",
-  rental_offers: "Oferty (matching)",
-  lease_transactions: "Transakcje najmu",
-  lease_ratings: "Oceny ★",
-  properties: "Aukcje sprzedaży",
-  bids: "Licytacje",
-};
-
 function AdminDashboard() {
-  const stats = useServerFn(getAdminStats);
-  const recents = useServerFn(listRecentProfiles);
-  const dupes = useServerFn(listDuplicateAlerts);
+  const { tab = "apps" } = Route.useSearch();
+  const { isAdmin } = Route.useRouteContext();
 
+  return (
+    <div className="container mx-auto max-w-7xl px-4 py-8 space-y-6">
+      <header className="flex items-center gap-3">
+        <ShieldCheck className="h-9 w-9 text-gold" />
+        <div>
+          <h1 className="text-3xl font-semibold tracking-tight">Panel administratora</h1>
+          <p className="text-sm text-muted-foreground">
+            {isAdmin ? "Pełny dostęp" : "Sub-admin · weryfikacja paszportów"}
+          </p>
+        </div>
+      </header>
+
+      <Tabs value={tab} className="w-full">
+        <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/40 p-1">
+          <TabsTrigger value="apps" asChild>
+            <Link to="/admin" search={{ tab: "apps" }} className="flex items-center gap-1.5">
+              <FileText className="h-4 w-4" /> Aplikacje paszportowe
+            </Link>
+          </TabsTrigger>
+          <TabsTrigger value="passports" asChild>
+            <Link to="/admin" search={{ tab: "passports" }} className="flex items-center gap-1.5">
+              <KeyRound className="h-4 w-4" /> Lista paszportów
+            </Link>
+          </TabsTrigger>
+          {isAdmin && (
+            <>
+              <TabsTrigger value="users" asChild>
+                <Link to="/admin" search={{ tab: "users" }} className="flex items-center gap-1.5">
+                  <Users className="h-4 w-4" /> Konta użytkowników
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value="messages" asChild>
+                <Link to="/admin" search={{ tab: "messages" }} className="flex items-center gap-1.5">
+                  <Mail className="h-4 w-4" /> Wiadomości
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value="subadmins" asChild>
+                <Link to="/admin" search={{ tab: "subadmins" }} className="flex items-center gap-1.5">
+                  <UserPlus className="h-4 w-4" /> Sub-adminowie
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value="stats" asChild>
+                <Link to="/admin" search={{ tab: "stats" }} className="flex items-center gap-1.5">
+                  <BarChart3 className="h-4 w-4" /> Statystyki
+                </Link>
+              </TabsTrigger>
+            </>
+          )}
+        </TabsList>
+
+        <TabsContent value="apps" className="mt-6"><ApplicationsTab /></TabsContent>
+        <TabsContent value="passports" className="mt-6"><PassportsListTab /></TabsContent>
+        {isAdmin && (
+          <>
+            <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
+            <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
+            <TabsContent value="subadmins" className="mt-6"><SubAdminsTab /></TabsContent>
+            <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
+          </>
+        )}
+      </Tabs>
+    </div>
+  );
+}
+
+/* ===================== APPLICATIONS ===================== */
+function ApplicationsTab() {
+  const list = useServerFn(listPassportApplications);
+  const q = useQuery({ queryKey: ["admin-passport-apps"], queryFn: () => list() });
+
+  const submitted = (q.data ?? []).filter((r: any) => r.passport_application_status === "submitted");
+  const approved = (q.data ?? []).filter((r: any) => r.passport_application_status === "approved");
+
+  return (
+    <Card className="rounded-2xl p-6 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold">Aplikacje o paszport — kolejka weryfikacji</h2>
+          <p className="text-sm text-muted-foreground">
+            {submitted.length} oczekujących · {approved.length} wydanych
+          </p>
+        </div>
+      </div>
+
+      {q.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+      {q.error && <div className="text-sm text-destructive">{(q.error as Error).message}</div>}
+
+      <div className="overflow-hidden rounded-xl border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2 text-left">Wnioskodawca</th>
+              <th className="px-3 py-2 text-left">Status</th>
+              <th className="px-3 py-2 text-left">Złożono</th>
+              <th className="px-3 py-2 text-left">Miasto</th>
+              <th className="px-3 py-2 text-left">Forma</th>
+              <th className="px-3 py-2 text-left">Dochód</th>
+              <th className="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {(q.data ?? []).map((row: any) => {
+              const isApproved = row.passport_application_status === "approved";
+              return (
+                <tr key={row.id} className="border-t">
+                  <td className="px-3 py-2 font-medium">{row.display_name ?? "—"}</td>
+                  <td className="px-3 py-2">
+                    {isApproved
+                      ? <Badge variant="secondary" className="gap-1"><CheckCircle2 className="h-3 w-3" />Wydany {row.passport_serial ?? ""}</Badge>
+                      : <Badge variant="destructive" className="gap-1"><Clock className="h-3 w-3" />Oczekuje</Badge>}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground">
+                    {row.passport_application_submitted_at
+                      ? new Date(row.passport_application_submitted_at).toLocaleString("pl-PL")
+                      : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-xs">{row.home_city ?? row.passport_city ?? "—"}</td>
+                  <td className="px-3 py-2 text-xs">{row.employment_type ?? "—"}</td>
+                  <td className="px-3 py-2 text-xs">{row.monthly_income_net ? `${row.monthly_income_net} zł` : "—"}</td>
+                  <td className="px-3 py-2 text-right">
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/admin/passports" search={{ u: row.id }}>Otwórz</Link>
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+            {q.data && q.data.length === 0 && (
+              <tr><td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak złożonych aplikacji.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+/* ===================== PASSPORTS LIST ===================== */
+function PassportsListTab() {
+  const list = useServerFn(listPassportApplications);
+  const q = useQuery({ queryKey: ["admin-passport-apps"], queryFn: () => list() });
+  const approved = (q.data ?? []).filter((r: any) => r.passport_application_status === "approved");
+  return (
+    <Card className="rounded-2xl p-6 space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-semibold">Wydane paszporty ({approved.length})</h2>
+        <Link to="/admin" search={{ tab: "stats" }} className="text-xs font-semibold uppercase tracking-wider text-gold hover:opacity-80">
+          Statystyki & eksport →
+        </Link>
+      </div>
+      <div className="overflow-hidden rounded-xl border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2 text-left">Najemca</th>
+              <th className="px-3 py-2 text-left">Numer paszportu</th>
+              <th className="px-3 py-2 text-left">Miasto</th>
+              <th className="px-3 py-2 text-left">Score</th>
+              <th className="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {approved.map((row: any) => (
+              <tr key={row.id} className="border-t">
+                <td className="px-3 py-2 font-medium">{row.display_name ?? "—"}</td>
+                <td className="px-3 py-2 font-mono text-xs">{row.passport_serial}</td>
+                <td className="px-3 py-2 text-xs">{row.passport_city ?? "—"}</td>
+                <td className="px-3 py-2 text-xs">{row.passport_score ?? "—"}</td>
+                <td className="px-3 py-2 text-right">
+                  <Button asChild size="sm" variant="outline">
+                    <Link to="/admin/passports" search={{ u: row.id }}>Szczegóły</Link>
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {approved.length === 0 && (
+              <tr><td colSpan={5} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak wydanych paszportów.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+/* ===================== USERS ===================== */
+function UsersTab() {
+  const list = useServerFn(adminListUsers);
+  const get = useServerFn(adminGetUser);
+  const q = useQuery({ queryKey: ["admin-users"], queryFn: () => list() });
+  const [openId, setOpenId] = useState<string | null>(null);
+  const detail = useQuery({
+    queryKey: ["admin-user", openId],
+    queryFn: () => get({ data: { userId: openId! } }),
+    enabled: !!openId,
+  });
+  const [filter, setFilter] = useState("");
+  const filtered = (q.data ?? []).filter((u: any) =>
+    !filter ||
+    u.email?.toLowerCase().includes(filter.toLowerCase()) ||
+    u.display_name?.toLowerCase().includes(filter.toLowerCase()),
+  );
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1.4fr_1fr]">
+      <Card className="rounded-2xl p-4 space-y-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-lg font-semibold">Konta użytkowników ({q.data?.length ?? 0})</h2>
+          <Input placeholder="Filtruj e-mail / nick…" value={filter}
+            onChange={(e) => setFilter(e.target.value)} className="max-w-xs" />
+        </div>
+        <div className="overflow-auto rounded-xl border">
+          <table className="w-full text-xs">
+            <thead className="bg-muted/50 uppercase text-muted-foreground">
+              <tr>
+                <th className="px-2 py-2 text-left">Nick</th>
+                <th className="px-2 py-2 text-left">E-mail</th>
+                <th className="px-2 py-2 text-left">Założono</th>
+                <th className="px-2 py-2 text-left">Paszport</th>
+                <th className="px-2 py-2 text-left">Zapyt. (aktyw/hist)</th>
+                <th className="px-2 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((u: any) => (
+                <tr key={u.id} className={`border-t ${openId === u.id ? "bg-muted/40" : ""}`}>
+                  <td className="px-2 py-1.5 font-medium">{u.display_name ?? "—"}</td>
+                  <td className="px-2 py-1.5">{u.email}</td>
+                  <td className="px-2 py-1.5 text-muted-foreground">{u.created_at ? new Date(u.created_at).toLocaleDateString("pl-PL") : "—"}</td>
+                  <td className="px-2 py-1.5">
+                    {u.passport_application_status === "approved"
+                      ? <Badge variant="secondary" className="text-[10px]">{u.passport_serial}</Badge>
+                      : u.passport_application_status === "submitted"
+                        ? <Badge variant="destructive" className="text-[10px]">Oczekuje</Badge>
+                        : <span className="text-muted-foreground">brak</span>}
+                  </td>
+                  <td className="px-2 py-1.5">{u.active_requests} / {u.past_requests}</td>
+                  <td className="px-2 py-1.5 text-right">
+                    <Button size="sm" variant="ghost" onClick={() => setOpenId(u.id)}>Otwórz</Button>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </Card>
+
+      <Card className="rounded-2xl p-4">
+        {!openId && <p className="text-sm text-muted-foreground">Wybierz użytkownika, aby zobaczyć szczegóły.</p>}
+        {openId && detail.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+        {openId && detail.data && <UserDetail data={detail.data} />}
+      </Card>
+    </div>
+  );
+}
+
+function UserDetail({ data }: { data: any }) {
+  const p = data.profile ?? {};
+  const active = (data.requests ?? []).filter((r: any) => r.status === "open");
+  const past = (data.requests ?? []).filter((r: any) => r.status !== "open");
+  return (
+    <div className="space-y-4 text-sm">
+      <div>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">Konto</div>
+        <div className="text-lg font-semibold">{p.display_name ?? "—"}</div>
+        <div className="text-xs text-muted-foreground">{data.auth.email}</div>
+        <div className="text-xs text-muted-foreground">
+          Założono: {data.auth.created_at ? new Date(data.auth.created_at).toLocaleString("pl-PL") : "—"}
+        </div>
+        <div className="text-xs text-muted-foreground">
+          Ostatnie logowanie: {data.auth.last_sign_in_at ? new Date(data.auth.last_sign_in_at).toLocaleString("pl-PL") : "—"}
+        </div>
+        {data.roles?.length > 0 && (
+          <div className="mt-1 flex gap-1">{data.roles.map((r: string) => <Badge key={r} variant="outline">{r}</Badge>)}</div>
+        )}
+      </div>
+      <div>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">Paszport</div>
+        <div className="font-medium">
+          {p.passport_application_status ?? "brak aplikacji"}
+          {p.passport_serial ? ` · ${p.passport_serial}` : ""}
+        </div>
+      </div>
+      <div>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">
+          Aktywne zapytania ({active.length})
+        </div>
+        <ul className="mt-1 space-y-1 text-xs">
+          {active.slice(0, 5).map((r: any) => (
+            <li key={r.id} className="rounded border bg-muted/30 px-2 py-1">
+              {r.city ?? "—"} · budżet do {r.budget_max ?? "?"} zł
+            </li>
+          ))}
+          {active.length === 0 && <li className="text-muted-foreground">Brak.</li>}
+        </ul>
+      </div>
+      <div>
+        <div className="text-xs uppercase tracking-wider text-muted-foreground">
+          Historia zapytań ({past.length})
+        </div>
+        <ul className="mt-1 space-y-1 text-xs">
+          {past.slice(0, 5).map((r: any) => (
+            <li key={r.id} className="rounded border bg-muted/30 px-2 py-1">
+              {r.city ?? "—"} · {r.status}
+            </li>
+          ))}
+          {past.length === 0 && <li className="text-muted-foreground">Brak.</li>}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+/* ===================== MESSAGES ===================== */
+function MessagesTab() {
+  const qc = useQueryClient();
+  const send = useServerFn(adminSendMessage);
+  const list = useServerFn(adminListMessages);
+  const users = useServerFn(adminListUsers);
+  const usersQ = useQuery({ queryKey: ["admin-users"], queryFn: () => users() });
+  const msgs = useQuery({ queryKey: ["admin-messages"], queryFn: () => list() });
+
+  const [recipient, setRecipient] = useState<string>("");
+  const [subject, setSubject] = useState("");
+  const [body, setBody] = useState("");
+
+  const sendMut = useMutation({
+    mutationFn: () => send({ data: {
+      recipient_id: recipient || null,
+      subject, body,
+    }}),
+    onSuccess: () => {
+      toast.success(recipient ? "Wiadomość wysłana." : "Broadcast wysłany.");
+      setSubject(""); setBody("");
+      qc.invalidateQueries({ queryKey: ["admin-messages"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card className="rounded-2xl p-5 space-y-3">
+        <h2 className="text-lg font-semibold">Nowa wiadomość</h2>
+        <div>
+          <Label>Odbiorca</Label>
+          <select value={recipient} onChange={(e) => setRecipient(e.target.value)}
+            className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+            <option value="">— Broadcast (do wszystkich) —</option>
+            {(usersQ.data ?? []).map((u: any) => (
+              <option key={u.id} value={u.id}>{u.display_name ?? u.email} · {u.email}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label>Temat</Label>
+          <Input value={subject} onChange={(e) => setSubject(e.target.value)} />
+        </div>
+        <div>
+          <Label>Treść</Label>
+          <Textarea rows={6} value={body} onChange={(e) => setBody(e.target.value)} />
+        </div>
+        <Button disabled={!subject || !body || sendMut.isPending} onClick={() => sendMut.mutate()}>
+          {sendMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+          Wyślij
+        </Button>
+      </Card>
+
+      <Card className="rounded-2xl p-5">
+        <h2 className="text-lg font-semibold">Ostatnie wiadomości</h2>
+        <ul className="mt-3 space-y-2">
+          {(msgs.data ?? []).map((m: any) => (
+            <li key={m.id} className="rounded-lg border bg-muted/30 px-3 py-2 text-sm">
+              <div className="flex items-center justify-between">
+                <span className="font-medium">{m.subject}</span>
+                <span className="text-[10px] text-muted-foreground">{new Date(m.created_at).toLocaleString("pl-PL")}</span>
+              </div>
+              <div className="text-xs text-muted-foreground">
+                Do: {m.recipient_id ? m.recipient_id : "broadcast"}
+              </div>
+              <div className="mt-1 line-clamp-2 text-xs">{m.body}</div>
+            </li>
+          ))}
+          {msgs.data && msgs.data.length === 0 && <li className="text-sm text-muted-foreground">Brak wysłanych wiadomości.</li>}
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
+/* ===================== SUB-ADMINS ===================== */
+function SubAdminsTab() {
+  const qc = useQueryClient();
+  const list = useServerFn(adminListStaff);
+  const create = useServerFn(adminCreateStaff);
+  const revoke = useServerFn(adminRevokeStaffRole);
+  const staff = useQuery({ queryKey: ["admin-staff"], queryFn: () => list() });
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [displayName, setDisplayName] = useState("");
+  const [role, setRole] = useState<"passport_verifier" | "admin">("passport_verifier");
+
+  const createMut = useMutation({
+    mutationFn: () => create({ data: { email, password, display_name: displayName, role }}),
+    onSuccess: () => {
+      toast.success("Sub-admin utworzony.");
+      setEmail(""); setPassword(""); setDisplayName("");
+      qc.invalidateQueries({ queryKey: ["admin-staff"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const revokeMut = useMutation({
+    mutationFn: (vars: { userId: string; role: "admin" | "passport_verifier" }) => revoke({ data: vars }),
+    onSuccess: () => {
+      toast.success("Rola odebrana.");
+      qc.invalidateQueries({ queryKey: ["admin-staff"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-2">
+      <Card className="rounded-2xl p-5 space-y-3">
+        <h2 className="text-lg font-semibold">Nowy sub-admin</h2>
+        <p className="text-xs text-muted-foreground">
+          Utwórz konto z dostępem do panelu. <strong>Passport verifier</strong> widzi tylko aplikacje paszportowe i listę paszportów. <strong>Admin</strong> ma pełny dostęp.
+        </p>
+        <div>
+          <Label>Imię / nick</Label>
+          <Input value={displayName} onChange={(e) => setDisplayName(e.target.value)} />
+        </div>
+        <div>
+          <Label>E-mail</Label>
+          <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+        </div>
+        <div>
+          <Label>Hasło (min. 8 znaków)</Label>
+          <Input type="text" value={password} onChange={(e) => setPassword(e.target.value)} />
+        </div>
+        <div>
+          <Label>Rola</Label>
+          <select value={role} onChange={(e) => setRole(e.target.value as any)}
+            className="mt-1 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+            <option value="passport_verifier">Passport verifier (tylko paszporty)</option>
+            <option value="admin">Admin (pełen dostęp)</option>
+          </select>
+        </div>
+        <Button disabled={!email || !password || !displayName || createMut.isPending}
+          onClick={() => createMut.mutate()}>
+          {createMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+          Utwórz konto
+        </Button>
+      </Card>
+
+      <Card className="rounded-2xl p-5">
+        <h2 className="text-lg font-semibold">Konta administracyjne ({staff.data?.length ?? 0})</h2>
+        <ul className="mt-3 space-y-2">
+          {(staff.data ?? []).map((s: any) => (
+            <li key={s.id} className="rounded-lg border bg-muted/30 px-3 py-2 text-sm">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <div className="font-medium">{s.display_name ?? s.email}</div>
+                  <div className="text-xs text-muted-foreground">{s.email}</div>
+                </div>
+                <div className="flex flex-wrap items-center gap-1">
+                  {s.roles.map((r: string) => (
+                    <Badge key={r} variant="outline" className="gap-1">
+                      {r}
+                      <button onClick={() => revokeMut.mutate({ userId: s.id, role: r as any })}
+                        className="text-destructive hover:opacity-70" title="Odbierz rolę">
+                        <Trash2 className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </li>
+          ))}
+          {staff.data && staff.data.length === 0 && <li className="text-sm text-muted-foreground">Brak.</li>}
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
+/* ===================== STATS ===================== */
+function StatsTab() {
+  const stats = useServerFn(getAdminStats);
+  const dupes = useServerFn(listDuplicateAlerts);
   const q = useQuery({ queryKey: ["admin-stats"], queryFn: () => stats() });
-  const r = useQuery({ queryKey: ["admin-recents"], queryFn: () => recents({ data: { limit: 20 } }) });
   const d = useQuery({ queryKey: ["admin-dupes"], queryFn: () => dupes() });
 
   return (
-    <div className="container mx-auto max-w-7xl px-4 py-8 space-y-8">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <ShieldCheck className="h-9 w-9 text-gold" />
-          <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Panel administratora</h1>
-            <p className="text-sm text-muted-foreground">Anti-fraud audit · Trusted Score moderation · Strike system</p>
-          </div>
-        </div>
-        <nav className="flex flex-wrap gap-2 text-sm">
-          <a href="/admin/passports" className="rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 font-semibold text-gold hover:bg-[var(--gold)]/20">
-            Aplikacje o paszport
-          </a>
-          <a href="/admin/passport-stats" className="rounded-xl border px-3 py-1.5 font-semibold hover:bg-muted">
-            Statystyki paszportów (XLS)
-          </a>
-        </nav>
-      </div>
-
-      {/* KPI */}
+    <div className="space-y-6">
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
-        {Object.entries(q.data ?? {}).map(([k, v]) => {
-          const Icon = ICONS[k] ?? ScrollText;
-          return (
-            <Card key={k} className="rounded-2xl p-5">
-              <div className="flex items-center justify-between text-muted-foreground">
-                <span className="text-xs uppercase tracking-wider">{LABELS[k] ?? k}</span>
-                <Icon className="h-4 w-4 text-gold" />
-              </div>
-              <div className="mt-2 text-3xl font-semibold">{v}</div>
-            </Card>
-          );
-        })}
+        {Object.entries(q.data ?? {}).map(([k, v]) => (
+          <Card key={k} className="rounded-2xl p-5">
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">{k}</div>
+            <div className="mt-2 text-3xl font-semibold">{String(v)}</div>
+          </Card>
+        ))}
       </section>
 
-      {/* Duplicate alerts */}
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
           <AlertTriangle className="h-5 w-5 text-amber-500" /> Alerty: duplikaty kont
         </h2>
         {d.data && d.data.length > 0 ? (
           <div className="space-y-2">
-            {d.data.map((g) => (
+            {d.data.map((g: any) => (
               <Card key={g.name} className="rounded-2xl p-4">
                 <div className="flex items-center justify-between">
                   <div className="font-medium">{g.name}</div>
                   <Badge variant="destructive">{g.accounts.length} kont</Badge>
                 </div>
-                <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
-                  {g.accounts.map((a) => <li key={a.id}>· {a.id}</li>)}
-                </ul>
               </Card>
             ))}
           </div>
@@ -121,44 +585,11 @@ function AdminDashboard() {
         )}
       </section>
 
-      {/* Recent profiles */}
-      <section>
-        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-          <Users className="h-5 w-5 text-gold" /> Najnowsi użytkownicy
-        </h2>
-        <Card className="overflow-hidden rounded-2xl">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
-              <tr>
-                <th className="px-4 py-2 text-left">Nazwa</th>
-                <th className="px-4 py-2 text-left">Paszport</th>
-                <th className="px-4 py-2 text-left">Score</th>
-                <th className="px-4 py-2 text-left">Weryfikacje</th>
-                <th className="px-4 py-2 text-left">Dołączył</th>
-              </tr>
-            </thead>
-            <tbody>
-              {(r.data ?? []).map((p: any) => (
-                <tr key={p.id} className="border-t">
-                  <td className="px-4 py-2 font-medium">{p.display_name ?? "—"}</td>
-                  <td className="px-4 py-2 font-mono text-xs">{p.passport_serial ?? "—"}</td>
-                  <td className="px-4 py-2">{p.trusted_tenant_score ?? 0}</td>
-                  <td className="px-4 py-2">
-                    <div className="flex gap-1">
-                      {p.verified_identity && <Badge variant="secondary" className="text-[10px]">ID</Badge>}
-                      {p.verified_linkedin && <Badge variant="secondary" className="text-[10px]">in</Badge>}
-                      {p.verified_income && <Badge variant="secondary" className="text-[10px]">$</Badge>}
-                    </div>
-                  </td>
-                  <td className="px-4 py-2 text-xs text-muted-foreground">
-                    {new Date(p.created_at).toLocaleDateString("pl-PL")}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </Card>
-      </section>
+      <div className="flex gap-2">
+        <Button asChild variant="outline">
+          <Link to="/admin/passport-stats">Eksport paszportów (XLS) →</Link>
+        </Button>
+      </div>
     </div>
   );
 }
