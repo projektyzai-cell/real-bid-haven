@@ -902,21 +902,26 @@ export type Database = {
           accepts_tenant_report: boolean
           active_days: number
           adults_count: number
+          apartment_subtype: string | null
           area_description: string | null
           budget_max: number | null
+          building_type: string | null
           children_count: number
           city: string
           created_at: string
           district: string | null
           expires_at: string
+          floor_preference: string | null
           has_children: boolean
           id: string
+          min_lease_months: number | null
           notes: string | null
           personal_bio_lang: string | null
           personal_bio_original: string | null
           personal_bio_pl: string | null
           pets_caged: boolean
           pets_other: boolean
+          property_type: string | null
           requires_furnished: boolean
           search_lat: number | null
           search_lng: number | null
@@ -925,6 +930,9 @@ export type Database = {
           search_street: string | null
           status: string
           tenant_id: string
+          wants_balcony: boolean
+          wants_basement: boolean
+          wants_elevator: boolean
         }
         Insert: {
           accepts_deposit?: boolean
@@ -933,21 +941,26 @@ export type Database = {
           accepts_tenant_report?: boolean
           active_days?: number
           adults_count?: number
+          apartment_subtype?: string | null
           area_description?: string | null
           budget_max?: number | null
+          building_type?: string | null
           children_count?: number
           city: string
           created_at?: string
           district?: string | null
           expires_at: string
+          floor_preference?: string | null
           has_children?: boolean
           id?: string
+          min_lease_months?: number | null
           notes?: string | null
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pets_caged?: boolean
           pets_other?: boolean
+          property_type?: string | null
           requires_furnished?: boolean
           search_lat?: number | null
           search_lng?: number | null
@@ -956,6 +969,9 @@ export type Database = {
           search_street?: string | null
           status?: string
           tenant_id: string
+          wants_balcony?: boolean
+          wants_basement?: boolean
+          wants_elevator?: boolean
         }
         Update: {
           accepts_deposit?: boolean
@@ -964,21 +980,26 @@ export type Database = {
           accepts_tenant_report?: boolean
           active_days?: number
           adults_count?: number
+          apartment_subtype?: string | null
           area_description?: string | null
           budget_max?: number | null
+          building_type?: string | null
           children_count?: number
           city?: string
           created_at?: string
           district?: string | null
           expires_at?: string
+          floor_preference?: string | null
           has_children?: boolean
           id?: string
+          min_lease_months?: number | null
           notes?: string | null
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pets_caged?: boolean
           pets_other?: boolean
+          property_type?: string | null
           requires_furnished?: boolean
           search_lat?: number | null
           search_lng?: number | null
@@ -987,6 +1008,9 @@ export type Database = {
           search_street?: string | null
           status?: string
           tenant_id?: string
+          wants_balcony?: boolean
+          wants_basement?: boolean
+          wants_elevator?: boolean
         }
         Relationships: []
       }

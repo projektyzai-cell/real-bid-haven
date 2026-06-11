@@ -1,0 +1,10 @@
+
+ALTER TABLE public.rental_requests
+  ADD COLUMN IF NOT EXISTS property_type TEXT,
+  ADD COLUMN IF NOT EXISTS apartment_subtype TEXT,
+  ADD COLUMN IF NOT EXISTS wants_balcony BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS wants_basement BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS wants_elevator BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS floor_preference TEXT,
+  ADD COLUMN IF NOT EXISTS building_type TEXT,
+  ADD COLUMN IF NOT EXISTS min_lease_months INTEGER;
