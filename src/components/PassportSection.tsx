@@ -154,42 +154,40 @@ export function PassportSection({ userId }: { userId: string }) {
         <div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-gold" />
-            <h2 className="text-lg font-semibold">Paszport Najemcy StaySafe</h2>
+            <h2 className="text-lg font-semibold">Zanonimizuj swoje dane w systemie</h2>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Twoja tożsamość pozostaje prywatna — zapisujemy tylko hash (SHA-256), nigdy surowego PESEL-u ani numeru dokumentu.
+            Twoja tożsamość pozostaje prywatna — zapisujemy wyłącznie nieodwracalny skrót (SHA-256), nigdy surowego PESEL-u ani numeru dokumentu. To pierwszy krok do aplikacji o Paszport Najemcy.
           </p>
         </div>
         {isActive && (
           <span className="inline-flex items-center gap-1.5 rounded-full border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-gold">
-            <BadgeCheck className="h-3.5 w-3.5" /> Aktywny
+            <BadgeCheck className="h-3.5 w-3.5" /> Zanonimizowane
           </span>
         )}
         {isExpired && (
           <span className="rounded-full border border-destructive/40 bg-destructive/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-destructive">
-            Wygasł
+            Wygasło
           </span>
         )}
       </div>
 
+
       {profile?.passport_serial && (
-        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-background/40 p-4 sm:grid-cols-3">
+        <div className="mt-4 grid gap-3 rounded-2xl border border-border bg-background/40 p-4 sm:grid-cols-2">
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Numer</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Identyfikator anonimowy</div>
             <div className="font-mono text-sm font-semibold">{profile.passport_serial}</div>
           </div>
           <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Ważny do</div>
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Ważność hasha</div>
             <div className="text-sm font-semibold">
               {profile.passport_expires_at ? new Date(profile.passport_expires_at).toLocaleDateString("pl-PL") : "—"}
             </div>
           </div>
-          <div>
-            <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Trusted Tenant Score</div>
-            <div className="text-sm font-semibold text-gold">{profile.trusted_tenant_score}/100</div>
-          </div>
         </div>
       )}
+
 
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
         <div>
@@ -271,7 +269,7 @@ export function PassportSection({ userId }: { userId: string }) {
           ) : (
             <ShieldCheck className="mr-2 h-4 w-4" />
           )}
-          {isActive ? "Odnów na kolejne 90 dni" : isExpired ? "Aktywuj ponownie" : "Wystaw paszport"}
+          {isActive ? "Odśwież anonimizację (90 dni)" : isExpired ? "Aktywuj ponownie" : "Zanonimizuj moje dane"}
         </Button>
       </div>
     </section>
