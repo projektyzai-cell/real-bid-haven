@@ -377,14 +377,18 @@ export type Database = {
           accepts_notarial_lease: boolean
           bank_statement_urls: string[] | null
           created_at: string
+          data_anonymized: boolean | null
           date_of_birth: string | null
           display_name: string
           document_country_code: string | null
           document_number_hash: string | null
           employer_name: string | null
+          employment_contract_indefinite: boolean | null
           employment_contract_until: string | null
           employment_contract_url: string | null
+          employment_contract_urls: string[] | null
           employment_type: string | null
+          facebook_verified_self: boolean | null
           first_name: string | null
           has_completed_internal_staysafe_lease: boolean
           has_pesel: boolean
@@ -392,16 +396,23 @@ export type Database = {
           id: string
           identity_combo_hash: string | null
           identity_doc_url: string | null
+          identity_doc_urls: string[] | null
           identity_source: string | null
           identity_verification_status: string | null
           income_verification_status: string | null
           instagram_account_created_at: string | null
           instagram_username: string | null
+          instagram_verified_self: boolean | null
           last_name: string | null
           linkedin_url: string | null
+          linkedin_verified_self: boolean | null
           monthly_income_net: number | null
+          passport_application_status: string | null
+          passport_application_submitted_at: string | null
           passport_expires_at: string | null
           passport_issued_at: string | null
+          passport_pdf_url: string | null
+          passport_score: number | null
           passport_serial: string | null
           personal_bio_lang: string | null
           personal_bio_original: string | null
@@ -422,14 +433,18 @@ export type Database = {
           accepts_notarial_lease?: boolean
           bank_statement_urls?: string[] | null
           created_at?: string
+          data_anonymized?: boolean | null
           date_of_birth?: string | null
           display_name: string
           document_country_code?: string | null
           document_number_hash?: string | null
           employer_name?: string | null
+          employment_contract_indefinite?: boolean | null
           employment_contract_until?: string | null
           employment_contract_url?: string | null
+          employment_contract_urls?: string[] | null
           employment_type?: string | null
+          facebook_verified_self?: boolean | null
           first_name?: string | null
           has_completed_internal_staysafe_lease?: boolean
           has_pesel?: boolean
@@ -437,16 +452,23 @@ export type Database = {
           id: string
           identity_combo_hash?: string | null
           identity_doc_url?: string | null
+          identity_doc_urls?: string[] | null
           identity_source?: string | null
           identity_verification_status?: string | null
           income_verification_status?: string | null
           instagram_account_created_at?: string | null
           instagram_username?: string | null
+          instagram_verified_self?: boolean | null
           last_name?: string | null
           linkedin_url?: string | null
+          linkedin_verified_self?: boolean | null
           monthly_income_net?: number | null
+          passport_application_status?: string | null
+          passport_application_submitted_at?: string | null
           passport_expires_at?: string | null
           passport_issued_at?: string | null
+          passport_pdf_url?: string | null
+          passport_score?: number | null
           passport_serial?: string | null
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
@@ -467,14 +489,18 @@ export type Database = {
           accepts_notarial_lease?: boolean
           bank_statement_urls?: string[] | null
           created_at?: string
+          data_anonymized?: boolean | null
           date_of_birth?: string | null
           display_name?: string
           document_country_code?: string | null
           document_number_hash?: string | null
           employer_name?: string | null
+          employment_contract_indefinite?: boolean | null
           employment_contract_until?: string | null
           employment_contract_url?: string | null
+          employment_contract_urls?: string[] | null
           employment_type?: string | null
+          facebook_verified_self?: boolean | null
           first_name?: string | null
           has_completed_internal_staysafe_lease?: boolean
           has_pesel?: boolean
@@ -482,16 +508,23 @@ export type Database = {
           id?: string
           identity_combo_hash?: string | null
           identity_doc_url?: string | null
+          identity_doc_urls?: string[] | null
           identity_source?: string | null
           identity_verification_status?: string | null
           income_verification_status?: string | null
           instagram_account_created_at?: string | null
           instagram_username?: string | null
+          instagram_verified_self?: boolean | null
           last_name?: string | null
           linkedin_url?: string | null
+          linkedin_verified_self?: boolean | null
           monthly_income_net?: number | null
+          passport_application_status?: string | null
+          passport_application_submitted_at?: string | null
           passport_expires_at?: string | null
           passport_issued_at?: string | null
+          passport_pdf_url?: string | null
+          passport_score?: number | null
           passport_serial?: string | null
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
