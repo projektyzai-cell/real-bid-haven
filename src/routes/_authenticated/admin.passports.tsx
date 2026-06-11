@@ -30,8 +30,9 @@ export const Route = createFileRoute("/_authenticated/admin/passports")({
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/auth" });
     const { data } = await supabase.from("user_roles")
-      .select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle();
-    if (!data) throw redirect({ to: "/" });
+      .select("role").eq("user_id", user.id)
+      .in("role", ["admin", "passport_verifier"]);
+    if (!data || data.length === 0) throw redirect({ to: "/" });
   },
   component: AdminPassportsPage,
   errorComponent: ({ error }) => <div className="p-6 text-destructive">{error.message}</div>,
