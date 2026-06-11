@@ -18,6 +18,9 @@ import {
   adminRevokeStaffRole,
   adminSendMessage,
   adminListMessages,
+  adminDeleteUser,
+  adminResetUserPassword,
+  adminSetConcierge,
 } from "@/lib/admin-users.functions";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -28,7 +31,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
-  Loader2, Clock, CheckCircle2, Mail, Trash2,
+  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw,
 } from "lucide-react";
 
 const tabSchema = z.object({
