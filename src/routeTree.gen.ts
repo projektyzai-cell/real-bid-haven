@@ -41,8 +41,8 @@ import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_a
 import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
 import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
 import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
-import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin.passports'
-import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin.passport-stats'
+import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
+import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin_.passport-stats'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
 const WycenaLiveRoute = WycenaLiveRouteImport.update({
@@ -214,15 +214,15 @@ const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
 } as any)
 const AuthenticatedAdminPassportsRoute =
   AuthenticatedAdminPassportsRouteImport.update({
-    id: '/passports',
-    path: '/passports',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/admin_/passports',
+    path: '/admin/passports',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminPassportStatsRoute =
   AuthenticatedAdminPassportStatsRouteImport.update({
-    id: '/passport-stats',
-    path: '/passport-stats',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/admin_/passport-stats',
+    path: '/admin/passport-stats',
+    getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedNajemChatsIdRoute =
   AuthenticatedNajemChatsIdRouteImport.update({
@@ -239,7 +239,7 @@ export interface FileRoutesByFullPath {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
@@ -275,7 +275,7 @@ export interface FileRoutesByTo {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
-  '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
@@ -313,7 +313,7 @@ export interface FileRoutesById {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
@@ -325,8 +325,8 @@ export interface FileRoutesById {
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia/': typeof OgloszeniaIndexRoute
-  '/_authenticated/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
-  '/_authenticated/admin/passports': typeof AuthenticatedAdminPassportsRoute
+  '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
+  '/_authenticated/admin_/passports': typeof AuthenticatedAdminPassportsRoute
   '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
   '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
@@ -436,8 +436,8 @@ export interface FileRouteTypes {
     | '/ogloszenia/$id'
     | '/properties/$id'
     | '/ogloszenia/'
-    | '/_authenticated/admin/passport-stats'
-    | '/_authenticated/admin/passports'
+    | '/_authenticated/admin_/passport-stats'
+    | '/_authenticated/admin_/passports'
     | '/_authenticated/chats/$id'
     | '/_authenticated/najem/moj-paszport'
     | '/_authenticated/najem/moje-oferty'
@@ -694,19 +694,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin/passports': {
-      id: '/_authenticated/admin/passports'
-      path: '/passports'
+    '/_authenticated/admin_/passports': {
+      id: '/_authenticated/admin_/passports'
+      path: '/admin/passports'
       fullPath: '/admin/passports'
       preLoaderRoute: typeof AuthenticatedAdminPassportsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin/passport-stats': {
-      id: '/_authenticated/admin/passport-stats'
-      path: '/passport-stats'
+    '/_authenticated/admin_/passport-stats': {
+      id: '/_authenticated/admin_/passport-stats'
+      path: '/admin/passport-stats'
       fullPath: '/admin/passport-stats'
       preLoaderRoute: typeof AuthenticatedAdminPassportStatsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/najem/chats/$id': {
       id: '/_authenticated/najem/chats/$id'
@@ -718,27 +718,16 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AuthenticatedAdminRouteChildren {
-  AuthenticatedAdminPassportStatsRoute: typeof AuthenticatedAdminPassportStatsRoute
-  AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
-}
-
-const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
-  AuthenticatedAdminPassportStatsRoute: AuthenticatedAdminPassportStatsRoute,
-  AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
-}
-
-const AuthenticatedAdminRouteWithChildren =
-  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
-
 interface AuthenticatedRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
   AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
   AuthenticatedPolubioneRoute: typeof AuthenticatedPolubioneRoute
   AuthenticatedUstawieniaRoute: typeof AuthenticatedUstawieniaRoute
+  AuthenticatedAdminPassportStatsRoute: typeof AuthenticatedAdminPassportStatsRoute
+  AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
   AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
   AuthenticatedNajemMojPaszportRoute: typeof AuthenticatedNajemMojPaszportRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
@@ -752,13 +741,15 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
+  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
   AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
   AuthenticatedPolubioneRoute: AuthenticatedPolubioneRoute,
   AuthenticatedUstawieniaRoute: AuthenticatedUstawieniaRoute,
+  AuthenticatedAdminPassportStatsRoute: AuthenticatedAdminPassportStatsRoute,
+  AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
   AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
   AuthenticatedNajemMojPaszportRoute: AuthenticatedNajemMojPaszportRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
