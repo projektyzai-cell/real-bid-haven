@@ -2,11 +2,13 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ShieldCheck, ExternalLink, BadgeCheck, MapPin, Map, Building2 } from "lucide-react";
+import {
+  ShieldCheck, ExternalLink, BadgeCheck, MapPin, Map, Building2,
+  Search, FileSignature, Sparkles,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,15 +26,20 @@ const schema = z.object({
   district: z.string().max(120).optional(),
   search_street: z.string().max(160).optional(),
   search_mode: z.enum(["district", "address", "map"]),
-  area_description: z.string().max(500).optional(),
   budget_max: z.number().positive().max(100000).optional(),
   adults_count: z.number().int().min(1).max(20),
   children_count: z.number().int().min(0).max(20),
   active_days: z.number().int().refine((v) => [7, 14, 30].includes(v), { message: "Czas: 7, 14 lub 30 dni" }),
-  notes: z.string().max(1000).optional(),
+  property_type: z.enum(["apartment", "room", "house"]),
+  apartment_subtype: z.enum(["studio", "2rooms", "3rooms_plus"]).optional(),
+  min_lease_months: z.number().int().min(1).max(12),
 });
 
 type Mode = "district" | "address" | "map";
+type PropertyType = "apartment" | "room" | "house";
+type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
+type FloorPref = "" | "ground" | "above3_no_elevator" | "high_with_elevator";
+type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalRequestPage() {
   const { user } = useAuth();
@@ -41,36 +48,38 @@ function NewRentalRequestPage() {
   const [mode, setMode] = useState<Mode>("district");
   const [mapArea, setMapArea] = useState<MapArea | null>(null);
   const [form, setForm] = useState({
-    city: "", district: "", street: "", area_description: "", budget_max: "",
-    adults_count: "1", children_count: "0", active_days: "7", notes: "",
+    city: "", district: "", street: "", budget_max: "",
+    adults_count: "1", children_count: "0", active_days: "7", min_lease_months: "6",
   });
+  const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
+  const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
+  const [floorPref, setFloorPref] = useState<FloorPref>("");
+  const [buildingType, setBuildingType] = useState<BuildingType>("");
   const [flags, setFlags] = useState({
+    wants_balcony: false, wants_basement: false, wants_elevator: false,
+    requires_furnished: false,
+    accepts_notarial_lease: false, accepts_deposit: false, accepts_insurance: false,
     pets_caged: false, pets_other: false,
-    accepts_deposit: false, accepts_tenant_report: false,
-    requires_furnished: false, accepts_insurance: false, accepts_notarial_lease: false,
   });
   const [hasPassport, setHasPassport] = useState<boolean | null>(null);
   const [passportChecked, setPassportChecked] = useState(false);
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("profiles")
-      .select("passport_serial,passport_expires_at")
-      .eq("id", user.id)
-      .maybeSingle()
+    supabase.from("profiles").select("passport_serial,passport_expires_at").eq("id", user.id).maybeSingle()
       .then(({ data }) => {
-        const active =
-          !!data?.passport_serial &&
-          !!data?.passport_expires_at &&
-          new Date(data.passport_expires_at) > new Date();
-        setHasPassport(active);
-        setPassportChecked(active);
+        const active = !!data?.passport_serial && !!data?.passport_expires_at && new Date(data.passport_expires_at) > new Date();
+        setHasPassport(active); setPassportChecked(active);
       });
   }, [user]);
 
+  // Reset map point when city changes
+  useEffect(() => { setMapArea(null); }, [form.city]);
+
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const toggle = (k: keyof typeof flags) => setFlags((p) => ({ ...p, [k]: !p[k] }));
+
+  const showRoomFeatures = propertyType === "apartment" || propertyType === "room";
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -80,12 +89,13 @@ function NewRentalRequestPage() {
       district: mode === "district" && form.district.trim() ? form.district.trim() : undefined,
       search_street: mode === "address" && form.street.trim() ? form.street.trim() : undefined,
       search_mode: mode,
-      area_description: form.area_description.trim() || undefined,
       budget_max: form.budget_max ? Number(form.budget_max) : undefined,
       adults_count: Number(form.adults_count),
       children_count: Number(form.children_count),
       active_days: Number(form.active_days),
-      notes: form.notes.trim() || undefined,
+      property_type: propertyType,
+      apartment_subtype: propertyType === "apartment" ? apartmentSubtype : undefined,
+      min_lease_months: Number(form.min_lease_months),
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     if (mode === "map" && !mapArea) { toast.error("Zaznacz punkt na mapie."); return; }
@@ -97,6 +107,8 @@ function NewRentalRequestPage() {
       ...parsed.data,
       has_children: parsed.data.children_count > 0,
       ...flags,
+      floor_preference: showRoomFeatures && floorPref ? floorPref : null,
+      building_type: showRoomFeatures && buildingType ? buildingType : null,
       search_lat: mode === "map" && mapArea ? mapArea.lat : null,
       search_lng: mode === "map" && mapArea ? mapArea.lng : null,
       search_radius_km: mode === "map" && mapArea ? mapArea.radiusKm : null,
@@ -108,16 +120,6 @@ function NewRentalRequestPage() {
     toast.success("Zapytanie opublikowane!");
     navigate({ to: "/najem/moje-zapytania" });
   }
-
-  const flagsList: [keyof typeof flags, string][] = [
-    ["pets_caged", "Zwierzęta klatkowe (np. chomik)"],
-    ["pets_other", "Pies / kot / inne zwierzęta"],
-    ["accepts_deposit", "Akceptuję kaucję co najmniej 1-miesięczną"],
-    ["accepts_tenant_report", "Zgadzam się okazać raport weryfikacji najemcy"],
-    ["requires_furnished", "Oczekuję mieszkania w pełni umeblowanego"],
-    ["accepts_insurance", "Akceptuję ubezpieczenie OC najemcy na mój koszt"],
-    ["accepts_notarial_lease", "Zgadzam się na najem okazjonalny (notarialny)"],
-  ];
 
   const modeTabs: { id: Mode; label: string; icon: typeof Building2 }[] = [
     { id: "district", label: "Dzielnica", icon: Building2 },
@@ -132,7 +134,64 @@ function NewRentalRequestPage() {
         Opisz swoje potrzeby. Wynajmujący prześlą Ci dedykowane oferty. Zapytanie będzie aktywne przez wskazany czas.
       </p>
 
-      <form onSubmit={onSubmit} className="mt-8 space-y-5 rounded-3xl border bg-card p-6 shadow-card">
+      {/* ── ONBOARDING / EXPLAINER ──────────────────────────────── */}
+      <section
+        aria-label="Jak działa inteligentne dopasowanie StaySafe"
+        className="relative mt-6 overflow-hidden rounded-3xl border border-white/5 bg-gradient-to-br from-white/[0.04] via-white/[0.02] to-transparent p-5 backdrop-blur-sm shadow-card"
+      >
+        <div className="pointer-events-none absolute -right-20 -top-20 h-56 w-56 rounded-full bg-[var(--gold)]/10 blur-3xl" />
+        <div className="relative flex items-center gap-2">
+          <Sparkles className="h-4 w-4 text-gold" />
+          <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
+            Jak działa inteligentne dopasowanie StaySafe?
+          </h2>
+        </div>
+        <ol className="relative mt-4 grid gap-4 md:grid-cols-3">
+          {[
+            {
+              n: 1, icon: Search, title: "Określ rejon poszukiwań",
+              body: (
+                <>
+                  Wybierz miasto, a następnie wskaż dzielnice, konkretne ulice lub <span className="text-gold">zaznacz na interaktywnej mapie</span> punkt centralny i obszar wokół niego. Im więcej precyzyjnych danych, tym lepsze dopasowanie.
+                </>
+              ),
+            },
+            {
+              n: 2, icon: ShieldCheck, title: "Wybierz oferty i aplikuj Paszportem",
+              body: (
+                <>
+                  System wyświetli nieruchomości zgodne z Twoim budżetem i lokalizacją. Kliknij <em>„Wstępnie zainteresowany”</em> — <span className="text-gold">Paszport Najemcy StaySafe</span> drastycznie zwiększa szanse na szybką akceptację.
+                </>
+              ),
+            },
+            {
+              n: 3, icon: FileSignature, title: "Formalności i wsparcie Concierge",
+              body: (
+                <>
+                  Po akceptacji dograj szczegóły na czacie i wygeneruj bezpieczną umowę w portalu. Pomożemy w <span className="text-gold">umówieniu notariusza</span>, zamówieniu sprzątania i wezwaniu złotej rączki.
+                </>
+              ),
+            },
+          ].map((s) => {
+            const Icon = s.icon;
+            return (
+              <li key={s.n} className="relative rounded-2xl border border-white/5 bg-background/30 p-4">
+                <div className="flex items-center gap-2">
+                  <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 text-[11px] font-bold text-gold">
+                    {s.n}
+                  </span>
+                  <Icon className="h-3.5 w-3.5 text-gold/80" />
+                  <h3 className="text-xs font-semibold uppercase tracking-wide">{s.title}</h3>
+                </div>
+                <p className="mt-2 text-[12.5px] leading-relaxed text-muted-foreground">{s.body}</p>
+              </li>
+            );
+          })}
+        </ol>
+      </section>
+
+      <form onSubmit={onSubmit} className="mt-6 space-y-5 rounded-3xl border bg-card p-6 shadow-card">
+        {/* PASZPORT */}
         <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4">
           <div className="flex items-start gap-3">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
@@ -142,11 +201,7 @@ function NewRentalRequestPage() {
                 Posiadanie aktualnego paszportu znacząco zwiększa szansę na odpowiedź wynajmującego.
               </p>
               <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm">
-                <Checkbox
-                  checked={passportChecked}
-                  onCheckedChange={(v) => setPassportChecked(!!v)}
-                  className="mt-0.5"
-                />
+                <Checkbox checked={passportChecked} onCheckedChange={(v) => setPassportChecked(!!v)} className="mt-0.5" />
                 <span>
                   Mam już aktualny Paszport Najemcy
                   {hasPassport && (
@@ -157,12 +212,8 @@ function NewRentalRequestPage() {
                 </span>
               </label>
               {!passportChecked && (
-                <a
-                  href="/najem/paszport"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]"
-                >
+                <a href="/najem/paszport" target="_blank" rel="noopener noreferrer"
+                  className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]">
                   Stwórz Paszport w nowej karcie <ExternalLink className="h-3 w-3" />
                 </a>
               )}
@@ -170,7 +221,7 @@ function NewRentalRequestPage() {
           </div>
         </div>
 
-        {/* MIASTO – zawsze wymagane */}
+        {/* MIASTO */}
         <div>
           <Label className="mb-2 block">Miasto <span className="text-destructive">*</span></Label>
           <LocationPicker
@@ -179,22 +230,22 @@ function NewRentalRequestPage() {
             onChange={(v) => setForm((p) => ({ ...p, city: v.city }))}
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            Wybór miasta jest wymagany. Poniżej możesz doprecyzować obszar poszukiwań — dzielnicą, ulicą lub na mapie.
+            Wybierz miejscowość, w której poszukujesz nieruchomości do wynajmu.
           </p>
         </div>
 
         {/* TRYB DOPRECYZOWANIA */}
         <div className="rounded-2xl border bg-background/40 p-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">Sposób doprecyzowania (opcjonalnie)</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+            Sposób doprecyzowania (opcjonalnie)
+          </p>
           <div className="inline-flex rounded-xl border border-border bg-background p-1 text-sm">
             {modeTabs.map((t) => {
               const Icon = t.icon;
               const active = mode === t.id;
               return (
-                <button
-                  key={t.id} type="button" onClick={() => setMode(t.id)}
-                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold ${active ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-muted-foreground"}`}
-                >
+                <button key={t.id} type="button" onClick={() => setMode(t.id)}
+                  className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-semibold ${active ? "bg-[var(--gold)] text-[var(--gold-foreground)]" : "text-muted-foreground"}`}>
                   <Icon className="h-3.5 w-3.5" /> {t.label}
                 </button>
               );
@@ -211,13 +262,11 @@ function NewRentalRequestPage() {
             {mode === "address" && (
               <div className="space-y-2">
                 <Label>Ulica</Label>
-                <StreetAutocomplete
-                  city={form.city}
-                  value={form.street}
-                  disabled={!form.city}
-                  onChange={(v) => set("street", v)}
-                />
-                <p className="text-xs text-muted-foreground">Podpowiedzi z OpenStreetMap. Możesz też wpisać własną nazwę.</p>
+                <StreetAutocomplete city={form.city} value={form.street} disabled={!form.city}
+                  onChange={(v) => set("street", v)} />
+                <p className="text-xs text-amber-500/80">
+                  Uwaga: zawężenie poszukiwań do jednej ulicy może znacząco zmniejszyć liczbę dopasowanych ofert.
+                </p>
               </div>
             )}
             {mode === "map" && (
@@ -226,59 +275,185 @@ function NewRentalRequestPage() {
           </div>
         </div>
 
-        <div>
-          <Label>Preferowany obszar — opis (opcjonalnie)</Label>
-          <Textarea value={form.area_description} onChange={(e) => set("area_description", e.target.value)}
-            placeholder="np. blisko parku, niedaleko stacji metra Wilanowska" rows={2} className="mt-1.5 rounded-xl" />
+        {/* INFORMACJE O NIERUCHOMOŚCI */}
+        <SectionTitle>Informacje o nieruchomości</SectionTitle>
+        <div className="rounded-2xl border bg-background/40 p-4 space-y-4">
+          <div>
+            <Label className="mb-2 block">Co chcesz wynająć?</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {([
+                ["apartment", "Mieszkanie"],
+                ["room", "Pokój"],
+                ["house", "Dom"],
+              ] as [PropertyType, string][]).map(([id, label]) => (
+                <button key={id} type="button" onClick={() => setPropertyType(id)}
+                  className={`h-10 rounded-xl border text-sm font-semibold transition ${
+                    propertyType === id
+                      ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                      : "border-border text-muted-foreground hover:text-foreground"
+                  }`}>
+                  {label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {propertyType === "apartment" && (
+            <div>
+              <Label className="mb-2 block">Typ mieszkania</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {([
+                  ["studio", "Kawalerka"],
+                  ["2rooms", "2-pokojowe"],
+                  ["3rooms_plus", "3-pokojowe lub większe"],
+                ] as [ApartmentSubtype, string][]).map(([id, label]) => (
+                  <button key={id} type="button" onClick={() => setApartmentSubtype(id)}
+                    className={`h-10 rounded-xl border text-xs font-semibold transition ${
+                      apartmentSubtype === id
+                        ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                        : "border-border text-muted-foreground hover:text-foreground"
+                    }`}>
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {showRoomFeatures && (
+            <div className="space-y-2">
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Wymagane udogodnienia</p>
+              {([
+                ["wants_balcony", "Balkon"],
+                ["wants_basement", "Piwnica"],
+                ["wants_elevator", "Winda"],
+                ["requires_furnished", "Mieszkanie umeblowane"],
+              ] as [keyof typeof flags, string][]).map(([k, label]) => (
+                <label key={k} className="flex items-start gap-3 text-sm">
+                  <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
+                  <span>{label}</span>
+                </label>
+              ))}
+
+              <div className="grid gap-3 sm:grid-cols-2 pt-2">
+                <div>
+                  <Label className="text-xs">Preferencja piętra</Label>
+                  <select value={floorPref} onChange={(e) => setFloorPref(e.target.value as FloorPref)}
+                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                    <option value="">Bez znaczenia (wszystkie oferty)</option>
+                    <option value="ground">Parter</option>
+                    <option value="above3_no_elevator">Powyżej 3 piętra bez windy</option>
+                    <option value="high_with_elevator">Wysokie piętra z windą</option>
+                  </select>
+                </div>
+                <div>
+                  <Label className="text-xs">Rodzaj budynku</Label>
+                  <select value={buildingType} onChange={(e) => setBuildingType(e.target.value as BuildingType)}
+                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                    <option value="">Bez znaczenia</option>
+                    <option value="block">Blok</option>
+                    <option value="tenement">Kamienica</option>
+                    <option value="house_section">Wydzielona część domu</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-4">
-          <div>
-            <Label>Budżet max (PLN/mies.)</Label>
-            <Input type="number" value={form.budget_max} onChange={(e) => set("budget_max", e.target.value)} className="mt-1.5 rounded-xl" />
+        {/* WARUNKI UMOWY */}
+        <SectionTitle>Warunki umowy</SectionTitle>
+        <div className="rounded-2xl border bg-background/40 p-4 space-y-4">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label>Budżet max (PLN/mies.)</Label>
+              <Input type="number" value={form.budget_max} onChange={(e) => set("budget_max", e.target.value)} className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Kwota całkowita: czynsz najmu + opłaty eksploatacyjne (administracyjne) + media.
+              </p>
+            </div>
+            <div>
+              <Label>Minimalna długość umowy</Label>
+              <select value={form.min_lease_months} onChange={(e) => set("min_lease_months", e.target.value)}
+                className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+                  <option key={m} value={m}>{m} {m === 1 ? "miesiąc" : m < 5 ? "miesiące" : "miesięcy"}</option>
+                ))}
+              </select>
+            </div>
           </div>
-          <div>
-            <Label>Liczba dorosłych</Label>
-            <Input type="number" min={1} required value={form.adults_count}
-              onChange={(e) => set("adults_count", e.target.value)} className="mt-1.5 rounded-xl" />
-          </div>
-          <div>
-            <Label>Liczba dzieci</Label>
-            <Input type="number" min={0} value={form.children_count}
-              onChange={(e) => set("children_count", e.target.value)} className="mt-1.5 rounded-xl" />
-            <p className="mt-1 text-[10px] text-muted-foreground">poniżej 18 r.ż.</p>
-          </div>
-          <div>
-            <Label>Aktywne przez</Label>
-            <select required value={form.active_days}
-              onChange={(e) => set("active_days", e.target.value)}
-              className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-              <option value="7">7 dni</option>
-              <option value="14">14 dni</option>
-              <option value="30">30 dni</option>
-            </select>
-          </div>
-        </div>
 
-        <div className="space-y-2 rounded-2xl border bg-background/40 p-4">
-          <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Preferencje i zgody</p>
-          {flagsList.map(([k, label]) => (
-            <label key={k} className="flex items-start gap-3 text-sm">
-              <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
-              <span>{label}</span>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div>
+              <Label>Liczba dorosłych</Label>
+              <Input type="number" min={1} required value={form.adults_count}
+                onChange={(e) => set("adults_count", e.target.value)} className="mt-1.5 rounded-xl" />
+            </div>
+            <div>
+              <Label>Liczba dzieci</Label>
+              <Input type="number" min={0} value={form.children_count}
+                onChange={(e) => set("children_count", e.target.value)} className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[10px] text-muted-foreground">poniżej 18 r.ż.</p>
+            </div>
+            <div>
+              <Label>Zapytanie aktywne przez</Label>
+              <select required value={form.active_days} onChange={(e) => set("active_days", e.target.value)}
+                className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                <option value="7">7 dni</option>
+                <option value="14">14 dni</option>
+                <option value="30">30 dni</option>
+              </select>
+            </div>
+          </div>
+
+          <div className="space-y-2 pt-1">
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.accepts_notarial_lease} onCheckedChange={() => toggle("accepts_notarial_lease")} className="mt-0.5" />
+              <span>
+                Zgadzam się na <strong>najem okazjonalny</strong> (notarialny).
+                <span className="block text-[11px] text-muted-foreground">
+                  StaySafe może pomóc w formalnościach w ramach usługi Concierge.
+                </span>
+              </span>
             </label>
-          ))}
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.accepts_deposit} onCheckedChange={() => toggle("accepts_deposit")} className="mt-0.5" />
+              <span>Akceptuję kaucję co najmniej 1-miesięczną.</span>
+            </label>
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.accepts_insurance} onCheckedChange={() => toggle("accepts_insurance")} className="mt-0.5" />
+              <span>Zgadzam się wykupić ubezpieczenie OC najemcy na własny koszt.</span>
+            </label>
+          </div>
         </div>
 
-        <div>
-          <Label>Notatka dodatkowa</Label>
-          <Textarea value={form.notes} onChange={(e) => set("notes", e.target.value)} rows={3} className="mt-1.5 rounded-xl" />
+        {/* INNE PREFERENCJE */}
+        <SectionTitle>Inne preferencje</SectionTitle>
+        <div className="rounded-2xl border bg-background/40 p-4 space-y-2">
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.pets_caged} onCheckedChange={() => toggle("pets_caged")} className="mt-0.5" />
+            <span>Zwierzęta klatkowe (np. chomik, królik)</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.pets_other} onCheckedChange={() => toggle("pets_other")} className="mt-0.5" />
+            <span>Większe zwierzęta — pies / kot / inne</span>
+          </label>
         </div>
 
         <Button type="submit" disabled={submitting} size="lg" className="w-full rounded-xl">
           {submitting ? "Publikuję..." : "Opublikuj zapytanie"}
         </Button>
       </form>
+    </div>
+  );
+}
+
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-3 pt-2">
+      <div className="h-px flex-1 bg-border" />
+      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-gold">{children}</h3>
+      <div className="h-px flex-1 bg-border" />
     </div>
   );
 }
