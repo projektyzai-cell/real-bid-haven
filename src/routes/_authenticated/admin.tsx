@@ -248,6 +248,7 @@ function PassportsListTab() {
 
 /* ===================== USERS ===================== */
 function UsersTab() {
+  const qc = useQueryClient();
   const list = useServerFn(adminListUsers);
   const get = useServerFn(adminGetUser);
   const q = useQuery({ queryKey: ["admin-users"], queryFn: () => list() });
@@ -280,7 +281,8 @@ function UsersTab() {
                 <th className="px-2 py-2 text-left">E-mail</th>
                 <th className="px-2 py-2 text-left">Założono</th>
                 <th className="px-2 py-2 text-left">Paszport</th>
-                <th className="px-2 py-2 text-left">Zapyt. (aktyw/hist)</th>
+                <th className="px-2 py-2 text-left">Concierge</th>
+                <th className="px-2 py-2 text-left">Zapyt.</th>
                 <th className="px-2 py-2"></th>
               </tr>
             </thead>
@@ -297,6 +299,11 @@ function UsersTab() {
                         ? <Badge variant="destructive" className="text-[10px]">Oczekuje</Badge>
                         : <span className="text-muted-foreground">brak</span>}
                   </td>
+                  <td className="px-2 py-1.5">
+                    {u.concierge_subscription
+                      ? <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40 text-[10px] gap-1"><Sparkles className="h-3 w-3" />Concierge</Badge>
+                      : <span className="text-muted-foreground">—</span>}
+                  </td>
                   <td className="px-2 py-1.5">{u.active_requests} / {u.past_requests}</td>
                   <td className="px-2 py-1.5 text-right">
                     <Button size="sm" variant="ghost" onClick={() => setOpenId(u.id)}>Otwórz</Button>
@@ -304,7 +311,7 @@ function UsersTab() {
                 </tr>
               ))}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
+                <tr><td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
               )}
             </tbody>
           </table>
@@ -314,16 +321,52 @@ function UsersTab() {
       <Card className="rounded-2xl p-4">
         {!openId && <p className="text-sm text-muted-foreground">Wybierz użytkownika, aby zobaczyć szczegóły.</p>}
         {openId && detail.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
-        {openId && detail.data && <UserDetail data={detail.data} />}
+        {openId && detail.data && (
+          <UserDetail
+            userId={openId}
+            data={detail.data}
+            onChanged={() => {
+              qc.invalidateQueries({ queryKey: ["admin-user", openId] });
+              qc.invalidateQueries({ queryKey: ["admin-users"] });
+            }}
+            onDeleted={() => {
+              setOpenId(null);
+              qc.invalidateQueries({ queryKey: ["admin-users"] });
+            }}
+          />
+        )}
       </Card>
     </div>
   );
 }
 
-function UserDetail({ data }: { data: any }) {
+function UserDetail({
+  userId, data, onChanged, onDeleted,
+}: { userId: string; data: any; onChanged: () => void; onDeleted: () => void }) {
   const p = data.profile ?? {};
   const active = (data.requests ?? []).filter((r: any) => r.status === "open");
   const past = (data.requests ?? []).filter((r: any) => r.status !== "open");
+  const resetFn = useServerFn(adminResetUserPassword);
+  const delFn = useServerFn(adminDeleteUser);
+  const conciergeFn = useServerFn(adminSetConcierge);
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
+
+  const resetMut = useMutation({
+    mutationFn: () => resetFn({ data: { userId } }),
+    onSuccess: (r: any) => { setTempPassword(r.password); toast.success("Wygenerowano nowe hasło."); },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const delMut = useMutation({
+    mutationFn: () => delFn({ data: { userId } }),
+    onSuccess: () => { toast.success("Konto usunięte."); onDeleted(); },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const conciergeMut = useMutation({
+    mutationFn: (active: boolean) => conciergeFn({ data: { userId, active, until: null } }),
+    onSuccess: () => { toast.success("Zaktualizowano subskrypcję Concierge."); onChanged(); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   return (
     <div className="space-y-4 text-sm">
       <div>
@@ -340,6 +383,60 @@ function UserDetail({ data }: { data: any }) {
           <div className="mt-1 flex gap-1">{data.roles.map((r: string) => <Badge key={r} variant="outline">{r}</Badge>)}</div>
         )}
       </div>
+
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/5 p-3">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-1.5 text-sm font-semibold">
+              <Sparkles className="h-4 w-4 text-amber-600" /> Subskrypcja Concierge
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {p.concierge_subscription
+                ? `Aktywna${p.concierge_subscription_until ? ` do ${new Date(p.concierge_subscription_until).toLocaleDateString("pl-PL")}` : ""}`
+                : "Brak (funkcjonalność w przygotowaniu)"}
+            </div>
+          </div>
+          <Button size="sm" variant={p.concierge_subscription ? "outline" : "default"}
+            disabled={conciergeMut.isPending}
+            onClick={() => conciergeMut.mutate(!p.concierge_subscription)}>
+            {p.concierge_subscription ? "Wyłącz" : "Aktywuj"}
+          </Button>
+        </div>
+      </div>
+
+      <div className="rounded-xl border p-3 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <div className="flex items-center gap-1.5 text-sm font-semibold">
+              <KeyRound className="h-4 w-4" /> Hasło
+            </div>
+            <div className="text-xs text-muted-foreground">
+              Hasła są zaszyfrowane jednokierunkowo (bcrypt) — nie można ich odczytać.
+              Możesz wygenerować nowe i przekazać użytkownikowi.
+            </div>
+          </div>
+          <Button size="sm" variant="outline" disabled={resetMut.isPending}
+            onClick={() => resetMut.mutate()}>
+            {resetMut.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="mr-2 h-3.5 w-3.5" />}
+            Resetuj hasło
+          </Button>
+        </div>
+        {tempPassword && (
+          <div className="rounded-lg bg-muted px-3 py-2 font-mono text-sm flex items-center justify-between gap-2">
+            <span className="select-all break-all">{tempPassword}</span>
+            <Button size="icon" variant="ghost"
+              onClick={() => { navigator.clipboard.writeText(tempPassword); toast.success("Skopiowano."); }}>
+              <Copy className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        )}
+        {tempPassword && (
+          <p className="text-[11px] text-amber-600">
+            Zapisz to hasło teraz — po zamknięciu nie będzie ponownie widoczne.
+          </p>
+        )}
+      </div>
+
       <div>
         <div className="text-xs uppercase tracking-wider text-muted-foreground">Paszport</div>
         <div className="font-medium">
@@ -372,6 +469,18 @@ function UserDetail({ data }: { data: any }) {
           ))}
           {past.length === 0 && <li className="text-muted-foreground">Brak.</li>}
         </ul>
+      </div>
+
+      <div className="border-t pt-3">
+        <Button variant="destructive" size="sm" disabled={delMut.isPending}
+          onClick={() => {
+            if (confirm(`Trwale usunąć konto ${data.auth.email}? Tej operacji nie da się cofnąć.`)) {
+              delMut.mutate();
+            }
+          }}>
+          {delMut.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Trash2 className="mr-2 h-3.5 w-3.5" />}
+          Usuń konto
+        </Button>
       </div>
     </div>
   );
