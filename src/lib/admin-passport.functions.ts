@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
   const { data, error } = await ctx.supabase
@@ -11,15 +12,9 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (error || !data) throw new Error("Forbidden: admin only");
 }
 
-// Lazy import middleware so this module remains client-safe enough for use in routes
-const authMw = async () => {
-  const { requireSupabaseAuth } = await import("@/integrations/supabase/auth-middleware");
-  return requireSupabaseAuth;
-};
-
 /** Chronological list of submitted passport applications */
 export const listPassportApplications = createServerFn({ method: "GET" })
-  .middleware([(await authMw())])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context as any);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -32,9 +27,8 @@ export const listPassportApplications = createServerFn({ method: "GET" })
     return data ?? [];
   });
 
-/** Full detail for a single application, with signed URLs for documents */
 export const getPassportApplication = createServerFn({ method: "POST" })
-  .middleware([(await authMw())])
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ data, context }) => {
     await assertAdmin(context as any);
@@ -73,9 +67,8 @@ export const getPassportApplication = createServerFn({ method: "POST" })
     };
   });
 
-/** Toggle admin verification flags */
 export const updateAdminVerification = createServerFn({ method: "POST" })
-  .middleware([(await authMw())])
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       userId: z.string().uuid(),
@@ -95,9 +88,8 @@ export const updateAdminVerification = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-/** Approve & generate passport: sets status, score, serial, dates */
 export const generateTenantPassport = createServerFn({ method: "POST" })
-  .middleware([(await authMw())])
+  .middleware([requireSupabaseAuth])
   .inputValidator((d) =>
     z.object({
       userId: z.string().uuid(),
@@ -112,7 +104,7 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
 
     const { data: cur } = await supabaseAdmin
       .from("profiles").select("passport_serial").eq("id", data.userId).maybeSingle();
-    let serial = cur?.passport_serial as string | null;
+    let serial = (cur as any)?.passport_serial as string | null;
     if (!serial) {
       const { data: s } = await supabaseAdmin.rpc("gen_passport_serial");
       serial = (s as unknown as string) ?? null;
@@ -133,9 +125,8 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
     return { serial, issued_at: now.toISOString(), expires_at: expires.toISOString() };
   });
 
-/** Stats rows for XLS export */
 export const passportStatsRows = createServerFn({ method: "GET" })
-  .middleware([(await authMw())])
+  .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context as any);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
