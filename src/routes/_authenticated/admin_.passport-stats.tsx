@@ -7,7 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Download, BarChart3, Loader2 } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/admin/passport-stats")({
+export const Route = createFileRoute("/_authenticated/admin_/passport-stats")({
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) throw redirect({ to: "/auth" });

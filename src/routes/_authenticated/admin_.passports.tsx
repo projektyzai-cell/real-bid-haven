@@ -24,7 +24,7 @@ import {
 
 const searchSchema = z.object({ u: z.string().optional() });
 
-export const Route = createFileRoute("/_authenticated/admin/passports")({
+export const Route = createFileRoute("/_authenticated/admin_/passports")({
   validateSearch: searchSchema,
   beforeLoad: async () => {
     const { data: { user } } = await supabase.auth.getUser();
