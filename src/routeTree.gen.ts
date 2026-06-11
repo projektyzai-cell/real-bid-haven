@@ -41,6 +41,7 @@ import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_a
 import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
 import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
 import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
+import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin.passports'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
 const WycenaLiveRoute = WycenaLiveRouteImport.update({
@@ -210,6 +211,12 @@ const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
   path: '/chats/$id',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedAdminPassportsRoute =
+  AuthenticatedAdminPassportsRouteImport.update({
+    id: '/passports',
+    path: '/passports',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedNajemChatsIdRoute =
   AuthenticatedNajemChatsIdRouteImport.update({
     id: '/najem/chats/$id',
@@ -225,7 +232,7 @@ export interface FileRoutesByFullPath {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
@@ -237,6 +244,7 @@ export interface FileRoutesByFullPath {
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia/': typeof OgloszeniaIndexRoute
+  '/admin/passports': typeof AuthenticatedAdminPassportsRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
@@ -259,7 +267,7 @@ export interface FileRoutesByTo {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
-  '/admin': typeof AuthenticatedAdminRoute
+  '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/messages': typeof AuthenticatedMessagesRoute
   '/my-bids': typeof AuthenticatedMyBidsRoute
   '/my-listings': typeof AuthenticatedMyListingsRoute
@@ -271,6 +279,7 @@ export interface FileRoutesByTo {
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia': typeof OgloszeniaIndexRoute
+  '/admin/passports': typeof AuthenticatedAdminPassportsRoute
   '/chats/$id': typeof AuthenticatedChatsIdRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
@@ -295,7 +304,7 @@ export interface FileRoutesById {
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
   '/wycena-live': typeof WycenaLiveRoute
-  '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
   '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
@@ -307,6 +316,7 @@ export interface FileRoutesById {
   '/ogloszenia/$id': typeof OgloszeniaIdRoute
   '/properties/$id': typeof PropertiesIdRoute
   '/ogloszenia/': typeof OgloszeniaIndexRoute
+  '/_authenticated/admin/passports': typeof AuthenticatedAdminPassportsRoute
   '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
   '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
@@ -343,6 +353,7 @@ export interface FileRouteTypes {
     | '/ogloszenia/$id'
     | '/properties/$id'
     | '/ogloszenia/'
+    | '/admin/passports'
     | '/chats/$id'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
@@ -377,6 +388,7 @@ export interface FileRouteTypes {
     | '/ogloszenia/$id'
     | '/properties/$id'
     | '/ogloszenia'
+    | '/admin/passports'
     | '/chats/$id'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
@@ -412,6 +424,7 @@ export interface FileRouteTypes {
     | '/ogloszenia/$id'
     | '/properties/$id'
     | '/ogloszenia/'
+    | '/_authenticated/admin/passports'
     | '/_authenticated/chats/$id'
     | '/_authenticated/najem/moj-paszport'
     | '/_authenticated/najem/moje-oferty'
@@ -668,6 +681,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedChatsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/admin/passports': {
+      id: '/_authenticated/admin/passports'
+      path: '/passports'
+      fullPath: '/admin/passports'
+      preLoaderRoute: typeof AuthenticatedAdminPassportsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/najem/chats/$id': {
       id: '/_authenticated/najem/chats/$id'
       path: '/najem/chats/$id'
@@ -678,8 +698,19 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
+}
+
+const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
+}
+
+const AuthenticatedAdminRouteWithChildren =
+  AuthenticatedAdminRoute._addFileChildren(AuthenticatedAdminRouteChildren)
+
 interface AuthenticatedRouteChildren {
-  AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedAdminRoute: typeof AuthenticatedAdminRouteWithChildren
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
   AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
@@ -699,7 +730,7 @@ interface AuthenticatedRouteChildren {
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
-  AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedAdminRoute: AuthenticatedAdminRouteWithChildren,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
   AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
