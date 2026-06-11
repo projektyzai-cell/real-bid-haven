@@ -71,9 +71,68 @@ export const adminListUsers = createServerFn({ method: "GET" })
         roles: roleMap.get(u.id) ?? [],
         active_requests: r.active,
         past_requests: r.past,
+        concierge_subscription: !!p.concierge_subscription,
+        concierge_subscription_until: p.concierge_subscription_until ?? null,
       };
     });
   });
+
+/** Delete a user account entirely (auth + cascades via FK). Admin-only. */
+export const adminDeleteUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertRole(context as any, ["admin"]);
+    if ((context as any).userId === data.userId) {
+      throw new Error("Nie możesz usunąć własnego konta.");
+    }
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/**
+ * Reset (rotate) a user's password to a fresh randomly-generated one and return it
+ * to the admin ONE TIME for handing over to the user.
+ *
+ * Note: Supabase stores only bcrypt hashes — original passwords cannot be revealed.
+ */
+export const adminResetUserPassword = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertRole(context as any, ["admin"]);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const alphabet = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#$%^&*";
+    let pwd = "";
+    const buf = new Uint8Array(16);
+    crypto.getRandomValues(buf);
+    for (const b of buf) pwd += alphabet[b % alphabet.length];
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, { password: pwd });
+    if (error) throw new Error(error.message);
+    return { password: pwd };
+  });
+
+/** Toggle / set Concierge subscription flag and validity date. */
+export const adminSetConcierge = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({
+    userId: z.string().uuid(),
+    active: z.boolean(),
+    until: z.string().datetime().nullable().optional(),
+  }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertRole(context as any, ["admin"]);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("profiles").update({
+      concierge_subscription: data.active,
+      concierge_subscription_until: data.until ?? null,
+    }).eq("id", data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 
 export const adminGetUser = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
