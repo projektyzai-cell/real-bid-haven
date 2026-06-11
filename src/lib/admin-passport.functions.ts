@@ -3,13 +3,13 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
+  // Admins and passport_verifier sub-admins can access passport tooling.
   const { data, error } = await ctx.supabase
     .from("user_roles")
     .select("role")
     .eq("user_id", ctx.userId)
-    .eq("role", "admin")
-    .maybeSingle();
-  if (error || !data) throw new Error("Forbidden: admin only");
+    .in("role", ["admin", "passport_verifier"] as any);
+  if (error || !data || data.length === 0) throw new Error("Forbidden: admin only");
 }
 
 /** Chronological list of submitted passport applications */
