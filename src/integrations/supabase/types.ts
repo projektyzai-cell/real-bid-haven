@@ -393,6 +393,7 @@ export type Database = {
           has_completed_internal_staysafe_lease: boolean
           has_pesel: boolean
           has_tenant_insurance: boolean
+          home_city: string | null
           id: string
           identity_combo_hash: string | null
           identity_doc_url: string | null
@@ -407,13 +408,21 @@ export type Database = {
           linkedin_url: string | null
           linkedin_verified_self: boolean | null
           monthly_income_net: number | null
+          passport_admin_notes: string | null
           passport_application_status: string | null
           passport_application_submitted_at: string | null
+          passport_city: string | null
+          passport_contract_valid: boolean
           passport_expires_at: string | null
+          passport_generated_at: string | null
+          passport_generated_by: string | null
+          passport_income_verified: boolean
           passport_issued_at: string | null
+          passport_name_verified: boolean
           passport_pdf_url: string | null
           passport_score: number | null
           passport_serial: string | null
+          passport_social_verified: boolean
           personal_bio_lang: string | null
           personal_bio_original: string | null
           personal_bio_pl: string | null
@@ -449,6 +458,7 @@ export type Database = {
           has_completed_internal_staysafe_lease?: boolean
           has_pesel?: boolean
           has_tenant_insurance?: boolean
+          home_city?: string | null
           id: string
           identity_combo_hash?: string | null
           identity_doc_url?: string | null
@@ -463,13 +473,21 @@ export type Database = {
           linkedin_url?: string | null
           linkedin_verified_self?: boolean | null
           monthly_income_net?: number | null
+          passport_admin_notes?: string | null
           passport_application_status?: string | null
           passport_application_submitted_at?: string | null
+          passport_city?: string | null
+          passport_contract_valid?: boolean
           passport_expires_at?: string | null
+          passport_generated_at?: string | null
+          passport_generated_by?: string | null
+          passport_income_verified?: boolean
           passport_issued_at?: string | null
+          passport_name_verified?: boolean
           passport_pdf_url?: string | null
           passport_score?: number | null
           passport_serial?: string | null
+          passport_social_verified?: boolean
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
@@ -505,6 +523,7 @@ export type Database = {
           has_completed_internal_staysafe_lease?: boolean
           has_pesel?: boolean
           has_tenant_insurance?: boolean
+          home_city?: string | null
           id?: string
           identity_combo_hash?: string | null
           identity_doc_url?: string | null
@@ -519,13 +538,21 @@ export type Database = {
           linkedin_url?: string | null
           linkedin_verified_self?: boolean | null
           monthly_income_net?: number | null
+          passport_admin_notes?: string | null
           passport_application_status?: string | null
           passport_application_submitted_at?: string | null
+          passport_city?: string | null
+          passport_contract_valid?: boolean
           passport_expires_at?: string | null
+          passport_generated_at?: string | null
+          passport_generated_by?: string | null
+          passport_income_verified?: boolean
           passport_issued_at?: string | null
+          passport_name_verified?: boolean
           passport_pdf_url?: string | null
           passport_score?: number | null
           passport_serial?: string | null
+          passport_social_verified?: boolean
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
