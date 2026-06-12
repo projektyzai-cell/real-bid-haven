@@ -31,7 +31,7 @@ function NewRentalListing() {
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
   const [floorNumber, setFloorNumber] = useState<FloorNumber>("");
-  const [buildingType, setBuildingType] = useState<BuildingType>("");
+  const [buildingType, setBuildingType] = useState<BuildingType>("block");
   const [form, setForm] = useState({
     title: "", description: "",
     city: "", street: "", district: "", apt_no: "", kw_number: "",
