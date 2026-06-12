@@ -107,8 +107,7 @@ function NewRentalListing() {
     setBusy(true);
     const totalPrice = (form.rent_base || 0) + (form.utilities_fee || 0);
     const expiresAt = new Date(Date.now() + form.active_days * 86_400_000).toISOString();
-    const { error } = await supabase.from("rental_listings" as never).insert({
-      landlord_id: user.id,
+    const payload: Record<string, unknown> = {
       title: form.title.trim(), description: form.description.trim(),
       kind: propertyType,
       apartment_subtype: propertyType === "apartment" ? apartmentSubtype : null,
@@ -130,6 +129,7 @@ function NewRentalListing() {
       requires_insurance: flags.requires_insurance,
       insurance_payer: flags.requires_insurance ? "tenant" : null,
       requires_deposit: flags.requires_deposit,
+      requires_passport: flags.requires_passport,
       notarial_required: flags.notarial_required,
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
@@ -143,12 +143,25 @@ function NewRentalListing() {
       usable_area_m2: propertyType === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
-    } as never);
+    };
+    let error;
+    if (isEdit && editId) {
+      ({ error } = await supabase.from("rental_listings" as never)
+        .update(payload as never).eq("id", editId).eq("landlord_id", user.id));
+    } else {
+      payload.landlord_id = user.id;
+      ({ error } = await supabase.from("rental_listings" as never).insert(payload as never));
+    }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Oferta wystawiona");
+    toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
   }
+
+  if (loading) {
+    return <div className="container mx-auto px-4 py-16 text-muted-foreground">Ładowanie oferty…</div>;
+  }
+
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
