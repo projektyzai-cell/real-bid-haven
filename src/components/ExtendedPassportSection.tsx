@@ -36,6 +36,8 @@ type Profile = Record<string, unknown> & {
   has_tenant_insurance: boolean | null;
   willing_tenant_insurance: boolean | null;
   passport_application_status: string | null;
+  personal_bio_pl: string | null;
+  avatar_url: string | null;
 };
 
 type LeaseEntry = {
