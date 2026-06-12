@@ -35,6 +35,7 @@ function NajemHub() {
       <QuickVerify />
       <HowItWorks />
       <PromotedStrip />
+      <LatestListings />
     </div>
   );
 }
