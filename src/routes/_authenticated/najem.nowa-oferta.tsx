@@ -497,7 +497,7 @@ function NewRentalListing() {
         </div>
 
         <Button type="submit" disabled={busy} size="lg" className="w-full rounded-xl">
-          {busy ? "Zapisuję…" : "Wystaw ofertę"}
+          {busy ? "Zapisuję…" : isEdit ? "Zapisz zmiany" : "Wystaw ofertę"}
         </Button>
       </form>
     </div>
