@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ShieldCheck, BadgeCheck, Linkedin, Facebook, Instagram, Download } from "lucide-react";
+import { ShieldCheck, BadgeCheck, Linkedin, Facebook, Instagram, Download, Link2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export type PassportData = {
@@ -18,6 +19,8 @@ export type PassportData = {
   city?: string | null;
   acceptsOccasionalLease?: boolean;
   hasTenantInsurance?: boolean;
+  bio?: string | null;
+  avatarUrl?: string | null;
 };
 
 export function TenantPassportCard({ data }: { data: PassportData }) {
@@ -26,16 +29,30 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
 
   async function downloadPdf() {
     if (!ref.current) return;
-    const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-      import("html2canvas"),
-      import("jspdf"),
-    ]);
-    const canvas = await html2canvas(ref.current, { backgroundColor: "#0B132B", scale: 2 });
-    const img = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
-    pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
-    pdf.save(`paszport-${data.serial}.pdf`);
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(ref.current, { backgroundColor: "#0B132B", scale: 2, useCORS: true, logging: false });
+      const img = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
+      pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`paszport-${data.serial}.pdf`);
+    } catch (e) {
+      toast.error("Nie udało się wygenerować PDF: " + (e as Error).message);
+    }
   }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(qrUrl);
+      toast.success("Skopiowano link do paszportu");
+    } catch {
+      toast.error("Nie udało się skopiować linku");
+    }
+  }
+
 
   return (
     <div className="space-y-3">
@@ -67,11 +84,24 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
         </div>
 
         {/* Identity row */}
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <Cell label="Imię i Nazwisko" value={data.displayName.toUpperCase()} />
-          <Cell label="Data wygenerowania" value={data.issuedAt ? new Date(data.issuedAt).toLocaleDateString("pl-PL") : "—"} />
-          <Cell label="Miasto" value={data.city ?? "—"} />
+        <div className="mt-5 flex items-start gap-4">
+          {data.avatarUrl && (
+            <img src={data.avatarUrl} alt="" crossOrigin="anonymous"
+              className="h-20 w-20 shrink-0 rounded-2xl border-2 border-[#D4AF37]/50 object-cover" />
+          )}
+          <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3">
+            <Cell label="Imię i Nazwisko" value={data.displayName.toUpperCase()} />
+            <Cell label="Data wygenerowania" value={data.issuedAt ? new Date(data.issuedAt).toLocaleDateString("pl-PL") : "—"} />
+            <Cell label="Miasto" value={data.city ?? "—"} />
+          </div>
         </div>
+
+        {data.bio && (
+          <div className="mt-4 rounded-xl border border-[#D4AF37]/25 bg-black/20 p-3 text-[12px] leading-relaxed text-white/85">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">O mnie</div>
+            <p className="mt-1 whitespace-pre-line">{data.bio}</p>
+          </div>
+        )}
 
         {/* Big score */}
         <div className="mt-6 flex items-end justify-between gap-4 rounded-2xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 p-4">
@@ -119,15 +149,23 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
 
 
         {/* Footer QR */}
-        <div className="mt-6 flex items-end justify-between border-t border-[#D4AF37]/20 pt-4">
+        <div className="mt-6 flex items-end justify-between gap-3 border-t border-[#D4AF37]/20 pt-4">
           <div className="text-xs italic text-white/60">„Bezpieczeństwo droższe od pieniędzy"</div>
-          <div className="rounded-lg bg-white p-2">
-            <QRCodeSVG value={qrUrl} size={72} bgColor="#FFFFFF" fgColor="#0B132B" />
+          <div className="text-right">
+            <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              Zweryfikuj autentyczność i ważność paszportu
+            </div>
+            <div className="inline-block rounded-lg bg-white p-2">
+              <QRCodeSVG value={qrUrl} size={72} bgColor="#FFFFFF" fgColor="#0B132B" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button onClick={copyLink} variant="outline" className="rounded-xl">
+          <Link2 className="mr-2 h-4 w-4" /> Kopiuj link do paszportu
+        </Button>
         <Button onClick={downloadPdf} className="bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90">
           <Download className="mr-2 h-4 w-4" /> Pobierz paszport (PDF)
         </Button>

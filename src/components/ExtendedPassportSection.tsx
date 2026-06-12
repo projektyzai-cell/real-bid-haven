@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 
 type Profile = Record<string, unknown> & {
@@ -36,6 +37,8 @@ type Profile = Record<string, unknown> & {
   has_tenant_insurance: boolean | null;
   willing_tenant_insurance: boolean | null;
   passport_application_status: string | null;
+  personal_bio_pl: string | null;
+  avatar_url: string | null;
 };
 
 type LeaseEntry = {
@@ -62,6 +65,7 @@ const empty: Profile = {
   linkedin_verified_self: false, facebook_verified_self: false, instagram_verified_self: false,
   accepts_notarial_lease: false, has_tenant_insurance: false, willing_tenant_insurance: false,
   passport_application_status: null,
+  personal_bio_pl: null, avatar_url: null,
 };
 
 function StatusPill({ status }: { status: string | null }) {
@@ -187,6 +191,8 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
       willing_tenant_insurance: !!profile.willing_tenant_insurance,
       passport_application_status: "submitted",
       passport_application_submitted_at: new Date().toISOString(),
+      personal_bio_pl: profile.personal_bio_pl,
+      avatar_url: profile.avatar_url,
     };
     const { error } = await supabase.from("profiles").update(payload).eq("id", userId);
     setSaving(false);
@@ -653,6 +659,62 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
             <Checkbox checked={!!profile.willing_tenant_insurance} onCheckedChange={(v) => set("willing_tenant_insurance", !!v)} className="mt-0.5" />
             <span>Jestem gotów/gotowa wykupić Ubezpieczenie OC najemcy na własny koszt przed zawarciem umowy.</span>
           </label>
+        </div>
+      </div>
+
+      {/* ============ 6. O MNIE + ZDJĘCIE ============ */}
+      <div className="rounded-3xl border border-[var(--gold)]/20 bg-card p-6 shadow-card">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-gold" />
+          <h2 className="text-lg font-semibold">6. Kilka słów o mnie</h2>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Napisz po polsku — czym się zajmujesz, gdzie pracujesz, co lubisz robić w wolnym czasie, hobby, sporty. Wynajmujący znacznie chętniej wybierają najemców, których lepiej znają. Im pełniejszy opis, tym większa szansa na podpisanie umowy.
+        </p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-[120px_1fr]">
+          <div>
+            <Label className="text-xs">Zdjęcie profilowe</Label>
+            <div className="mt-1.5">
+              {profile.avatar_url ? (
+                <div className="space-y-2">
+                  <img src={profile.avatar_url} alt="" className="h-28 w-28 rounded-2xl border object-cover" />
+                  <Button type="button" size="sm" variant="ghost" className="w-full text-xs text-destructive"
+                    onClick={() => set("avatar_url", null)}>
+                    <Trash2 className="mr-1 h-3 w-3" /> Usuń
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed text-[10px] text-muted-foreground hover:bg-accent">
+                  {uploading === "avatar" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  Wgraj zdjęcie
+                  <input type="file" accept="image/*" className="hidden" onChange={async (ev) => {
+                    const f = ev.target.files?.[0]; if (!f) return;
+                    setUploading("avatar");
+                    try {
+                      const path = `${userId}/avatar-${Date.now()}-${f.name}`;
+                      const { error } = await supabase.storage.from("passport-docs").upload(path, f, { upsert: true });
+                      if (error) throw error;
+                      const { data: signed } = await supabase.storage.from("passport-docs").createSignedUrl(path, 60 * 60 * 24 * 365);
+                      set("avatar_url", signed?.signedUrl ?? path);
+                      toast.success("Zdjęcie dodane.");
+                    } catch (e) { toast.error((e as Error).message); }
+                    finally { setUploading(null); }
+                  }} />
+                </label>
+              )}
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Opis (po polsku)</Label>
+            <Textarea rows={6} maxLength={1500}
+              value={profile.personal_bio_pl ?? ""}
+              onChange={(e) => set("personal_bio_pl", e.target.value)}
+              placeholder="Np. Jestem analitykiem w firmie konsultingowej w Warszawie. W wolnym czasie biegam i czytam kryminały…"
+              className="mt-1.5 rounded-xl" />
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Wpis musi być w języku polskim. {(profile.personal_bio_pl ?? "").length}/1500 znaków.
+            </p>
+          </div>
         </div>
       </div>
 

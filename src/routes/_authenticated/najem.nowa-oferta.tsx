@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Package, Target, Handshake, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,21 +14,24 @@ import { useAuth } from "@/hooks/use-auth";
 
 export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
   head: () => ({ meta: [{ title: "Wystaw ofertę najmu — Stay Safe" }] }),
+  validateSearch: (s: Record<string, unknown>) => ({ id: typeof s.id === "string" ? s.id : undefined }),
   component: NewRentalListing,
 });
 
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
-type FloorNumber = "" | "ground" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "above_10";
+type FloorNumber = "" | "ground" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "above_10";
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalListing() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id: editId } = Route.useSearch();
+  const isEdit = !!editId;
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
   const [floorNumber, setFloorNumber] = useState<FloorNumber>("");
-  const [buildingType, setBuildingType] = useState<BuildingType>("");
+  const [buildingType, setBuildingType] = useState<BuildingType>("block");
   const [form, setForm] = useState({
     title: "", description: "",
     city: "", street: "", district: "", apt_no: "", kw_number: "",
@@ -41,11 +44,54 @@ function NewRentalListing() {
   const [flags, setFlags] = useState({
     has_balcony: false, has_basement: false, has_elevator: false, is_furnished: false,
     notarial_required: false, requires_deposit: true, requires_insurance: false,
+    requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
   });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(isEdit);
+
+  useEffect(() => {
+    if (!isEdit || !user) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("rental_listings" as never)
+        .select("*").eq("id", editId).eq("landlord_id", user.id).maybeSingle();
+      if (error) { toast.error(error.message); setLoading(false); return; }
+      if (!data) { toast.error("Oferta nie istnieje"); navigate({ to: "/najem/moje-oferty" }); return; }
+      const r = data as any;
+      setPropertyType((r.kind as PropertyType) || "apartment");
+      if (r.apartment_subtype) setApartmentSubtype(r.apartment_subtype);
+      if (r.floor_number) setFloorNumber(r.floor_number);
+      if (r.building_type) setBuildingType(r.building_type);
+      setForm({
+        title: r.title ?? "", description: r.description ?? "",
+        city: r.city ?? "", street: r.street ?? "", district: r.district ?? "",
+        apt_no: r.apt_no ?? "", kw_number: r.kw_number ?? "",
+        rooms: r.rooms ?? 2, area_m2: r.area_m2 ?? 40,
+        rent_base: r.rent_base ?? 0, utilities_fee: r.utilities_fee ?? 0,
+        min_lease_months: r.min_lease_months ?? 12,
+        max_adults: r.max_adults ?? 2, max_children: r.max_children ?? 0,
+        active_days: r.active_days ?? 30,
+        has_energy_cert: !!r.has_energy_cert,
+        wants_energy_cert_discount: !!r.wants_energy_cert_discount,
+        promoted: !!r.promoted,
+        usable_area_m2: r.usable_area_m2 ?? "", plot_area_m2: r.plot_area_m2 ?? "",
+        year_built: r.year_built ?? "",
+      });
+      setFlags({
+        has_balcony: !!r.has_balcony, has_basement: !!r.has_basement,
+        has_elevator: !!r.has_elevator, is_furnished: !!r.is_furnished,
+        notarial_required: !!r.notarial_required, requires_deposit: !!r.requires_deposit,
+        requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
+        pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
+      });
+      setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
+      setLoading(false);
+    })();
+  }, [editId, isEdit, user, navigate]);
+
 
   function setF<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((s) => ({ ...s, [k]: v }));
@@ -61,8 +107,7 @@ function NewRentalListing() {
     setBusy(true);
     const totalPrice = (form.rent_base || 0) + (form.utilities_fee || 0);
     const expiresAt = new Date(Date.now() + form.active_days * 86_400_000).toISOString();
-    const { error } = await supabase.from("rental_listings" as never).insert({
-      landlord_id: user.id,
+    const payload: Record<string, unknown> = {
       title: form.title.trim(), description: form.description.trim(),
       kind: propertyType,
       apartment_subtype: propertyType === "apartment" ? apartmentSubtype : null,
@@ -84,6 +129,7 @@ function NewRentalListing() {
       requires_insurance: flags.requires_insurance,
       insurance_payer: flags.requires_insurance ? "tenant" : null,
       requires_deposit: flags.requires_deposit,
+      requires_passport: flags.requires_passport,
       notarial_required: flags.notarial_required,
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
@@ -97,16 +143,29 @@ function NewRentalListing() {
       usable_area_m2: propertyType === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
-    } as never);
+    };
+    let error;
+    if (isEdit && editId) {
+      ({ error } = await supabase.from("rental_listings" as never)
+        .update(payload as never).eq("id", editId).eq("landlord_id", user.id));
+    } else {
+      payload.landlord_id = user.id;
+      ({ error } = await supabase.from("rental_listings" as never).insert(payload as never));
+    }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Oferta wystawiona");
+    toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
   }
 
+  if (loading) {
+    return <div className="container mx-auto px-4 py-16 text-muted-foreground">Ładowanie oferty…</div>;
+  }
+
+
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold">Wystaw ofertę najmu</h1>
+      <h1 className="text-3xl font-semibold">{isEdit ? "Edytuj ofertę najmu" : "Wystaw ofertę najmu"}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Twoja oferta trafia do zamkniętej bazy. Najemcy z dopasowanymi zapytaniami zobaczą ją automatycznie.
       </p>
@@ -270,6 +329,7 @@ function NewRentalListing() {
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
                     <option value="">— wybierz —</option>
                     <option value="ground">Parter</option>
+                    <option value="1">1 piętro</option>
                     {Array.from({ length: 9 }, (_, i) => i + 2).map((n) => (
                       <option key={n} value={String(n)}>{n} piętro</option>
                     ))}
@@ -280,7 +340,6 @@ function NewRentalListing() {
                   <Label className="text-xs">Rodzaj budynku</Label>
                   <select value={buildingType} onChange={(e) => setBuildingType(e.target.value as BuildingType)}
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                    <option value="">Bez znaczenia</option>
                     <option value="block">Blok</option>
                     <option value="tenement">Kamienica</option>
                     <option value="house_section">Wydzielona część domu</option>
@@ -330,7 +389,7 @@ function NewRentalListing() {
               <Label>Minimalna długość umowy</Label>
               <select value={form.min_lease_months} onChange={(e) => setF("min_lease_months", Number(e.target.value))}
                 className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                {Array.from({ length: 24 }, (_, i) => i + 1).map((m) => (
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                   <option key={m} value={m}>{m} {m === 1 ? "miesiąc" : m < 5 ? "miesiące" : "miesięcy"}</option>
                 ))}
               </select>
@@ -397,6 +456,10 @@ function NewRentalListing() {
             <Checkbox checked={flags.pets_other_allowed} onCheckedChange={() => toggle("pets_other_allowed")} className="mt-0.5" />
             <span>Zgadzam się na większe zwierzęta — pies / kot / inne</span>
           </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
+            <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
+          </label>
         </div>
 
         {/* OPIS + ZDJĘCIA */}
@@ -434,7 +497,7 @@ function NewRentalListing() {
         </div>
 
         <Button type="submit" disabled={busy} size="lg" className="w-full rounded-xl">
-          {busy ? "Zapisuję…" : "Wystaw ofertę"}
+          {busy ? "Zapisuję…" : isEdit ? "Zapisz zmiany" : "Wystaw ofertę"}
         </Button>
       </form>
     </div>

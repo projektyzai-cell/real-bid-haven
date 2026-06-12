@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { MapPin, Plus, RefreshCw, Star } from "lucide-react";
+import { MapPin, Plus, RefreshCw, Star, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+
 
 export const Route = createFileRoute("/_authenticated/najem/moje-oferty")({
   head: () => ({ meta: [{ title: "Moje oferty najmu — Stay Safe" }] }),
@@ -39,6 +40,15 @@ function MyRentalListings() {
     if (error) toast.error(error.message);
     else { toast.success("Przedłużono o 30 dni"); qc.invalidateQueries({ queryKey: ["my-rental-listings"] }); }
   }
+
+  async function remove(id: string) {
+    if (!confirm("Usunąć ofertę? Jeśli oferta była dopasowana do najemców, zobaczą oni, że jest nieaktualna.")) return;
+    const { error } = await supabase.from("rental_listings" as never).delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Oferta usunięta.");
+    qc.invalidateQueries({ queryKey: ["my-rental-listings"] });
+  }
+
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -83,6 +93,17 @@ function MyRentalListings() {
                       <RefreshCw className="h-4 w-4" /> Przedłuż o 30 dni
                     </Button>
                   )}
+                  <div className="flex gap-2 pt-1">
+                    <Link to="/najem/nowa-oferta" search={{ id: r.id }} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full rounded-xl">
+                        <Pencil className="h-3.5 w-3.5" /> Edytuj
+                      </Button>
+                    </Link>
+                    <Button onClick={() => remove(r.id)} variant="outline" size="sm"
+                      className="rounded-xl text-destructive hover:bg-destructive/10">
+                      <Trash2 className="h-3.5 w-3.5" /> Usuń
+                    </Button>
+                  </div>
                 </div>
               </div>
             );
