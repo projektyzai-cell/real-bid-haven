@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
 
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
-type FloorNumber = "" | "ground" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "above_10";
+type FloorNumber = "" | "ground" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "above_10";
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalListing() {
