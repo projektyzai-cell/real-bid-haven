@@ -97,5 +97,7 @@ function toPassport(p: any, leaseCount: number): PassportData {
     city: p.passport_city ?? p.home_city,
     acceptsOccasionalLease: !!p.accepts_notarial_lease,
     hasTenantInsurance: !!(p.has_tenant_insurance || p.willing_tenant_insurance),
+    bio: p.personal_bio_pl ?? null,
+    avatarUrl: p.avatar_url ?? null,
   };
 }
