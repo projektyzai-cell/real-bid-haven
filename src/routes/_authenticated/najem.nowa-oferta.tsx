@@ -165,7 +165,7 @@ function NewRentalListing() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <h1 className="text-3xl font-semibold">Wystaw ofertę najmu</h1>
+      <h1 className="text-3xl font-semibold">{isEdit ? "Edytuj ofertę najmu" : "Wystaw ofertę najmu"}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
         Twoja oferta trafia do zamkniętej bazy. Najemcy z dopasowanymi zapytaniami zobaczą ją automatycznie.
       </p>
