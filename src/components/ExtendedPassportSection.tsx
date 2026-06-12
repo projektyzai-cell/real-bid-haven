@@ -190,6 +190,8 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
       willing_tenant_insurance: !!profile.willing_tenant_insurance,
       passport_application_status: "submitted",
       passport_application_submitted_at: new Date().toISOString(),
+      personal_bio_pl: profile.personal_bio_pl,
+      avatar_url: profile.avatar_url,
     };
     const { error } = await supabase.from("profiles").update(payload).eq("id", userId);
     setSaving(false);
