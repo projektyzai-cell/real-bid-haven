@@ -329,6 +329,7 @@ function NewRentalListing() {
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
                     <option value="">— wybierz —</option>
                     <option value="ground">Parter</option>
+                    <option value="1">1 piętro</option>
                     {Array.from({ length: 9 }, (_, i) => i + 2).map((n) => (
                       <option key={n} value={String(n)}>{n} piętro</option>
                     ))}
@@ -339,7 +340,6 @@ function NewRentalListing() {
                   <Label className="text-xs">Rodzaj budynku</Label>
                   <select value={buildingType} onChange={(e) => setBuildingType(e.target.value as BuildingType)}
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                    <option value="">Bez znaczenia</option>
                     <option value="block">Blok</option>
                     <option value="tenement">Kamienica</option>
                     <option value="house_section">Wydzielona część domu</option>
