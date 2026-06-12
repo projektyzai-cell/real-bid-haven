@@ -84,11 +84,24 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
         </div>
 
         {/* Identity row */}
-        <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <Cell label="Imię i Nazwisko" value={data.displayName.toUpperCase()} />
-          <Cell label="Data wygenerowania" value={data.issuedAt ? new Date(data.issuedAt).toLocaleDateString("pl-PL") : "—"} />
-          <Cell label="Miasto" value={data.city ?? "—"} />
+        <div className="mt-5 flex items-start gap-4">
+          {data.avatarUrl && (
+            <img src={data.avatarUrl} alt="" crossOrigin="anonymous"
+              className="h-20 w-20 shrink-0 rounded-2xl border-2 border-[#D4AF37]/50 object-cover" />
+          )}
+          <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3">
+            <Cell label="Imię i Nazwisko" value={data.displayName.toUpperCase()} />
+            <Cell label="Data wygenerowania" value={data.issuedAt ? new Date(data.issuedAt).toLocaleDateString("pl-PL") : "—"} />
+            <Cell label="Miasto" value={data.city ?? "—"} />
+          </div>
         </div>
+
+        {data.bio && (
+          <div className="mt-4 rounded-xl border border-[#D4AF37]/25 bg-black/20 p-3 text-[12px] leading-relaxed text-white/85">
+            <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">O mnie</div>
+            <p className="mt-1 whitespace-pre-line">{data.bio}</p>
+          </div>
+        )}
 
         {/* Big score */}
         <div className="mt-6 flex items-end justify-between gap-4 rounded-2xl border border-[#D4AF37]/30 bg-[#D4AF37]/5 p-4">
