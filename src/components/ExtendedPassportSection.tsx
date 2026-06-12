@@ -64,6 +64,7 @@ const empty: Profile = {
   linkedin_verified_self: false, facebook_verified_self: false, instagram_verified_self: false,
   accepts_notarial_lease: false, has_tenant_insurance: false, willing_tenant_insurance: false,
   passport_application_status: null,
+  personal_bio_pl: null, avatar_url: null,
 };
 
 function StatusPill({ status }: { status: string | null }) {
