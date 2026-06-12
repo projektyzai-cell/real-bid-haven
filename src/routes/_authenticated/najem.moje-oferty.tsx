@@ -93,6 +93,17 @@ function MyRentalListings() {
                       <RefreshCw className="h-4 w-4" /> Przedłuż o 30 dni
                     </Button>
                   )}
+                  <div className="flex gap-2 pt-1">
+                    <Link to="/najem/nowa-oferta" search={{ id: r.id }} className="flex-1">
+                      <Button variant="outline" size="sm" className="w-full rounded-xl">
+                        <Pencil className="h-3.5 w-3.5" /> Edytuj
+                      </Button>
+                    </Link>
+                    <Button onClick={() => remove(r.id)} variant="outline" size="sm"
+                      className="rounded-xl text-destructive hover:bg-destructive/10">
+                      <Trash2 className="h-3.5 w-3.5" /> Usuń
+                    </Button>
+                  </div>
                 </div>
               </div>
             );
