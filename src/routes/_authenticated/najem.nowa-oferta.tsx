@@ -26,6 +26,8 @@ type BuildingType = "" | "block" | "tenement" | "house_section";
 function NewRentalListing() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { id: editId } = Route.useSearch();
+  const isEdit = !!editId;
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
   const [floorNumber, setFloorNumber] = useState<FloorNumber>("");
@@ -48,6 +50,48 @@ function NewRentalListing() {
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
+  const [loading, setLoading] = useState(isEdit);
+
+  useEffect(() => {
+    if (!isEdit || !user) return;
+    (async () => {
+      const { data, error } = await supabase
+        .from("rental_listings" as never)
+        .select("*").eq("id", editId).eq("landlord_id", user.id).maybeSingle();
+      if (error) { toast.error(error.message); setLoading(false); return; }
+      if (!data) { toast.error("Oferta nie istnieje"); navigate({ to: "/najem/moje-oferty" }); return; }
+      const r = data as any;
+      setPropertyType((r.kind as PropertyType) || "apartment");
+      if (r.apartment_subtype) setApartmentSubtype(r.apartment_subtype);
+      if (r.floor_number) setFloorNumber(r.floor_number);
+      if (r.building_type) setBuildingType(r.building_type);
+      setForm({
+        title: r.title ?? "", description: r.description ?? "",
+        city: r.city ?? "", street: r.street ?? "", district: r.district ?? "",
+        apt_no: r.apt_no ?? "", kw_number: r.kw_number ?? "",
+        rooms: r.rooms ?? 2, area_m2: r.area_m2 ?? 40,
+        rent_base: r.rent_base ?? 0, utilities_fee: r.utilities_fee ?? 0,
+        min_lease_months: r.min_lease_months ?? 12,
+        max_adults: r.max_adults ?? 2, max_children: r.max_children ?? 0,
+        active_days: r.active_days ?? 30,
+        has_energy_cert: !!r.has_energy_cert,
+        wants_energy_cert_discount: !!r.wants_energy_cert_discount,
+        promoted: !!r.promoted,
+        usable_area_m2: r.usable_area_m2 ?? "", plot_area_m2: r.plot_area_m2 ?? "",
+        year_built: r.year_built ?? "",
+      });
+      setFlags({
+        has_balcony: !!r.has_balcony, has_basement: !!r.has_basement,
+        has_elevator: !!r.has_elevator, is_furnished: !!r.is_furnished,
+        notarial_required: !!r.notarial_required, requires_deposit: !!r.requires_deposit,
+        requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
+        pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
+      });
+      setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
+      setLoading(false);
+    })();
+  }, [editId, isEdit, user, navigate]);
+
 
   function setF<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((s) => ({ ...s, [k]: v }));
