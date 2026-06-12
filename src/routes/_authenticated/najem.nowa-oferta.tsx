@@ -389,7 +389,7 @@ function NewRentalListing() {
               <Label>Minimalna długość umowy</Label>
               <select value={form.min_lease_months} onChange={(e) => setF("min_lease_months", Number(e.target.value))}
                 className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                {Array.from({ length: 24 }, (_, i) => i + 1).map((m) => (
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                   <option key={m} value={m}>{m} {m === 1 ? "miesiąc" : m < 5 ? "miesiące" : "miesięcy"}</option>
                 ))}
               </select>
