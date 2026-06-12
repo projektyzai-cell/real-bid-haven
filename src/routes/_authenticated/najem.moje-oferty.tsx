@@ -41,6 +41,15 @@ function MyRentalListings() {
     else { toast.success("Przedłużono o 30 dni"); qc.invalidateQueries({ queryKey: ["my-rental-listings"] }); }
   }
 
+  async function remove(id: string) {
+    if (!confirm("Usunąć ofertę? Jeśli oferta była dopasowana do najemców, zobaczą oni, że jest nieaktualna.")) return;
+    const { error } = await supabase.from("rental_listings" as never).delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Oferta usunięta.");
+    qc.invalidateQueries({ queryKey: ["my-rental-listings"] });
+  }
+
+
   return (
     <div className="container mx-auto px-4 py-10">
       <div className="flex items-center justify-between gap-3">
