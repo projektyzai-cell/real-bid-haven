@@ -662,6 +662,62 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
         </div>
       </div>
 
+      {/* ============ 6. O MNIE + ZDJĘCIE ============ */}
+      <div className="rounded-3xl border border-[var(--gold)]/20 bg-card p-6 shadow-card">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-gold" />
+          <h2 className="text-lg font-semibold">6. Kilka słów o mnie</h2>
+        </div>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Napisz po polsku — czym się zajmujesz, gdzie pracujesz, co lubisz robić w wolnym czasie, hobby, sporty. Wynajmujący znacznie chętniej wybierają najemców, których lepiej znają. Im pełniejszy opis, tym większa szansa na podpisanie umowy.
+        </p>
+        <div className="mt-3 grid gap-4 sm:grid-cols-[120px_1fr]">
+          <div>
+            <Label className="text-xs">Zdjęcie profilowe</Label>
+            <div className="mt-1.5">
+              {profile.avatar_url ? (
+                <div className="space-y-2">
+                  <img src={profile.avatar_url} alt="" className="h-28 w-28 rounded-2xl border object-cover" />
+                  <Button type="button" size="sm" variant="ghost" className="w-full text-xs text-destructive"
+                    onClick={() => set("avatar_url", null)}>
+                    <Trash2 className="mr-1 h-3 w-3" /> Usuń
+                  </Button>
+                </div>
+              ) : (
+                <label className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-dashed text-[10px] text-muted-foreground hover:bg-accent">
+                  {uploading === "avatar" ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                  Wgraj zdjęcie
+                  <input type="file" accept="image/*" className="hidden" onChange={async (ev) => {
+                    const f = ev.target.files?.[0]; if (!f) return;
+                    setUploading("avatar");
+                    try {
+                      const path = `${userId}/avatar-${Date.now()}-${f.name}`;
+                      const { error } = await supabase.storage.from("passport-docs").upload(path, f, { upsert: true });
+                      if (error) throw error;
+                      const { data: signed } = await supabase.storage.from("passport-docs").createSignedUrl(path, 60 * 60 * 24 * 365);
+                      set("avatar_url", signed?.signedUrl ?? path);
+                      toast.success("Zdjęcie dodane.");
+                    } catch (e) { toast.error((e as Error).message); }
+                    finally { setUploading(null); }
+                  }} />
+                </label>
+              )}
+            </div>
+          </div>
+          <div>
+            <Label className="text-xs">Opis (po polsku)</Label>
+            <Textarea rows={6} maxLength={1500}
+              value={profile.personal_bio_pl ?? ""}
+              onChange={(e) => set("personal_bio_pl", e.target.value)}
+              placeholder="Np. Jestem analitykiem w firmie konsultingowej w Warszawie. W wolnym czasie biegam i czytam kryminały…"
+              className="mt-1.5 rounded-xl" />
+            <p className="mt-1 text-[10px] text-muted-foreground">
+              Wpis musi być w języku polskim. {(profile.personal_bio_pl ?? "").length}/1500 znaków.
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* ============ SUBMIT ============ */}
       <div className="rounded-3xl border border-[var(--gold)]/30 bg-card p-6 shadow-card text-center">
         <Button onClick={submitApplication} disabled={saving} size="lg"
