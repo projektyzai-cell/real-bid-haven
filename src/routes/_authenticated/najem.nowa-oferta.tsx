@@ -456,6 +456,10 @@ function NewRentalListing() {
             <Checkbox checked={flags.pets_other_allowed} onCheckedChange={() => toggle("pets_other_allowed")} className="mt-0.5" />
             <span>Zgadzam się na większe zwierzęta — pies / kot / inne</span>
           </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
+            <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
+          </label>
         </div>
 
         {/* OPIS + ZDJĘCIA */}
