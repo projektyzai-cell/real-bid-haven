@@ -405,6 +405,7 @@ export type Database = {
       profiles: {
         Row: {
           accepts_notarial_lease: boolean
+          avatar_url: string | null
           bank_statement_urls: string[] | null
           concierge_subscription: boolean
           concierge_subscription_until: string | null
@@ -472,6 +473,7 @@ export type Database = {
         }
         Insert: {
           accepts_notarial_lease?: boolean
+          avatar_url?: string | null
           bank_statement_urls?: string[] | null
           concierge_subscription?: boolean
           concierge_subscription_until?: string | null
@@ -539,6 +541,7 @@ export type Database = {
         }
         Update: {
           accepts_notarial_lease?: boolean
+          avatar_url?: string | null
           bank_statement_urls?: string[] | null
           concierge_subscription?: boolean
           concierge_subscription_until?: string | null
@@ -838,6 +841,7 @@ export type Database = {
           rent_base: number | null
           requires_deposit: boolean
           requires_insurance: boolean
+          requires_passport: boolean
           rooms: number
           status: string
           street: string
@@ -888,6 +892,7 @@ export type Database = {
           rent_base?: number | null
           requires_deposit?: boolean
           requires_insurance?: boolean
+          requires_passport?: boolean
           rooms?: number
           status?: string
           street: string
@@ -938,6 +943,7 @@ export type Database = {
           rent_base?: number | null
           requires_deposit?: boolean
           requires_insurance?: boolean
+          requires_passport?: boolean
           rooms?: number
           status?: string
           street?: string
