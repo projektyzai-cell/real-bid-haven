@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { ShieldCheck, BadgeCheck, Linkedin, Facebook, Instagram, Download } from "lucide-react";
+import { ShieldCheck, BadgeCheck, Linkedin, Facebook, Instagram, Download, Link2 } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 
 export type PassportData = {
@@ -18,6 +19,8 @@ export type PassportData = {
   city?: string | null;
   acceptsOccasionalLease?: boolean;
   hasTenantInsurance?: boolean;
+  bio?: string | null;
+  avatarUrl?: string | null;
 };
 
 export function TenantPassportCard({ data }: { data: PassportData }) {
@@ -26,16 +29,30 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
 
   async function downloadPdf() {
     if (!ref.current) return;
-    const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
-      import("html2canvas"),
-      import("jspdf"),
-    ]);
-    const canvas = await html2canvas(ref.current, { backgroundColor: "#0B132B", scale: 2 });
-    const img = canvas.toDataURL("image/png");
-    const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
-    pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
-    pdf.save(`paszport-${data.serial}.pdf`);
+    try {
+      const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
+        import("html2canvas"),
+        import("jspdf"),
+      ]);
+      const canvas = await html2canvas(ref.current, { backgroundColor: "#0B132B", scale: 2, useCORS: true, logging: false });
+      const img = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
+      pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
+      pdf.save(`paszport-${data.serial}.pdf`);
+    } catch (e) {
+      toast.error("Nie udało się wygenerować PDF: " + (e as Error).message);
+    }
   }
+
+  async function copyLink() {
+    try {
+      await navigator.clipboard.writeText(qrUrl);
+      toast.success("Skopiowano link do paszportu");
+    } catch {
+      toast.error("Nie udało się skopiować linku");
+    }
+  }
+
 
   return (
     <div className="space-y-3">
