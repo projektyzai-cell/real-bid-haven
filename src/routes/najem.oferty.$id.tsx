@@ -188,14 +188,27 @@ function RentalDetailPage() {
           <div className="rounded-3xl border-2 border-primary/30 bg-primary/5 p-6 text-sm">
             ✓ Twoje zapytanie zostało wysłane do wynajmującego. Otrzymasz powiadomienie, gdy odpowie.
           </div>
+        ) : !user ? (
+          <div className="space-y-3 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 p-6 text-center shadow-card">
+            <h3 className="text-lg font-semibold">Chcesz skontaktować się z właścicielem?</h3>
+            <p className="text-sm text-muted-foreground">
+              Aby wysłać wiadomość przez bezpieczny czat Stay Safe, musisz mieć konto. Załóż darmowe konto lub zaloguj się — zajmie to chwilę.
+            </p>
+            <div className="flex flex-col gap-2 sm:flex-row">
+              <Link to="/auth" search={{ mode: "signup", redirect: `/najem/oferty/${r.id}` } as never} className="flex-1">
+                <Button className="w-full rounded-xl">Załóż konto</Button>
+              </Link>
+              <Link to="/auth" search={{ redirect: `/najem/oferty/${r.id}` } as never} className="flex-1">
+                <Button variant="outline" className="w-full rounded-xl">Zaloguj się</Button>
+              </Link>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Dane kontaktowe wynajmującego nigdy nie są ujawniane — komunikacja odbywa się przez wewnętrzny czat Stay Safe.
+            </p>
+          </div>
         ) : (
           <form onSubmit={sendInquiry} className="space-y-3 rounded-3xl bg-card p-6 shadow-card">
             <h3 className="font-semibold">Wyślij wiadomość do wynajmującego</h3>
-            {!user && (
-              <p className="text-xs text-muted-foreground">
-                <Link to="/auth" className="text-primary underline">Zaloguj się</Link>, aby wysłać wiadomość.
-              </p>
-            )}
             <div>
               <Label htmlFor="msg">Wiadomość</Label>
               <Textarea id="msg" required value={msg} onChange={(e) => setMsg(e.target.value)} rows={5}
@@ -215,7 +228,7 @@ function RentalDetailPage() {
                 Oświadczam, że nie będę wykorzystywać czatu do działań niezgodnych z prawem ani spamu.
               </span>
             </label>
-            <Button type="submit" disabled={sending || !user || !gdpr || !terms} className="w-full rounded-xl">
+            <Button type="submit" disabled={sending || !gdpr || !terms} className="w-full rounded-xl">
               {sending ? "Wysyłam…" : "Wyślij wiadomość"}
             </Button>
           </form>
