@@ -149,15 +149,23 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
 
 
         {/* Footer QR */}
-        <div className="mt-6 flex items-end justify-between border-t border-[#D4AF37]/20 pt-4">
+        <div className="mt-6 flex items-end justify-between gap-3 border-t border-[#D4AF37]/20 pt-4">
           <div className="text-xs italic text-white/60">„Bezpieczeństwo droższe od pieniędzy"</div>
-          <div className="rounded-lg bg-white p-2">
-            <QRCodeSVG value={qrUrl} size={72} bgColor="#FFFFFF" fgColor="#0B132B" />
+          <div className="text-right">
+            <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              Zweryfikuj autentyczność i ważność paszportu
+            </div>
+            <div className="inline-block rounded-lg bg-white p-2">
+              <QRCodeSVG value={qrUrl} size={72} bgColor="#FFFFFF" fgColor="#0B132B" />
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="flex justify-end">
+      <div className="flex flex-wrap justify-end gap-2">
+        <Button onClick={copyLink} variant="outline" className="rounded-xl">
+          <Link2 className="mr-2 h-4 w-4" /> Kopiuj link do paszportu
+        </Button>
         <Button onClick={downloadPdf} className="bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90">
           <Download className="mr-2 h-4 w-4" /> Pobierz paszport (PDF)
         </Button>
