@@ -41,6 +41,7 @@ function NewRentalListing() {
   const [flags, setFlags] = useState({
     has_balcony: false, has_basement: false, has_elevator: false, is_furnished: false,
     notarial_required: false, requires_deposit: true, requires_insurance: false,
+    requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
   });
   const [images, setImages] = useState<string[]>([]);
