@@ -801,25 +801,36 @@ export type Database = {
         Row: {
           accepts_children: boolean
           accepts_pets: boolean
+          active_days: number | null
+          apartment_subtype: string | null
           apt_no: string | null
           area_m2: number
+          building_type: string | null
           city: string
           created_at: string
           description: string
           district: string | null
           expires_at: string
+          floor_number: string | null
+          has_balcony: boolean
           has_basement: boolean | null
+          has_elevator: boolean
           has_energy_cert: boolean
           id: string
           images: string[]
           insurance_payer: string | null
+          is_furnished: boolean
           kind: string
           kw_number: string | null
           landlord_id: string
           main_image_index: number
+          max_adults: number | null
+          max_children: number | null
           min_lease_months: number | null
           monthly_price: number
           notarial_required: boolean
+          pets_caged_allowed: boolean
+          pets_other_allowed: boolean
           plot_area_m2: number | null
           plot_type: Database["public"]["Enums"]["plot_type"] | null
           promoted: boolean
@@ -840,25 +851,36 @@ export type Database = {
         Insert: {
           accepts_children?: boolean
           accepts_pets?: boolean
+          active_days?: number | null
+          apartment_subtype?: string | null
           apt_no?: string | null
           area_m2: number
+          building_type?: string | null
           city: string
           created_at?: string
           description?: string
           district?: string | null
           expires_at?: string
+          floor_number?: string | null
+          has_balcony?: boolean
           has_basement?: boolean | null
+          has_elevator?: boolean
           has_energy_cert?: boolean
           id?: string
           images?: string[]
           insurance_payer?: string | null
+          is_furnished?: boolean
           kind?: string
           kw_number?: string | null
           landlord_id: string
           main_image_index?: number
+          max_adults?: number | null
+          max_children?: number | null
           min_lease_months?: number | null
           monthly_price: number
           notarial_required?: boolean
+          pets_caged_allowed?: boolean
+          pets_other_allowed?: boolean
           plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
@@ -879,25 +901,36 @@ export type Database = {
         Update: {
           accepts_children?: boolean
           accepts_pets?: boolean
+          active_days?: number | null
+          apartment_subtype?: string | null
           apt_no?: string | null
           area_m2?: number
+          building_type?: string | null
           city?: string
           created_at?: string
           description?: string
           district?: string | null
           expires_at?: string
+          floor_number?: string | null
+          has_balcony?: boolean
           has_basement?: boolean | null
+          has_elevator?: boolean
           has_energy_cert?: boolean
           id?: string
           images?: string[]
           insurance_payer?: string | null
+          is_furnished?: boolean
           kind?: string
           kw_number?: string | null
           landlord_id?: string
           main_image_index?: number
+          max_adults?: number | null
+          max_children?: number | null
           min_lease_months?: number | null
           monthly_price?: number
           notarial_required?: boolean
+          pets_caged_allowed?: boolean
+          pets_other_allowed?: boolean
           plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
