@@ -35,6 +35,7 @@ function NajemHub() {
       <QuickVerify />
       <HowItWorks />
       <PromotedStrip />
+      <LatestListings />
     </div>
   );
 }
@@ -391,6 +392,77 @@ function PromotedStrip() {
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-2 p-4">
                 <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> Promowane</Badge>
+                <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
+                <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
+                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} / mc</span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- Latest listings: 9 newest + 3 random promoted ---------- */
+function LatestListings() {
+  const { data: latest = [] } = useQuery({
+    queryKey: ["latest-rentals-9"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("rental_listings" as never)
+        .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index,promoted")
+        .eq("status", "active").gt("expires_at", new Date().toISOString())
+        .order("created_at", { ascending: false }).limit(9);
+      if (error) throw error;
+      return (data ?? []) as unknown as (Promo & { promoted?: boolean })[];
+    },
+  });
+
+  const { data: promotedPool = [] } = useQuery({
+    queryKey: ["promoted-pool"],
+    queryFn: async () => {
+      const { data, error } = await supabase.from("rental_listings" as never)
+        .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index,promoted")
+        .eq("promoted", true).eq("status", "active").gt("expires_at", new Date().toISOString())
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as unknown as (Promo & { promoted?: boolean })[];
+    },
+  });
+
+  const latestIds = new Set(latest.map((l) => l.id));
+  const randomPromoted = [...promotedPool]
+    .filter((p) => !latestIds.has(p.id))
+    .sort(() => Math.random() - 0.5)
+    .slice(0, 3);
+
+  const combined = [...latest, ...randomPromoted];
+  if (combined.length === 0) return null;
+
+  return (
+    <section className="container mx-auto px-4 py-12">
+      <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-xl font-bold tracking-tight">Najnowsze oferty najmu</h2>
+        <Link to="/najem/oferty" className="text-sm text-gold underline-offset-4 hover:underline">
+          Zobacz wszystkie →
+        </Link>
+      </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        {combined.map((r) => {
+          const main = r.images?.[r.main_image_index] ?? r.images?.[0];
+          return (
+            <Link key={r.id} to="/najem/oferty/$id" params={{ id: r.id }}
+              className="group overflow-hidden rounded-3xl border border-border bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:border-[var(--gold)]/40 hover:shadow-glow">
+              {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
+              <div className="space-y-2 p-4">
+                {r.promoted ? (
+                  <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> Promowane</Badge>
+                ) : (
+                  <Badge variant="outline" className="rounded-full">Nowość</Badge>
+                )}
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
