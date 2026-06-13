@@ -72,7 +72,9 @@ function MyRentalListings() {
             const main = r.images?.[r.main_image_index] ?? r.images?.[0];
             return (
               <div key={r.id} className={`overflow-hidden rounded-3xl border bg-card shadow-card ${r.promoted ? "ring-2 ring-primary" : ""}`}>
-                {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover" /> : <div className="aspect-[16/10] bg-muted" />}
+                <Link to="/najem/oferty/$id" params={{ id: r.id }} className="block transition hover:opacity-95">
+                  {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover" /> : <div className="aspect-[16/10] bg-muted" />}
+                </Link>
                 <div className="space-y-2 p-4">
                   <div className="flex flex-wrap items-center gap-1.5">
                     {r.promoted && <Badge className="rounded-full"><Star className="h-3 w-3" /> Promowane</Badge>}
@@ -80,7 +82,9 @@ function MyRentalListings() {
                       {expired ? "Wygasła" : `Wygasa ${new Date(r.expires_at).toLocaleDateString("pl-PL")}`}
                     </Badge>
                   </div>
-                  <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
+                  <Link to="/najem/oferty/$id" params={{ id: r.id }} className="block hover:text-primary">
+                    <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
+                  </Link>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
                     <MapPin className="h-3 w-3" /> {r.city} · {r.street}
                   </div>
@@ -88,6 +92,9 @@ function MyRentalListings() {
                     <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
                     <span className="font-semibold text-primary">{formatPLN(r.monthly_price)} / mc</span>
                   </div>
+                  <Link to="/najem/oferty/$id" params={{ id: r.id }} className="block">
+                    <Button variant="secondary" size="sm" className="w-full rounded-xl">Zobacz ofertę</Button>
+                  </Link>
                   {expired && (
                     <Button onClick={() => extend(r.id)} variant="outline" className="w-full rounded-xl">
                       <RefreshCw className="h-4 w-4" /> Przedłuż o 30 dni
