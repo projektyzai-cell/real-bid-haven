@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, Gavel, List, MessageCircle, Building2,
-  KeyRound, Heart, Settings, Search, ShieldCheck,
+  KeyRound, Heart, Settings, Search, ShieldCheck, Sparkles, BadgeCheck, HandHeart,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
@@ -16,9 +16,9 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 const tabs = [
-  { to: "/wycena-live", label: "Rynkowa wycena nieruchomości", icon: Gavel },
-  { to: "/ogloszenia", label: "Oferty sprzedaży", icon: Building2 },
-  { to: "/najem", label: "Strefa najmu", icon: KeyRound },
+  { to: "/jak-dzialamy", label: "Jak działamy", icon: Sparkles },
+  { to: "/paszport-najemcy", label: "Co to jest Paszport Najemcy", icon: BadgeCheck },
+  { to: "/korzysci", label: "Korzyści dla Wynajmującego i Najemcy", icon: HandHeart },
 ] as const;
 
 export function Navbar() {
