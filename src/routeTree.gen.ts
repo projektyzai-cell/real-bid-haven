@@ -13,6 +13,9 @@ import { Route as WycenaLiveRouteImport } from './routes/wycena-live'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
+import { Route as PaszportNajemcyRouteImport } from './routes/paszport-najemcy'
+import { Route as KorzysciRouteImport } from './routes/korzysci'
+import { Route as JakDzialamyRouteImport } from './routes/jak-dzialamy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
@@ -63,6 +66,21 @@ const RegulaminRoute = RegulaminRouteImport.update({
 const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
   id: '/polityka-prywatnosci',
   path: '/polityka-prywatnosci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaszportNajemcyRoute = PaszportNajemcyRouteImport.update({
+  id: '/paszport-najemcy',
+  path: '/paszport-najemcy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KorzysciRoute = KorzysciRouteImport.update({
+  id: '/korzysci',
+  path: '/korzysci',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const JakDzialamyRoute = JakDzialamyRouteImport.update({
+  id: '/jak-dzialamy',
+  path: '/jak-dzialamy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -234,6 +252,9 @@ const AuthenticatedNajemChatsIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/jak-dzialamy': typeof JakDzialamyRoute
+  '/korzysci': typeof KorzysciRoute
+  '/paszport-najemcy': typeof PaszportNajemcyRoute
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -270,6 +291,9 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/jak-dzialamy': typeof JakDzialamyRoute
+  '/korzysci': typeof KorzysciRoute
+  '/paszport-najemcy': typeof PaszportNajemcyRoute
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -308,6 +332,9 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/auth': typeof AuthRoute
+  '/jak-dzialamy': typeof JakDzialamyRoute
+  '/korzysci': typeof KorzysciRoute
+  '/paszport-najemcy': typeof PaszportNajemcyRoute
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
@@ -346,6 +373,9 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/auth'
+    | '/jak-dzialamy'
+    | '/korzysci'
+    | '/paszport-najemcy'
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
@@ -382,6 +412,9 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/auth'
+    | '/jak-dzialamy'
+    | '/korzysci'
+    | '/paszport-najemcy'
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
@@ -419,6 +452,9 @@ export interface FileRouteTypes {
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/jak-dzialamy'
+    | '/korzysci'
+    | '/paszport-najemcy'
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
@@ -457,6 +493,9 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AuthRoute: typeof AuthRoute
+  JakDzialamyRoute: typeof JakDzialamyRoute
+  KorzysciRoute: typeof KorzysciRoute
+  PaszportNajemcyRoute: typeof PaszportNajemcyRoute
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
@@ -499,6 +538,27 @@ declare module '@tanstack/react-router' {
       path: '/polityka-prywatnosci'
       fullPath: '/polityka-prywatnosci'
       preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/paszport-najemcy': {
+      id: '/paszport-najemcy'
+      path: '/paszport-najemcy'
+      fullPath: '/paszport-najemcy'
+      preLoaderRoute: typeof PaszportNajemcyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/korzysci': {
+      id: '/korzysci'
+      path: '/korzysci'
+      fullPath: '/korzysci'
+      preLoaderRoute: typeof KorzysciRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/jak-dzialamy': {
+      id: '/jak-dzialamy'
+      path: '/jak-dzialamy'
+      fullPath: '/jak-dzialamy'
+      preLoaderRoute: typeof JakDzialamyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -785,6 +845,9 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AuthRoute: AuthRoute,
+  JakDzialamyRoute: JakDzialamyRoute,
+  KorzysciRoute: KorzysciRoute,
+  PaszportNajemcyRoute: PaszportNajemcyRoute,
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
@@ -801,13 +864,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
