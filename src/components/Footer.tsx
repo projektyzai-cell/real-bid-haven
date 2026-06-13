@@ -10,6 +10,12 @@ export function Footer() {
           <span>© {new Date().getFullYear()} Stay Safe · staysafe.pl</span>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
+          <Link to="/wycena-live" className="text-muted-foreground hover:text-foreground">
+            Rynkowa wycena nieruchomości
+          </Link>
+          <Link to="/ogloszenia" className="text-muted-foreground hover:text-foreground">
+            Oferty sprzedaży
+          </Link>
           <Link to="/regulamin" className="text-muted-foreground hover:text-foreground">
             Regulamin
           </Link>
