@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { formatPLN } from "@/lib/format";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/najem")({
+export const Route = createFileRoute("/najem/")({
   head: () => ({
     meta: [
       { title: "StaySafe — bezpieczeństwo droższe od pieniędzy" },
