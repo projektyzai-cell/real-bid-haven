@@ -282,37 +282,16 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   const status = profile.passport_application_status;
   const locked = status === "submitted" || status === "approved";
 
-  async function resetApplication() {
-    if (!confirm("Aplikuj o nowy paszport? Twoje dane finansowe i dokumenty zostaną wyczyszczone (zostaną zachowane tylko zhashowane dane tożsamości). Tej operacji nie da się cofnąć.")) return;
-    try {
-      const { resetPassportApplication } = await import("@/lib/admin-users.functions");
-      await resetPassportApplication();
-      toast.success("Możesz złożyć nową aplikację.");
-      load();
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
-  }
-
   return (
     <section className="mt-6 space-y-6">
       {locked && (
         <div className="rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 text-sm">
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <div className="font-semibold text-amber-600">
-                {status === "submitted" ? "Aplikacja w trakcie weryfikacji" : `Paszport wydany${profile.passport_serial ? " · " + profile.passport_serial : ""}`}
-              </div>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Po wysłaniu aplikacji dane są zablokowane do edycji. {status === "approved" && "Możesz złożyć nową aplikację z nowymi danymi — zhashowane dane tożsamości pozostaną."}
-              </p>
-            </div>
-            {status === "approved" && (
-              <Button size="sm" variant="outline" onClick={resetApplication}>
-                Aplikuj o nowy paszport
-              </Button>
-            )}
+          <div className="font-semibold text-amber-600">
+            {status === "submitted" ? "Aplikacja w trakcie weryfikacji" : `Paszport wydany${profile.passport_serial ? " · " + profile.passport_serial : ""}`}
           </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Po wysłaniu aplikacji dane są zablokowane do edycji. Jeśli musisz zmienić dane tożsamości (np. nowy dokument), skontaktuj się z administratorem — tylko administrator może zresetować anonimizację.
+          </p>
         </div>
       )}
       <fieldset disabled={locked} className={locked ? "opacity-70 pointer-events-none space-y-6" : "space-y-6"}>

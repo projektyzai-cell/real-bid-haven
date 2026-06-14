@@ -9,11 +9,17 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
 
+type AuthSearch = { redirect?: string; mode?: string };
+
 export const Route = createFileRoute("/auth")({
   head: () => ({ meta: [{ title: "Logowanie — Stay Safe" }] }),
-  beforeLoad: async () => {
+  validateSearch: (s: Record<string, unknown>): AuthSearch => ({
+    redirect: typeof s.redirect === "string" && s.redirect.startsWith("/") ? s.redirect : undefined,
+    mode: typeof s.mode === "string" ? s.mode : undefined,
+  }),
+  beforeLoad: async ({ search }) => {
     const { data } = await supabase.auth.getSession();
-    if (data.session) throw redirect({ to: "/" });
+    if (data.session) throw redirect({ to: (search.redirect ?? "/") as string });
   },
   component: AuthPage,
 });
@@ -48,6 +54,8 @@ function mapAuthError(message: string): string {
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = Route.useSearch();
+  const redirectTo = search.redirect && search.redirect.startsWith("/") ? search.redirect : "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
@@ -62,7 +70,7 @@ function AuthPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) toast.error(mapAuthError(error.message));
-    else { toast.success("Zalogowano pomyślnie"); navigate({ to: "/" }); }
+    else { toast.success("Zalogowano pomyślnie"); navigate({ to: redirectTo as string }); }
   }
 
   async function signUp(e: React.FormEvent) {
@@ -82,7 +90,7 @@ function AuthPage() {
     const { data, error } = await supabase.auth.signUp({
       email, password,
       options: {
-        emailRedirectTo: `${window.location.origin}/`,
+        emailRedirectTo: `${window.location.origin}${redirectTo}`,
         data: { display_name: nick.trim() },
       },
     });
