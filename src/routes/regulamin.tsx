@@ -72,7 +72,7 @@ function RegulaminPage() {
         <p>4. <strong>Okres Ważności:</strong> Paszport Najemcy zachowuje ważność przez okres 90 dni od momentu wygenerowania, po czym statystyki i weryfikacje finansowe wymagają odświeżenia.</p>
       </Section>
 
-      <Section title="§ 6. Lejek transakcyjny i system kontroli płatności (zasada „Bata")">
+      <Section title={'§ 6. Lejek transakcyjny i system kontroli płatności (zasada „Bata”)'}>
         <p>1. <strong>Inicjacja i Czat:</strong> Wyrażenie zainteresowania dopasowaną ofertą następuje poprzez kliknięcie przez Najemcę przycisku „Wstępnie zainteresowany". Akcja ta bezpiecznie udostępnia profil Paszportu Najemcy Wynajmującemu. Dalsze ustalenia prowadzone są za pośrednictwem wewnętrznego czatu.</p>
         <p>2. <strong>Generowanie Umowy:</strong> Po osiągnięciu porozumienia, Wynajmujący klika przycisk „Zaakceptuj Najemcę", co uruchamia systemowy generator certyfikowanych, sprawdzonych prawnie umów najmu.</p>
         <p>3. <strong>Dyscyplina Finansowa (Zasada „Bata"):</strong></p>
