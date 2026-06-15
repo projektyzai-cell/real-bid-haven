@@ -46,6 +46,7 @@ function NewRentalListing() {
     notarial_required: false, requires_deposit: true, requires_insurance: false,
     requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
+    accepts_students: false,
   });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
@@ -86,6 +87,7 @@ function NewRentalListing() {
         notarial_required: !!r.notarial_required, requires_deposit: !!r.requires_deposit,
         requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
         pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
+        accepts_students: !!r.accepts_students,
       });
       setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
       setLoading(false);
@@ -131,6 +133,7 @@ function NewRentalListing() {
       requires_deposit: flags.requires_deposit,
       requires_passport: flags.requires_passport,
       notarial_required: flags.notarial_required,
+      accepts_students: flags.accepts_students,
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
       is_furnished: flags.is_furnished,
@@ -459,6 +462,10 @@ function NewRentalListing() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
             <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
+            <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
           </label>
         </div>
 
