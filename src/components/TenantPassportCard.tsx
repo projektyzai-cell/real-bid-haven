@@ -30,15 +30,35 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
   async function downloadPdf() {
     if (!ref.current) return;
     try {
+      // Pre-convert avatar to dataURL to avoid canvas CORS taint
+      const imgs = ref.current.querySelectorAll<HTMLImageElement>("img[data-avatar]");
+      for (const img of Array.from(imgs)) {
+        if (img.src.startsWith("data:")) continue;
+        try {
+          const resp = await fetch(img.src, { mode: "cors" });
+          const blob = await resp.blob();
+          const dataUrl: string = await new Promise((res, rej) => {
+            const r = new FileReader();
+            r.onload = () => res(r.result as string);
+            r.onerror = rej;
+            r.readAsDataURL(blob);
+          });
+          img.src = dataUrl;
+          await new Promise((res) => { img.onload = res; img.onerror = res; });
+        } catch {
+          img.removeAttribute("src");
+        }
+      }
       const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
         import("html2canvas"),
         import("jspdf"),
       ]);
-      const canvas = await html2canvas(ref.current, { backgroundColor: "#0B132B", scale: 2, useCORS: true, logging: false });
+      const canvas = await html2canvas(ref.current, { backgroundColor: "#0B132B", scale: 2, useCORS: true, allowTaint: false, logging: false });
       const img = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
       pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
       pdf.save(`paszport-${data.serial}.pdf`);
+      toast.success("PDF zapisany.");
     } catch (e) {
       toast.error("Nie udało się wygenerować PDF: " + (e as Error).message);
     }
@@ -86,7 +106,7 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
         {/* Identity row */}
         <div className="mt-5 flex items-start gap-4">
           {data.avatarUrl && (
-            <img src={data.avatarUrl} alt="" crossOrigin="anonymous"
+            <img src={data.avatarUrl} alt="" data-avatar crossOrigin="anonymous"
               className="h-20 w-20 shrink-0 rounded-2xl border-2 border-[#D4AF37]/50 object-cover" />
           )}
           <div className="grid flex-1 grid-cols-2 gap-3 sm:grid-cols-3">
