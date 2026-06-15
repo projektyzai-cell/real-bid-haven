@@ -437,6 +437,7 @@ export type Database = {
           instagram_account_created_at: string | null
           instagram_username: string | null
           instagram_verified_self: boolean | null
+          is_student: boolean | null
           last_name: string | null
           linkedin_url: string | null
           linkedin_verified_self: boolean | null
@@ -505,6 +506,7 @@ export type Database = {
           instagram_account_created_at?: string | null
           instagram_username?: string | null
           instagram_verified_self?: boolean | null
+          is_student?: boolean | null
           last_name?: string | null
           linkedin_url?: string | null
           linkedin_verified_self?: boolean | null
@@ -573,6 +575,7 @@ export type Database = {
           instagram_account_created_at?: string | null
           instagram_username?: string | null
           instagram_verified_self?: boolean | null
+          is_student?: boolean | null
           last_name?: string | null
           linkedin_url?: string | null
           linkedin_verified_self?: boolean | null
@@ -804,6 +807,7 @@ export type Database = {
         Row: {
           accepts_children: boolean
           accepts_pets: boolean
+          accepts_students: boolean | null
           active_days: number | null
           apartment_subtype: string | null
           apt_no: string | null
@@ -855,6 +859,7 @@ export type Database = {
         Insert: {
           accepts_children?: boolean
           accepts_pets?: boolean
+          accepts_students?: boolean | null
           active_days?: number | null
           apartment_subtype?: string | null
           apt_no?: string | null
@@ -906,6 +911,7 @@ export type Database = {
         Update: {
           accepts_children?: boolean
           accepts_pets?: boolean
+          accepts_students?: boolean | null
           active_days?: number | null
           apartment_subtype?: string | null
           apt_no?: string | null
@@ -1049,7 +1055,9 @@ export type Database = {
           floor_preference: string | null
           has_children: boolean
           id: string
+          is_student: boolean | null
           min_lease_months: number | null
+          min_rooms: number | null
           notes: string | null
           personal_bio_lang: string | null
           personal_bio_original: string | null
@@ -1088,7 +1096,9 @@ export type Database = {
           floor_preference?: string | null
           has_children?: boolean
           id?: string
+          is_student?: boolean | null
           min_lease_months?: number | null
+          min_rooms?: number | null
           notes?: string | null
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
@@ -1127,7 +1137,9 @@ export type Database = {
           floor_preference?: string | null
           has_children?: boolean
           id?: string
+          is_student?: boolean | null
           min_lease_months?: number | null
+          min_rooms?: number | null
           notes?: string | null
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
