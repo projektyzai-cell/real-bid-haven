@@ -49,17 +49,19 @@ function NewRentalRequestPage() {
   const [mapArea, setMapArea] = useState<MapArea | null>(null);
   const [form, setForm] = useState({
     city: "", district: "", street: "", budget_max: "",
-    adults_count: "1", children_count: "0", active_days: "7", min_lease_months: "6",
+    adults_count: "1", children_count: "0", active_days: "7", min_lease_months: "12",
+    min_rooms: "1",
   });
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
-  const [floorPref, setFloorPref] = useState<FloorPref>("");
-  const [buildingType, setBuildingType] = useState<BuildingType>("");
+  const [floorPref, setFloorPref] = useState<FloorPref>("ground");
+  const [buildingType, setBuildingType] = useState<BuildingType>("block");
   const [flags, setFlags] = useState({
     wants_balcony: false, wants_basement: false, wants_elevator: false,
     requires_furnished: false,
     accepts_notarial_lease: false, accepts_deposit: false, accepts_insurance: false,
     pets_caged: false, pets_other: false,
+    is_student: false,
   });
   const [hasPassport, setHasPassport] = useState<boolean | null>(null);
   const [passportChecked, setPassportChecked] = useState(false);
@@ -107,6 +109,7 @@ function NewRentalRequestPage() {
       ...parsed.data,
       has_children: parsed.data.children_count > 0,
       ...flags,
+      min_rooms: Number(form.min_rooms) || null,
       floor_preference: showRoomFeatures && floorPref ? floorPref : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
       search_lat: mode === "map" && mapArea ? mapArea.lat : null,
@@ -337,20 +340,23 @@ function NewRentalRequestPage() {
 
               <div className="grid gap-3 sm:grid-cols-2 pt-2">
                 <div>
+                  <Label className="text-xs">Min. liczba pokoi</Label>
+                  <Input type="number" min={1} max={10} value={form.min_rooms}
+                    onChange={(e) => set("min_rooms", e.target.value)} className="mt-1.5 rounded-xl" />
+                </div>
+                <div>
                   <Label className="text-xs">Preferencja piętra</Label>
                   <select value={floorPref} onChange={(e) => setFloorPref(e.target.value as FloorPref)}
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                    <option value="">Bez znaczenia (wszystkie oferty)</option>
                     <option value="ground">Parter</option>
                     <option value="above3_no_elevator">Powyżej 3 piętra bez windy</option>
                     <option value="high_with_elevator">Wysokie piętra z windą</option>
                   </select>
                 </div>
-                <div>
+                <div className="sm:col-span-2">
                   <Label className="text-xs">Rodzaj budynku</Label>
                   <select value={buildingType} onChange={(e) => setBuildingType(e.target.value as BuildingType)}
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                    <option value="">Bez znaczenia</option>
                     <option value="block">Blok</option>
                     <option value="tenement">Kamienica</option>
                     <option value="house_section">Wydzielona część domu</option>
@@ -437,6 +443,10 @@ function NewRentalRequestPage() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.pets_other} onCheckedChange={() => toggle("pets_other")} className="mt-0.5" />
             <span>Większe zwierzęta — pies / kot / inne</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.is_student} onCheckedChange={() => toggle("is_student")} className="mt-0.5" />
+            <span>Jestem <strong>studentem</strong></span>
           </label>
         </div>
 
