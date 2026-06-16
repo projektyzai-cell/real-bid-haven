@@ -1000,6 +1000,7 @@ export type Database = {
           description: string
           id: string
           landlord_id: string
+          listing_id: string | null
           monthly_price: number
           property_address: string | null
           request_id: string
@@ -1010,6 +1011,7 @@ export type Database = {
           description: string
           id?: string
           landlord_id: string
+          listing_id?: string | null
           monthly_price: number
           property_address?: string | null
           request_id: string
@@ -1020,12 +1022,20 @@ export type Database = {
           description?: string
           id?: string
           landlord_id?: string
+          listing_id?: string | null
           monthly_price?: number
           property_address?: string | null
           request_id?: string
           status?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "rental_offers_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "rental_offers_request_id_fkey"
             columns: ["request_id"]
