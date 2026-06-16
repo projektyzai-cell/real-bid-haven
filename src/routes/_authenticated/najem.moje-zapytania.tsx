@@ -27,9 +27,14 @@ interface MyRequest {
   area_description: string | null; adults_count: number; notes: string | null;
 }
 interface OfferRow {
-  id: string; request_id: string; landlord_id: string;
+  id: string; request_id: string; landlord_id: string; listing_id: string | null;
   monthly_price: number; description: string; property_address: string | null;
   status: string; created_at: string;
+}
+interface ListingThumb {
+  id: string; title: string; city: string; street: string;
+  rooms: number; area_m2: number; monthly_price: number;
+  images: string[]; main_image_index: number;
 }
 
 function MyRequestsPage() {
@@ -58,15 +63,29 @@ function MyRequestsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rental_offers" as never)
-        .select("*").in("request_id", reqIds).order("created_at", { ascending: false });
+        .select("id, request_id, landlord_id, listing_id, monthly_price, description, property_address, status, created_at")
+        .in("request_id", reqIds).order("created_at", { ascending: false });
       if (error) throw error;
       const rows = (data ?? []) as unknown as OfferRow[];
       const landlordIds = Array.from(new Set(rows.map((o) => o.landlord_id)));
-      const { data: profs } = landlordIds.length
-        ? await supabase.from("profiles").select("id, display_name").in("id", landlordIds)
-        : { data: [] };
-      const map = new Map((profs ?? []).map((p) => [p.id, p.display_name]));
-      return rows.map((o) => ({ ...o, landlord_name: map.get(o.landlord_id) ?? "Wynajmujący" }));
+      const listingIds = Array.from(new Set(rows.map((o) => o.listing_id).filter(Boolean))) as string[];
+      const [profsRes, listingsRes] = await Promise.all([
+        landlordIds.length
+          ? supabase.from("profiles").select("id, display_name").in("id", landlordIds)
+          : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),
+        listingIds.length
+          ? supabase.from("rental_listings" as never)
+              .select("id, title, city, street, rooms, area_m2, monthly_price, images, main_image_index")
+              .in("id", listingIds)
+          : Promise.resolve({ data: [] as ListingThumb[] }),
+      ]);
+      const profMap = new Map(((profsRes.data ?? []) as { id: string; display_name: string }[]).map((p) => [p.id, p.display_name]));
+      const listingMap = new Map(((listingsRes.data ?? []) as unknown as ListingThumb[]).map((l) => [l.id, l]));
+      return rows.map((o) => ({
+        ...o,
+        landlord_name: profMap.get(o.landlord_id) ?? "Wynajmujący",
+        listing: o.listing_id ? listingMap.get(o.listing_id) ?? null : null,
+      }));
     },
   });
 
@@ -94,6 +113,13 @@ function MyRequestsPage() {
     toast.success("Oferta zaakceptowana — chat aktywny");
     queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
     if (data) window.location.href = `/najem/chats/${data}`;
+  }
+
+  async function expressInterest(listingId: string, requestId: string) {
+    const { error } = await supabase.rpc("express_interest" as never, { _listing_id: listingId, _request_id: requestId } as never);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Wynajmujący otrzymał Twój Paszport Najemcy");
+    queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
   }
 
   async function deleteRequest(id: string) {
@@ -156,27 +182,54 @@ function MyRequestsPage() {
                     <p className="mt-2 text-sm text-muted-foreground">Brak ofert. System automatycznie wyśle Ci dopasowania, gdy pojawi się pasująca oferta najmu.</p>
                   ) : (
                     <ul className="mt-3 space-y-3">
-                      {myOffers.map((o) => (
-                        <li key={o.id} className="rounded-2xl border bg-background/40 p-4">
-                          <div className="flex flex-wrap items-start justify-between gap-2">
+                      {myOffers.map((o) => {
+                        const thumb = o.listing?.images?.[o.listing.main_image_index ?? 0] ?? o.listing?.images?.[0];
+                        return (
+                        <li key={o.id} className="rounded-2xl border bg-background/40 p-3">
+                          <div className="flex flex-wrap items-start gap-3">
+                            {o.listing ? (
+                              <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="block shrink-0">
+                                {thumb ? (
+                                  <img src={thumb} alt={o.listing.title} className="h-24 w-32 rounded-xl object-cover" />
+                                ) : (
+                                  <div className="h-24 w-32 rounded-xl bg-muted" />
+                                )}
+                              </Link>
+                            ) : null}
                             <div className="flex-1 min-w-0">
                               <div className="text-lg font-bold tabular-nums">{formatPLN(o.monthly_price)}/mies.</div>
                               <div className="text-xs text-muted-foreground">{o.landlord_name}</div>
+                              {o.listing && (
+                                <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="mt-1 block text-sm font-medium hover:text-primary">
+                                  {o.listing.title} <span className="text-xs text-muted-foreground">· {o.listing.rooms} pok. · {o.listing.area_m2} m²</span>
+                                </Link>
+                              )}
                               {o.property_address && <div className="mt-1 text-xs">📍 {o.property_address}</div>}
-                              <p className="mt-2 whitespace-pre-line text-sm">{o.description}</p>
+                              <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm">{o.description}</p>
                             </div>
-                            {o.status === "accepted" ? (
-                              <Badge className="rounded-full">Zaakceptowana</Badge>
-                            ) : o.status === "rejected" ? (
-                              <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
-                            ) : (
-                              <Button size="sm" className="rounded-xl" onClick={() => acceptOffer(o.id)}>
-                                <MessageCircle className="h-4 w-4" /> Akceptuj
-                              </Button>
-                            )}
+                            <div className="flex flex-col items-end gap-2">
+                              {o.status === "accepted" ? (
+                                <Badge className="rounded-full">Zaakceptowana</Badge>
+                              ) : o.status === "rejected" ? (
+                                <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
+                              ) : (
+                                <>
+                                  {o.listing && (
+                                    <Button size="sm" variant="outline" className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10"
+                                      onClick={() => expressInterest(o.listing!.id, r.id)}>
+                                      ★ Wyrażam zainteresowanie
+                                    </Button>
+                                  )}
+                                  <Button size="sm" className="rounded-xl" onClick={() => acceptOffer(o.id)}>
+                                    <MessageCircle className="h-4 w-4" /> Akceptuj
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </li>
-                      ))}
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
