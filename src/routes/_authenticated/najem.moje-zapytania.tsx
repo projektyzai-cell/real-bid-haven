@@ -27,9 +27,14 @@ interface MyRequest {
   area_description: string | null; adults_count: number; notes: string | null;
 }
 interface OfferRow {
-  id: string; request_id: string; landlord_id: string;
+  id: string; request_id: string; landlord_id: string; listing_id: string | null;
   monthly_price: number; description: string; property_address: string | null;
   status: string; created_at: string;
+}
+interface ListingThumb {
+  id: string; title: string; city: string; street: string;
+  rooms: number; area_m2: number; monthly_price: number;
+  images: string[]; main_image_index: number;
 }
 
 function MyRequestsPage() {
