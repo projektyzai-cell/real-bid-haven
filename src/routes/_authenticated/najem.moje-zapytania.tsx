@@ -182,27 +182,54 @@ function MyRequestsPage() {
                     <p className="mt-2 text-sm text-muted-foreground">Brak ofert. System automatycznie wyśle Ci dopasowania, gdy pojawi się pasująca oferta najmu.</p>
                   ) : (
                     <ul className="mt-3 space-y-3">
-                      {myOffers.map((o) => (
-                        <li key={o.id} className="rounded-2xl border bg-background/40 p-4">
-                          <div className="flex flex-wrap items-start justify-between gap-2">
+                      {myOffers.map((o) => {
+                        const thumb = o.listing?.images?.[o.listing.main_image_index ?? 0] ?? o.listing?.images?.[0];
+                        return (
+                        <li key={o.id} className="rounded-2xl border bg-background/40 p-3">
+                          <div className="flex flex-wrap items-start gap-3">
+                            {o.listing ? (
+                              <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="block shrink-0">
+                                {thumb ? (
+                                  <img src={thumb} alt={o.listing.title} className="h-24 w-32 rounded-xl object-cover" />
+                                ) : (
+                                  <div className="h-24 w-32 rounded-xl bg-muted" />
+                                )}
+                              </Link>
+                            ) : null}
                             <div className="flex-1 min-w-0">
                               <div className="text-lg font-bold tabular-nums">{formatPLN(o.monthly_price)}/mies.</div>
                               <div className="text-xs text-muted-foreground">{o.landlord_name}</div>
+                              {o.listing && (
+                                <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="mt-1 block text-sm font-medium hover:text-primary">
+                                  {o.listing.title} <span className="text-xs text-muted-foreground">· {o.listing.rooms} pok. · {o.listing.area_m2} m²</span>
+                                </Link>
+                              )}
                               {o.property_address && <div className="mt-1 text-xs">📍 {o.property_address}</div>}
-                              <p className="mt-2 whitespace-pre-line text-sm">{o.description}</p>
+                              <p className="mt-2 line-clamp-3 whitespace-pre-line text-sm">{o.description}</p>
                             </div>
-                            {o.status === "accepted" ? (
-                              <Badge className="rounded-full">Zaakceptowana</Badge>
-                            ) : o.status === "rejected" ? (
-                              <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
-                            ) : (
-                              <Button size="sm" className="rounded-xl" onClick={() => acceptOffer(o.id)}>
-                                <MessageCircle className="h-4 w-4" /> Akceptuj
-                              </Button>
-                            )}
+                            <div className="flex flex-col items-end gap-2">
+                              {o.status === "accepted" ? (
+                                <Badge className="rounded-full">Zaakceptowana</Badge>
+                              ) : o.status === "rejected" ? (
+                                <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
+                              ) : (
+                                <>
+                                  {o.listing && (
+                                    <Button size="sm" variant="outline" className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10"
+                                      onClick={() => expressInterest(o.listing!.id, r.id)}>
+                                      ★ Wyrażam zainteresowanie
+                                    </Button>
+                                  )}
+                                  <Button size="sm" className="rounded-xl" onClick={() => acceptOffer(o.id)}>
+                                    <MessageCircle className="h-4 w-4" /> Akceptuj
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </div>
                         </li>
-                      ))}
+                        );
+                      })}
                     </ul>
                   )}
                 </div>
