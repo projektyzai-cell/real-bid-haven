@@ -63,15 +63,29 @@ function MyRequestsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rental_offers" as never)
-        .select("*").in("request_id", reqIds).order("created_at", { ascending: false });
+        .select("id, request_id, landlord_id, listing_id, monthly_price, description, property_address, status, created_at")
+        .in("request_id", reqIds).order("created_at", { ascending: false });
       if (error) throw error;
       const rows = (data ?? []) as unknown as OfferRow[];
       const landlordIds = Array.from(new Set(rows.map((o) => o.landlord_id)));
-      const { data: profs } = landlordIds.length
-        ? await supabase.from("profiles").select("id, display_name").in("id", landlordIds)
-        : { data: [] };
-      const map = new Map((profs ?? []).map((p) => [p.id, p.display_name]));
-      return rows.map((o) => ({ ...o, landlord_name: map.get(o.landlord_id) ?? "Wynajmujący" }));
+      const listingIds = Array.from(new Set(rows.map((o) => o.listing_id).filter(Boolean))) as string[];
+      const [profsRes, listingsRes] = await Promise.all([
+        landlordIds.length
+          ? supabase.from("profiles").select("id, display_name").in("id", landlordIds)
+          : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),
+        listingIds.length
+          ? supabase.from("rental_listings" as never)
+              .select("id, title, city, street, rooms, area_m2, monthly_price, images, main_image_index")
+              .in("id", listingIds)
+          : Promise.resolve({ data: [] as ListingThumb[] }),
+      ]);
+      const profMap = new Map(((profsRes.data ?? []) as { id: string; display_name: string }[]).map((p) => [p.id, p.display_name]));
+      const listingMap = new Map(((listingsRes.data ?? []) as unknown as ListingThumb[]).map((l) => [l.id, l]));
+      return rows.map((o) => ({
+        ...o,
+        landlord_name: profMap.get(o.landlord_id) ?? "Wynajmujący",
+        listing: o.listing_id ? listingMap.get(o.listing_id) ?? null : null,
+      }));
     },
   });
 
