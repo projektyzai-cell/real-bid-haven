@@ -115,6 +115,13 @@ function MyRequestsPage() {
     if (data) window.location.href = `/najem/chats/${data}`;
   }
 
+  async function expressInterest(listingId: string, requestId: string) {
+    const { error } = await supabase.rpc("express_interest" as never, { _listing_id: listingId, _request_id: requestId } as never);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Wynajmujący otrzymał Twój Paszport Najemcy");
+    queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
+  }
+
   async function deleteRequest(id: string) {
     if (!window.confirm("Usunąć zapytanie? Tej operacji nie można cofnąć.")) return;
     const { error } = await supabase.from("rental_requests" as never).delete().eq("id", id);
