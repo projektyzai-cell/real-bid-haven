@@ -229,6 +229,7 @@ function AuthPage() {
               </label>
               <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
                 Po rejestracji wyślemy Ci e-mail z linkiem weryfikacyjnym. Kliknij go, aby aktywować konto.
+                <br /><span className="font-medium text-foreground">Konto jest całkowicie darmowe</span> — w każdej chwili możesz je trwale usunąć w Ustawieniach.
               </p>
               <Button type="submit" disabled={loading || !acceptTerms} className="w-full rounded-xl">
                 {loading ? "Tworzę konto..." : "Załóż konto"}
