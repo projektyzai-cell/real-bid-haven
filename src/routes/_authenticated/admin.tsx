@@ -134,6 +134,8 @@ function AdminDashboard() {
         {isAdmin && (
           <>
             <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
+            <TabsContent value="rentals" className="mt-6"><RentalsTab /></TabsContent>
+            <TabsContent value="requests" className="mt-6"><RequestsTab /></TabsContent>
             <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
             <TabsContent value="subadmins" className="mt-6"><SubAdminsTab /></TabsContent>
             <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
