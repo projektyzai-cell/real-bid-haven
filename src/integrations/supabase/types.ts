@@ -405,6 +405,7 @@ export type Database = {
       profiles: {
         Row: {
           accepts_notarial_lease: boolean
+          account_type: string | null
           avatar_url: string | null
           bank_statement_urls: string[] | null
           concierge_subscription: boolean
@@ -461,6 +462,7 @@ export type Database = {
           personal_bio_original: string | null
           personal_bio_pl: string | null
           pesel_hash: string | null
+          serial_num: number | null
           social_facebook_url: string | null
           trusted_tenant_score: number
           verified_employer: boolean
@@ -474,6 +476,7 @@ export type Database = {
         }
         Insert: {
           accepts_notarial_lease?: boolean
+          account_type?: string | null
           avatar_url?: string | null
           bank_statement_urls?: string[] | null
           concierge_subscription?: boolean
@@ -530,6 +533,7 @@ export type Database = {
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pesel_hash?: string | null
+          serial_num?: number | null
           social_facebook_url?: string | null
           trusted_tenant_score?: number
           verified_employer?: boolean
@@ -543,6 +547,7 @@ export type Database = {
         }
         Update: {
           accepts_notarial_lease?: boolean
+          account_type?: string | null
           avatar_url?: string | null
           bank_statement_urls?: string[] | null
           concierge_subscription?: boolean
@@ -599,6 +604,7 @@ export type Database = {
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pesel_hash?: string | null
+          serial_num?: number | null
           social_facebook_url?: string | null
           trusted_tenant_score?: number
           verified_employer?: boolean
@@ -1296,7 +1302,12 @@ export type Database = {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
       accept_rental_offer: { Args: { _offer_id: string }; Returns: string }
       accept_tenant: { Args: { _transaction_id: string }; Returns: undefined }
+      admin_reset_passport_application: {
+        Args: { _user_id: string }
+        Returns: undefined
+      }
       cleanup_old_listings: { Args: never; Returns: undefined }
+      delete_my_account: { Args: never; Returns: undefined }
       express_interest: {
         Args: { _listing_id: string; _request_id?: string }
         Returns: string

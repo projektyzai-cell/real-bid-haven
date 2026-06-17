@@ -60,6 +60,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
+  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba">("najemca");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetMode, setResetMode] = useState(false);
@@ -91,7 +92,7 @@ function AuthPage() {
       email, password,
       options: {
         emailRedirectTo: `${window.location.origin}${redirectTo}`,
-        data: { display_name: nick.trim() },
+        data: { display_name: nick.trim(), account_type: accountType },
       },
     });
     if (error) { setLoading(false); toast.error(mapAuthError(error.message)); return; }
@@ -185,6 +186,22 @@ function AuthPage() {
                   placeholder="np. JanK" />
               </div>
               <div>
+                <Label>Chcę korzystać jako</Label>
+                <div className="mt-1.5 grid grid-cols-3 gap-2">
+                  {([
+                    ["najemca", "Najemca"],
+                    ["wynajmujacy", "Wynajmujący"],
+                    ["oba", "Oba"],
+                  ] as const).map(([val, lbl]) => (
+                    <button type="button" key={val} onClick={() => setAccountType(val)}
+                      className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${accountType === val ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">Wybór wpływa tylko na podpowiedzi w panelu — w każdej chwili możesz korzystać z obu trybów.</p>
+              </div>
+              <div>
                 <Label htmlFor="email2">E-mail</Label>
                 <Input id="email2" type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
@@ -212,6 +229,7 @@ function AuthPage() {
               </label>
               <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
                 Po rejestracji wyślemy Ci e-mail z linkiem weryfikacyjnym. Kliknij go, aby aktywować konto.
+                <br /><span className="font-medium text-foreground">Konto jest całkowicie darmowe</span> — w każdej chwili możesz je trwale usunąć w Ustawieniach.
               </p>
               <Button type="submit" disabled={loading || !acceptTerms} className="w-full rounded-xl">
                 {loading ? "Tworzę konto..." : "Załóż konto"}

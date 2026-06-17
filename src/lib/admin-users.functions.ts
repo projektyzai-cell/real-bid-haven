@@ -65,6 +65,8 @@ export const adminListUsers = createServerFn({ method: "GET" })
         created_at: u.created_at,
         last_sign_in_at: u.last_sign_in_at,
         display_name: p.display_name ?? null,
+        serial_num: p.serial_num ?? null,
+        account_type: p.account_type ?? null,
         passport_application_status: p.passport_application_status ?? null,
         passport_serial: p.passport_serial ?? null,
         trusted_tenant_score: p.trusted_tenant_score ?? 0,
