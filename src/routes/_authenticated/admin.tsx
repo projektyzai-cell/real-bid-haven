@@ -22,6 +22,14 @@ import {
   adminResetUserPassword,
   adminSetConcierge,
 } from "@/lib/admin-users.functions";
+import {
+  adminListRentalListings,
+  adminDeleteRentalListing,
+  adminSetListingPromoted,
+  adminListRentalRequests,
+  adminDeleteRentalRequest,
+  adminResetUserPassport,
+} from "@/lib/admin-rental.functions";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
-  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw,
+  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star,
 } from "lucide-react";
 
 const tabSchema = z.object({
