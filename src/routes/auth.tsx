@@ -60,6 +60,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
+  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba">("najemca");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetMode, setResetMode] = useState(false);
