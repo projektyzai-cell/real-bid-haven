@@ -297,7 +297,9 @@ function UsersTab() {
           <table className="w-full text-xs">
             <thead className="bg-muted/50 uppercase text-muted-foreground">
               <tr>
+                <th className="px-2 py-2 text-left">#</th>
                 <th className="px-2 py-2 text-left">Nick</th>
+                <th className="px-2 py-2 text-left">Typ</th>
                 <th className="px-2 py-2 text-left">E-mail</th>
                 <th className="px-2 py-2 text-left">Założono</th>
                 <th className="px-2 py-2 text-left">Paszport</th>
@@ -307,9 +309,13 @@ function UsersTab() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u: any) => (
+              {filtered.map((u: any) => {
+                const typeBadge = u.account_type === "wynajmujacy" ? "W" : u.account_type === "najemca" ? "N" : u.account_type === "oba" ? "N/W" : "—";
+                return (
                 <tr key={u.id} className={`border-t ${openId === u.id ? "bg-muted/40" : ""}`}>
+                  <td className="px-2 py-1.5 font-mono text-[11px] text-muted-foreground">{u.serial_num ? `${u.serial_num}${typeBadge === "—" ? "" : typeBadge[0]}` : "—"}</td>
                   <td className="px-2 py-1.5 font-medium">{u.display_name ?? "—"}</td>
+                  <td className="px-2 py-1.5"><Badge variant="outline" className="text-[10px]">{typeBadge}</Badge></td>
                   <td className="px-2 py-1.5">{u.email}</td>
                   <td className="px-2 py-1.5 text-muted-foreground">{u.created_at ? new Date(u.created_at).toLocaleDateString("pl-PL") : "—"}</td>
                   <td className="px-2 py-1.5">
