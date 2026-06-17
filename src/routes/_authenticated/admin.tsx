@@ -750,3 +750,179 @@ function StatsTab() {
     </div>
   );
 }
+
+/* ===================== RENTAL LISTINGS (admin) ===================== */
+function RentalsTab() {
+  const qc = useQueryClient();
+  const list = useServerFn(adminListRentalListings);
+  const del = useServerFn(adminDeleteRentalListing);
+  const promote = useServerFn(adminSetListingPromoted);
+  const q = useQuery({ queryKey: ["admin-rentals"], queryFn: () => list() });
+  const [filter, setFilter] = useState("");
+  const [city, setCity] = useState("");
+
+  const delMut = useMutation({
+    mutationFn: (id: string) => del({ data: { id } }),
+    onSuccess: () => { toast.success("Oferta usunięta."); qc.invalidateQueries({ queryKey: ["admin-rentals"] }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+  const promoteMut = useMutation({
+    mutationFn: (vars: { id: string; promoted: boolean }) => promote({ data: vars }),
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ["admin-rentals"] }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const filtered = (q.data ?? []).filter((l: any) =>
+    (!filter || l.title?.toLowerCase().includes(filter.toLowerCase()) || l.landlord_name?.toLowerCase().includes(filter.toLowerCase())) &&
+    (!city || l.city?.toLowerCase().includes(city.toLowerCase())),
+  );
+
+  return (
+    <Card className="rounded-2xl p-5 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">Oferty wynajmu ({q.data?.length ?? 0})</h2>
+        <div className="flex gap-2">
+          <Input placeholder="Tytuł / wynajmujący" value={filter} onChange={(e) => setFilter(e.target.value)} className="max-w-xs" />
+          <Input placeholder="Miasto" value={city} onChange={(e) => setCity(e.target.value)} className="max-w-[160px]" />
+        </div>
+      </div>
+      {q.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+      <div className="overflow-auto rounded-xl border">
+        <table className="w-full text-xs">
+          <thead className="bg-muted/50 uppercase text-muted-foreground">
+            <tr>
+              <th className="px-2 py-2 text-left">Tytuł</th>
+              <th className="px-2 py-2 text-left">Wynajmujący</th>
+              <th className="px-2 py-2 text-left">Miasto</th>
+              <th className="px-2 py-2 text-right">Cena</th>
+              <th className="px-2 py-2 text-right">Pokoje</th>
+              <th className="px-2 py-2 text-right">Matchy</th>
+              <th className="px-2 py-2 text-left">Status</th>
+              <th className="px-2 py-2 text-left">Promo</th>
+              <th className="px-2 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((l: any) => (
+              <tr key={l.id} className="border-t">
+                <td className="px-2 py-1.5 font-medium">
+                  <Link to="/najem/oferty/$id" params={{ id: l.id }} className="hover:underline">{l.title}</Link>
+                </td>
+                <td className="px-2 py-1.5">
+                  {l.landlord_serial && <span className="font-mono text-[10px] text-muted-foreground mr-1">#{l.landlord_serial}W</span>}
+                  {l.landlord_name ?? "—"}
+                </td>
+                <td className="px-2 py-1.5">{l.city}{l.district ? ` · ${l.district}` : ""}</td>
+                <td className="px-2 py-1.5 text-right">{l.monthly_price} zł</td>
+                <td className="px-2 py-1.5 text-right">{l.rooms ?? "—"}</td>
+                <td className="px-2 py-1.5 text-right">{l.matches_count}</td>
+                <td className="px-2 py-1.5"><Badge variant={l.status === "active" ? "secondary" : "outline"} className="text-[10px]">{l.status}</Badge></td>
+                <td className="px-2 py-1.5">
+                  <button onClick={() => promoteMut.mutate({ id: l.id, promoted: !l.promoted })}
+                    className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] ${l.promoted ? "bg-amber-500/15 text-amber-700 border border-amber-500/40" : "border text-muted-foreground"}`}>
+                    <Star className="h-3 w-3" /> {l.promoted ? "TAK" : "nie"}
+                  </button>
+                </td>
+                <td className="px-2 py-1.5 text-right">
+                  <Button size="sm" variant="ghost"
+                    onClick={() => { if (confirm("Usunąć ofertę?")) delMut.mutate(l.id); }}>
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">Brak ofert.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+/* ===================== RENTAL REQUESTS (admin) ===================== */
+function RequestsTab() {
+  const qc = useQueryClient();
+  const list = useServerFn(adminListRentalRequests);
+  const del = useServerFn(adminDeleteRentalRequest);
+  const q = useQuery({ queryKey: ["admin-requests"], queryFn: () => list() });
+  const [filter, setFilter] = useState("");
+  const [city, setCity] = useState("");
+
+  const delMut = useMutation({
+    mutationFn: (id: string) => del({ data: { id } }),
+    onSuccess: () => { toast.success("Zapytanie usunięte."); qc.invalidateQueries({ queryKey: ["admin-requests"] }); },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const filtered = (q.data ?? []).filter((r: any) =>
+    (!filter || r.tenant_name?.toLowerCase().includes(filter.toLowerCase())) &&
+    (!city || r.city?.toLowerCase().includes(city.toLowerCase())),
+  );
+
+  return (
+    <Card className="rounded-2xl p-5 space-y-3">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold">Zapytania o wynajem ({q.data?.length ?? 0})</h2>
+        <div className="flex gap-2">
+          <Input placeholder="Najemca" value={filter} onChange={(e) => setFilter(e.target.value)} className="max-w-xs" />
+          <Input placeholder="Miasto" value={city} onChange={(e) => setCity(e.target.value)} className="max-w-[160px]" />
+        </div>
+      </div>
+      {q.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+      <div className="overflow-auto rounded-xl border">
+        <table className="w-full text-xs">
+          <thead className="bg-muted/50 uppercase text-muted-foreground">
+            <tr>
+              <th className="px-2 py-2 text-left">Najemca</th>
+              <th className="px-2 py-2 text-left">Miasto</th>
+              <th className="px-2 py-2 text-right">Budżet</th>
+              <th className="px-2 py-2 text-right">Min. pokoi</th>
+              <th className="px-2 py-2 text-left">Paszport</th>
+              <th className="px-2 py-2 text-left">Concierge</th>
+              <th className="px-2 py-2 text-right">Matchy</th>
+              <th className="px-2 py-2 text-left">Status</th>
+              <th className="px-2 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((r: any) => (
+              <tr key={r.id} className="border-t">
+                <td className="px-2 py-1.5 font-medium">
+                  {r.tenant_serial && <span className="font-mono text-[10px] text-muted-foreground mr-1">#{r.tenant_serial}N</span>}
+                  {r.tenant_name ?? "—"}
+                  {r.is_student && <Badge variant="outline" className="ml-1 text-[9px]">student</Badge>}
+                </td>
+                <td className="px-2 py-1.5">{r.city}{r.district ? ` · ${r.district}` : ""}</td>
+                <td className="px-2 py-1.5 text-right">{r.budget_max ? `${r.budget_max} zł` : "—"}</td>
+                <td className="px-2 py-1.5 text-right">{r.min_rooms ?? "—"}</td>
+                <td className="px-2 py-1.5">
+                  {r.passport_serial
+                    ? <Badge variant="secondary" className="text-[10px]">{r.passport_serial}</Badge>
+                    : r.passport_status === "submitted"
+                      ? <Badge variant="destructive" className="text-[10px]">oczekuje</Badge>
+                      : <span className="text-muted-foreground">brak</span>}
+                </td>
+                <td className="px-2 py-1.5">
+                  {r.concierge ? <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40 text-[10px]">Concierge</Badge> : "—"}
+                </td>
+                <td className="px-2 py-1.5 text-right">{r.matches_count}</td>
+                <td className="px-2 py-1.5"><Badge variant={r.status === "active" ? "secondary" : "outline"} className="text-[10px]">{r.status}</Badge></td>
+                <td className="px-2 py-1.5 text-right">
+                  <Button size="sm" variant="ghost"
+                    onClick={() => { if (confirm("Usunąć zapytanie?")) delMut.mutate(r.id); }}>
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">Brak zapytań.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
