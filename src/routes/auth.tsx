@@ -92,7 +92,7 @@ function AuthPage() {
       email, password,
       options: {
         emailRedirectTo: `${window.location.origin}${redirectTo}`,
-        data: { display_name: nick.trim() },
+        data: { display_name: nick.trim(), account_type: accountType },
       },
     });
     if (error) { setLoading(false); toast.error(mapAuthError(error.message)); return; }
