@@ -376,7 +376,14 @@ function UserDetail({
   const resetFn = useServerFn(adminResetUserPassword);
   const delFn = useServerFn(adminDeleteUser);
   const conciergeFn = useServerFn(adminSetConcierge);
+  const resetPassportFn = useServerFn(adminResetUserPassport);
   const [tempPassword, setTempPassword] = useState<string | null>(null);
+
+  const resetPassportMut = useMutation({
+    mutationFn: () => resetPassportFn({ data: { userId } }),
+    onSuccess: () => { toast.success("Zresetowano aplikację paszportową."); onChanged(); },
+    onError: (e: any) => toast.error(e.message),
+  });
 
   const resetMut = useMutation({
     mutationFn: () => resetFn({ data: { userId } }),
