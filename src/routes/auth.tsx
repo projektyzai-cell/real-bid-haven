@@ -186,6 +186,22 @@ function AuthPage() {
                   placeholder="np. JanK" />
               </div>
               <div>
+                <Label>Chcę korzystać jako</Label>
+                <div className="mt-1.5 grid grid-cols-3 gap-2">
+                  {([
+                    ["najemca", "Najemca"],
+                    ["wynajmujacy", "Wynajmujący"],
+                    ["oba", "Oba"],
+                  ] as const).map(([val, lbl]) => (
+                    <button type="button" key={val} onClick={() => setAccountType(val)}
+                      className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${accountType === val ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
+                      {lbl}
+                    </button>
+                  ))}
+                </div>
+                <p className="mt-1 text-[11px] text-muted-foreground">Wybór wpływa tylko na podpowiedzi w panelu — w każdej chwili możesz korzystać z obu trybów.</p>
+              </div>
+              <div>
                 <Label htmlFor="email2">E-mail</Label>
                 <Input id="email2" type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
