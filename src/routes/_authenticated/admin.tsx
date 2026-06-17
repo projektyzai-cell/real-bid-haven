@@ -100,6 +100,16 @@ function AdminDashboard() {
                   <Users className="h-4 w-4" /> Konta użytkowników
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="rentals" asChild>
+                <Link to="/admin" search={{ tab: "rentals" }} className="flex items-center gap-1.5">
+                  <Home className="h-4 w-4" /> Oferty wynajmu
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value="requests" asChild>
+                <Link to="/admin" search={{ tab: "requests" }} className="flex items-center gap-1.5">
+                  <Search className="h-4 w-4" /> Zapytania
+                </Link>
+              </TabsTrigger>
               <TabsTrigger value="messages" asChild>
                 <Link to="/admin" search={{ tab: "messages" }} className="flex items-center gap-1.5">
                   <Mail className="h-4 w-4" /> Wiadomości
