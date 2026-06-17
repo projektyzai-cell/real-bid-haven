@@ -1,13 +1,15 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Eye, EyeOff, Settings as SettingsIcon } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { Eye, EyeOff, Settings as SettingsIcon, Trash2, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { PassportSection } from "@/components/PassportSection";
+import { deleteMyAccount } from "@/lib/admin-rental.functions";
 
 export const Route = createFileRoute("/_authenticated/ustawienia")({
   head: () => ({ meta: [{ title: "Ustawienia — Stay Safe" }] }),
