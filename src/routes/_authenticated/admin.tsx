@@ -35,7 +35,7 @@ import {
 } from "lucide-react";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "messages", "subadmins", "stats"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats"]).default("apps").optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/admin")({
