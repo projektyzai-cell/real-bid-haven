@@ -471,11 +471,22 @@ function UserDetail({
         )}
       </div>
 
-      <div>
-        <div className="text-xs uppercase tracking-wider text-muted-foreground">Paszport</div>
-        <div className="font-medium">
-          {p.passport_application_status ?? "brak aplikacji"}
-          {p.passport_serial ? ` · ${p.passport_serial}` : ""}
+      <div className="rounded-xl border p-3 space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div>
+            <div className="text-xs uppercase tracking-wider text-muted-foreground">Paszport</div>
+            <div className="font-medium">
+              {p.passport_application_status ?? "brak aplikacji"}
+              {p.passport_serial ? ` · ${p.passport_serial}` : ""}
+            </div>
+          </div>
+          {p.passport_application_status === "approved" && (
+            <Button size="sm" variant="outline" disabled={resetPassportMut.isPending}
+              onClick={() => { if (confirm("Zresetować aplikację paszportową tego użytkownika? Będzie musiał aplikować od nowa.")) resetPassportMut.mutate(); }}>
+              {resetPassportMut.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="mr-2 h-3.5 w-3.5" />}
+              Reset paszportu
+            </Button>
+          )}
         </div>
       </div>
       <div>
