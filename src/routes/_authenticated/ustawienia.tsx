@@ -90,9 +90,56 @@ function SettingsPage() {
 
       {user && <PassportSection userId={user.id} />}
 
+      <DeleteAccountSection />
+
       <section className="mt-6 rounded-3xl border border-dashed bg-card/40 p-6 text-sm text-muted-foreground">
         <p>Wkrótce: powiadomienia mailowe, język interfejsu, zarządzanie zgodami.</p>
       </section>
     </div>
+  );
+}
+
+function DeleteAccountSection() {
+  const navigate = useNavigate();
+  const del = useServerFn(deleteMyAccount);
+  const [confirmText, setConfirmText] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  async function handleDelete() {
+    if (confirmText !== "USUWAM") return;
+    setBusy(true);
+    try {
+      await del();
+      await supabase.auth.signOut();
+      toast.success("Konto zostało trwale usunięte.");
+      navigate({ to: "/" });
+    } catch (e: any) {
+      toast.error(e.message ?? "Nie udało się usunąć konta.");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <section className="mt-6 rounded-3xl border border-destructive/40 bg-destructive/5 p-6">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+        <div className="flex-1">
+          <h2 className="text-lg font-semibold text-destructive">Trwałe usunięcie konta</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Usuwamy bezpowrotnie Twoje konto, profil, paszport, oferty, zapytania i historię czatów. Tej operacji <strong>nie da się cofnąć</strong>.
+            Aby potwierdzić, wpisz w polu poniżej słowo <code className="rounded bg-muted px-1.5 py-0.5 font-mono text-xs">USUWAM</code>.
+          </p>
+          <div className="mt-4 flex flex-col gap-2 sm:flex-row">
+            <Input value={confirmText} onChange={(e) => setConfirmText(e.target.value)}
+              placeholder="Wpisz USUWAM" className="rounded-xl sm:max-w-xs" />
+            <Button variant="destructive" disabled={confirmText !== "USUWAM" || busy} onClick={handleDelete} className="rounded-xl">
+              <Trash2 className="mr-2 h-4 w-4" />
+              {busy ? "Usuwam…" : "Usuń konto trwale"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }
