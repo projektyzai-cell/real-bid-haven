@@ -335,9 +335,10 @@ function UsersTab() {
                     <Button size="sm" variant="ghost" onClick={() => setOpenId(u.id)}>Otwórz</Button>
                   </td>
                 </tr>
-              ))}
+                );
+              })}
               {filtered.length === 0 && (
-                <tr><td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
+                <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
               )}
             </tbody>
           </table>
