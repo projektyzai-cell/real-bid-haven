@@ -10,11 +10,14 @@ export function Footer() {
           <span>© {new Date().getFullYear()} Stay Safe · staysafe.pl</span>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-          <Link to="/wycena-live" className="text-muted-foreground hover:text-foreground">
-            Rynkowa wycena nieruchomości
+          <Link to="/najem" className="text-muted-foreground hover:text-foreground">
+            Strefa najmu
           </Link>
-          <Link to="/ogloszenia" className="text-muted-foreground hover:text-foreground">
-            Oferty sprzedaży
+          <Link to="/paszport-najemcy" className="text-muted-foreground hover:text-foreground">
+            Paszport Najemcy
+          </Link>
+          <Link to="/jak-dzialamy" className="text-muted-foreground hover:text-foreground">
+            Jak działamy
           </Link>
           <Link to="/regulamin" className="text-muted-foreground hover:text-foreground">
             Regulamin

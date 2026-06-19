@@ -61,6 +61,7 @@ function AuthPage() {
   const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
   const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba">("najemca");
+  const [preferredLanguage, setPreferredLanguage] = useState<"pl" | "en" | "uk" | "es">("pl");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
   const [resetMode, setResetMode] = useState(false);
@@ -92,7 +93,7 @@ function AuthPage() {
       email, password,
       options: {
         emailRedirectTo: `${window.location.origin}${redirectTo}`,
-        data: { display_name: nick.trim(), account_type: accountType },
+        data: { display_name: nick.trim(), account_type: accountType, preferred_language: preferredLanguage },
       },
     });
     if (error) { setLoading(false); toast.error(mapAuthError(error.message)); return; }
@@ -200,6 +201,21 @@ function AuthPage() {
                   ))}
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">Wybór wpływa tylko na podpowiedzi w panelu — w każdej chwili możesz korzystać z obu trybów.</p>
+              </div>
+              <div>
+                <Label htmlFor="lang">Preferowany język kontaktu</Label>
+                <select
+                  id="lang"
+                  value={preferredLanguage}
+                  onChange={(e) => setPreferredLanguage(e.target.value as "pl" | "en" | "uk" | "es")}
+                  className="mt-1.5 w-full rounded-xl border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="pl">🇵🇱 Polski</option>
+                  <option value="en">🇬🇧 English</option>
+                  <option value="uk">🇺🇦 Українська</option>
+                  <option value="es">🇪🇸 Español</option>
+                </select>
+                <p className="mt-1 text-[11px] text-muted-foreground">W tym języku otrzymasz wiadomość powitalną i powiadomienia systemowe.</p>
               </div>
               <div>
                 <Label htmlFor="email2">E-mail</Label>

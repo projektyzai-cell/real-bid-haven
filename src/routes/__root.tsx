@@ -87,14 +87,12 @@ function RealtimeBridge() {
   const queryClient = useQueryClient();
   useEffect(() => {
     const ch = supabase
-      .channel("global-bidding")
-      .on("postgres_changes", { event: "*", schema: "public", table: "properties" }, () => {
-        queryClient.invalidateQueries({ queryKey: ["properties"] });
-        queryClient.invalidateQueries({ queryKey: ["property"] });
+      .channel("global-rental")
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_listings" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["rental_listings"] });
       })
-      .on("postgres_changes", { event: "*", schema: "public", table: "bids" }, () => {
-        queryClient.invalidateQueries({ queryKey: ["bids"] });
-        queryClient.invalidateQueries({ queryKey: ["properties"] });
+      .on("postgres_changes", { event: "*", schema: "public", table: "rental_offers" }, () => {
+        queryClient.invalidateQueries({ queryKey: ["rental_offers"] });
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };

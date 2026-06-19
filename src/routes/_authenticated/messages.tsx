@@ -9,43 +9,36 @@ export const Route = createFileRoute("/_authenticated/messages")({
   component: MessagesPage,
 });
 
-interface ChatRow {
+interface RentalChatRow {
   id: string;
-  property_id: string;
-  seller_id: string;
-  buyer_id: string;
+  request_id: string | null;
+  offer_id: string | null;
+  tenant_id: string;
+  landlord_id: string;
   created_at: string;
 }
 
 function MessagesPage() {
   const { user } = useAuth();
   const { data, isLoading } = useQuery({
-    queryKey: ["chats", "mine", user?.id],
+    queryKey: ["rental-chats", "mine", user?.id],
     enabled: !!user,
     queryFn: async () => {
       const { data: chats, error } = await supabase
-        .from("chats" as never)
+        .from("rental_chats" as never)
         .select("*")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      const rows = (chats ?? []) as unknown as ChatRow[];
-      const propIds = Array.from(new Set(rows.map((c) => c.property_id)));
-      const otherIds = Array.from(new Set(rows.map((c) => c.seller_id === user!.id ? c.buyer_id : c.seller_id)));
-      const [{ data: props }, { data: profs }] = await Promise.all([
-        propIds.length
-          ? supabase.from("properties").select("id, title, image_url, city").in("id", propIds)
-          : Promise.resolve({ data: [] as never[] }),
-        otherIds.length
-          ? supabase.from("profiles").select("id, display_name").in("id", otherIds)
-          : Promise.resolve({ data: [] as never[] }),
-      ]);
-      const propMap = new Map((props ?? []).map((p: { id: string; title: string; image_url: string | null; city: string }) => [p.id, p]));
-      const profMap = new Map((profs ?? []).map((p: { id: string; display_name: string }) => [p.id, p.display_name]));
+      const rows = (chats ?? []) as unknown as RentalChatRow[];
+      const otherIds = Array.from(new Set(rows.map((c) => c.tenant_id === user!.id ? c.landlord_id : c.tenant_id)));
+      const { data: profs } = otherIds.length
+        ? await supabase.from("profiles").select("id, display_name").in("id", otherIds)
+        : { data: [] as { id: string; display_name: string }[] };
+      const profMap = new Map((profs ?? []).map((p) => [p.id, p.display_name]));
       return rows.map((c) => ({
         ...c,
-        property: propMap.get(c.property_id),
-        counterpart: profMap.get(c.seller_id === user!.id ? c.buyer_id : c.seller_id) ?? "Użytkownik",
-        role: c.seller_id === user!.id ? "Sprzedawca" : "Kupujący",
+        counterpart: profMap.get(c.tenant_id === user!.id ? c.landlord_id : c.tenant_id) ?? "Użytkownik",
+        role: c.tenant_id === user!.id ? "Wynajmujący" : "Najemca",
       }));
     },
   });
@@ -54,7 +47,7 @@ function MessagesPage() {
     <div className="container mx-auto max-w-3xl px-4 py-10">
       <h1 className="text-3xl font-semibold tracking-tight">Wiadomości</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Rozmowy uruchamiane są po akceptacji oferty przez sprzedawcę.
+        Rozmowy uruchamiają się po akceptacji oferty najmu.
       </p>
 
       {isLoading ? (
@@ -68,20 +61,18 @@ function MessagesPage() {
         <ul className="mt-8 space-y-2">
           {data.map((c) => (
             <li key={c.id}>
-              <Link to="/chats/$id" params={{ id: c.id }}
-                className="flex items-center gap-4 rounded-2xl bg-card p-3 shadow-card transition hover:shadow-glow">
-                <div className="h-16 w-20 shrink-0 overflow-hidden rounded-xl bg-muted">
-                  {c.property?.image_url && (
-                    <img src={c.property.image_url} alt="" className="h-full w-full object-cover" />
-                  )}
+              <Link
+                to="/najem/chats/$id"
+                params={{ id: c.id }}
+                className="flex items-center gap-4 rounded-2xl bg-card p-3 shadow-card transition hover:shadow-glow"
+              >
+                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-xl bg-muted">
+                  <MessageCircle className="h-6 w-6 text-muted-foreground" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium">{c.property?.title ?? "Ogłoszenie"}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {c.role === "Sprzedawca" ? "Kupujący" : "Sprzedawca"}: {c.counterpart}
-                  </div>
+                  <div className="truncate font-medium">{c.counterpart}</div>
+                  <div className="text-sm text-muted-foreground">{c.role}</div>
                 </div>
-                <MessageCircle className="h-5 w-5 text-muted-foreground" />
               </Link>
             </li>
           ))}

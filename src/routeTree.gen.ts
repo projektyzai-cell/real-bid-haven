@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as WycenaLiveRouteImport } from './routes/wycena-live'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
@@ -19,40 +18,28 @@ import { Route as JakDzialamyRouteImport } from './routes/jak-dzialamy'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as OgloszeniaIndexRouteImport } from './routes/ogloszenia.index'
 import { Route as NajemIndexRouteImport } from './routes/najem.index'
-import { Route as PropertiesIdRouteImport } from './routes/properties.$id'
-import { Route as OgloszeniaIdRouteImport } from './routes/ogloszenia.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
-import { Route as AuthenticatedPolubioneRouteImport } from './routes/_authenticated/polubione'
-import { Route as AuthenticatedNewListingRouteImport } from './routes/_authenticated/new-listing'
-import { Route as AuthenticatedMyListingsRouteImport } from './routes/_authenticated/my-listings'
-import { Route as AuthenticatedMyBidsRouteImport } from './routes/_authenticated/my-bids'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
-import { Route as AuthenticatedOgloszeniaNoweRouteImport } from './routes/_authenticated/ogloszenia.nowe'
 import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
+import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authenticated/najem.umowy'
 import { Route as AuthenticatedNajemPaszportRouteImport } from './routes/_authenticated/najem.paszport'
 import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
 import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
 import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
 import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
 import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
-import { Route as AuthenticatedChatsIdRouteImport } from './routes/_authenticated/chats.$id'
+import { Route as AuthenticatedNajemConciergeRouteImport } from './routes/_authenticated/najem.concierge'
 import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
 import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin_.passport-stats'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
-const WycenaLiveRoute = WycenaLiveRouteImport.update({
-  id: '/wycena-live',
-  path: '/wycena-live',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -97,24 +84,9 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const OgloszeniaIndexRoute = OgloszeniaIndexRouteImport.update({
-  id: '/ogloszenia/',
-  path: '/ogloszenia/',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const NajemIndexRoute = NajemIndexRouteImport.update({
   id: '/najem/',
   path: '/najem/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PropertiesIdRoute = PropertiesIdRouteImport.update({
-  id: '/properties/$id',
-  path: '/properties/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const OgloszeniaIdRoute = OgloszeniaIdRouteImport.update({
-  id: '/ogloszenia/$id',
-  path: '/ogloszenia/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
@@ -130,26 +102,6 @@ const AdminSetupRoute = AdminSetupRouteImport.update({
 const AuthenticatedUstawieniaRoute = AuthenticatedUstawieniaRouteImport.update({
   id: '/ustawienia',
   path: '/ustawienia',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedPolubioneRoute = AuthenticatedPolubioneRouteImport.update({
-  id: '/polubione',
-  path: '/polubione',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedNewListingRoute = AuthenticatedNewListingRouteImport.update({
-  id: '/new-listing',
-  path: '/new-listing',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedMyListingsRoute = AuthenticatedMyListingsRouteImport.update({
-  id: '/my-listings',
-  path: '/my-listings',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedMyBidsRoute = AuthenticatedMyBidsRouteImport.update({
-  id: '/my-bids',
-  path: '/my-bids',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
@@ -177,18 +129,17 @@ const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
   path: '/najem/oferty/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedOgloszeniaNoweRoute =
-  AuthenticatedOgloszeniaNoweRouteImport.update({
-    id: '/ogloszenia/nowe',
-    path: '/ogloszenia/nowe',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
 const AuthenticatedNajemZainteresowaniRoute =
   AuthenticatedNajemZainteresowaniRouteImport.update({
     id: '/najem/zainteresowani',
     path: '/najem/zainteresowani',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemUmowyRoute = AuthenticatedNajemUmowyRouteImport.update({
+  id: '/najem/umowy',
+  path: '/najem/umowy',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 const AuthenticatedNajemPaszportRoute =
   AuthenticatedNajemPaszportRouteImport.update({
     id: '/najem/paszport',
@@ -225,11 +176,12 @@ const AuthenticatedNajemMojPaszportRoute =
     path: '/najem/moj-paszport',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedChatsIdRoute = AuthenticatedChatsIdRouteImport.update({
-  id: '/chats/$id',
-  path: '/chats/$id',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
+const AuthenticatedNajemConciergeRoute =
+  AuthenticatedNajemConciergeRouteImport.update({
+    id: '/najem/concierge',
+    path: '/najem/concierge',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminPassportsRoute =
   AuthenticatedAdminPassportsRouteImport.update({
     id: '/admin_/passports',
@@ -258,31 +210,23 @@ export interface FileRoutesByFullPath {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/wycena-live': typeof WycenaLiveRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
-  '/my-bids': typeof AuthenticatedMyBidsRoute
-  '/my-listings': typeof AuthenticatedMyListingsRoute
-  '/new-listing': typeof AuthenticatedNewListingRoute
-  '/polubione': typeof AuthenticatedPolubioneRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
-  '/ogloszenia/$id': typeof OgloszeniaIdRoute
-  '/properties/$id': typeof PropertiesIdRoute
   '/najem/': typeof NajemIndexRoute
-  '/ogloszenia/': typeof OgloszeniaIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
-  '/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/najem/concierge': typeof AuthenticatedNajemConciergeRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/najem/paszport': typeof AuthenticatedNajemPaszportRoute
+  '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
-  '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -297,31 +241,23 @@ export interface FileRoutesByTo {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/wycena-live': typeof WycenaLiveRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
-  '/my-bids': typeof AuthenticatedMyBidsRoute
-  '/my-listings': typeof AuthenticatedMyListingsRoute
-  '/new-listing': typeof AuthenticatedNewListingRoute
-  '/polubione': typeof AuthenticatedPolubioneRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
-  '/ogloszenia/$id': typeof OgloszeniaIdRoute
-  '/properties/$id': typeof PropertiesIdRoute
   '/najem': typeof NajemIndexRoute
-  '/ogloszenia': typeof OgloszeniaIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
-  '/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/najem/concierge': typeof AuthenticatedNajemConciergeRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/najem/paszport': typeof AuthenticatedNajemPaszportRoute
+  '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
-  '/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
@@ -338,31 +274,23 @@ export interface FileRoutesById {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/wycena-live': typeof WycenaLiveRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
-  '/_authenticated/my-bids': typeof AuthenticatedMyBidsRoute
-  '/_authenticated/my-listings': typeof AuthenticatedMyListingsRoute
-  '/_authenticated/new-listing': typeof AuthenticatedNewListingRoute
-  '/_authenticated/polubione': typeof AuthenticatedPolubioneRoute
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
-  '/ogloszenia/$id': typeof OgloszeniaIdRoute
-  '/properties/$id': typeof PropertiesIdRoute
   '/najem/': typeof NajemIndexRoute
-  '/ogloszenia/': typeof OgloszeniaIndexRoute
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/_authenticated/admin_/passports': typeof AuthenticatedAdminPassportsRoute
-  '/_authenticated/chats/$id': typeof AuthenticatedChatsIdRoute
+  '/_authenticated/najem/concierge': typeof AuthenticatedNajemConciergeRoute
   '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/_authenticated/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/_authenticated/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
   '/_authenticated/najem/paszport': typeof AuthenticatedNajemPaszportRoute
+  '/_authenticated/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/_authenticated/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
-  '/_authenticated/ogloszenia/nowe': typeof AuthenticatedOgloszeniaNoweRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -379,31 +307,23 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
-    | '/wycena-live'
     | '/admin'
     | '/messages'
-    | '/my-bids'
-    | '/my-listings'
-    | '/new-listing'
-    | '/polubione'
     | '/ustawienia'
     | '/admin/setup'
     | '/najem/zapytania'
-    | '/ogloszenia/$id'
-    | '/properties/$id'
     | '/najem/'
-    | '/ogloszenia/'
     | '/admin/passport-stats'
     | '/admin/passports'
-    | '/chats/$id'
+    | '/najem/concierge'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
     | '/najem/paszport'
+    | '/najem/umowy'
     | '/najem/zainteresowani'
-    | '/ogloszenia/nowe'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -418,31 +338,23 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
-    | '/wycena-live'
     | '/admin'
     | '/messages'
-    | '/my-bids'
-    | '/my-listings'
-    | '/new-listing'
-    | '/polubione'
     | '/ustawienia'
     | '/admin/setup'
     | '/najem/zapytania'
-    | '/ogloszenia/$id'
-    | '/properties/$id'
     | '/najem'
-    | '/ogloszenia'
     | '/admin/passport-stats'
     | '/admin/passports'
-    | '/chats/$id'
+    | '/najem/concierge'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
     | '/najem/paszport'
+    | '/najem/umowy'
     | '/najem/zainteresowani'
-    | '/ogloszenia/nowe'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty'
@@ -458,31 +370,23 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
-    | '/wycena-live'
     | '/_authenticated/admin'
     | '/_authenticated/messages'
-    | '/_authenticated/my-bids'
-    | '/_authenticated/my-listings'
-    | '/_authenticated/new-listing'
-    | '/_authenticated/polubione'
     | '/_authenticated/ustawienia'
     | '/admin/setup'
     | '/najem/zapytania'
-    | '/ogloszenia/$id'
-    | '/properties/$id'
     | '/najem/'
-    | '/ogloszenia/'
     | '/_authenticated/admin_/passport-stats'
     | '/_authenticated/admin_/passports'
-    | '/_authenticated/chats/$id'
+    | '/_authenticated/najem/concierge'
     | '/_authenticated/najem/moj-paszport'
     | '/_authenticated/najem/moje-oferty'
     | '/_authenticated/najem/moje-zapytania'
     | '/_authenticated/najem/nowa-oferta'
     | '/_authenticated/najem/nowe-zapytanie'
     | '/_authenticated/najem/paszport'
+    | '/_authenticated/najem/umowy'
     | '/_authenticated/najem/zainteresowani'
-    | '/_authenticated/ogloszenia/nowe'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -499,26 +403,15 @@ export interface RootRouteChildren {
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  WycenaLiveRoute: typeof WycenaLiveRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
-  OgloszeniaIdRoute: typeof OgloszeniaIdRoute
-  PropertiesIdRoute: typeof PropertiesIdRoute
   NajemIndexRoute: typeof NajemIndexRoute
-  OgloszeniaIndexRoute: typeof OgloszeniaIndexRoute
   NajemOfertyIdRoute: typeof NajemOfertyIdRoute
   NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/wycena-live': {
-      id: '/wycena-live'
-      path: '/wycena-live'
-      fullPath: '/wycena-live'
-      preLoaderRoute: typeof WycenaLiveRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -582,32 +475,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/ogloszenia/': {
-      id: '/ogloszenia/'
-      path: '/ogloszenia'
-      fullPath: '/ogloszenia/'
-      preLoaderRoute: typeof OgloszeniaIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/najem/': {
       id: '/najem/'
       path: '/najem'
       fullPath: '/najem/'
       preLoaderRoute: typeof NajemIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/properties/$id': {
-      id: '/properties/$id'
-      path: '/properties/$id'
-      fullPath: '/properties/$id'
-      preLoaderRoute: typeof PropertiesIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ogloszenia/$id': {
-      id: '/ogloszenia/$id'
-      path: '/ogloszenia/$id'
-      fullPath: '/ogloszenia/$id'
-      preLoaderRoute: typeof OgloszeniaIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/najem/zapytania': {
@@ -629,34 +501,6 @@ declare module '@tanstack/react-router' {
       path: '/ustawienia'
       fullPath: '/ustawienia'
       preLoaderRoute: typeof AuthenticatedUstawieniaRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/polubione': {
-      id: '/_authenticated/polubione'
-      path: '/polubione'
-      fullPath: '/polubione'
-      preLoaderRoute: typeof AuthenticatedPolubioneRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/new-listing': {
-      id: '/_authenticated/new-listing'
-      path: '/new-listing'
-      fullPath: '/new-listing'
-      preLoaderRoute: typeof AuthenticatedNewListingRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/my-listings': {
-      id: '/_authenticated/my-listings'
-      path: '/my-listings'
-      fullPath: '/my-listings'
-      preLoaderRoute: typeof AuthenticatedMyListingsRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/my-bids': {
-      id: '/_authenticated/my-bids'
-      path: '/my-bids'
-      fullPath: '/my-bids'
-      preLoaderRoute: typeof AuthenticatedMyBidsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/messages': {
@@ -694,18 +538,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NajemOfertyIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/ogloszenia/nowe': {
-      id: '/_authenticated/ogloszenia/nowe'
-      path: '/ogloszenia/nowe'
-      fullPath: '/ogloszenia/nowe'
-      preLoaderRoute: typeof AuthenticatedOgloszeniaNoweRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
     '/_authenticated/najem/zainteresowani': {
       id: '/_authenticated/najem/zainteresowani'
       path: '/najem/zainteresowani'
       fullPath: '/najem/zainteresowani'
       preLoaderRoute: typeof AuthenticatedNajemZainteresowaniRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/umowy': {
+      id: '/_authenticated/najem/umowy'
+      path: '/najem/umowy'
+      fullPath: '/najem/umowy'
+      preLoaderRoute: typeof AuthenticatedNajemUmowyRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/najem/paszport': {
@@ -750,11 +594,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNajemMojPaszportRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/chats/$id': {
-      id: '/_authenticated/chats/$id'
-      path: '/chats/$id'
-      fullPath: '/chats/$id'
-      preLoaderRoute: typeof AuthenticatedChatsIdRouteImport
+    '/_authenticated/najem/concierge': {
+      id: '/_authenticated/najem/concierge'
+      path: '/najem/concierge'
+      fullPath: '/najem/concierge'
+      preLoaderRoute: typeof AuthenticatedNajemConciergeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin_/passports': {
@@ -784,44 +628,36 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
-  AuthenticatedMyBidsRoute: typeof AuthenticatedMyBidsRoute
-  AuthenticatedMyListingsRoute: typeof AuthenticatedMyListingsRoute
-  AuthenticatedNewListingRoute: typeof AuthenticatedNewListingRoute
-  AuthenticatedPolubioneRoute: typeof AuthenticatedPolubioneRoute
   AuthenticatedUstawieniaRoute: typeof AuthenticatedUstawieniaRoute
   AuthenticatedAdminPassportStatsRoute: typeof AuthenticatedAdminPassportStatsRoute
   AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
-  AuthenticatedChatsIdRoute: typeof AuthenticatedChatsIdRoute
+  AuthenticatedNajemConciergeRoute: typeof AuthenticatedNajemConciergeRoute
   AuthenticatedNajemMojPaszportRoute: typeof AuthenticatedNajemMojPaszportRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
   AuthenticatedNajemNowaOfertaRoute: typeof AuthenticatedNajemNowaOfertaRoute
   AuthenticatedNajemNoweZapytanieRoute: typeof AuthenticatedNajemNoweZapytanieRoute
   AuthenticatedNajemPaszportRoute: typeof AuthenticatedNajemPaszportRoute
+  AuthenticatedNajemUmowyRoute: typeof AuthenticatedNajemUmowyRoute
   AuthenticatedNajemZainteresowaniRoute: typeof AuthenticatedNajemZainteresowaniRoute
-  AuthenticatedOgloszeniaNoweRoute: typeof AuthenticatedOgloszeniaNoweRoute
   AuthenticatedNajemChatsIdRoute: typeof AuthenticatedNajemChatsIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
-  AuthenticatedMyBidsRoute: AuthenticatedMyBidsRoute,
-  AuthenticatedMyListingsRoute: AuthenticatedMyListingsRoute,
-  AuthenticatedNewListingRoute: AuthenticatedNewListingRoute,
-  AuthenticatedPolubioneRoute: AuthenticatedPolubioneRoute,
   AuthenticatedUstawieniaRoute: AuthenticatedUstawieniaRoute,
   AuthenticatedAdminPassportStatsRoute: AuthenticatedAdminPassportStatsRoute,
   AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
-  AuthenticatedChatsIdRoute: AuthenticatedChatsIdRoute,
+  AuthenticatedNajemConciergeRoute: AuthenticatedNajemConciergeRoute,
   AuthenticatedNajemMojPaszportRoute: AuthenticatedNajemMojPaszportRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,
   AuthenticatedNajemNowaOfertaRoute: AuthenticatedNajemNowaOfertaRoute,
   AuthenticatedNajemNoweZapytanieRoute: AuthenticatedNajemNoweZapytanieRoute,
   AuthenticatedNajemPaszportRoute: AuthenticatedNajemPaszportRoute,
+  AuthenticatedNajemUmowyRoute: AuthenticatedNajemUmowyRoute,
   AuthenticatedNajemZainteresowaniRoute: AuthenticatedNajemZainteresowaniRoute,
-  AuthenticatedOgloszeniaNoweRoute: AuthenticatedOgloszeniaNoweRoute,
   AuthenticatedNajemChatsIdRoute: AuthenticatedNajemChatsIdRoute,
 }
 
@@ -851,13 +687,9 @@ const rootRouteChildren: RootRouteChildren = {
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  WycenaLiveRoute: WycenaLiveRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
-  OgloszeniaIdRoute: OgloszeniaIdRoute,
-  PropertiesIdRoute: PropertiesIdRoute,
   NajemIndexRoute: NajemIndexRoute,
-  OgloszeniaIndexRoute: OgloszeniaIndexRoute,
   NajemOfertyIdRoute: NajemOfertyIdRoute,
   NajemOfertyIndexRoute: NajemOfertyIndexRoute,
 }
