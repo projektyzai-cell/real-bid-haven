@@ -462,6 +462,7 @@ export type Database = {
           personal_bio_original: string | null
           personal_bio_pl: string | null
           pesel_hash: string | null
+          preferred_language: string
           serial_num: number | null
           social_facebook_url: string | null
           trusted_tenant_score: number
@@ -533,6 +534,7 @@ export type Database = {
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pesel_hash?: string | null
+          preferred_language?: string
           serial_num?: number | null
           social_facebook_url?: string | null
           trusted_tenant_score?: number
@@ -604,6 +606,7 @@ export type Database = {
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
           pesel_hash?: string | null
+          preferred_language?: string
           serial_num?: number | null
           social_facebook_url?: string | null
           trusted_tenant_score?: number
