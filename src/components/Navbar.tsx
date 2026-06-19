@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, List, MessageCircle, Building2,
   KeyRound, Settings, ShieldCheck, Sparkles, BadgeCheck, HandHeart,
-  Concierge, FileSignature, Home,
+  FileSignature, Home,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
