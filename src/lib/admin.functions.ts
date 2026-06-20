@@ -82,8 +82,6 @@ export const getAdminStats = createServerFn({ method: "GET" }).handler(
       "rental_offers",
       "lease_transactions",
       "lease_ratings",
-      "properties",
-      "bids",
     ] as const;
     const counts: Record<string, number> = {};
     for (const t of tables) {

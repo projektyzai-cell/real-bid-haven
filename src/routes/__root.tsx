@@ -100,12 +100,36 @@ function RealtimeBridge() {
   return null;
 }
 
+function WelcomeMessageBridge() {
+  useEffect(() => {
+    let triggered = false;
+    const fire = async () => {
+      if (triggered) return;
+      triggered = true;
+      try {
+        const { sendWelcomeMessageIfFirst } = await import("@/lib/welcome-message.functions");
+        await sendWelcomeMessageIfFirst();
+      } catch (e) {
+        // swallow — non-critical
+        console.warn("welcome-msg:", e);
+      }
+    };
+    supabase.auth.getSession().then(({ data }) => { if (data.session) fire(); });
+    const { data: sub } = supabase.auth.onAuthStateChange((event) => {
+      if (event === "SIGNED_IN") { triggered = false; fire(); }
+    });
+    return () => { sub.subscription.unsubscribe(); };
+  }, []);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RealtimeBridge />
+        <WelcomeMessageBridge />
         <div className="min-h-screen flex flex-col">
           <Navbar />
           <main className="flex-1">

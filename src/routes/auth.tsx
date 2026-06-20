@@ -69,10 +69,22 @@ function AuthPage() {
   async function signIn(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
-    if (error) toast.error(mapAuthError(error.message));
-    else { toast.success("Zalogowano pomyślnie"); navigate({ to: redirectTo as string }); }
+    if (error) { toast.error(mapAuthError(error.message)); return; }
+    toast.success("Zalogowano pomyślnie");
+    // Admin → bezpośrednio do panelu administratora
+    const uid = signInData.user?.id;
+    if (uid) {
+      const { data: roleRow } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid)
+        .eq("role", "admin")
+        .maybeSingle();
+      if (roleRow) { navigate({ to: "/admin" }); return; }
+    }
+    navigate({ to: redirectTo as string });
   }
 
   async function signUp(e: React.FormEvent) {
