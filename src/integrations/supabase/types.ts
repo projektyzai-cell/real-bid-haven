@@ -473,6 +473,7 @@ export type Database = {
           verified_instagram: boolean
           verified_linkedin: boolean
           verified_past_contract: boolean
+          welcome_message_sent_at: string | null
           willing_tenant_insurance: boolean
         }
         Insert: {
@@ -545,6 +546,7 @@ export type Database = {
           verified_instagram?: boolean
           verified_linkedin?: boolean
           verified_past_contract?: boolean
+          welcome_message_sent_at?: string | null
           willing_tenant_insurance?: boolean
         }
         Update: {
@@ -617,6 +619,7 @@ export type Database = {
           verified_instagram?: boolean
           verified_linkedin?: boolean
           verified_past_contract?: boolean
+          welcome_message_sent_at?: string | null
           willing_tenant_insurance?: boolean
         }
         Relationships: []

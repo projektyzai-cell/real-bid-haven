@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS welcome_message_sent_at TIMESTAMPTZ;
