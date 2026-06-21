@@ -13,12 +13,6 @@ export function Footer() {
           <Link to="/najem" className="text-muted-foreground hover:text-foreground">
             Strefa najmu
           </Link>
-          <Link to="/paszport-najemcy" className="text-muted-foreground hover:text-foreground">
-            Paszport Najemcy
-          </Link>
-          <Link to="/jak-dzialamy" className="text-muted-foreground hover:text-foreground">
-            Jak działamy
-          </Link>
           <Link to="/regulamin" className="text-muted-foreground hover:text-foreground">
             Regulamin
           </Link>
