@@ -35,6 +35,7 @@ import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_auth
 import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
 import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
 import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
+import { Route as AuthenticatedNajemGeneratorUmowRouteImport } from './routes/_authenticated/najem.generator-umow'
 import { Route as AuthenticatedNajemConciergeRouteImport } from './routes/_authenticated/najem.concierge'
 import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
 import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin_.passport-stats'
@@ -176,6 +177,12 @@ const AuthenticatedNajemMojPaszportRoute =
     path: '/najem/moj-paszport',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemGeneratorUmowRoute =
+  AuthenticatedNajemGeneratorUmowRouteImport.update({
+    id: '/najem/generator-umow',
+    path: '/najem/generator-umow',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedNajemConciergeRoute =
   AuthenticatedNajemConciergeRouteImport.update({
     id: '/najem/concierge',
@@ -219,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
   '/najem/concierge': typeof AuthenticatedNajemConciergeRoute
+  '/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -250,6 +258,7 @@ export interface FileRoutesByTo {
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
   '/najem/concierge': typeof AuthenticatedNajemConciergeRoute
+  '/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -283,6 +292,7 @@ export interface FileRoutesById {
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/_authenticated/admin_/passports': typeof AuthenticatedAdminPassportsRoute
   '/_authenticated/najem/concierge': typeof AuthenticatedNajemConciergeRoute
+  '/_authenticated/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
   '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -316,6 +326,7 @@ export interface FileRouteTypes {
     | '/admin/passport-stats'
     | '/admin/passports'
     | '/najem/concierge'
+    | '/najem/generator-umow'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
@@ -347,6 +358,7 @@ export interface FileRouteTypes {
     | '/admin/passport-stats'
     | '/admin/passports'
     | '/najem/concierge'
+    | '/najem/generator-umow'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
     | '/najem/moje-zapytania'
@@ -379,6 +391,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin_/passport-stats'
     | '/_authenticated/admin_/passports'
     | '/_authenticated/najem/concierge'
+    | '/_authenticated/najem/generator-umow'
     | '/_authenticated/najem/moj-paszport'
     | '/_authenticated/najem/moje-oferty'
     | '/_authenticated/najem/moje-zapytania'
@@ -594,6 +607,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNajemMojPaszportRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/najem/generator-umow': {
+      id: '/_authenticated/najem/generator-umow'
+      path: '/najem/generator-umow'
+      fullPath: '/najem/generator-umow'
+      preLoaderRoute: typeof AuthenticatedNajemGeneratorUmowRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/najem/concierge': {
       id: '/_authenticated/najem/concierge'
       path: '/najem/concierge'
@@ -632,6 +652,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminPassportStatsRoute: typeof AuthenticatedAdminPassportStatsRoute
   AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
   AuthenticatedNajemConciergeRoute: typeof AuthenticatedNajemConciergeRoute
+  AuthenticatedNajemGeneratorUmowRoute: typeof AuthenticatedNajemGeneratorUmowRoute
   AuthenticatedNajemMojPaszportRoute: typeof AuthenticatedNajemMojPaszportRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
@@ -650,6 +671,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminPassportStatsRoute: AuthenticatedAdminPassportStatsRoute,
   AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
   AuthenticatedNajemConciergeRoute: AuthenticatedNajemConciergeRoute,
+  AuthenticatedNajemGeneratorUmowRoute: AuthenticatedNajemGeneratorUmowRoute,
   AuthenticatedNajemMojPaszportRoute: AuthenticatedNajemMojPaszportRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,

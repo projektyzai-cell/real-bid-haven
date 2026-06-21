@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ShieldCheck, KeyRound, Building, ArrowRight, Search, Sparkles, Users, Globe, Linkedin, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, KeyRound, Building, ArrowRight, Search, Sparkles, Users, Linkedin, CheckCircle2, BadgeCheck, FileText, Handshake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -331,19 +331,20 @@ function VBadge({ ok, label }: { ok: boolean; label: string }) {
 /* ---------- How it works ---------- */
 function HowItWorks() {
   const items = [
-    { icon: <Users className="h-4 w-4" />, label: "Dopasowanie zamiast spamu" },
-    { icon: <ShieldCheck className="h-4 w-4" />, label: "Paszport zaufania" },
-    { icon: <Globe className="h-4 w-4" />, label: "Obsługa 360°", suffix: "PL/EN" },
+    { icon: <BadgeCheck className="h-4 w-4" />, label: "Paszport & Zapytanie" },
+    { icon: <Building className="h-4 w-4" />, label: "Wystawienie oferty" },
+    { icon: <Users className="h-4 w-4" />, label: "Smart Match" },
+    { icon: <FileText className="h-4 w-4" />, label: "Generator umów" },
+    { icon: <Handshake className="h-4 w-4" />, label: "Serwis Concierge" },
   ];
   return (
     <section className="container mx-auto px-4 py-6">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-3 text-xs sm:text-sm">
-        <span className="mr-2 text-muted-foreground">Jak to działa</span>
+        <span className="mr-2 text-muted-foreground">Jak to działa:</span>
         {items.map((it, i) => (
           <span key={it.label} className="flex items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1.5 font-semibold uppercase tracking-wide">
               {it.icon}{it.label}
-              {it.suffix && <span className="ml-1 rounded-full bg-[var(--gold)]/15 px-1.5 py-0.5 text-[9px] text-gold">{it.suffix}</span>}
             </span>
             {i < items.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
           </span>
@@ -407,14 +408,14 @@ function PromotedStrip() {
   );
 }
 
-/* ---------- Latest listings: 9 newest + 3 random promoted ---------- */
+/* ---------- Latest listings: promoted on top + 9 newest non-promoted below ---------- */
 function LatestListings() {
   const { data: latest = [] } = useQuery({
-    queryKey: ["latest-rentals-9"],
+    queryKey: ["latest-rentals-non-promoted-9"],
     queryFn: async () => {
       const { data, error } = await supabase.from("rental_listings" as never)
         .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index,promoted")
-        .eq("status", "active").gt("expires_at", new Date().toISOString())
+        .eq("status", "active").eq("promoted", false).gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false }).limit(9);
       if (error) throw error;
       return (data ?? []) as unknown as (Promo & { promoted?: boolean })[];
@@ -422,24 +423,18 @@ function LatestListings() {
   });
 
   const { data: promotedPool = [] } = useQuery({
-    queryKey: ["promoted-pool"],
+    queryKey: ["promoted-pool-latest"],
     queryFn: async () => {
       const { data, error } = await supabase.from("rental_listings" as never)
         .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index,promoted")
         .eq("promoted", true).eq("status", "active").gt("expires_at", new Date().toISOString())
-        .limit(50);
+        .order("created_at", { ascending: false }).limit(12);
       if (error) throw error;
       return (data ?? []) as unknown as (Promo & { promoted?: boolean })[];
     },
   });
 
-  const latestIds = new Set(latest.map((l) => l.id));
-  const randomPromoted = [...promotedPool]
-    .filter((p) => !latestIds.has(p.id))
-    .sort(() => Math.random() - 0.5)
-    .slice(0, 3);
-
-  const combined = [...latest, ...randomPromoted];
+  const combined = [...promotedPool, ...latest];
   if (combined.length === 0) return null;
 
   return (
