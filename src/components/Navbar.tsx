@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, List, MessageCircle, Building2,
   KeyRound, Settings, ShieldCheck, Sparkles, BadgeCheck, HandHeart,
-  FileSignature, Home,
+  FileSignature, Home, FileText,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
@@ -122,6 +122,9 @@ export function Navbar() {
                 </DropdownMenuSub>
 
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate({ to: "/najem/generator-umow" })}>
+                  <FileText className="h-4 w-4" /> Generator umów
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
                   className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
                   <MessageCircle className="h-4 w-4" /> Wiadomości
