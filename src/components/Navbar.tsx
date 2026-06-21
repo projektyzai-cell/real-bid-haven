@@ -80,21 +80,25 @@ export function Navbar() {
 
                 {/* Strefa najmu — NAJEMCA */}
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <KeyRound className="h-4 w-4" /> Strefa najmu — Najemca
+                  <DropdownMenuSubTrigger className="my-1 rounded-xl bg-gold/5 py-3 font-semibold text-foreground data-[state=open]:bg-gold/15">
+                    <KeyRound className="h-4 w-4 text-gold" /> Strefa najmu — Najemca
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
-                    <DropdownMenuSubContent className="rounded-2xl">
+                    <DropdownMenuSubContent
+                      sideOffset={6}
+                      alignOffset={-4}
+                      className="w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-gold/20 bg-popover/95 p-1 shadow-glow backdrop-blur"
+                    >
                       <DropdownMenuItem
                         onClick={() => navigate({ to: "/najem/paszport" })}
-                        className="bg-gold/10 font-semibold text-gold focus:bg-gold/20"
+                        className="rounded-xl bg-gold/10 py-3 font-semibold text-gold focus:bg-gold/20"
                       >
                         <ShieldCheck className="h-4 w-4" /> Paszport Najemcy
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
+                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> Moje zapytania i dopasowania
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/concierge" })}>
+                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/concierge" })}>
                         <Sparkles className="h-4 w-4" /> Usługi Concierge
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
@@ -103,18 +107,22 @@ export function Navbar() {
 
                 {/* Strefa najmu — WYNAJMUJĄCY */}
                 <DropdownMenuSub>
-                  <DropdownMenuSubTrigger>
-                    <Building2 className="h-4 w-4" /> Strefa najmu — Wynajmujący
+                  <DropdownMenuSubTrigger className="my-1 rounded-xl bg-gold/5 py-3 font-semibold text-foreground data-[state=open]:bg-gold/15">
+                    <Building2 className="h-4 w-4 text-gold" /> Strefa najmu — Wynajmujący
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
-                    <DropdownMenuSubContent className="rounded-2xl">
-                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
+                    <DropdownMenuSubContent
+                      sideOffset={6}
+                      alignOffset={-4}
+                      className="w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-gold/20 bg-popover/95 p-1 shadow-glow backdrop-blur"
+                    >
+                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
                         <Plus className="h-4 w-4" /> Dodaj nową nieruchomość
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/moje-oferty" })}>
+                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-oferty" })}>
                         <Home className="h-4 w-4" /> Moje oferty i zainteresowani
                       </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate({ to: "/najem/umowy" })}>
+                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/umowy" })}>
                         <FileSignature className="h-4 w-4" /> Zarządzanie umowami i płatnościami
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
