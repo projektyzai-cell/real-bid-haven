@@ -103,8 +103,9 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: cur } = await supabaseAdmin
-      .from("profiles").select("passport_serial").eq("id", data.userId).maybeSingle();
+      .from("profiles").select("passport_serial, passport_count").eq("id", data.userId).maybeSingle();
     let serial = (cur as any)?.passport_serial as string | null;
+    const prevCount = Number((cur as any)?.passport_count ?? 0);
     if (!serial) {
       const { data: s } = await supabaseAdmin.rpc("gen_passport_serial");
       serial = (s as unknown as string) ?? null;
@@ -120,6 +121,8 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
       passport_expires_at: expires.toISOString(),
       passport_generated_at: now.toISOString(),
       passport_generated_by: ctx.userId,
+      passport_count: prevCount + 1,
+      passport_renewal_requested: false,
     }).eq("id", data.userId);
     if (error) throw new Error(error.message);
     return { serial, issued_at: now.toISOString(), expires_at: expires.toISOString() };

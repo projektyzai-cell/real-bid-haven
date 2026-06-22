@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, BadgeCheck, Loader2, RotateCw } from "lucide-react";
+import { ShieldCheck, BadgeCheck, Loader2, MailQuestion } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { requestPassportDataChange } from "@/lib/passport-actions.functions";
 import {
   isValidPesel,
   normalizePesel,
@@ -257,21 +264,74 @@ export function PassportSection({ userId }: { userId: string }) {
       </div>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        <Button
-          onClick={() => issue(!!isActive || !!isExpired)}
-          disabled={busy}
-          className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
-        >
-          {busy ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : isActive || isExpired ? (
-            <RotateCw className="mr-2 h-4 w-4" />
-          ) : (
-            <ShieldCheck className="mr-2 h-4 w-4" />
-          )}
-          {isActive ? "Odśwież anonimizację (90 dni)" : isExpired ? "Aktywuj ponownie" : "Zanonimizuj moje dane"}
-        </Button>
+        {isActive || isExpired ? (
+          <RequestDataChangeDialog />
+        ) : (
+          <Button
+            onClick={() => issue(false)}
+            disabled={busy}
+            className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
+          >
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+            Zanonimizuj moje dane
+          </Button>
+        )}
       </div>
     </section>
+  );
+}
+
+function RequestDataChangeDialog() {
+  const [reason, setReason] = useState("");
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const send = useServerFn(requestPassportDataChange);
+
+  async function submit() {
+    if (reason.trim().length < 5) {
+      toast.error("Opisz krótko powód prośby (min. 5 znaków).");
+      return;
+    }
+    setBusy(true);
+    try {
+      await send({ data: { reason: reason.trim() } });
+      toast.success("Prośba została wysłana do administratora.");
+      setOpen(false);
+      setReason("");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally { setBusy(false); }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90">
+          <MailQuestion className="mr-2 h-4 w-4" /> Poproś administratora o zmianę danych
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Prośba o zmianę zanonimizowanych danych</DialogTitle>
+          <DialogDescription>
+            Dane tożsamości (PESEL / dokument / imię, nazwisko, data urodzenia) są zaszyfrowane jednokierunkowo i nie mogą być edytowane przez użytkownika. Opisz krótko, dlaczego potrzebujesz ich zmiany — administrator zweryfikuje wniosek i odblokuje formularz.
+          </DialogDescription>
+        </DialogHeader>
+        <Textarea
+          rows={5}
+          maxLength={2000}
+          value={reason}
+          onChange={(e) => setReason(e.target.value)}
+          placeholder="Np. zmiana nazwiska po ślubie, nowy dokument tożsamości…"
+        />
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => setOpen(false)}>Anuluj</Button>
+          <Button onClick={submit} disabled={busy} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Wyślij prośbę
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }

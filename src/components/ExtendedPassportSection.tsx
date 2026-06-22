@@ -3,14 +3,21 @@ import { toast } from "sonner";
 import {
   Briefcase, Wallet, Globe2, History, FileCheck2, Upload, Loader2, Trash2, Plus,
   ShieldCheck, ScrollText, Sparkles, AlertTriangle, Percent, KeyRound, ExternalLink,
-  ArrowUp, ArrowDown, Pencil, CheckCircle2,
+  ArrowUp, ArrowDown, Pencil, CheckCircle2, RefreshCw, CreditCard, GraduationCap, UserCheck,
 } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { computeTrustScore } from "@/lib/trust-score";
+import { startPassportRenewal } from "@/lib/passport-actions.functions";
 
 type Profile = Record<string, unknown> & {
   identity_source: string | null;
@@ -37,6 +44,14 @@ type Profile = Record<string, unknown> & {
   has_tenant_insurance: boolean | null;
   willing_tenant_insurance: boolean | null;
   passport_application_status: string | null;
+  passport_renewal_requested: boolean | null;
+  passport_count: number | null;
+  passport_serial: string | null;
+  is_student: boolean | null;
+  student_status: string | null;
+  accepts_one_month_deposit: boolean | null;
+  has_guarantor: boolean | null;
+  staysafe_completed_rentals_count: number | null;
   personal_bio_pl: string | null;
   avatar_url: string | null;
 };
@@ -64,7 +79,9 @@ const empty: Profile = {
   social_facebook_url: null, linkedin_url: null, instagram_username: null, instagram_account_created_at: null,
   linkedin_verified_self: false, facebook_verified_self: false, instagram_verified_self: false,
   accepts_notarial_lease: false, has_tenant_insurance: false, willing_tenant_insurance: false,
-  passport_application_status: null,
+  passport_application_status: null, passport_renewal_requested: false, passport_count: 0, passport_serial: null,
+  is_student: false, student_status: null, accepts_one_month_deposit: false, has_guarantor: false,
+  staysafe_completed_rentals_count: 0,
   personal_bio_pl: null, avatar_url: null,
 };
 
@@ -89,6 +106,8 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const renewFn = useServerFn(startPassportRenewal);
 
   async function load() {
     setLoading(true);
@@ -107,27 +126,34 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     setProfile((p) => ({ ...p, [k]: v }));
   }
 
-  // ---------- Credibility meter ----------
+  // ---------- Trust Score (V3 engine) ----------
+  const trust = useMemo(() => {
+    return computeTrustScore({
+      is_identity_verified: profile.identity_verification_status === "verified",
+      monthly_income_net: profile.monthly_income_net,
+      is_student: profile.is_student,
+      student_status: profile.student_status,
+      accepts_one_month_deposit: profile.accepts_one_month_deposit,
+      has_guarantor: profile.has_guarantor,
+      social_facebook_url: profile.social_facebook_url,
+      instagram_username: profile.instagram_username,
+      linkedin_url: profile.linkedin_url,
+      lease_history: history.map((e) => ({
+        references_available: e.references_available,
+        contract_url: e.contract_url,
+      })),
+      staysafe_completed_rentals_count: profile.staysafe_completed_rentals_count,
+    });
+  }, [profile, history]);
+
   const credibility = useMemo(() => {
-    let score = 0;
-    const total = 10;
-    if (profile.identity_source) score++;
-    if ((profile.identity_doc_urls ?? []).length > 0) score++;
-    if (profile.employment_type) score++;
-    if (profile.monthly_income_net) score++;
-    if ((profile.employment_contract_urls ?? []).length > 0 || profile.employment_contract_url) score++;
-    if ((profile.bank_statement_urls ?? []).length >= 3) score++;
-    if (profile.linkedin_url && profile.linkedin_verified_self) score++;
-    if ((profile.social_facebook_url && profile.facebook_verified_self) || (profile.instagram_username && profile.instagram_verified_self)) score++;
-    if (history.length > 0) score++;
-    if (profile.accepts_notarial_lease) score++;
-    const pct = Math.round((score / total) * 100);
+    const pct = Math.round((trust.cappedTotal / 100) * 100);
     let label: "Niska" | "Średnia" | "Wysoka" | "Ekspert" = "Niska";
-    if (pct >= 90) label = "Ekspert";
+    if (pct >= 86) label = "Ekspert";
     else if (pct >= 60) label = "Wysoka";
     else if (pct >= 30) label = "Średnia";
-    return { pct, label, missing: total - score };
-  }, [profile, history]);
+    return { pct, label, missing: Math.max(0, 100 - pct) };
+  }, [trust]);
 
   // ---------- Uploads ----------
   async function uploadToBucket(prefix: string, file: File) {
@@ -161,9 +187,21 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     set(field, arr);
   }
 
-  async function submitApplication() {
+  function isPaidApplication() {
+    // First passport is free. Any subsequent application (renewal) requires payment.
+    return (profile.passport_count ?? 0) >= 1 || !!profile.passport_renewal_requested && !!profile.passport_serial;
+  }
+
+  async function doSubmit() {
     if (!profile.identity_source) { toast.error("Wybierz źródło weryfikacji tożsamości."); return; }
-    if (!profile.monthly_income_net) { toast.error("Podaj średni miesięczny dochód netto z 3 ostatnich miesięcy."); return; }
+    if (!profile.monthly_income_net && !(profile.is_student && profile.student_status === "non_working_supported")) {
+      toast.error("Podaj średni miesięczny dochód netto lub zaznacz status studenta niepracującego ze wsparciem bliskich.");
+      return;
+    }
+    if (profile.is_student && !profile.student_status) {
+      toast.error("Wybierz typ statusu studenta (pracujący / niepracujący).");
+      return;
+    }
     setSaving(true);
     const payload = {
       identity_source: profile.identity_source,
@@ -189,8 +227,13 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
       accepts_notarial_lease: !!profile.accepts_notarial_lease,
       has_tenant_insurance: !!profile.has_tenant_insurance,
       willing_tenant_insurance: !!profile.willing_tenant_insurance,
+      is_student: !!profile.is_student,
+      student_status: profile.is_student ? profile.student_status : null,
+      accepts_one_month_deposit: !!profile.accepts_one_month_deposit,
+      has_guarantor: !!profile.has_guarantor,
       passport_application_status: "submitted",
       passport_application_submitted_at: new Date().toISOString(),
+      passport_renewal_requested: false,
       personal_bio_pl: profile.personal_bio_pl,
       avatar_url: profile.avatar_url,
     };
@@ -198,7 +241,25 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Aplikacja o Paszport Najemcy została wysłana do weryfikacji.");
+    setPaymentOpen(false);
     load();
+  }
+
+  async function submitApplication() {
+    if (isPaidApplication()) {
+      // Paid renewal flow — show payment placeholder dialog first
+      setPaymentOpen(true);
+      return;
+    }
+    await doSubmit();
+  }
+
+  async function startRenewal() {
+    try {
+      await renewFn();
+      toast.success("Formularz odblokowany. Zaktualizuj dane i wyślij ponowny wniosek.");
+      load();
+    } catch (e) { toast.error((e as Error).message); }
   }
 
   // ---------- Lease history ----------
@@ -280,7 +341,11 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   };
 
   const status = profile.passport_application_status;
-  const locked = status === "submitted" || status === "approved";
+  // Locked while admin is reviewing OR a passport is already issued and the user
+  // has NOT explicitly clicked "Złóż wniosek o nowy paszport" to unlock the form.
+  const inRenewal = !!profile.passport_renewal_requested;
+  const locked = (status === "submitted" || status === "approved") && !inRenewal;
+  const passportIssued = status === "approved" && !!profile.passport_serial;
 
   return (
     <section className="mt-6 space-y-6">
@@ -291,6 +356,27 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             Po wysłaniu aplikacji dane są zablokowane do edycji. Jeśli musisz zmienić dane tożsamości (np. nowy dokument), skontaktuj się z administratorem — tylko administrator może zresetować anonimizację.
+          </p>
+          {passportIssued && (
+            <div className="mt-4">
+              <Button
+                onClick={startRenewal}
+                className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" /> Złóż wniosek o nowy paszport
+              </Button>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Odblokuje wszystkie pola (oprócz danych tożsamości objętych anonimizacją). Kolejny paszport jest płatny — przed wysłaniem do weryfikacji pojawi się ekran płatności.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+      {inRenewal && (
+        <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4 text-sm">
+          <div className="font-semibold text-gold">Tryb edycji nowego wniosku</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Wszystkie pola są aktywne (oprócz danych tożsamości objętych anonimizacją). Zaktualizuj dane i na dole kliknij <strong>„Aplikuj o Paszport Najemcy StaySafe"</strong>. Kolejny paszport jest płatny — przed wysłaniem do administratora przekierujemy Cię do ekranu płatności.
           </p>
         </div>
       )}
@@ -438,6 +524,72 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 onChange={(e) => e.target.files?.[0] && addMultiFile("bank_statement_urls", e.target.files[0])} />
             </label>
             <FileList field="bank_statement_urls" />
+          </div>
+
+          {/* === Trust Score: 3.1 student status + 2.2 deposit + 2.3 guarantor === */}
+          <div className="sm:col-span-2 space-y-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4">
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox
+                checked={!!profile.is_student}
+                onCheckedChange={(v) => {
+                  const next = !!v;
+                  setProfile((p) => ({ ...p, is_student: next, student_status: next ? (p.student_status ?? "working") : null }));
+                }}
+                className="mt-0.5"
+              />
+              <span className="flex-1">
+                <span className="inline-flex items-center gap-1.5 font-semibold">
+                  <GraduationCap className="h-4 w-4 text-gold" /> Aktywny status studenta
+                </span>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+7 pkt</span>
+              </span>
+            </label>
+            {profile.is_student && (
+              <div className="ml-7">
+                <Label className="text-xs">Wybierz wariant</Label>
+                <select
+                  value={profile.student_status ?? ""}
+                  onChange={(e) => set("student_status", e.target.value || null)}
+                  className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm"
+                >
+                  <option value="">— wybierz —</option>
+                  <option value="working">Student otrzymujący dochody z pracy</option>
+                  <option value="non_working_supported">Student niepracujący otrzymujący wsparcie finansowe od osób bliskich</option>
+                </select>
+                {profile.student_status === "non_working_supported" && (
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    Wariant uznawany jako próg dochodowy 3001–5000 zł netto (18,75 pkt) — pole „średni miesięczny dochód netto" nie jest wymagane.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox
+                checked={!!profile.accepts_one_month_deposit}
+                onCheckedChange={(v) => set("accepts_one_month_deposit", !!v)}
+                className="mt-0.5"
+              />
+              <span className="flex-1">
+                <span className="font-semibold">Akceptuję wpłatę standardowej kaucji jednomiesięcznej</span>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+6 pkt</span>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox
+                checked={!!profile.has_guarantor}
+                onCheckedChange={(v) => set("has_guarantor", !!v)}
+                className="mt-0.5"
+              />
+              <span className="flex-1">
+                <span className="inline-flex items-center gap-1.5 font-semibold">
+                  <UserCheck className="h-4 w-4 text-gold" /> Mam możliwość poręczenia umowy najmu przez dodatkową osobę z dochodami
+                </span>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+10 pkt</span>
+                <span className="block text-[11px] text-muted-foreground">Deklaracja — weryfikacja poręczyciela odbędzie się dopiero na etapie podpisywania umowy.</span>
+              </span>
+            </label>
           </div>
         </div>
       </div>
@@ -707,9 +859,39 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
         <p className="mt-3 text-xs text-muted-foreground">
           Po pozytywnej weryfikacji Twój paszport pojawi się w zakładce <strong>„Mój Paszport"</strong> w panelu użytkownika
           — w wersji gotowej do pobrania (PDF z QR-kodem) i udostępnienia Właścicielowi.
+          {isPaidApplication() && (
+            <span className="mt-2 block font-semibold text-amber-600">
+              Kolejny paszport jest płatny — po kliknięciu zostaniesz przekierowany do ekranu płatności.
+            </span>
+          )}
         </p>
       </div>
       </fieldset>
+
+      {/* ============ PAYMENT PLACEHOLDER ============ */}
+      <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-gold" /> Przekierowanie do płatności
+            </DialogTitle>
+            <DialogDescription>
+              Pierwszy Paszport Najemcy jest darmowy. Kolejny wniosek wymaga opłaty serwisowej.
+              <br /><br />
+              <strong>A teraz przekierujemy Cię do płatności.</strong>
+              <br /><br />
+              Moduł płatności zostanie podpięty w następnym etapie. Na potrzeby testów możesz teraz potwierdzić wysłanie wniosku do administratora.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPaymentOpen(false)}>Anuluj</Button>
+            <Button onClick={doSubmit} disabled={saving} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
+              Przejdź do płatności i wyślij wniosek
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
