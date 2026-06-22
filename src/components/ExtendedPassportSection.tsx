@@ -124,27 +124,34 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     setProfile((p) => ({ ...p, [k]: v }));
   }
 
-  // ---------- Credibility meter ----------
+  // ---------- Trust Score (V3 engine) ----------
+  const trust = useMemo(() => {
+    return computeTrustScore({
+      is_identity_verified: profile.identity_verification_status === "verified",
+      monthly_income_net: profile.monthly_income_net,
+      is_student: profile.is_student,
+      student_status: profile.student_status,
+      accepts_one_month_deposit: profile.accepts_one_month_deposit,
+      has_guarantor: profile.has_guarantor,
+      social_facebook_url: profile.social_facebook_url,
+      instagram_username: profile.instagram_username,
+      linkedin_url: profile.linkedin_url,
+      lease_history: history.map((e) => ({
+        references_available: e.references_available,
+        contract_url: e.contract_url,
+      })),
+      staysafe_completed_rentals_count: profile.staysafe_completed_rentals_count,
+    });
+  }, [profile, history]);
+
   const credibility = useMemo(() => {
-    let score = 0;
-    const total = 10;
-    if (profile.identity_source) score++;
-    if ((profile.identity_doc_urls ?? []).length > 0) score++;
-    if (profile.employment_type) score++;
-    if (profile.monthly_income_net) score++;
-    if ((profile.employment_contract_urls ?? []).length > 0 || profile.employment_contract_url) score++;
-    if ((profile.bank_statement_urls ?? []).length >= 3) score++;
-    if (profile.linkedin_url && profile.linkedin_verified_self) score++;
-    if ((profile.social_facebook_url && profile.facebook_verified_self) || (profile.instagram_username && profile.instagram_verified_self)) score++;
-    if (history.length > 0) score++;
-    if (profile.accepts_notarial_lease) score++;
-    const pct = Math.round((score / total) * 100);
+    const pct = Math.round((trust.cappedTotal / 100) * 100);
     let label: "Niska" | "Średnia" | "Wysoka" | "Ekspert" = "Niska";
-    if (pct >= 90) label = "Ekspert";
+    if (pct >= 86) label = "Ekspert";
     else if (pct >= 60) label = "Wysoka";
     else if (pct >= 30) label = "Średnia";
-    return { pct, label, missing: total - score };
-  }, [profile, history]);
+    return { pct, label, missing: Math.max(0, 100 - pct) };
+  }, [trust]);
 
   // ---------- Uploads ----------
   async function uploadToBucket(prefix: string, file: File) {
