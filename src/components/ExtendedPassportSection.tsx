@@ -341,7 +341,11 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   };
 
   const status = profile.passport_application_status;
-  const locked = status === "submitted" || status === "approved";
+  // Locked while admin is reviewing OR a passport is already issued and the user
+  // has NOT explicitly clicked "Złóż wniosek o nowy paszport" to unlock the form.
+  const inRenewal = !!profile.passport_renewal_requested;
+  const locked = (status === "submitted" || status === "approved") && !inRenewal;
+  const passportIssued = status === "approved" && !!profile.passport_serial;
 
   return (
     <section className="mt-6 space-y-6">
@@ -352,6 +356,27 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
           </div>
           <p className="mt-1 text-xs text-muted-foreground">
             Po wysłaniu aplikacji dane są zablokowane do edycji. Jeśli musisz zmienić dane tożsamości (np. nowy dokument), skontaktuj się z administratorem — tylko administrator może zresetować anonimizację.
+          </p>
+          {passportIssued && (
+            <div className="mt-4">
+              <Button
+                onClick={startRenewal}
+                className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
+              >
+                <RefreshCw className="mr-2 h-4 w-4" /> Złóż wniosek o nowy paszport
+              </Button>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Odblokuje wszystkie pola (oprócz danych tożsamości objętych anonimizacją). Kolejny paszport jest płatny — przed wysłaniem do weryfikacji pojawi się ekran płatności.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+      {inRenewal && (
+        <div className="rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4 text-sm">
+          <div className="font-semibold text-gold">Tryb edycji nowego wniosku</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Wszystkie pola są aktywne (oprócz danych tożsamości objętych anonimizacją). Zaktualizuj dane i na dole kliknij <strong>„Aplikuj o Paszport Najemcy StaySafe"</strong>. Kolejny paszport jest płatny — przed wysłaniem do administratora przekierujemy Cię do ekranu płatności.
           </p>
         </div>
       )}
