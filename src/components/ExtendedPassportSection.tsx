@@ -106,6 +106,8 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
+  const [paymentOpen, setPaymentOpen] = useState(false);
+  const renewFn = useServerFn(startPassportRenewal);
 
   async function load() {
     setLoading(true);
