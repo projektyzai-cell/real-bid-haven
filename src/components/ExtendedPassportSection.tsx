@@ -44,6 +44,14 @@ type Profile = Record<string, unknown> & {
   has_tenant_insurance: boolean | null;
   willing_tenant_insurance: boolean | null;
   passport_application_status: string | null;
+  passport_renewal_requested: boolean | null;
+  passport_count: number | null;
+  passport_serial: string | null;
+  is_student: boolean | null;
+  student_status: string | null;
+  accepts_one_month_deposit: boolean | null;
+  has_guarantor: boolean | null;
+  staysafe_completed_rentals_count: number | null;
   personal_bio_pl: string | null;
   avatar_url: string | null;
 };
@@ -71,7 +79,9 @@ const empty: Profile = {
   social_facebook_url: null, linkedin_url: null, instagram_username: null, instagram_account_created_at: null,
   linkedin_verified_self: false, facebook_verified_self: false, instagram_verified_self: false,
   accepts_notarial_lease: false, has_tenant_insurance: false, willing_tenant_insurance: false,
-  passport_application_status: null,
+  passport_application_status: null, passport_renewal_requested: false, passport_count: 0, passport_serial: null,
+  is_student: false, student_status: null, accepts_one_month_deposit: false, has_guarantor: false,
+  staysafe_completed_rentals_count: 0,
   personal_bio_pl: null, avatar_url: null,
 };
 
