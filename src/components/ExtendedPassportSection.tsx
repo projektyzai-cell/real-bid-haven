@@ -525,6 +525,72 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
             </label>
             <FileList field="bank_statement_urls" />
           </div>
+
+          {/* === Trust Score: 3.1 student status + 2.2 deposit + 2.3 guarantor === */}
+          <div className="sm:col-span-2 space-y-3 rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4">
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox
+                checked={!!profile.is_student}
+                onCheckedChange={(v) => {
+                  const next = !!v;
+                  setProfile((p) => ({ ...p, is_student: next, student_status: next ? (p.student_status ?? "working") : null }));
+                }}
+                className="mt-0.5"
+              />
+              <span className="flex-1">
+                <span className="inline-flex items-center gap-1.5 font-semibold">
+                  <GraduationCap className="h-4 w-4 text-gold" /> Aktywny status studenta
+                </span>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+7 pkt</span>
+              </span>
+            </label>
+            {profile.is_student && (
+              <div className="ml-7">
+                <Label className="text-xs">Wybierz wariant</Label>
+                <select
+                  value={profile.student_status ?? ""}
+                  onChange={(e) => set("student_status", e.target.value || null)}
+                  className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm"
+                >
+                  <option value="">— wybierz —</option>
+                  <option value="working">Student otrzymujący dochody z pracy</option>
+                  <option value="non_working_supported">Student niepracujący otrzymujący wsparcie finansowe od osób bliskich</option>
+                </select>
+                {profile.student_status === "non_working_supported" && (
+                  <p className="mt-1.5 text-[11px] text-muted-foreground">
+                    Wariant uznawany jako próg dochodowy 3001–5000 zł netto (18,75 pkt) — pole „średni miesięczny dochód netto" nie jest wymagane.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox
+                checked={!!profile.accepts_one_month_deposit}
+                onCheckedChange={(v) => set("accepts_one_month_deposit", !!v)}
+                className="mt-0.5"
+              />
+              <span className="flex-1">
+                <span className="font-semibold">Akceptuję wpłatę standardowej kaucji jednomiesięcznej</span>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+6 pkt</span>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox
+                checked={!!profile.has_guarantor}
+                onCheckedChange={(v) => set("has_guarantor", !!v)}
+                className="mt-0.5"
+              />
+              <span className="flex-1">
+                <span className="inline-flex items-center gap-1.5 font-semibold">
+                  <UserCheck className="h-4 w-4 text-gold" /> Mam możliwość poręczenia umowy najmu przez dodatkową osobę z dochodami
+                </span>
+                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+10 pkt</span>
+                <span className="block text-[11px] text-muted-foreground">Deklaracja — weryfikacja poręczyciela odbędzie się dopiero na etapie podpisywania umowy.</span>
+              </span>
+            </label>
+          </div>
         </div>
       </div>
 
