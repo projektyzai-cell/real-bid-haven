@@ -187,9 +187,21 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     set(field, arr);
   }
 
-  async function submitApplication() {
+  function isPaidApplication() {
+    // First passport is free. Any subsequent application (renewal) requires payment.
+    return (profile.passport_count ?? 0) >= 1 || !!profile.passport_renewal_requested && !!profile.passport_serial;
+  }
+
+  async function doSubmit() {
     if (!profile.identity_source) { toast.error("Wybierz źródło weryfikacji tożsamości."); return; }
-    if (!profile.monthly_income_net) { toast.error("Podaj średni miesięczny dochód netto z 3 ostatnich miesięcy."); return; }
+    if (!profile.monthly_income_net && !(profile.is_student && profile.student_status === "non_working_supported")) {
+      toast.error("Podaj średni miesięczny dochód netto lub zaznacz status studenta niepracującego ze wsparciem bliskich.");
+      return;
+    }
+    if (profile.is_student && !profile.student_status) {
+      toast.error("Wybierz typ statusu studenta (pracujący / niepracujący).");
+      return;
+    }
     setSaving(true);
     const payload = {
       identity_source: profile.identity_source,
@@ -215,8 +227,13 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
       accepts_notarial_lease: !!profile.accepts_notarial_lease,
       has_tenant_insurance: !!profile.has_tenant_insurance,
       willing_tenant_insurance: !!profile.willing_tenant_insurance,
+      is_student: !!profile.is_student,
+      student_status: profile.is_student ? profile.student_status : null,
+      accepts_one_month_deposit: !!profile.accepts_one_month_deposit,
+      has_guarantor: !!profile.has_guarantor,
       passport_application_status: "submitted",
       passport_application_submitted_at: new Date().toISOString(),
+      passport_renewal_requested: false,
       personal_bio_pl: profile.personal_bio_pl,
       avatar_url: profile.avatar_url,
     };
@@ -224,7 +241,25 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     setSaving(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Aplikacja o Paszport Najemcy została wysłana do weryfikacji.");
+    setPaymentOpen(false);
     load();
+  }
+
+  async function submitApplication() {
+    if (isPaidApplication()) {
+      // Paid renewal flow — show payment placeholder dialog first
+      setPaymentOpen(true);
+      return;
+    }
+    await doSubmit();
+  }
+
+  async function startRenewal() {
+    try {
+      await renewFn();
+      toast.success("Formularz odblokowany. Zaktualizuj dane i wyślij ponowny wniosek.");
+      load();
+    } catch (e) { toast.error((e as Error).message); }
   }
 
   // ---------- Lease history ----------
