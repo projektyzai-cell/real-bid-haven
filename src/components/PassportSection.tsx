@@ -1,10 +1,17 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, BadgeCheck, Loader2, RotateCw } from "lucide-react";
+import { ShieldCheck, BadgeCheck, Loader2, MailQuestion } from "lucide-react";
+import { useServerFn } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog, DialogContent, DialogDescription, DialogFooter,
+  DialogHeader, DialogTitle, DialogTrigger,
+} from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { requestPassportDataChange } from "@/lib/passport-actions.functions";
 import {
   isValidPesel,
   normalizePesel,
