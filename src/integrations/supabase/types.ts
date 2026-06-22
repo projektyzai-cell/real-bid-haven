@@ -405,6 +405,7 @@ export type Database = {
       profiles: {
         Row: {
           accepts_notarial_lease: boolean
+          accepts_one_month_deposit: boolean | null
           account_type: string | null
           avatar_url: string | null
           bank_statement_urls: string[] | null
@@ -425,6 +426,7 @@ export type Database = {
           facebook_verified_self: boolean | null
           first_name: string | null
           has_completed_internal_staysafe_lease: boolean
+          has_guarantor: boolean | null
           has_pesel: boolean
           has_tenant_insurance: boolean
           home_city: string | null
@@ -448,6 +450,7 @@ export type Database = {
           passport_application_submitted_at: string | null
           passport_city: string | null
           passport_contract_valid: boolean
+          passport_count: number | null
           passport_expires_at: string | null
           passport_generated_at: string | null
           passport_generated_by: string | null
@@ -455,6 +458,7 @@ export type Database = {
           passport_issued_at: string | null
           passport_name_verified: boolean
           passport_pdf_url: string | null
+          passport_renewal_requested: boolean | null
           passport_score: number | null
           passport_serial: string | null
           passport_social_verified: boolean
@@ -465,6 +469,8 @@ export type Database = {
           preferred_language: string
           serial_num: number | null
           social_facebook_url: string | null
+          staysafe_completed_rentals_count: number | null
+          student_status: string | null
           trusted_tenant_score: number
           verified_employer: boolean
           verified_facebook: boolean
@@ -478,6 +484,7 @@ export type Database = {
         }
         Insert: {
           accepts_notarial_lease?: boolean
+          accepts_one_month_deposit?: boolean | null
           account_type?: string | null
           avatar_url?: string | null
           bank_statement_urls?: string[] | null
@@ -498,6 +505,7 @@ export type Database = {
           facebook_verified_self?: boolean | null
           first_name?: string | null
           has_completed_internal_staysafe_lease?: boolean
+          has_guarantor?: boolean | null
           has_pesel?: boolean
           has_tenant_insurance?: boolean
           home_city?: string | null
@@ -521,6 +529,7 @@ export type Database = {
           passport_application_submitted_at?: string | null
           passport_city?: string | null
           passport_contract_valid?: boolean
+          passport_count?: number | null
           passport_expires_at?: string | null
           passport_generated_at?: string | null
           passport_generated_by?: string | null
@@ -528,6 +537,7 @@ export type Database = {
           passport_issued_at?: string | null
           passport_name_verified?: boolean
           passport_pdf_url?: string | null
+          passport_renewal_requested?: boolean | null
           passport_score?: number | null
           passport_serial?: string | null
           passport_social_verified?: boolean
@@ -538,6 +548,8 @@ export type Database = {
           preferred_language?: string
           serial_num?: number | null
           social_facebook_url?: string | null
+          staysafe_completed_rentals_count?: number | null
+          student_status?: string | null
           trusted_tenant_score?: number
           verified_employer?: boolean
           verified_facebook?: boolean
@@ -551,6 +563,7 @@ export type Database = {
         }
         Update: {
           accepts_notarial_lease?: boolean
+          accepts_one_month_deposit?: boolean | null
           account_type?: string | null
           avatar_url?: string | null
           bank_statement_urls?: string[] | null
@@ -571,6 +584,7 @@ export type Database = {
           facebook_verified_self?: boolean | null
           first_name?: string | null
           has_completed_internal_staysafe_lease?: boolean
+          has_guarantor?: boolean | null
           has_pesel?: boolean
           has_tenant_insurance?: boolean
           home_city?: string | null
@@ -594,6 +608,7 @@ export type Database = {
           passport_application_submitted_at?: string | null
           passport_city?: string | null
           passport_contract_valid?: boolean
+          passport_count?: number | null
           passport_expires_at?: string | null
           passport_generated_at?: string | null
           passport_generated_by?: string | null
@@ -601,6 +616,7 @@ export type Database = {
           passport_issued_at?: string | null
           passport_name_verified?: boolean
           passport_pdf_url?: string | null
+          passport_renewal_requested?: boolean | null
           passport_score?: number | null
           passport_serial?: string | null
           passport_social_verified?: boolean
@@ -611,6 +627,8 @@ export type Database = {
           preferred_language?: string
           serial_num?: number | null
           social_facebook_url?: string | null
+          staysafe_completed_rentals_count?: number | null
+          student_status?: string | null
           trusted_tenant_score?: number
           verified_employer?: boolean
           verified_facebook?: boolean
