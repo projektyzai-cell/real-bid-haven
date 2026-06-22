@@ -859,9 +859,39 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
         <p className="mt-3 text-xs text-muted-foreground">
           Po pozytywnej weryfikacji Twój paszport pojawi się w zakładce <strong>„Mój Paszport"</strong> w panelu użytkownika
           — w wersji gotowej do pobrania (PDF z QR-kodem) i udostępnienia Właścicielowi.
+          {isPaidApplication() && (
+            <span className="mt-2 block font-semibold text-amber-600">
+              Kolejny paszport jest płatny — po kliknięciu zostaniesz przekierowany do ekranu płatności.
+            </span>
+          )}
         </p>
       </div>
       </fieldset>
+
+      {/* ============ PAYMENT PLACEHOLDER ============ */}
+      <Dialog open={paymentOpen} onOpenChange={setPaymentOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5 text-gold" /> Przekierowanie do płatności
+            </DialogTitle>
+            <DialogDescription>
+              Pierwszy Paszport Najemcy jest darmowy. Kolejny wniosek wymaga opłaty serwisowej.
+              <br /><br />
+              <strong>A teraz przekierujemy Cię do płatności.</strong>
+              <br /><br />
+              Moduł płatności zostanie podpięty w następnym etapie. Na potrzeby testów możesz teraz potwierdzić wysłanie wniosku do administratora.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setPaymentOpen(false)}>Anuluj</Button>
+            <Button onClick={doSubmit} disabled={saving} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
+              Przejdź do płatności i wyślij wniosek
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }
