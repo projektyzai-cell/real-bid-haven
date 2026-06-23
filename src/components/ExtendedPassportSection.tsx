@@ -834,6 +834,9 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 </label>
               )}
             </div>
+            <p className="mt-2 text-[10px] leading-snug text-muted-foreground">
+              Załączenie zdjęcia nie jest obowiązkowe, ale awatar będzie widoczny na paszporcie. Gdy Wynajmujący widzi zdjęcie Najemcy, znacznie przychylniej patrzy na taką kandydaturę.
+            </p>
           </div>
           <div>
             <Label className="text-xs">Opis (po polsku)</Label>
