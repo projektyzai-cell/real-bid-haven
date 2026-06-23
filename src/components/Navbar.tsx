@@ -93,7 +93,13 @@ export function Navbar() {
                         onClick={() => navigate({ to: "/najem/paszport" })}
                         className="rounded-xl bg-gold/10 py-3 font-semibold text-gold focus:bg-gold/20"
                       >
-                        <ShieldCheck className="h-4 w-4" /> Paszport Najemcy
+                        <ShieldCheck className="h-4 w-4" /> Wyrób Paszport Najemcy
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => navigate({ to: "/najem/moj-paszport" })}
+                        className="rounded-xl bg-gold/10 py-3 font-semibold text-gold focus:bg-gold/20"
+                      >
+                        <BadgeCheck className="h-4 w-4" /> Mój Paszport
                       </DropdownMenuItem>
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> Moje zapytania i dopasowania
