@@ -99,5 +99,11 @@ function toPassport(p: any, leaseCount: number): PassportData {
     hasTenantInsurance: !!(p.has_tenant_insurance || p.willing_tenant_insurance),
     bio: p.personal_bio_pl ?? null,
     avatarUrl: p.avatar_url ?? null,
+    // Always-true once user has a confirmed account
+    contactVerified: true,
+    // Reserved for future verifications
+    educationVerified: false,
+    creditScoreVerified: false,
   };
 }
+
