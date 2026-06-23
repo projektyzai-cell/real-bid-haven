@@ -323,7 +323,7 @@ function AspectRow({ aspect }: { aspect: Aspect }) {
           : <span className="text-[10px] font-bold">·</span>}
       </span>
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: aspect.tint + "55" }}>
-        <Icon className="h-4.5 w-4.5 text-white" />
+        <Icon className="h-4 w-4 text-white" />
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[12px] font-bold text-white">{aspect.label}</div>
