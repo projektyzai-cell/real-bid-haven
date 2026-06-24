@@ -49,17 +49,33 @@ function ClickHandler({ onPick }: { onPick: (lat: number, lng: number) => void }
 
 interface Props {
   city: string;
+  district?: string;
   value: MapArea | null;
   onChange: (v: MapArea) => void;
 }
 
-export function MapAreaPicker({ city, value, onChange }: Props) {
-  const fallback = useMemo<[number, number]>(
+export function MapAreaPicker({ city, district, value, onChange }: Props) {
+  const cityFallback = useMemo<[number, number]>(
     () => CITY_COORDS[city] ?? [52.0693, 19.4803],
     [city],
   );
+  const [areaCenter, setAreaCenter] = useState<[number, number]>(cityFallback);
   const [radius, setRadius] = useState(value?.radiusKm ?? 2);
-  const center: [number, number] = value ? [value.lat, value.lng] : fallback;
+
+  // When city changes, reset to city centre.
+  useEffect(() => { setAreaCenter(cityFallback); }, [cityFallback]);
+
+  // When district provided, geocode it and recentre.
+  useEffect(() => {
+    if (!city || !district?.trim()) return;
+    const ctrl = new AbortController();
+    geocodeArea(city, district, ctrl.signal).then((coords) => {
+      if (coords) setAreaCenter(coords);
+    });
+    return () => ctrl.abort();
+  }, [city, district]);
+
+  const center: [number, number] = value ? [value.lat, value.lng] : areaCenter;
 
   useEffect(() => {
     if (value) setRadius(value.radiusKm);
