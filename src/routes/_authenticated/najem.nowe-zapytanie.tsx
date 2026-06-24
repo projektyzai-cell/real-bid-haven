@@ -446,6 +446,10 @@ function NewRentalRequestPage() {
               <Checkbox checked={flags.accepts_insurance} onCheckedChange={() => toggle("accepts_insurance")} className="mt-0.5" />
               <span>Zgadzam się wykupić ubezpieczenie OC najemcy na własny koszt.</span>
             </label>
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.is_student} onCheckedChange={() => toggle("is_student")} className="mt-0.5" />
+              <span>Jestem <strong>studentem</strong></span>
+            </label>
           </div>
         </div>
 
@@ -459,10 +463,6 @@ function NewRentalRequestPage() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.pets_other} onCheckedChange={() => toggle("pets_other")} className="mt-0.5" />
             <span>Większe zwierzęta — pies / kot / inne</span>
-          </label>
-          <label className="flex items-start gap-3 text-sm">
-            <Checkbox checked={flags.is_student} onCheckedChange={() => toggle("is_student")} className="mt-0.5" />
-            <span>Jestem <strong>studentem</strong></span>
           </label>
         </div>
 
