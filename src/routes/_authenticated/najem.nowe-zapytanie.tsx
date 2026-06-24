@@ -79,6 +79,15 @@ function NewRentalRequestPage() {
   // Reset map point when city changes
   useEffect(() => { setMapArea(null); }, [form.city]);
 
+  // Auto-set min_rooms based on property type / apartment subtype
+  useEffect(() => {
+    if (propertyType === "room") setForm((p) => ({ ...p, min_rooms: "1" }));
+    else if (propertyType === "apartment") {
+      const n = apartmentSubtype === "studio" ? "1" : apartmentSubtype === "2rooms" ? "2" : "3";
+      setForm((p) => ({ ...p, min_rooms: n }));
+    }
+  }, [propertyType, apartmentSubtype]);
+
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const toggle = (k: keyof typeof flags) => setFlags((p) => ({ ...p, [k]: !p[k] }));
 
