@@ -96,6 +96,14 @@ function NewRentalListing() {
     })();
   }, [editId, isEdit, user, navigate]);
 
+  // Auto-set room count based on property type / apartment subtype.
+  useEffect(() => {
+    if (propertyType === "room") setForm((s) => ({ ...s, rooms: 1 }));
+    else if (propertyType === "apartment") {
+      const n = apartmentSubtype === "studio" ? 1 : apartmentSubtype === "2rooms" ? 2 : 3;
+      setForm((s) => ({ ...s, rooms: n }));
+    }
+  }, [propertyType, apartmentSubtype]);
 
   function setF<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((s) => ({ ...s, [k]: v }));
