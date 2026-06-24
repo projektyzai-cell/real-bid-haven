@@ -38,3 +38,20 @@ export async function reverseGeocode(lat: number, lng: number, signal?: AbortSig
   if (!res.ok) return null;
   return (await res.json()) as NominatimHit;
 }
+
+// Geocode a "district, city, Polska" query — returns [lat, lng] or null.
+export async function geocodeArea(city: string, district: string | undefined, signal?: AbortSignal): Promise<[number, number] | null> {
+  if (!city.trim()) return null;
+  const q = district?.trim()
+    ? `${district}, ${city}, Polska`
+    : `${city}, Polska`;
+  const url = `${BASE}/search?format=json&limit=1&accept-language=pl&countrycodes=pl&q=${encodeURIComponent(q)}`;
+  try {
+    const res = await fetch(url, { signal, headers: { Accept: "application/json" } });
+    if (!res.ok) return null;
+    const data = (await res.json()) as NominatimHit[];
+    if (!data.length) return null;
+    return [Number(data[0].lat), Number(data[0].lon)];
+  } catch { return null; }
+}
+
