@@ -59,6 +59,7 @@ function NewRentalRequestPage() {
   const [flags, setFlags] = useState({
     wants_balcony: false, wants_basement: false, wants_elevator: false,
     requires_furnished: false,
+    wants_parking_space: false, wants_washing_machine: false,
     accepts_notarial_lease: false, accepts_deposit: false, accepts_insurance: false,
     pets_caged: false, pets_other: false,
     is_student: false,
