@@ -309,7 +309,11 @@ function NewRentalListing() {
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <Label>Liczba pokoi</Label>
+              <Label>
+                {propertyType === "room"
+                  ? "Ilość pokoi w całej nieruchomości przeznaczona na wynajem"
+                  : "Liczba pokoi"}
+              </Label>
               <Input type="number" min={1} value={form.rooms} onChange={(e) => setF("rooms", Number(e.target.value))} className="mt-1.5 rounded-xl" />
             </div>
             <div>
@@ -330,6 +334,8 @@ function NewRentalListing() {
                 ["has_basement", "Piwnica"],
                 ["has_elevator", "Winda"],
                 ["is_furnished", "Mieszkanie umeblowane"],
+                ["has_parking_space", "Miejsce postojowe"],
+                ["has_washing_machine", "Pralka"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
