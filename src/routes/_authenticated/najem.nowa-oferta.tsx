@@ -463,6 +463,10 @@ function NewRentalListing() {
               <Checkbox checked={flags.requires_insurance} onCheckedChange={() => toggle("requires_insurance")} className="mt-0.5" />
               <span>Wymagam zawarcia ubezpieczenia OC najemcy na jego koszt.</span>
             </label>
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
+              <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
+            </label>
           </div>
         </div>
 
@@ -480,10 +484,6 @@ function NewRentalListing() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
             <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
-          </label>
-          <label className="flex items-start gap-3 text-sm">
-            <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
-            <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
           </label>
         </div>
 
