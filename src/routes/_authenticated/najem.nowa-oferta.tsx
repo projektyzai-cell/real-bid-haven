@@ -147,6 +147,8 @@ function NewRentalListing() {
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
       is_furnished: flags.is_furnished,
+      has_parking_space: flags.has_parking_space,
+      has_washing_machine: showRoomFeatures && flags.has_washing_machine,
       has_basement: propertyType === "house" ? flags.has_basement : (showRoomFeatures ? flags.has_basement : null),
       floor_number: showRoomFeatures && floorNumber ? floorNumber : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
