@@ -43,6 +43,7 @@ function NewRentalListing() {
   });
   const [flags, setFlags] = useState({
     has_balcony: false, has_basement: false, has_elevator: false, is_furnished: false,
+    has_parking_space: false, has_washing_machine: false,
     notarial_required: false, requires_deposit: true, requires_insurance: false,
     requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
@@ -84,6 +85,7 @@ function NewRentalListing() {
       setFlags({
         has_balcony: !!r.has_balcony, has_basement: !!r.has_basement,
         has_elevator: !!r.has_elevator, is_furnished: !!r.is_furnished,
+        has_parking_space: !!r.has_parking_space, has_washing_machine: !!r.has_washing_machine,
         notarial_required: !!r.notarial_required, requires_deposit: !!r.requires_deposit,
         requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
         pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
@@ -94,6 +96,14 @@ function NewRentalListing() {
     })();
   }, [editId, isEdit, user, navigate]);
 
+  // Auto-set room count based on property type / apartment subtype.
+  useEffect(() => {
+    if (propertyType === "room") setForm((s) => ({ ...s, rooms: 1 }));
+    else if (propertyType === "apartment") {
+      const n = apartmentSubtype === "studio" ? 1 : apartmentSubtype === "2rooms" ? 2 : 3;
+      setForm((s) => ({ ...s, rooms: n }));
+    }
+  }, [propertyType, apartmentSubtype]);
 
   function setF<K extends keyof typeof form>(k: K, v: (typeof form)[K]) {
     setForm((s) => ({ ...s, [k]: v }));
@@ -137,6 +147,8 @@ function NewRentalListing() {
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
       is_furnished: flags.is_furnished,
+      has_parking_space: flags.has_parking_space,
+      has_washing_machine: showRoomFeatures && flags.has_washing_machine,
       has_basement: propertyType === "house" ? flags.has_basement : (showRoomFeatures ? flags.has_basement : null),
       floor_number: showRoomFeatures && floorNumber ? floorNumber : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
@@ -297,7 +309,11 @@ function NewRentalListing() {
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <Label>Liczba pokoi</Label>
+              <Label>
+                {propertyType === "room"
+                  ? "Ilość pokoi w całej nieruchomości przeznaczona na wynajem"
+                  : "Liczba pokoi"}
+              </Label>
               <Input type="number" min={1} value={form.rooms} onChange={(e) => setF("rooms", Number(e.target.value))} className="mt-1.5 rounded-xl" />
             </div>
             <div>
@@ -318,6 +334,8 @@ function NewRentalListing() {
                 ["has_basement", "Piwnica"],
                 ["has_elevator", "Winda"],
                 ["is_furnished", "Mieszkanie umeblowane"],
+                ["has_parking_space", "Miejsce postojowe"],
+                ["has_washing_machine", "Pralka"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
@@ -445,6 +463,10 @@ function NewRentalListing() {
               <Checkbox checked={flags.requires_insurance} onCheckedChange={() => toggle("requires_insurance")} className="mt-0.5" />
               <span>Wymagam zawarcia ubezpieczenia OC najemcy na jego koszt.</span>
             </label>
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
+              <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
+            </label>
           </div>
         </div>
 
@@ -462,10 +484,6 @@ function NewRentalListing() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
             <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
-          </label>
-          <label className="flex items-start gap-3 text-sm">
-            <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
-            <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
           </label>
         </div>
 

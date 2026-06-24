@@ -132,7 +132,34 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
         import("html2canvas"),
         import("jspdf"),
       ]);
-      const canvas = await html2canvas(ref.current, { backgroundColor: NAVY, scale: 2, useCORS: true, allowTaint: false, logging: false });
+      const canvas = await html2canvas(ref.current, {
+        backgroundColor: NAVY, scale: 2, useCORS: true, allowTaint: false, logging: false,
+        onclone: (doc) => {
+          // html2canvas can't parse modern CSS color functions (lab/lch/oklch/oklab/color()).
+          // Convert any computed color value containing them to plain rgb via a canvas trick.
+          const ctx2 = document.createElement("canvas").getContext("2d")!;
+          const RX = /(lab|lch|oklch|oklab|color)\s*\(/i;
+          const toRgb = (v: string): string => {
+            try { ctx2.fillStyle = "#000"; ctx2.fillStyle = v; return ctx2.fillStyle as string; }
+            catch { return "rgb(0,0,0)"; }
+          };
+          const props = [
+            "color", "background-color", "border-color",
+            "border-top-color", "border-right-color", "border-bottom-color", "border-left-color",
+            "outline-color", "text-decoration-color", "fill", "stroke",
+          ];
+          const win = doc.defaultView!;
+          doc.querySelectorAll<HTMLElement>("*").forEach((el) => {
+            const cs = win.getComputedStyle(el);
+            props.forEach((p) => {
+              const v = cs.getPropertyValue(p);
+              if (v && RX.test(v)) el.style.setProperty(p, toRgb(v), "important");
+            });
+            const bg = cs.getPropertyValue("background-image");
+            if (bg && RX.test(bg)) el.style.setProperty("background-image", "none", "important");
+          });
+        },
+      });
       const img = canvas.toDataURL("image/png");
       const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
       pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);

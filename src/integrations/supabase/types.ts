@@ -853,6 +853,8 @@ export type Database = {
           has_basement: boolean | null
           has_elevator: boolean
           has_energy_cert: boolean
+          has_parking_space: boolean
+          has_washing_machine: boolean
           id: string
           images: string[]
           insurance_payer: string | null
@@ -905,6 +907,8 @@ export type Database = {
           has_basement?: boolean | null
           has_elevator?: boolean
           has_energy_cert?: boolean
+          has_parking_space?: boolean
+          has_washing_machine?: boolean
           id?: string
           images?: string[]
           insurance_payer?: string | null
@@ -957,6 +961,8 @@ export type Database = {
           has_basement?: boolean | null
           has_elevator?: boolean
           has_energy_cert?: boolean
+          has_parking_space?: boolean
+          has_washing_machine?: boolean
           id?: string
           images?: string[]
           insurance_payer?: string | null
@@ -1116,6 +1122,8 @@ export type Database = {
           wants_balcony: boolean
           wants_basement: boolean
           wants_elevator: boolean
+          wants_parking_space: boolean
+          wants_washing_machine: boolean
         }
         Insert: {
           accepts_deposit?: boolean
@@ -1157,6 +1165,8 @@ export type Database = {
           wants_balcony?: boolean
           wants_basement?: boolean
           wants_elevator?: boolean
+          wants_parking_space?: boolean
+          wants_washing_machine?: boolean
         }
         Update: {
           accepts_deposit?: boolean
@@ -1198,6 +1208,8 @@ export type Database = {
           wants_balcony?: boolean
           wants_basement?: boolean
           wants_elevator?: boolean
+          wants_parking_space?: boolean
+          wants_washing_machine?: boolean
         }
         Relationships: []
       }

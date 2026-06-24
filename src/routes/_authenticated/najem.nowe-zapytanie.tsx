@@ -59,6 +59,7 @@ function NewRentalRequestPage() {
   const [flags, setFlags] = useState({
     wants_balcony: false, wants_basement: false, wants_elevator: false,
     requires_furnished: false,
+    wants_parking_space: false, wants_washing_machine: false,
     accepts_notarial_lease: false, accepts_deposit: false, accepts_insurance: false,
     pets_caged: false, pets_other: false,
     is_student: false,
@@ -77,6 +78,15 @@ function NewRentalRequestPage() {
 
   // Reset map point when city changes
   useEffect(() => { setMapArea(null); }, [form.city]);
+
+  // Auto-set min_rooms based on property type / apartment subtype
+  useEffect(() => {
+    if (propertyType === "room") setForm((p) => ({ ...p, min_rooms: "1" }));
+    else if (propertyType === "apartment") {
+      const n = apartmentSubtype === "studio" ? "1" : apartmentSubtype === "2rooms" ? "2" : "3";
+      setForm((p) => ({ ...p, min_rooms: n }));
+    }
+  }, [propertyType, apartmentSubtype]);
 
   const set = (k: keyof typeof form, v: string) => setForm((p) => ({ ...p, [k]: v }));
   const toggle = (k: keyof typeof flags) => setFlags((p) => ({ ...p, [k]: !p[k] }));
@@ -273,7 +283,7 @@ function NewRentalRequestPage() {
               </div>
             )}
             {mode === "map" && (
-              <MapAreaPicker city={form.city} value={mapArea} onChange={setMapArea} />
+              <MapAreaPicker city={form.city} district={form.district} value={mapArea} onChange={setMapArea} />
             )}
           </div>
         </div>
@@ -331,6 +341,8 @@ function NewRentalRequestPage() {
                 ["wants_basement", "Piwnica"],
                 ["wants_elevator", "Winda"],
                 ["requires_furnished", "Mieszkanie umeblowane"],
+                ["wants_parking_space", "Miejsce postojowe"],
+                ["wants_washing_machine", "Pralka"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
@@ -340,7 +352,11 @@ function NewRentalRequestPage() {
 
               <div className="grid gap-3 sm:grid-cols-2 pt-2">
                 <div>
-                  <Label className="text-xs">Min. liczba pokoi</Label>
+                  <Label className="text-xs">
+                    {propertyType === "room"
+                      ? "Ilość pokoi w całej nieruchomości przeznaczona na wynajem"
+                      : "Min. liczba pokoi"}
+                  </Label>
                   <Input type="number" min={1} max={10} value={form.min_rooms}
                     onChange={(e) => set("min_rooms", e.target.value)} className="mt-1.5 rounded-xl" />
                 </div>
@@ -430,6 +446,10 @@ function NewRentalRequestPage() {
               <Checkbox checked={flags.accepts_insurance} onCheckedChange={() => toggle("accepts_insurance")} className="mt-0.5" />
               <span>Zgadzam się wykupić ubezpieczenie OC najemcy na własny koszt.</span>
             </label>
+            <label className="flex items-start gap-3 text-sm">
+              <Checkbox checked={flags.is_student} onCheckedChange={() => toggle("is_student")} className="mt-0.5" />
+              <span>Jestem <strong>studentem</strong></span>
+            </label>
           </div>
         </div>
 
@@ -443,10 +463,6 @@ function NewRentalRequestPage() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.pets_other} onCheckedChange={() => toggle("pets_other")} className="mt-0.5" />
             <span>Większe zwierzęta — pies / kot / inne</span>
-          </label>
-          <label className="flex items-start gap-3 text-sm">
-            <Checkbox checked={flags.is_student} onCheckedChange={() => toggle("is_student")} className="mt-0.5" />
-            <span>Jestem <strong>studentem</strong></span>
           </label>
         </div>
 
