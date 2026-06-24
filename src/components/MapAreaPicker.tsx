@@ -32,6 +32,8 @@ const CITY_COORDS: Record<string, [number, number]> = {
   "Jastrzębie-Zdrój": [49.9501, 18.5949], "Nowy Sącz": [49.6212, 20.6969], "Jelenia Góra": [50.9044, 15.7194],
   "Siedlce": [52.1676, 22.2902], "Mysłowice": [50.2407, 19.1632], "Konin": [52.2233, 18.2511],
   "Piotrków Trybunalski": [51.4053, 19.7030], "Lubin": [51.4017, 16.2017], "Inowrocław": [52.7986, 18.2614],
+  "Żyrardów": [52.0489, 20.4458], "Pruszków": [52.1705, 20.8120], "Otwock": [52.1058, 21.2611],
+  "Legionowo": [52.4012, 20.9272], "Mińsk Mazowiecki": [52.1801, 21.5723], "Marki": [52.3204, 21.1042],
 };
 
 function Recenter({ center }: { center: [number, number] }) {
