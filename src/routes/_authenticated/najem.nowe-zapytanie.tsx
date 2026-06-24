@@ -283,7 +283,7 @@ function NewRentalRequestPage() {
               </div>
             )}
             {mode === "map" && (
-              <MapAreaPicker city={form.city} value={mapArea} onChange={setMapArea} />
+              <MapAreaPicker city={form.city} district={form.district} value={mapArea} onChange={setMapArea} />
             )}
           </div>
         </div>
