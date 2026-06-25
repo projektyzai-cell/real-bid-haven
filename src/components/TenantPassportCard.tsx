@@ -110,6 +110,7 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
   async function downloadPdf() {
     if (!ref.current) return;
     try {
+      // Inline avatars as data URLs so html2canvas doesn't taint the canvas.
       const imgs = ref.current.querySelectorAll<HTMLImageElement>("img[data-avatar]");
       for (const img of Array.from(imgs)) {
         if (img.src.startsWith("data:")) continue;
@@ -128,36 +129,87 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
           img.removeAttribute("src");
         }
       }
+
+      // KEY FIX: snapshot every computed style on the SOURCE element (the
+      // browser can parse oklch/lab fine) and convert each color value into
+      // plain rgb via a hidden canvas. Then write those values as INLINE
+      // styles onto the matching cloned element, and remove ALL stylesheets
+      // from the clone so html2canvas never tries to parse oklch/lab itself.
+      const ctx2 = document.createElement("canvas").getContext("2d")!;
+      const COLOR_RX = /(lab|lch|oklch|oklab|color)\s*\(/i;
+      const toRgb = (v: string): string => {
+        if (!v || v === "transparent" || v === "none") return v;
+        try { ctx2.fillStyle = "#000"; ctx2.fillStyle = v; return ctx2.fillStyle as string; }
+        catch { return "rgb(0,0,0)"; }
+      };
+      const COLOR_PROPS = [
+        "color", "background-color", "border-top-color", "border-right-color",
+        "border-bottom-color", "border-left-color", "outline-color",
+        "text-decoration-color", "fill", "stroke", "caret-color",
+        "column-rule-color",
+      ];
+
+      const sourceEls = Array.from(ref.current.querySelectorAll<HTMLElement>("*"));
+      const sourceRoot = ref.current;
+
       const [{ default: html2canvas }, { default: jsPDF }] = await Promise.all([
         import("html2canvas"),
         import("jspdf"),
       ]);
+
       const canvas = await html2canvas(ref.current, {
         backgroundColor: NAVY, scale: 2, useCORS: true, allowTaint: false, logging: false,
-        onclone: (doc) => {
-          // html2canvas can't parse modern CSS color functions (lab/lch/oklch/oklab/color()).
-          // Convert any computed color value containing them to plain rgb via a canvas trick.
-          const ctx2 = document.createElement("canvas").getContext("2d")!;
-          const RX = /(lab|lch|oklch|oklab|color)\s*\(/i;
-          const toRgb = (v: string): string => {
-            try { ctx2.fillStyle = "#000"; ctx2.fillStyle = v; return ctx2.fillStyle as string; }
-            catch { return "rgb(0,0,0)"; }
-          };
-          const props = [
-            "color", "background-color", "border-color",
-            "border-top-color", "border-right-color", "border-bottom-color", "border-left-color",
-            "outline-color", "text-decoration-color", "fill", "stroke",
-          ];
-          const win = doc.defaultView!;
-          doc.querySelectorAll<HTMLElement>("*").forEach((el) => {
-            const cs = win.getComputedStyle(el);
-            props.forEach((p) => {
+        onclone: (doc, clonedRoot) => {
+          // Remove every stylesheet from the clone — they may contain oklch/lab.
+          doc.querySelectorAll('style, link[rel="stylesheet"]').forEach((n) => n.remove());
+
+          // Walk source + clone in parallel and copy computed styles as inline rgb.
+          const clonedEls = [clonedRoot as HTMLElement, ...Array.from((clonedRoot as HTMLElement).querySelectorAll<HTMLElement>("*"))];
+          const srcEls = [sourceRoot, ...sourceEls];
+          const len = Math.min(srcEls.length, clonedEls.length);
+          for (let i = 0; i < len; i++) {
+            const src = srcEls[i];
+            const dst = clonedEls[i];
+            const cs = window.getComputedStyle(src);
+
+            // Colors → rgb
+            for (const p of COLOR_PROPS) {
               const v = cs.getPropertyValue(p);
-              if (v && RX.test(v)) el.style.setProperty(p, toRgb(v), "important");
-            });
-            const bg = cs.getPropertyValue("background-image");
-            if (bg && RX.test(bg)) el.style.setProperty("background-image", "none", "important");
-          });
+              if (v) dst.style.setProperty(p, COLOR_RX.test(v) ? toRgb(v) : v, "important");
+            }
+
+            // Background image (gradients with oklch crash) — drop if unsupported.
+            const bgImg = cs.getPropertyValue("background-image");
+            if (bgImg && bgImg !== "none") {
+              dst.style.setProperty("background-image", COLOR_RX.test(bgImg) ? "none" : bgImg, "important");
+            }
+
+            // Box-shadow can contain oklch; just drop it if so.
+            const shadow = cs.getPropertyValue("box-shadow");
+            if (shadow && COLOR_RX.test(shadow)) dst.style.setProperty("box-shadow", "none", "important");
+
+            // Borders / layout / typography essentials so the clone renders
+            // identically without any external stylesheet.
+            const copyProps = [
+              "font-family", "font-size", "font-weight", "font-style", "line-height",
+              "letter-spacing", "text-align", "text-transform", "white-space",
+              "display", "flex-direction", "justify-content", "align-items", "gap",
+              "grid-template-columns", "grid-template-rows",
+              "padding-top", "padding-right", "padding-bottom", "padding-left",
+              "margin-top", "margin-right", "margin-bottom", "margin-left",
+              "width", "height", "min-width", "min-height", "max-width", "max-height",
+              "border-top-width", "border-right-width", "border-bottom-width", "border-left-width",
+              "border-top-style", "border-right-style", "border-bottom-style", "border-left-style",
+              "border-top-left-radius", "border-top-right-radius",
+              "border-bottom-left-radius", "border-bottom-right-radius",
+              "opacity", "overflow", "position", "top", "left", "right", "bottom",
+              "object-fit",
+            ];
+            for (const p of copyProps) {
+              const v = cs.getPropertyValue(p);
+              if (v) dst.style.setProperty(p, v);
+            }
+          }
         },
       });
       const img = canvas.toDataURL("image/png");
