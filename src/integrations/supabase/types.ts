@@ -851,6 +851,7 @@ export type Database = {
           floor_number: string | null
           has_balcony: boolean
           has_basement: boolean | null
+          has_dishwasher: boolean
           has_elevator: boolean
           has_energy_cert: boolean
           has_parking_space: boolean
@@ -905,6 +906,7 @@ export type Database = {
           floor_number?: string | null
           has_balcony?: boolean
           has_basement?: boolean | null
+          has_dishwasher?: boolean
           has_elevator?: boolean
           has_energy_cert?: boolean
           has_parking_space?: boolean
@@ -959,6 +961,7 @@ export type Database = {
           floor_number?: string | null
           has_balcony?: boolean
           has_basement?: boolean | null
+          has_dishwasher?: boolean
           has_elevator?: boolean
           has_energy_cert?: boolean
           has_parking_space?: boolean
@@ -1121,6 +1124,7 @@ export type Database = {
           tenant_id: string
           wants_balcony: boolean
           wants_basement: boolean
+          wants_dishwasher: boolean
           wants_elevator: boolean
           wants_parking_space: boolean
           wants_washing_machine: boolean
@@ -1164,6 +1168,7 @@ export type Database = {
           tenant_id: string
           wants_balcony?: boolean
           wants_basement?: boolean
+          wants_dishwasher?: boolean
           wants_elevator?: boolean
           wants_parking_space?: boolean
           wants_washing_machine?: boolean
@@ -1207,6 +1212,7 @@ export type Database = {
           tenant_id?: string
           wants_balcony?: boolean
           wants_basement?: boolean
+          wants_dishwasher?: boolean
           wants_elevator?: boolean
           wants_parking_space?: boolean
           wants_washing_machine?: boolean
