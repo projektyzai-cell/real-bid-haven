@@ -43,7 +43,7 @@ function NewRentalListing() {
   });
   const [flags, setFlags] = useState({
     has_balcony: false, has_basement: false, has_elevator: false, is_furnished: false,
-    has_parking_space: false, has_washing_machine: false,
+    has_parking_space: false, has_washing_machine: false, has_dishwasher: false,
     notarial_required: false, requires_deposit: true, requires_insurance: false,
     requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
@@ -86,6 +86,7 @@ function NewRentalListing() {
         has_balcony: !!r.has_balcony, has_basement: !!r.has_basement,
         has_elevator: !!r.has_elevator, is_furnished: !!r.is_furnished,
         has_parking_space: !!r.has_parking_space, has_washing_machine: !!r.has_washing_machine,
+        has_dishwasher: !!r.has_dishwasher,
         notarial_required: !!r.notarial_required, requires_deposit: !!r.requires_deposit,
         requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
         pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
@@ -149,6 +150,7 @@ function NewRentalListing() {
       is_furnished: flags.is_furnished,
       has_parking_space: flags.has_parking_space,
       has_washing_machine: showRoomFeatures && flags.has_washing_machine,
+      has_dishwasher: showRoomFeatures && flags.has_dishwasher,
       has_basement: propertyType === "house" ? flags.has_basement : (showRoomFeatures ? flags.has_basement : null),
       floor_number: showRoomFeatures && floorNumber ? floorNumber : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
@@ -334,8 +336,9 @@ function NewRentalListing() {
                 ["has_basement", "Piwnica"],
                 ["has_elevator", "Winda"],
                 ["is_furnished", "Mieszkanie umeblowane"],
-                ["has_parking_space", "Miejsce postojowe"],
+                ["has_parking_space", "Miejsce postojowe przynależące do nieruchomości"],
                 ["has_washing_machine", "Pralka"],
+                ["has_dishwasher", "Zmywarka w mieszkaniu"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />

@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationPicker } from "@/components/LocationPicker";
-import { StreetAutocomplete } from "@/components/StreetAutocomplete";
+
 import { MapAreaPicker, type MapArea } from "@/components/MapAreaPicker";
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
@@ -59,7 +59,7 @@ function NewRentalRequestPage() {
   const [flags, setFlags] = useState({
     wants_balcony: false, wants_basement: false, wants_elevator: false,
     requires_furnished: false,
-    wants_parking_space: false, wants_washing_machine: false,
+    wants_parking_space: false, wants_washing_machine: false, wants_dishwasher: false,
     accepts_notarial_lease: false, accepts_deposit: false, accepts_insurance: false,
     pets_caged: false, pets_other: false,
     is_student: false,
@@ -236,11 +236,11 @@ function NewRentalRequestPage() {
 
         {/* MIASTO */}
         <div>
-          <Label className="mb-2 block">Miasto <span className="text-destructive">*</span></Label>
           <LocationPicker
             required
+            fields={["city"]}
             value={{ city: form.city, district: "", street: "" }}
-            onChange={(v) => setForm((p) => ({ ...p, city: v.city }))}
+            onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: "", street: "" }))}
           />
           <p className="mt-1 text-xs text-muted-foreground">
             Wybierz miejscowość, w której poszukujesz nieruchomości do wynajmu.
@@ -249,8 +249,11 @@ function NewRentalRequestPage() {
 
         {/* TRYB DOPRECYZOWANIA */}
         <div className="rounded-2xl border bg-background/40 p-4">
-          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-            Sposób doprecyzowania (opcjonalnie)
+          <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
+            <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-foreground">
+              Wybierz formę wyszukiwania lokalizacji poszukiwanej nieruchomości
+            </span>
+            Masz do wyboru wyszukiwanie ofert po dzielnicy, ulicy, a być może chcesz zaznaczyć na mapie interesujący Cię rejon? Twój wybór!
           </p>
           <div className="inline-flex rounded-xl border border-border bg-background p-1 text-sm">
             {modeTabs.map((t) => {
@@ -268,17 +271,21 @@ function NewRentalRequestPage() {
           <div className="mt-4">
             {mode === "district" && (
               <LocationPicker
+                fields={["city", "district"]}
                 value={{ city: form.city, district: form.district, street: "" }}
-                onChange={(v) => setForm((p) => ({ ...p, district: v.district }))}
+                onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district }))}
               />
             )}
             {mode === "address" && (
-              <div className="space-y-2">
-                <Label>Ulica</Label>
-                <StreetAutocomplete city={form.city} value={form.street} disabled={!form.city}
-                  onChange={(v) => set("street", v)} />
+              <div className="space-y-3">
+                <LocationPicker
+                  fields={["city", "district", "street"]}
+                  strictStreet
+                  value={{ city: form.city, district: form.district, street: form.street }}
+                  onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district, street: v.street }))}
+                />
                 <p className="text-xs text-amber-500/80">
-                  Uwaga: zawężenie poszukiwań do jednej ulicy może znacząco zmniejszyć liczbę dopasowanych ofert.
+                  Wybór konkretnej ulicy działa jako twarde dopasowanie — jeżeli nie ma ofert dokładnie na tej ulicy, system spróbuje dopasować oferty z tej samej dzielnicy.
                 </p>
               </div>
             )}
@@ -287,6 +294,7 @@ function NewRentalRequestPage() {
             )}
           </div>
         </div>
+
 
         {/* INFORMACJE O NIERUCHOMOŚCI */}
         <SectionTitle>Informacje o nieruchomości</SectionTitle>
@@ -341,8 +349,9 @@ function NewRentalRequestPage() {
                 ["wants_basement", "Piwnica"],
                 ["wants_elevator", "Winda"],
                 ["requires_furnished", "Mieszkanie umeblowane"],
-                ["wants_parking_space", "Miejsce postojowe"],
+                ["wants_parking_space", "Poszukuję nieruchomości z przynależnym miejscem postojowym"],
                 ["wants_washing_machine", "Pralka"],
+                ["wants_dishwasher", "Zmywarka w mieszkaniu"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
@@ -354,7 +363,7 @@ function NewRentalRequestPage() {
                 <div>
                   <Label className="text-xs">
                     {propertyType === "room"
-                      ? "Ilość pokoi w całej nieruchomości przeznaczona na wynajem"
+                      ? "Akceptowalna max. liczba pokoi w nieruchomości przeznaczona na wynajem"
                       : "Min. liczba pokoi"}
                   </Label>
                   <Input type="number" min={1} max={10} value={form.min_rooms}
