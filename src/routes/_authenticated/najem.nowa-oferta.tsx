@@ -150,6 +150,7 @@ function NewRentalListing() {
       is_furnished: flags.is_furnished,
       has_parking_space: flags.has_parking_space,
       has_washing_machine: showRoomFeatures && flags.has_washing_machine,
+      has_dishwasher: showRoomFeatures && flags.has_dishwasher,
       has_basement: propertyType === "house" ? flags.has_basement : (showRoomFeatures ? flags.has_basement : null),
       floor_number: showRoomFeatures && floorNumber ? floorNumber : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
