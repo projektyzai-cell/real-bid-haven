@@ -349,8 +349,9 @@ function NewRentalRequestPage() {
                 ["wants_basement", "Piwnica"],
                 ["wants_elevator", "Winda"],
                 ["requires_furnished", "Mieszkanie umeblowane"],
-                ["wants_parking_space", "Miejsce postojowe"],
+                ["wants_parking_space", "Poszukuję nieruchomości z przynależnym miejscem postojowym"],
                 ["wants_washing_machine", "Pralka"],
+                ["wants_dishwasher", "Zmywarka w mieszkaniu"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
@@ -362,7 +363,7 @@ function NewRentalRequestPage() {
                 <div>
                   <Label className="text-xs">
                     {propertyType === "room"
-                      ? "Ilość pokoi w całej nieruchomości przeznaczona na wynajem"
+                      ? "Akceptowalna max. liczba pokoi w nieruchomości przeznaczona na wynajem"
                       : "Min. liczba pokoi"}
                   </Label>
                   <Input type="number" min={1} max={10} value={form.min_rooms}
