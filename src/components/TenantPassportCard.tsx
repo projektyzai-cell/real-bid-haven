@@ -130,18 +130,98 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
         }
       }
 
-      // KEY FIX: snapshot every computed style on the SOURCE element (the
-      // browser can parse oklch/lab fine) and convert each color value into
-      // plain rgb via a hidden canvas. Then write those values as INLINE
-      // styles onto the matching cloned element, and remove ALL stylesheets
-      // from the clone so html2canvas never tries to parse oklch/lab itself.
-      const ctx2 = document.createElement("canvas").getContext("2d")!;
-      const COLOR_RX = /(lab|lch|oklch|oklab|color)\s*\(/i;
-      const toRgb = (v: string): string => {
-        if (!v || v === "transparent" || v === "none") return v;
-        try { ctx2.fillStyle = "#000"; ctx2.fillStyle = v; return ctx2.fillStyle as string; }
-        catch { return "rgb(0,0,0)"; }
+      // KEY FIX: pure-JS conversion of lab()/lch()/oklab()/oklch()/color() to
+      // plain rgb(). The canvas fillStyle trick fails on wide-gamut browsers
+      // because canvas now returns oklch/lab as-is. We guarantee no inline
+      // style on the clone contains "lab" or "oklch".
+      const COLOR_RX = /(lab|lch|oklab|oklch|color)\s*\(/i;
+      const clamp01 = (x: number) => Math.max(0, Math.min(1, x));
+      const compand = (x: number) => {
+        const s = x < 0 ? -1 : 1, a = Math.abs(x);
+        return s * (a <= 0.0031308 ? 12.92 * a : 1.055 * Math.pow(a, 1 / 2.4) - 0.055);
       };
+      const linToRgb = (r: number, g: number, b: number) => [
+        Math.round(clamp01(compand(r)) * 255),
+        Math.round(clamp01(compand(g)) * 255),
+        Math.round(clamp01(compand(b)) * 255),
+      ];
+      const oklabToLin = (L: number, a: number, b: number) => {
+        const l_ = L + 0.3963377774 * a + 0.2158037573 * b;
+        const m_ = L - 0.1055613458 * a - 0.0638541728 * b;
+        const s_ = L - 0.0894841775 * a - 1.2914855480 * b;
+        const l = l_ ** 3, m = m_ ** 3, s = s_ ** 3;
+        return [
+          4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
+          -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
+          -0.0041960863 * l - 0.7034186147 * m + 1.7076147010 * s,
+        ];
+      };
+      const labToLin = (L: number, a: number, b: number) => {
+        const fy = (L + 16) / 116, fx = a / 500 + fy, fz = fy - b / 200;
+        const e = 216 / 24389, k = 24389 / 27;
+        const xr = fx ** 3 > e ? fx ** 3 : (116 * fx - 16) / k;
+        const yr = L > k * e ? fy ** 3 : L / k;
+        const zr = fz ** 3 > e ? fz ** 3 : (116 * fz - 16) / k;
+        const X = xr * 0.96422, Y = yr, Z = zr * 0.82521;
+        const Xd = 0.9555766 * X + -0.0230393 * Y + 0.0631636 * Z;
+        const Yd = -0.0282895 * X + 1.0099416 * Y + 0.0210077 * Z;
+        const Zd = 0.0122982 * X + -0.0204830 * Y + 1.3299098 * Z;
+        return [
+          3.2404542 * Xd - 1.5371385 * Yd - 0.4985314 * Zd,
+          -0.9692660 * Xd + 1.8760108 * Yd + 0.0415560 * Zd,
+          0.0556434 * Xd - 0.2040259 * Yd + 1.0572252 * Zd,
+        ];
+      };
+      const parseNums = (s: string) =>
+        Array.from(s.matchAll(/-?\d*\.?\d+(?:e[-+]?\d+)?%?/gi)).map((m) =>
+          m[0].endsWith("%") ? parseFloat(m[0]) / 100 : parseFloat(m[0]),
+        );
+      const convertOne = (fn: string, body: string): string => {
+        try {
+          const parts = body.split("/");
+          const nums = parseNums(parts[0]);
+          const alpha = parts[1] ? parseNums(parts[1])[0] ?? 1 : 1;
+          let rgb: number[] | null = null;
+          if (fn === "oklch" || fn === "lch") {
+            const L = fn === "oklch" ? (nums[0] > 1 ? nums[0] / 100 : nums[0]) : nums[0];
+            const C = nums[1] || 0, H = ((nums[2] || 0) * Math.PI) / 180;
+            const a = C * Math.cos(H), b = C * Math.sin(H);
+            const lin = fn === "oklch" ? oklabToLin(L, a, b) : labToLin(nums[0], a, b);
+            rgb = linToRgb(lin[0], lin[1], lin[2]);
+          } else if (fn === "oklab" || fn === "lab") {
+            const L = fn === "oklab" ? (nums[0] > 1 ? nums[0] / 100 : nums[0]) : nums[0];
+            const lin = fn === "oklab" ? oklabToLin(L, nums[1], nums[2]) : labToLin(nums[0], nums[1], nums[2]);
+            rgb = linToRgb(lin[0], lin[1], lin[2]);
+          }
+          if (!rgb) return "rgb(31,41,55)";
+          return alpha < 1 ? `rgba(${rgb[0]},${rgb[1]},${rgb[2]},${alpha})` : `rgb(${rgb[0]},${rgb[1]},${rgb[2]})`;
+        } catch { return "rgb(31,41,55)"; }
+      };
+      const sanitize = (v: string): string => {
+        if (!v || !COLOR_RX.test(v)) return v;
+        let out = "", i = 0;
+        while (i < v.length) {
+          const rest = v.slice(i);
+          const m = rest.match(/(lab|lch|oklab|oklch|color)\s*\(/i);
+          if (!m || m.index === undefined) { out += rest; break; }
+          out += rest.slice(0, m.index);
+          const open = i + m.index + m[0].length - 1;
+          let depth = 1, j = open + 1;
+          while (j < v.length && depth > 0) {
+            if (v[j] === "(") depth++;
+            else if (v[j] === ")") { depth--; if (depth === 0) break; }
+            j++;
+          }
+          out += convertOne(m[1].toLowerCase(), v.slice(open + 1, j));
+          i = j + 1;
+        }
+        // Final guard — no "lab" or "oklch" may remain.
+        if (/lab\s*\(|lch\s*\(|color\s*\(/i.test(out)) {
+          out = out.replace(/(lab|lch|oklab|oklch|color)\s*\([^)]*\)/gi, "rgb(31,41,55)");
+        }
+        return out;
+      };
+      const toRgb = (v: string): string => sanitize(v);
       const COLOR_PROPS = [
         "color", "background-color", "border-top-color", "border-right-color",
         "border-bottom-color", "border-left-color", "outline-color",
@@ -178,15 +258,17 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
               if (v) dst.style.setProperty(p, COLOR_RX.test(v) ? toRgb(v) : v, "important");
             }
 
-            // Background image (gradients with oklch crash) — drop if unsupported.
+            // Background image (gradients can contain oklch) — sanitize.
             const bgImg = cs.getPropertyValue("background-image");
             if (bgImg && bgImg !== "none") {
-              dst.style.setProperty("background-image", COLOR_RX.test(bgImg) ? "none" : bgImg, "important");
+              dst.style.setProperty("background-image", sanitize(bgImg), "important");
             }
 
-            // Box-shadow can contain oklch; just drop it if so.
+            // Box-shadow can contain oklch — sanitize.
             const shadow = cs.getPropertyValue("box-shadow");
-            if (shadow && COLOR_RX.test(shadow)) dst.style.setProperty("box-shadow", "none", "important");
+            if (shadow && shadow !== "none") {
+              dst.style.setProperty("box-shadow", sanitize(shadow), "important");
+            }
 
             // Borders / layout / typography essentials so the clone renders
             // identically without any external stylesheet.
