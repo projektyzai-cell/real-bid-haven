@@ -86,6 +86,7 @@ function NewRentalListing() {
         has_balcony: !!r.has_balcony, has_basement: !!r.has_basement,
         has_elevator: !!r.has_elevator, is_furnished: !!r.is_furnished,
         has_parking_space: !!r.has_parking_space, has_washing_machine: !!r.has_washing_machine,
+        has_dishwasher: !!r.has_dishwasher,
         notarial_required: !!r.notarial_required, requires_deposit: !!r.requires_deposit,
         requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
         pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
