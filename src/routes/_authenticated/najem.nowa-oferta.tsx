@@ -334,8 +334,9 @@ function NewRentalListing() {
                 ["has_basement", "Piwnica"],
                 ["has_elevator", "Winda"],
                 ["is_furnished", "Mieszkanie umeblowane"],
-                ["has_parking_space", "Miejsce postojowe"],
+                ["has_parking_space", "Miejsce postojowe przynależące do nieruchomości"],
                 ["has_washing_machine", "Pralka"],
+                ["has_dishwasher", "Zmywarka w mieszkaniu"],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
