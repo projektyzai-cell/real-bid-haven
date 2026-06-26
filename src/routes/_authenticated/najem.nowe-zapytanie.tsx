@@ -13,7 +13,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationPicker } from "@/components/LocationPicker";
-import { StreetAutocomplete } from "@/components/StreetAutocomplete";
+
 import { MapAreaPicker, type MapArea } from "@/components/MapAreaPicker";
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
