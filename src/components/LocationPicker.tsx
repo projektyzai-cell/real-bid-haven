@@ -84,42 +84,46 @@ export function LocationPicker({ value, onChange, required, fields, strictStreet
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCity?.id, districts]);
 
+  const gridCls = cols === 1 ? "grid gap-3" : cols === 2 ? "grid gap-3 sm:grid-cols-2" : "grid gap-3 sm:grid-cols-3";
   return (
-    <div className="grid gap-3 sm:grid-cols-3">
-      {/* Miasto */}
-      <Picker
-        label="Miasto"
-        required={required}
-        value={value.city}
-        placeholder="Wybierz miasto"
-        options={(cities ?? []).map((c) => ({ value: c.name, label: c.name, hint: c.voivodeship ?? undefined }))}
-        onPick={(v) => onChange({ city: v, district: "", street: "" })}
-      />
+    <div className={gridCls}>
+      {show("city") && (
+        <Picker
+          label="Miasto"
+          required={required}
+          value={value.city}
+          placeholder="Wybierz miasto"
+          options={(cities ?? []).map((c) => ({ value: c.name, label: c.name, hint: c.voivodeship ?? undefined }))}
+          onPick={(v) => onChange({ city: v, district: "", street: "" })}
+        />
+      )}
 
-      {/* Dzielnica */}
-      <Picker
-        label="Dzielnica"
-        value={value.district}
-        placeholder={selectedCity ? "Wybierz dzielnicę" : "Najpierw miasto"}
-        disabled={!selectedCity}
-        options={(districts ?? []).map((d) => ({ value: d.name, label: d.name }))}
-        onPick={(v) => onChange({ ...value, district: v })}
-        allowClear
-      />
+      {show("district") && (
+        <Picker
+          label="Dzielnica"
+          value={value.district}
+          placeholder={selectedCity ? "Wybierz dzielnicę" : "Najpierw miasto"}
+          disabled={!selectedCity}
+          options={(districts ?? []).map((d) => ({ value: d.name, label: d.name }))}
+          onPick={(v) => onChange({ ...value, district: v })}
+          allowClear
+        />
+      )}
 
-      {/* Ulica — z możliwością wpisania własnej */}
-      <Picker
-        label="Ulica"
-        value={value.street}
-        placeholder={selectedCity ? "Wpisz lub wybierz" : "Najpierw miasto"}
-        disabled={!selectedCity}
-        options={(streets ?? [])
-          .filter((s) => !value.district || !s.district_id || districts?.find((d) => d.id === s.district_id)?.name === value.district)
-          .map((s) => ({ value: s.name, label: s.name }))}
-        onPick={(v) => onChange({ ...value, street: v })}
-        allowCustom
-        allowClear
-      />
+      {show("street") && (
+        <Picker
+          label="Ulica"
+          value={value.street}
+          placeholder={selectedCity ? (strictStreet ? "Wybierz z listy" : "Wpisz lub wybierz") : "Najpierw miasto"}
+          disabled={!selectedCity}
+          options={(streets ?? [])
+            .filter((s) => !value.district || !s.district_id || districts?.find((d) => d.id === s.district_id)?.name === value.district)
+            .map((s) => ({ value: s.name, label: s.name }))}
+          onPick={(v) => onChange({ ...value, street: v })}
+          allowCustom={!strictStreet}
+          allowClear
+        />
+      )}
     </div>
   );
 }
