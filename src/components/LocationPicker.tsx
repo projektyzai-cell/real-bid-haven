@@ -32,7 +32,9 @@ interface Props {
  * - dane czytane z public.cities/districts/streets
  * - "Ulica" pozwala wpisać własną wartość, jeśli nie ma jej w słowniku
  */
-export function LocationPicker({ value, onChange, required }: Props) {
+export function LocationPicker({ value, onChange, required, fields, strictStreet }: Props) {
+  const show = (f: "city" | "district" | "street") => !fields || fields.includes(f);
+  const cols = fields ? fields.length : 3;
   const { data: cities } = useQuery({
     queryKey: ["loc-cities"],
     queryFn: async (): Promise<City[]> => {
