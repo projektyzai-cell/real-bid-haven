@@ -258,15 +258,17 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
               if (v) dst.style.setProperty(p, COLOR_RX.test(v) ? toRgb(v) : v, "important");
             }
 
-            // Background image (gradients with oklch crash) — drop if unsupported.
+            // Background image (gradients can contain oklch) — sanitize.
             const bgImg = cs.getPropertyValue("background-image");
             if (bgImg && bgImg !== "none") {
-              dst.style.setProperty("background-image", COLOR_RX.test(bgImg) ? "none" : bgImg, "important");
+              dst.style.setProperty("background-image", sanitize(bgImg), "important");
             }
 
-            // Box-shadow can contain oklch; just drop it if so.
+            // Box-shadow can contain oklch — sanitize.
             const shadow = cs.getPropertyValue("box-shadow");
-            if (shadow && COLOR_RX.test(shadow)) dst.style.setProperty("box-shadow", "none", "important");
+            if (shadow && shadow !== "none") {
+              dst.style.setProperty("box-shadow", sanitize(shadow), "important");
+            }
 
             // Borders / layout / typography essentials so the clone renders
             // identically without any external stylesheet.
