@@ -21,6 +21,10 @@ interface Props {
   value: LocationValue;
   onChange: (v: LocationValue) => void;
   required?: boolean;
+  /** Which fields to render. Default = all three. */
+  fields?: Array<"city" | "district" | "street">;
+  /** Make street selection strict (no free-text fallback). */
+  strictStreet?: boolean;
 }
 
 /**
