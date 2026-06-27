@@ -237,72 +237,84 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
         import("jspdf"),
       ]);
 
-      const canvas = await html2canvas(ref.current, {
-        backgroundColor: NAVY, scale: 2, useCORS: true, allowTaint: false, logging: false,
-        onclone: (doc, clonedRoot) => {
-          // Remove every stylesheet from the clone — they may contain oklch/lab.
-          doc.querySelectorAll('style, link[rel="stylesheet"]').forEach((n) => n.remove());
+      // Deep-clone our root and bake inline computed styles BEFORE inserting
+      // into the isolated iframe. This way html2canvas sees only clean styles.
+      const clonedRoot = sourceRoot.cloneNode(true) as HTMLElement;
+      const clonedEls = [clonedRoot, ...Array.from(clonedRoot.querySelectorAll<HTMLElement>("*"))];
+      const srcEls = [sourceRoot, ...sourceEls];
+      const len = Math.min(srcEls.length, clonedEls.length);
 
-          // Walk source + clone in parallel and copy computed styles as inline rgb.
-          const clonedEls = [clonedRoot as HTMLElement, ...Array.from((clonedRoot as HTMLElement).querySelectorAll<HTMLElement>("*"))];
-          const srcEls = [sourceRoot, ...sourceEls];
-          const len = Math.min(srcEls.length, clonedEls.length);
-          for (let i = 0; i < len; i++) {
-            const src = srcEls[i];
-            const dst = clonedEls[i];
-            const cs = window.getComputedStyle(src);
+      const copyProps = [
+        "font-family", "font-size", "font-weight", "font-style", "line-height",
+        "letter-spacing", "text-align", "text-transform", "white-space",
+        "display", "flex-direction", "justify-content", "align-items", "gap",
+        "grid-template-columns", "grid-template-rows",
+        "padding-top", "padding-right", "padding-bottom", "padding-left",
+        "margin-top", "margin-right", "margin-bottom", "margin-left",
+        "width", "height", "min-width", "min-height", "max-width", "max-height",
+        "border-top-width", "border-right-width", "border-bottom-width", "border-left-width",
+        "border-top-style", "border-right-style", "border-bottom-style", "border-left-style",
+        "border-top-left-radius", "border-top-right-radius",
+        "border-bottom-left-radius", "border-bottom-right-radius",
+        "opacity", "overflow", "position", "top", "left", "right", "bottom",
+        "object-fit",
+      ];
 
-            // Colors → rgb
-            for (const p of COLOR_PROPS) {
-              const v = cs.getPropertyValue(p);
-              if (v) dst.style.setProperty(p, COLOR_RX.test(v) ? toRgb(v) : v, "important");
-            }
+      for (let i = 0; i < len; i++) {
+        const src = srcEls[i];
+        const dst = clonedEls[i];
+        const cs = window.getComputedStyle(src);
 
-            // Background image (gradients can contain oklch) — sanitize.
-            const bgImg = cs.getPropertyValue("background-image");
-            if (bgImg && bgImg !== "none") {
-              dst.style.setProperty("background-image", sanitize(bgImg), "important");
-            }
+        for (const p of COLOR_PROPS) {
+          const v = cs.getPropertyValue(p);
+          if (v) dst.style.setProperty(p, COLOR_RX.test(v) ? toRgb(v) : v, "important");
+        }
+        const bgImg = cs.getPropertyValue("background-image");
+        if (bgImg && bgImg !== "none") dst.style.setProperty("background-image", sanitize(bgImg), "important");
+        const shadow = cs.getPropertyValue("box-shadow");
+        if (shadow && shadow !== "none") dst.style.setProperty("box-shadow", sanitize(shadow), "important");
+        for (const p of copyProps) {
+          const v = cs.getPropertyValue(p);
+          if (v) dst.style.setProperty(p, v);
+        }
+      }
 
-            // Box-shadow can contain oklch — sanitize.
-            const shadow = cs.getPropertyValue("box-shadow");
-            if (shadow && shadow !== "none") {
-              dst.style.setProperty("box-shadow", sanitize(shadow), "important");
-            }
+      // Capture true rendered size before we move the clone offscreen.
+      const rect = sourceRoot.getBoundingClientRect();
 
-            // Borders / layout / typography essentials so the clone renders
-            // identically without any external stylesheet.
-            const copyProps = [
-              "font-family", "font-size", "font-weight", "font-style", "line-height",
-              "letter-spacing", "text-align", "text-transform", "white-space",
-              "display", "flex-direction", "justify-content", "align-items", "gap",
-              "grid-template-columns", "grid-template-rows",
-              "padding-top", "padding-right", "padding-bottom", "padding-left",
-              "margin-top", "margin-right", "margin-bottom", "margin-left",
-              "width", "height", "min-width", "min-height", "max-width", "max-height",
-              "border-top-width", "border-right-width", "border-bottom-width", "border-left-width",
-              "border-top-style", "border-right-style", "border-bottom-style", "border-left-style",
-              "border-top-left-radius", "border-top-right-radius",
-              "border-bottom-left-radius", "border-bottom-right-radius",
-              "opacity", "overflow", "position", "top", "left", "right", "bottom",
-              "object-fit",
-            ];
-            for (const p of copyProps) {
-              const v = cs.getPropertyValue(p);
-              if (v) dst.style.setProperty(p, v);
-            }
-          }
-        },
-      });
-      const img = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
-      pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
-      pdf.save(`paszport-${data.serial}.pdf`);
-      toast.success("PDF zapisany.");
+      // Hidden iframe with a blank document — zero global stylesheets, so
+      // html2canvas cannot encounter lab()/oklch() anywhere.
+      const iframe = document.createElement("iframe");
+      iframe.style.cssText = "position:fixed;left:-10000px;top:0;width:" + Math.ceil(rect.width) + "px;height:" + Math.ceil(rect.height) + "px;border:0;";
+      document.body.appendChild(iframe);
+      const idoc = iframe.contentDocument!;
+      idoc.open();
+      idoc.write('<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:' + NAVY + ';"></body></html>');
+      idoc.close();
+      idoc.body.appendChild(clonedRoot);
+
+      // Wait one frame so the iframe lays out.
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+
+      try {
+        const canvas = await html2canvas(idoc.body, {
+          backgroundColor: NAVY, scale: 2, useCORS: true, allowTaint: false, logging: false,
+          width: Math.ceil(rect.width), height: Math.ceil(rect.height),
+          windowWidth: Math.ceil(rect.width), windowHeight: Math.ceil(rect.height),
+        });
+        const img = canvas.toDataURL("image/png");
+        const pdf = new jsPDF({ orientation: "landscape", unit: "px", format: [canvas.width, canvas.height] });
+        pdf.addImage(img, "PNG", 0, 0, canvas.width, canvas.height);
+        pdf.save(`paszport-${data.serial}.pdf`);
+        toast.success("PDF zapisany.");
+      } finally {
+        iframe.remove();
+      }
     } catch (e) {
       toast.error("Nie udało się wygenerować PDF: " + (e as Error).message);
     }
   }
+
 
   async function copyLink() {
     try {
