@@ -13,6 +13,63 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { ExpressInterestPanel } from "@/components/ExpressInterestPanel";
 
+interface SimilarRow {
+  id: string; title: string; city: string; street: string;
+  rooms: number; area_m2: number; monthly_price: number;
+  images: string[]; main_image_index: number; promoted: boolean;
+}
+
+function SimilarListings({ currentId, city, kind, price }: { currentId: string; city: string; kind: string; price: number }) {
+  const minP = Math.round(price * 0.7);
+  const maxP = Math.round(price * 1.3);
+  const { data = [] } = useQuery({
+    queryKey: ["similar-listings", currentId, city, kind, minP, maxP],
+    queryFn: async (): Promise<SimilarRow[]> => {
+      const { data, error } = await supabase
+        .from("rental_listings" as never)
+        .select("id,title,city,street,rooms,area_m2,monthly_price,images,main_image_index,promoted")
+        .eq("status", "active").eq("city", city).eq("kind", kind)
+        .neq("id", currentId)
+        .gte("monthly_price", minP).lte("monthly_price", maxP)
+        .gt("expires_at", new Date().toISOString())
+        .order("promoted", { ascending: false })
+        .order("created_at", { ascending: false })
+        .limit(6);
+      if (error) throw error;
+      return (data ?? []) as unknown as SimilarRow[];
+    },
+  });
+  if (data.length === 0) return null;
+  return (
+    <section className="mt-10">
+      <div className="mb-4 flex items-center gap-2">
+        <Sparkles className="h-5 w-5 text-primary" />
+        <h2 className="text-xl font-bold tracking-tight">Zobacz podobne nieruchomości</h2>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {data.map((r) => {
+          const main = r.images?.[r.main_image_index] ?? r.images?.[0];
+          return (
+            <Link key={r.id} to="/najem/oferty/$id" params={{ id: r.id }}
+              className={`group overflow-hidden rounded-3xl border bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-glow ${r.promoted ? "border-amber-400/50" : "border-border"}`}>
+              {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
+              <div className="space-y-1.5 p-4">
+                {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">★ Promowane</Badge>}
+                <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
+                <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
+                  <span className="font-bold text-primary">{formatPLN(r.monthly_price)} / mc</span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export const Route = createFileRoute("/najem/oferty/$id")({
   head: () => ({ meta: [{ title: "Oferta najmu — Stay Safe" }] }),
   component: RentalDetailPage,
