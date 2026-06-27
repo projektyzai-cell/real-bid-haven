@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { MapPin, Search, Eye } from "lucide-react";
+import { MapPin, Search, Eye, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
@@ -56,7 +56,10 @@ function RentalListingsPage() {
 
   return (
     <div className="container mx-auto px-4 py-10">
-      <h1 className="text-3xl font-bold tracking-tight">Oferty wynajmu</h1>
+      <Link to="/najem" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
+        <ArrowLeft className="h-3.5 w-3.5" /> Powrót do strony głównej
+      </Link>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight">Oferty wynajmu</h1>
       <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
         Przeglądaj oferty najmu i kontaktuj się bezpośrednio z wynajmującymi przez wewnętrzny czat Stay Safe.
       </p>
