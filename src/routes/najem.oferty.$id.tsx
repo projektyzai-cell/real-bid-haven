@@ -184,7 +184,16 @@ function RentalDetailPage() {
   }
 
   return (
-    <div className="container mx-auto grid gap-8 px-4 py-10 lg:grid-cols-3">
+    <div className="container mx-auto px-4 py-6">
+      <div className="flex flex-wrap items-center gap-4">
+        <Link to="/najem" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> Powrót do strony głównej
+        </Link>
+        <Link to="/najem/oferty" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> Wróć do listy ofert
+        </Link>
+      </div>
+      <div className="mt-4 grid gap-8 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         <Gallery images={images} title={r.title} />
         <div>
