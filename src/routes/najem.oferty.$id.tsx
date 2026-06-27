@@ -300,6 +300,8 @@ function RentalDetailPage() {
           </form>
         )}
       </aside>
+      </div>
+      <SimilarListings currentId={r.id} city={r.city} kind={r.kind} price={Number(r.monthly_price)} />
     </div>
   );
 }
