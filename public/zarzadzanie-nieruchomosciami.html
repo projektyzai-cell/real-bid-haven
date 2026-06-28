@@ -1,0 +1,2198 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfel Nieruchomości — zarządzanie wynajmem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#0A1422;
+    --surface:#14253D;
+    --surface-2:#1B2F4B;
+    --ink:#F4F6F9;
+    --ink-soft:#A9B8CB;
+    --ink-faint:#6C7F96;
+    --brass:#E0A847;
+    --brass-deep:#BD8730;
+    --brass-soft:rgba(224,168,71,.16);
+    --on-gold:#16263B;
+    --income:#4FB686;
+    --income-soft:rgba(79,182,134,.16);
+    --expense:#E8786A;
+    --expense-soft:rgba(232,120,106,.16);
+    --line:#223349;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(0,0,0,.35), 0 14px 32px -14px rgba(0,0,0,.55);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(1100px 650px at 88% -8%, rgba(45,90,145,.32), transparent 60%),
+      var(--paper);
+    background-attachment:fixed;
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.display{ font-family:'Inter',sans-serif; font-weight:700; letter-spacing:-0.01em; }
+  .mono{ font-family:'IBM Plex Mono',monospace; font-variant-numeric:tabular-nums; }
+  button{ font-family:inherit; cursor:pointer; }
+  input,select,textarea{ font-family:inherit; }
+  :focus-visible{ outline:2px solid var(--brass); outline-offset:2px; }
+
+  .shell{ display:flex; flex-direction:column; min-height:100vh; }
+
+  /* TOPBAR */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 28px; background:var(--surface); color:var(--ink); border-bottom:1px solid var(--line);
+  }
+  .brand{ display:flex; align-items:baseline; gap:10px; }
+  .brand .mark{
+    width:30px;height:30px;border-radius:7px;background:var(--brass);
+    display:inline-flex;align-items:center;justify-content:center;
+    font-family:'Inter',sans-serif;font-weight:700;color:var(--on-gold);font-size:16px;
+  }
+  .brand h1{ font-size:19px; margin:0; color:#fff; }
+  .brand .tagline{ font-size:12px; color:var(--ink-soft); }
+  .btn{
+    display:inline-flex; align-items:center; gap:6px;
+    border-radius:9px; border:1px solid transparent; padding:9px 16px;
+    font-size:13.5px; font-weight:600; transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{ transform:translateY(1px); }
+  .btn-brass{ background:var(--brass); color:var(--on-gold); }
+  .btn-brass:hover{ background:var(--brass-deep); }
+  .btn-ghost{ background:transparent; border-color:rgba(255,255,255,.25); color:#fff; }
+  .btn-ghost:hover{ background:rgba(255,255,255,.08); }
+  .btn-line{ background:transparent; border-color:var(--line); color:var(--ink); }
+  .btn-line:hover{ background:var(--surface-2); }
+  .btn-danger-text{ background:transparent; color:var(--expense); border-color:transparent; padding:6px 10px; font-size:12.5px; }
+  .btn-danger-text:hover{ background:var(--expense-soft); border-radius:7px; }
+  .btn-icon{ background:transparent; border:1px solid var(--line); border-radius:8px; padding:6px 9px; color:var(--ink-soft); font-size:13px; }
+  .btn-icon:hover{ background:var(--surface-2); color:var(--ink); }
+  .btn-block{ width:100%; justify-content:center; }
+  .btn-sm{ padding:6px 11px; font-size:12.5px; }
+
+  .demo-banner{
+    background:var(--brass-soft); color:var(--brass);
+    font-size:12.5px; padding:8px 28px; border-bottom:1px solid rgba(224,168,71,.3);
+  }
+
+  .body{ display:flex; flex:1; min-height:0; }
+
+  /* SIDEBAR */
+  .sidebar{
+    width:300px; flex:none; padding:22px 18px; border-right:1px solid var(--line);
+    display:flex; flex-direction:column; gap:14px;
+  }
+  .sidebar-label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-faint); font-weight:600; padding:0 4px;}
+  .prop-list{ display:flex; flex-direction:column; gap:10px; }
+  .prop-card{
+    background:var(--surface); border:1px solid var(--line); border-left:4px solid var(--ink-faint);
+    border-radius:11px; padding:13px 14px; cursor:pointer; transition:box-shadow .15s, transform .15s, background .15s;
+  }
+  .prop-card:hover{ box-shadow:var(--shadow); transform:translateY(-1px); background:var(--surface-2); }
+  .prop-card.active{ border-left-color:var(--brass); box-shadow:var(--shadow); background:var(--surface-2); }
+  .prop-card.status-active{ border-left-color:var(--brass); }
+  .prop-card.status-inactive{ border-left-color:var(--ink-faint); opacity:.75; }
+  .prop-card.status-for_sale{ border-left-color:var(--expense); }
+  .prop-card .name{ font-family:'Inter',sans-serif; font-weight:600; font-size:15px; margin-bottom:2px; }
+  .prop-card .addr{ font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+  .prop-card .mini-stats{ display:flex; gap:10px; font-size:11.5px; }
+  .prop-card .mini-stats span{ font-family:'IBM Plex Mono',monospace; font-weight:600; }
+  .prop-card .mini-stats .pos{ color:var(--income); }
+  .prop-card .mini-stats .neg{ color:var(--expense); }
+  .empty-side{ font-size:12.5px; color:var(--ink-soft); padding:10px 4px; line-height:1.5; }
+
+  /* MAIN */
+  .main{ flex:1; padding:30px 36px 60px; overflow-y:auto; min-width:0; }
+  .fade-in{ animation:fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ .fade-in{ animation:none; } }
+
+  .prop-header{ display:flex; justify-content:space-between; align-items:flex-start; gap:18px; margin-bottom:6px; }
+  .prop-header h2{ font-size:27px; margin:0 0 4px; }
+  .prop-header .addr{ color:var(--ink-soft); font-size:13.5px; }
+  .prop-actions{ display:flex; gap:8px; align-items:center; flex:none; }
+
+  .stamp{
+    display:inline-flex; align-items:center; justify-content:center;
+    padding:5px 15px; border:2px dashed currentColor; border-radius:999px;
+    font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.09em;
+    text-transform:uppercase; transform:rotate(-3deg); font-weight:600; white-space:nowrap;
+  }
+  .stamp.occupied{ color:var(--income); }
+  .stamp.vacant{ color:var(--expense); }
+  .stamp.status-active{ color:var(--brass); }
+  .stamp.status-inactive{ color:var(--ink-faint); }
+  .stamp.status-for_sale{ color:var(--expense); }
+
+  /* TABS */
+  .tabs{ display:flex; gap:4px; border-bottom:1px solid var(--line); margin:18px 0 22px; overflow-x:auto; }
+  .tab-btn{
+    background:transparent; border:none; border-bottom:2px solid transparent;
+    padding:10px 14px; font-size:13.5px; font-weight:600; color:var(--ink-soft); white-space:nowrap;
+    display:inline-flex; align-items:center;
+  }
+  .tab-btn:hover{ color:var(--ink); }
+  .tab-btn.active{ color:var(--ink); border-bottom-color:var(--brass); }
+  .tab-badge{
+    display:inline-flex; align-items:center; justify-content:center; min-width:17px; height:17px;
+    padding:0 4px; border-radius:999px; background:var(--expense); color:#fff; font-size:10px;
+    font-weight:700; margin-left:6px;
+  }
+
+  /* STAT CARDS */
+  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(170px,1fr)); gap:14px; margin-bottom:26px; }
+  .stat-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px 18px; }
+  .stat-card .label{ font-size:11.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); font-weight:600; }
+  .stat-card .value{ font-size:25px; font-weight:600; margin-top:7px; }
+  .stat-card .value.pos{ color:var(--income); }
+  .stat-card .value.neg{ color:var(--expense); }
+  .stat-card .sub{ font-size:11.5px; color:var(--ink-faint); margin-top:3px; }
+
+  .panel{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:20px 22px; margin-bottom:22px; }
+  .panel h3{ font-size:14.5px; margin:0 0 14px; color:var(--ink); }
+  .panel-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px; }
+  .panel-head h3{ margin:0; }
+
+  /* INFO PANEL */
+  .info-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(180px,1fr)); gap:16px; }
+  .info-item .label{ font-size:11px; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-faint); font-weight:600; }
+  .info-item .value{ font-size:14px; margin-top:4px; color:var(--ink); font-weight:500; }
+
+  /* CHART */
+  .chart-legend{ display:flex; gap:16px; font-size:12px; color:var(--ink-soft); margin-bottom:8px; }
+  .chart-legend span{ display:inline-flex; align-items:center; gap:6px; }
+  .chart-legend i{ width:10px; height:10px; border-radius:3px; display:inline-block; }
+  .leg-income{ background:var(--income); }
+  .leg-expense{ background:var(--expense); }
+
+  /* LEDGER ROWS */
+  .ledger-row{ display:flex; align-items:baseline; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .ledger-row:last-child{ border-bottom:none; }
+  .ledger-row .desc-block{ display:flex; align-items:baseline; gap:8px; flex:1; min-width:0; flex-wrap:wrap; }
+  .ledger-row .desc-text{ font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:46%; }
+  .ledger-row .tag{
+    font-size:10.5px; padding:2px 8px; border-radius:999px; white-space:nowrap;
+    background:var(--surface-2); color:var(--ink-soft); border:1px solid var(--line);
+  }
+  .ledger-row .leader{ flex:1; border-bottom:1px dotted var(--ink-faint); height:0; transform:translateY(-4px); min-width:16px; }
+  .ledger-row .meta{ font-size:11px; color:var(--ink-faint); white-space:nowrap; }
+  .ledger-row .amount{ font-weight:600; white-space:nowrap; font-size:14px; }
+  .amount.income{ color:var(--income); }
+  .amount.expense{ color:var(--expense); }
+  .ledger-row .row-actions{ display:flex; gap:4px; flex:none; }
+  .ledger-auto-tag{ font-size:10.5px; color:var(--ink-faint); font-style:italic; white-space:nowrap; }
+
+  /* PAYMENT STATUS */
+  .pay-status{ border:1px solid var(--line); border-radius:8px; background:var(--surface-2); font-size:11px; padding:5px 8px; font-weight:600; }
+  .pay-status.pay-paid{ color:var(--income); }
+  .pay-status.pay-unpaid{ color:var(--expense); }
+  .pay-status.pay-late{ color:var(--brass); }
+
+  /* FILTER GROUPS (Finanse) */
+  .filter-group{ background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:12px; }
+  .filter-group .filter-group-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; flex-wrap:wrap; gap:6px; }
+  .filter-group .filter-group-head > span:first-child{ font-size:11.5px; font-weight:600; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.05em; }
+  .filter-group .checklist{ display:flex; flex-wrap:wrap; gap:9px 18px; }
+  .filter-group .checklist label{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--ink); white-space:nowrap; }
+  .filter-group select{ padding:7px 10px; border-radius:8px; border:1px solid var(--line); background:var(--surface-2); font-size:12.5px; color:var(--ink); }
+  .filter-mini-btn{ font-size:11px; color:var(--brass); background:transparent; border:none; cursor:pointer; padding:2px 4px; }
+  .filter-mini-btn:hover{ text-decoration:underline; }
+
+  /* ROOMS / CARDS */
+  .room-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(230px,1fr)); gap:14px; }
+  .room-card{ background:var(--surface); border:1px solid var(--line); border-radius:var(--radius); padding:16px; display:flex; flex-direction:column; gap:8px; }
+  .room-card .room-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .room-card .room-name{ font-family:'Inter',sans-serif; font-weight:600; font-size:15.5px; }
+  .room-card .room-line{ font-size:12.5px; color:var(--ink-soft); display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .room-card .room-rent{ font-weight:600; color:var(--ink); }
+  .room-card .room-tenant{ font-size:12.5px; background:var(--surface-2); border-radius:8px; padding:8px 10px; color:var(--ink-soft); line-height:1.5; }
+  .room-card .room-actions{ display:flex; gap:6px; margin-top:auto; padding-top:4px; flex-wrap:wrap; }
+
+  /* DEPOSIT BADGE */
+  .deposit-badge{ display:inline-flex; padding:3px 9px; border-radius:999px; font-size:10.5px; font-weight:600; margin-left:6px; }
+  .deposit-badge.paid{ background:var(--income-soft); color:var(--income); }
+  .deposit-badge.unpaid{ background:var(--expense-soft); color:var(--expense); }
+
+  /* DOCUMENTS */
+  .doc-section{ display:flex; flex-direction:column; gap:8px; }
+  .doc-list{ display:flex; flex-direction:column; gap:6px; }
+  .doc-chip{
+    display:flex; align-items:center; gap:8px; background:var(--surface-2); border:1px solid var(--line);
+    border-radius:9px; padding:7px 10px; font-size:12px;
+  }
+  .doc-chip .doc-name{ flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--ink); }
+  .doc-chip a{ color:var(--brass); text-decoration:none; font-weight:600; white-space:nowrap; }
+  .doc-chip a:hover{ text-decoration:underline; }
+  .doc-remove{ color:var(--ink-faint); background:transparent; border:none; cursor:pointer; font-size:15px; line-height:1; padding:0 2px; }
+  .doc-remove:hover{ color:var(--expense); }
+  .doc-upload-btn input[type=file]{ display:none; }
+
+  /* EMPTY STATES */
+  .empty-state{ text-align:center; padding:50px 20px; color:var(--ink-soft); }
+  .empty-state h3{ color:var(--ink); margin-bottom:6px; font-size:18px; }
+  .empty-state p{ font-size:13.5px; max-width:380px; margin:0 auto 18px; line-height:1.55; }
+
+  /* NOTES */
+  textarea.notes-area{
+    width:100%; min-height:160px; resize:vertical; border:1px solid var(--line); border-radius:10px;
+    padding:14px; font-size:13.5px; line-height:1.6; color:var(--ink); background:var(--surface-2);
+  }
+
+  /* MODAL */
+  .modal-overlay{
+    position:fixed; inset:0; background:rgba(4,9,16,.72); backdrop-filter:blur(2px);
+    display:none; align-items:center; justify-content:center; padding:24px; z-index:50;
+  }
+  .modal-overlay.open{ display:flex; }
+  .modal-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px; width:100%; max-width:560px;
+    max-height:88vh; overflow-y:auto; box-shadow:0 24px 60px -16px rgba(0,0,0,.6);
+  }
+  .modal-head{ display:flex; justify-content:space-between; align-items:center; padding:18px 22px; border-bottom:1px solid var(--line); }
+  .modal-head h3{ margin:0; font-size:17px; }
+  .modal-close{ background:transparent; border:none; font-size:20px; color:var(--ink-soft); line-height:1; padding:2px 6px; border-radius:6px; }
+  .modal-close:hover{ background:var(--surface-2); }
+  .modal-body{ padding:20px 22px; }
+  .modal-body .hint{ font-size:11.5px; color:var(--ink-faint); margin:-6px 0 14px; line-height:1.5; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+  .field{ display:flex; flex-direction:column; gap:5px; margin-bottom:13px; }
+  .field.full{ grid-column:1 / -1; }
+  .field label{ font-size:12px; font-weight:600; color:var(--ink-soft); }
+  .field input, .field select, .field textarea{
+    border:1px solid var(--line); border-radius:8px; padding:9px 11px; font-size:13.5px; background:var(--surface-2);
+    color:var(--ink);
+  }
+  .field textarea{ min-height:70px; resize:vertical; }
+  .radio-row{ display:flex; gap:14px; flex-wrap:wrap; }
+  .radio-opt{ display:flex; align-items:center; gap:6px; font-size:13px; color:var(--ink); }
+  .check-row{ display:flex; align-items:center; gap:8px; font-size:13px; margin-bottom:13px; }
+  .modal-foot{ display:flex; justify-content:flex-end; gap:10px; padding:16px 22px; border-top:1px solid var(--line); }
+
+  /* TOAST */
+  .toast{
+    position:fixed; bottom:22px; right:22px; background:var(--brass); color:var(--on-gold);
+    padding:11px 18px; border-radius:10px; font-size:13px; font-weight:600; box-shadow:var(--shadow);
+    opacity:0; transform:translateY(8px); transition:opacity .2s, transform .2s; z-index:60; pointer-events:none;
+  }
+  .toast.show{ opacity:1; transform:translateY(0); }
+
+  @media (max-width:900px){
+    .body{ flex-direction:column; }
+    .sidebar{ width:100%; border-right:none; border-bottom:1px solid var(--line); flex-direction:row; overflow-x:auto; align-items:center; }
+    .sidebar-label{ display:none; }
+    .prop-list{ flex-direction:row; }
+    .prop-card{ min-width:220px; }
+    .main{ padding:22px 18px 50px; }
+    .form-grid{ grid-template-columns:1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <div class="topbar">
+    <div class="brand">
+      <span class="mark">PN</span>
+      <div>
+        <h1>Portfel Nieruchomości</h1>
+        <div class="tagline">Panel wynajmującego</div>
+      </div>
+    </div>
+    <button class="btn btn-brass" data-action="add-property">+ Nowa nieruchomość</button>
+  </div>
+  <div class="demo-banner">
+    Prototyp — wszystkie dane (w tym załączone dokumenty) żyją tylko w tej karcie przeglądarki, w pamięci, nie w bazie. Struktura odpowiada tabelom <span class="mono">properties / rooms / leases / finance_entries</span> przygotowanym pod Supabase.
+  </div>
+
+  <div class="body">
+    <aside class="sidebar" id="sidebar"></aside>
+    <main class="main" id="main"></main>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-card" id="modalCard"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ======================================================================
+     HELPERS
+     ====================================================================== */
+  let idCounter = 1000;
+  const uid = (p) => p + "_" + (idCounter++);
+  const PLN = new Intl.NumberFormat('pl-PL', { style:'currency', currency:'PLN', maximumFractionDigits:0 });
+  const money = (n) => PLN.format(n || 0);
+  const esc = (s) => (s===null||s===undefined) ? "" : String(s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const fmtDate = (d) => {
+    if(!d) return '—';
+    const dt = new Date(d + 'T00:00:00');
+    if(isNaN(dt)) return '—';
+    return dt.toLocaleDateString('pl-PL', { day:'2-digit', month:'2-digit', year:'numeric' });
+  };
+  const monthKey = (d) => d ? d.slice(0,7) : '';
+  const monthLabel = (key) => {
+    const dt = new Date(key + '-01T00:00:00');
+    return dt.toLocaleDateString('pl-PL', { month:'short' }).replace('.','') + " " + dt.getFullYear().toString().slice(2);
+  };
+  const monthLabelFull = (key) => {
+    const dt = new Date(key + '-01T00:00:00');
+    const label = dt.toLocaleDateString('pl-PL', { month:'long', year:'numeric' });
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  };
+  const daysBetween = (a,b) => Math.round((b - a) / (1000*60*60*24));
+  const daysInMonth = (year, month) => new Date(year, month+1, 0).getDate();
+  const formatSize = (bytes) => {
+    if(bytes < 1024) return bytes + ' B';
+    if(bytes < 1024*1024) return (bytes/1024).toFixed(0) + ' KB';
+    return (bytes/1024/1024).toFixed(1) + ' MB';
+  };
+
+  const TODAY = new Date('2026-06-22T00:00:00');
+  const TODAY_STR = '2026-06-22';
+
+  const STATUS_LABELS = { active:'Aktywna', inactive:'Nieaktywna', for_sale:'Na sprzedaż' };
+  const CATEGORY_LABELS = {
+    rent_income:'Czynsz od najemcy', deposit:'Kaucja',
+    mortgage:'Rata kredytu hipotecznego', admin_rent:'Czynsz do spółdzielni/wspólnoty',
+    internet:'Internet', cleaning:'Sprzątanie', electricity:'Prąd', gas:'Gaz', utilities:'Media (łącznie)',
+    repair:'Remont / naprawa', insurance:'Ubezpieczenie',
+    tax:'Podatek', management_fee:'Opłata zarządcy', other:'Inne'
+  };
+  const INCOME_CATS = ['deposit','other'];
+  const EXPENSE_CATS = ['mortgage','admin_rent','internet','cleaning','electricity','gas','utilities','repair','insurance','tax','management_fee','other'];
+  const RECURRING_COST_CATS = ['admin_rent','mortgage','internet','cleaning','electricity','gas','utilities','other'];
+  const ENERGY_CERT_LABELS = { yes:'Wyrobione', no:'Niewyrobione', in_progress:'W trakcie' };
+  const PAY_STATUS_LABELS = { unpaid:'Nieopłacone', paid:'Zapłacone', late:'Opłacone po terminie' };
+  const PAYMENT_FREQUENCY_MONTHS = { monthly:1, quarterly:3, semiannual:6, annual:12 };
+  const PAYMENT_FREQUENCY_LABELS = { monthly:'Miesięcznie', quarterly:'Kwartalnie', semiannual:'Co pół roku', annual:'Rocznie' };
+  const INSPECTION_TYPES = {
+    gas:        { label:'Przegląd instalacji gazowej',     defaultMonths:12 },
+    chimney:    { label:'Przegląd kominiarski',             defaultMonths:12 },
+    electrical: { label:'Przegląd instalacji elektrycznej', defaultMonths:60 },
+    other:      { label:'Inny przegląd',                    defaultMonths:12 }
+  };
+  const ALERT_WINDOW_DAYS = 60;
+
+  function categoryLabelFor(obj){
+    if(obj.category === 'other' && obj.customLabel) return esc(obj.customLabel);
+    return CATEGORY_LABELS[obj.category] || obj.category;
+  }
+
+  function frequencyMonthsLabel(n){
+    n = n || 1;
+    if(n === 1) return 'Co miesiąc';
+    if(n >= 2 && n <= 4) return 'Co ' + n + ' miesiące';
+    return 'Co ' + n + ' miesięcy';
+  }
+  function frequencyMonthsOptions(selected){
+    let html = '';
+    for(let n=1; n<=12; n++){
+      let label = frequencyMonthsLabel(n);
+      if(n === 12) label += ' (rocznie)';
+      html += `<option value="${n}" ${n===(selected||1)?'selected':''}>${label}</option>`;
+    }
+    return html;
+  }
+
+  /* ======================================================================
+     STATE
+     ====================================================================== */
+  function freshFinanceFilter(propertyId){
+    return { type:'all', propertyIds: propertyId ? [propertyId] : null, locationKeys: null };
+  }
+  const state = {
+    properties: [],
+    activePropertyId: null,
+    activeTab: 'overview',
+    financeFilter: freshFinanceFilter(null),
+    taxSettings: { rate:'', frequency:'monthly', includedIds:[], payments:{} }
+  };
+
+  /* ======================================================================
+     DERIVED DATA — properties / rooms
+     ====================================================================== */
+  function getProperty(id){ return state.properties.find(p => p.id === id); }
+  function getActiveProperty(){ return getProperty(state.activePropertyId); }
+
+  function isLeaseActive(lease, ref){
+    ref = ref || TODAY;
+    if(!lease.startDate) return false;
+    const start = new Date(lease.startDate + 'T00:00:00');
+    if(start > ref) return false;
+    if(lease.endDate){
+      const end = new Date(lease.endDate + 'T00:00:00');
+      if(end < ref) return false;
+    }
+    return true;
+  }
+  function leaseStatus(lease, ref){
+    ref = ref || TODAY;
+    const start = new Date(lease.startDate + 'T00:00:00');
+    if(start > ref) return 'upcoming';
+    if(lease.endDate){
+      const end = new Date(lease.endDate + 'T00:00:00');
+      if(end < ref) return 'ended';
+    }
+    return 'active';
+  }
+  function activeLeaseFor(property, roomId){
+    return property.leases.find(l => l.roomId === roomId && isLeaseActive(l));
+  }
+
+  /* Generuje wpisy czynszu na podstawie: daty pierwszej płatności (ustawionej ręcznie,
+     bo zwykle nie pokrywa się z regularnym cyklem przy starcie w środku miesiąca),
+     a od kolejnej płatności — dnia miesiąca + częstotliwości zadeklarowanej w umowie. */
+  function leaseRentEntries(lease){
+    if(!lease.startDate || !lease.monthlyRent || !lease.firstPaymentDate) return [];
+    const intervalMonths = PAYMENT_FREQUENCY_MONTHS[lease.paymentFrequency] || 1;
+    const amount = lease.monthlyRent * intervalMonths;
+    const dueDay = lease.rentDueDay || 10;
+
+    let capDate = TODAY;
+    if(lease.endDate){
+      const end = new Date(lease.endDate + 'T00:00:00');
+      if(end < capDate) capDate = end;
+    }
+
+    const firstDue = new Date(lease.firstPaymentDate + 'T00:00:00');
+    if(firstDue > capDate) return [];
+
+    const dueDates = [firstDue];
+    let cursorMonth = firstDue.getMonth() + intervalMonths;
+    const cursorYear = firstDue.getFullYear();
+    while(true){
+      const day = Math.min(dueDay, daysInMonth(cursorYear, cursorMonth));
+      const d = new Date(cursorYear, cursorMonth, day);
+      if(d > capDate) break;
+      dueDates.push(d);
+      cursorMonth += intervalMonths;
+    }
+
+    const out = [];
+    for(let i=0;i<dueDates.length;i++){
+      const due = dueDates[i];
+      const dueStr = due.toISOString().slice(0,10);
+      const periodStartDate = i===0 ? new Date(lease.startDate+'T00:00:00') : due;
+      let periodEndDate;
+      if(i+1 < dueDates.length){
+        periodEndDate = new Date(dueDates[i+1]);
+        periodEndDate.setDate(periodEndDate.getDate()-1);
+      } else {
+        periodEndDate = lease.endDate ? new Date(lease.endDate+'T00:00:00') : due;
+      }
+      out.push({
+        id: 'lease_' + lease.id + '_' + dueStr,
+        roomId: lease.roomId, entryType:'income', category:'rent_income', amount,
+        entryDate: dueStr, dueDate: dueStr,
+        periodStart: periodStartDate.toISOString().slice(0,10),
+        periodEnd: periodEndDate.toISOString().slice(0,10),
+        isRecurring:true, recurringFrequency: lease.paymentFrequency || 'monthly',
+        description: 'Czynsz — ' + (lease.tenantName || 'najemca'), isVirtual:true, leaseId: lease.id
+      });
+    }
+    return out;
+  }
+
+  function recurringCostEntries(rc){
+    if(!rc.rateHistory.length) return [];
+    const sorted = rc.rateHistory.slice().sort((a,b)=> a.startDate.localeCompare(b.startDate));
+    const firstStart = new Date(sorted[0].startDate + 'T00:00:00');
+    if(firstStart > TODAY) return [];
+    const label = categoryLabelFor(rc);
+    const freq = rc.frequencyMonths || 1;
+    const out = [];
+    let cursor = new Date(firstStart.getFullYear(), firstStart.getMonth(), 1);
+    const capMonth = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+    while(cursor <= capMonth){
+      const cursorKey = cursor.toISOString().slice(0,7);
+      let applicable = sorted[0];
+      for(const tr of sorted){ if(tr.startDate.slice(0,7) <= cursorKey) applicable = tr; else break; }
+      const day = Math.min(applicable.paymentDay || 10, daysInMonth(cursor.getFullYear(), cursor.getMonth()));
+      const dueDate = new Date(cursor.getFullYear(), cursor.getMonth(), day).toISOString().slice(0,10);
+      out.push({
+        id: 'rc_' + rc.id + '_' + cursorKey,
+        roomId: null, entryType:'expense', category: rc.category, customLabel: rc.customLabel, amount: applicable.amount,
+        entryDate: cursorKey + '-01', dueDate, isRecurring:true, recurringFrequency: freq,
+        description: label, isVirtual:true, recurringCostId: rc.id
+      });
+      cursor = new Date(cursor.getFullYear(), cursor.getMonth()+freq, 1);
+    }
+    return out;
+  }
+  function paymentStatusFor(lease, monthKeyStr){
+    return (lease.payments && lease.payments[monthKeyStr]) || 'unpaid';
+  }
+  function allEffectiveEntries(property){
+    const virtualLease = property.leases.flatMap(leaseRentEntries);
+    const virtualCosts = property.recurringCosts.flatMap(recurringCostEntries);
+    return property.financeEntries.concat(virtualLease, virtualCosts);
+  }
+  function outstandingAmount(property){
+    let sum = 0;
+    property.leases.forEach(lease => {
+      leaseRentEntries(lease).forEach(e => {
+        if(paymentStatusFor(lease, monthKey(e.entryDate)) === 'unpaid') sum += e.amount;
+      });
+    });
+    return sum;
+  }
+
+  function propertyTotals(property){
+    let income = 0, expense = 0;
+    allEffectiveEntries(property).forEach(e => { if(e.entryType === 'income') income += e.amount; else expense += e.amount; });
+    return { income, expense, net: income - expense };
+  }
+  function occupancy(property){
+    if(!property.rooms.length) return null;
+    const occ = property.rooms.filter(r => !!activeLeaseFor(property, r.id)).length;
+    return Math.round((occ / property.rooms.length) * 100);
+  }
+  function monthlyTotals(property, count){
+    const buckets = [];
+    for(let i = count - 1; i >= 0; i--){
+      const dt = new Date(TODAY.getFullYear(), TODAY.getMonth() - i, 1);
+      const key = dt.toISOString().slice(0,7);
+      buckets.push({ key, label: monthLabel(key), income:0, expense:0 });
+    }
+    const byKey = {};
+    buckets.forEach(b => byKey[b.key] = b);
+    allEffectiveEntries(property).forEach(e => {
+      const k = monthKey(e.entryDate);
+      if(byKey[k]){ byKey[k][e.entryType] += e.amount; }
+    });
+    return buckets;
+  }
+
+  /* ======================================================================
+     DERIVED DATA — taxes (ryczałt, łącznie dla portfela)
+     ====================================================================== */
+  function combinedTaxPeriods(){
+    const settings = state.taxSettings;
+    const includedProps = state.properties.filter(p => settings.includedIds.includes(p.id));
+    if(!includedProps.length || !settings.rate) return [];
+    const allLeases = includedProps.flatMap(p => p.leases);
+    const starts = allLeases.map(l => l.startDate).filter(Boolean).sort();
+    if(!starts.length) return [];
+    const firstStart = new Date(starts[0] + 'T00:00:00');
+    const rentEntries = allLeases.flatMap(leaseRentEntries);
+    const rate = parseFloat(settings.rate) / 100;
+    const periods = [];
+
+    if(settings.frequency === 'quarterly'){
+      let qStart = new Date(firstStart.getFullYear(), Math.floor(firstStart.getMonth()/3)*3, 1);
+      const lastQStart = new Date(TODAY.getFullYear(), Math.floor(TODAY.getMonth()/3)*3, 1);
+      while(qStart <= lastQStart){
+        const qEnd = new Date(qStart.getFullYear(), qStart.getMonth()+3, 0);
+        const qNum = Math.floor(qStart.getMonth()/3) + 1;
+        const key = qStart.getFullYear() + '-Q' + qNum;
+        const revenue = rentEntries.filter(e => {
+          const d = new Date(e.entryDate + 'T00:00:00');
+          return d >= qStart && d <= qEnd;
+        }).reduce((s,e)=>s+e.amount,0);
+        const dueDate = new Date(qEnd.getFullYear(), qEnd.getMonth()+1, 20);
+        periods.push({
+          key, label: ['I','II','III','IV'][qNum-1] + ' kwartał ' + qStart.getFullYear(),
+          revenue, tax: revenue*rate, dueDate: dueDate.toISOString().slice(0,10)
+        });
+        qStart = new Date(qStart.getFullYear(), qStart.getMonth()+3, 1);
+      }
+    } else {
+      let mStart = new Date(firstStart.getFullYear(), firstStart.getMonth(), 1);
+      const lastMStart = new Date(TODAY.getFullYear(), TODAY.getMonth(), 1);
+      while(mStart <= lastMStart){
+        const key = mStart.toISOString().slice(0,7);
+        const revenue = rentEntries.filter(e => monthKey(e.entryDate) === key).reduce((s,e)=>s+e.amount,0);
+        const dueDate = new Date(mStart.getFullYear(), mStart.getMonth()+1, 20);
+        periods.push({ key, label: monthLabelFull(key), revenue, tax: revenue*rate, dueDate: dueDate.toISOString().slice(0,10) });
+        mStart = new Date(mStart.getFullYear(), mStart.getMonth()+1, 1);
+      }
+    }
+    return periods.reverse();
+  }
+  function combinedTaxDue(){
+    if(!state.taxSettings.rate) return null;
+    return combinedTaxPeriods().filter(p => !state.taxSettings.payments[p.key]).reduce((s,p)=>s+p.tax,0);
+  }
+
+  /* ======================================================================
+     DERIVED DATA — inspections & alerts
+     ====================================================================== */
+  function nextInspectionDate(insp){
+    if(!insp.lastDate) return null;
+    const last = new Date(insp.lastDate + 'T00:00:00');
+    return new Date(last.getFullYear(), last.getMonth() + insp.frequencyMonths, last.getDate());
+  }
+  function inspectionLabel(insp){
+    return insp.type === 'other' ? (insp.customLabel || 'Przegląd') : INSPECTION_TYPES[insp.type].label;
+  }
+  function computeAlerts(property){
+    const alerts = [];
+    const windowEnd = new Date(TODAY); windowEnd.setDate(windowEnd.getDate() + ALERT_WINDOW_DAYS);
+
+    property.inspections.forEach(insp => {
+      const next = nextInspectionDate(insp);
+      if(!next) return;
+      if(next < TODAY) alerts.push({ severity:'overdue', text: inspectionLabel(insp) + ' — termin minął ' + fmtDate(next.toISOString().slice(0,10)), dueDate: next });
+      else if(next <= windowEnd) alerts.push({ severity:'upcoming', text: inspectionLabel(insp) + ' — termin: ' + fmtDate(next.toISOString().slice(0,10)), dueDate: next });
+    });
+
+    property.leases.forEach(lease => {
+      if(!lease.endDate) return;
+      const end = new Date(lease.endDate + 'T00:00:00');
+      const label = 'Umowa najmu — ' + (lease.tenantName || 'najemca') + (lease.isOccasional ? ' (najem okazjonalny)' : '');
+      if(end >= TODAY && end <= windowEnd){
+        alerts.push({ severity:'upcoming', text: label + ' kończy się ' + fmtDate(lease.endDate) + (lease.isOccasional ? ' — sprawdź ważność dokumentów najmu okazjonalnego' : ''), dueDate: end });
+      } else if(end < TODAY && daysBetween(end, TODAY) <= 14){
+        alerts.push({ severity:'overdue', text: label + ' — umowa wygasła ' + fmtDate(lease.endDate), dueDate: end });
+      }
+    });
+
+    if(property.insuranceExpiryDate){
+      const ins = new Date(property.insuranceExpiryDate + 'T00:00:00');
+      if(ins < TODAY) alerts.push({ severity:'overdue', text:'Ubezpieczenie mieszkania wygasło ' + fmtDate(property.insuranceExpiryDate), dueDate: ins });
+      else if(ins <= windowEnd) alerts.push({ severity:'upcoming', text:'Ubezpieczenie mieszkania kończy się ' + fmtDate(property.insuranceExpiryDate), dueDate: ins });
+    }
+
+    return alerts.sort((a,b) => a.dueDate - b.dueDate);
+  }
+
+  /* ======================================================================
+     TOAST
+     ====================================================================== */
+  let toastTimer = null;
+  function toast(msg){
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2200);
+  }
+
+  /* ======================================================================
+     MODAL
+     ====================================================================== */
+  function openModal(html, onMount){
+    document.getElementById('modalCard').innerHTML = html;
+    document.getElementById('modalOverlay').classList.add('open');
+    if(onMount) onMount();
+  }
+  function closeModal(){
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.getElementById('modalCard').innerHTML = '';
+  }
+
+  /* ======================================================================
+     RENDER — sidebar
+     ====================================================================== */
+  function renderSidebar(){
+    const el = document.getElementById('sidebar');
+    if(!state.properties.length){
+      el.innerHTML = `
+        <div class="sidebar-label">Nieruchomości</div>
+        <div class="empty-side">Nie masz jeszcze żadnej nieruchomości. Dodaj pierwszą, aby zacząć śledzić przychody i koszty.</div>
+        <button class="btn btn-brass btn-block" data-action="add-property">+ Nowa nieruchomość</button>`;
+      return;
+    }
+    const cards = state.properties.map(p => {
+      const t = propertyTotals(p);
+      const active = p.id === state.activePropertyId ? 'active' : '';
+      return `
+      <div class="prop-card ${active} status-${p.status}" data-action="select-property" data-id="${p.id}">
+        <div class="name">${esc(p.name)}</div>
+        <div class="addr">${esc(p.city)} · ${esc(p.address)}</div>
+        <div class="mini-stats">
+          <span class="pos">${money(t.income)}</span>
+          <span class="neg">${money(t.expense)}</span>
+        </div>
+      </div>`;
+    }).join('');
+    el.innerHTML = `
+      <div class="sidebar-label">Nieruchomości (${state.properties.length})</div>
+      <div class="prop-list">${cards}</div>
+    `;
+  }
+
+  /* ======================================================================
+     RENDER — main / tabs dispatcher
+     ====================================================================== */
+  function renderMain(){
+    const el = document.getElementById('main');
+    const property = getActiveProperty();
+    if(!property){
+      el.innerHTML = `
+        <div class="empty-state">
+          <h3>Brak wybranej nieruchomości</h3>
+          <p>Dodaj swoją pierwszą nieruchomość, żeby zacząć rozpisywać czynsze, koszty, umowy najmu i terminy przeglądów.</p>
+          <button class="btn btn-brass" data-action="add-property">+ Nowa nieruchomość</button>
+        </div>`;
+      return;
+    }
+    const tabs = ['overview'];
+    if(property.rentalMode === 'by_room') tabs.push('rooms');
+    tabs.push('leases','finance','taxes','meters','schedule','notes');
+    if(!tabs.includes(state.activeTab)) state.activeTab = 'overview';
+
+    const tabLabels = { overview:'Przegląd', rooms:'Pokoje', leases:'Najem', finance:'Finanse', taxes:'Podatki', meters:'Liczniki', schedule:'Terminy', notes:'Notatki' };
+    const alertCount = computeAlerts(property).length;
+    const tabsHtml = tabs.map(t => {
+      const badge = (t === 'schedule' && alertCount > 0) ? `<span class="tab-badge">${alertCount}</span>` : '';
+      return `<button class="tab-btn ${t===state.activeTab?'active':''}" data-action="set-tab" data-tab="${t}">${tabLabels[t]}${badge}</button>`;
+    }).join('');
+
+    const statusStamp = `<span class="stamp status-${property.status}">${STATUS_LABELS[property.status]}</span>`;
+
+    el.innerHTML = `
+      <div class="prop-header">
+        <div>
+          <h2>${esc(property.name)}</h2>
+          <div class="addr">${esc(property.address)}, ${esc(property.city)} ${esc(property.postalCode||'')} · ${property.areaM2||'—'} m² · ${property.rentalMode==='by_room' ? 'wynajem na pokoje' : 'wynajem całości'}</div>
+        </div>
+        <div class="prop-actions">
+          ${statusStamp}
+          <button class="btn-icon" data-action="edit-property" data-id="${property.id}" title="Edytuj">✎</button>
+          <button class="btn-icon" data-action="delete-property" data-id="${property.id}" title="Usuń">🗑</button>
+        </div>
+      </div>
+      <div class="tabs">${tabsHtml}</div>
+      <div id="tabContent" class="fade-in"></div>
+    `;
+    renderTabContent(property);
+  }
+
+  function renderTabContent(property){
+    const c = document.getElementById('tabContent');
+    if(state.activeTab === 'overview') c.innerHTML = overviewHtml(property);
+    else if(state.activeTab === 'rooms') c.innerHTML = roomsHtml(property);
+    else if(state.activeTab === 'leases') c.innerHTML = leasesHtml(property);
+    else if(state.activeTab === 'finance') c.innerHTML = financeHtml(property);
+    else if(state.activeTab === 'taxes') c.innerHTML = taxesHtml();
+    else if(state.activeTab === 'meters') c.innerHTML = metersHtml(property);
+    else if(state.activeTab === 'schedule') c.innerHTML = scheduleHtml(property);
+    else if(state.activeTab === 'notes') c.innerHTML = notesHtml(property);
+  }
+
+  /* ======================================================================
+     OVERVIEW TAB
+     ====================================================================== */
+  function infoPanelHtml(property){
+    const items = [
+      ['Adres', esc(property.address) + ', ' + esc(property.city) + ' ' + esc(property.postalCode||'')],
+      ['Metraż', property.areaM2 ? property.areaM2 + ' m²' : '—'],
+      ['Piętro', (property.floor!==null && property.floor!==undefined && property.floor!=='') ? property.floor : '—'],
+      ['Rok budowy', property.yearBuilt || '—'],
+      ['Cena zakupu', property.purchasePrice ? money(property.purchasePrice) : '—'],
+      ['Aktualna wartość', property.currentValue ? money(property.currentValue) : '—'],
+      ['Numer Księgi Wieczystej', esc(property.kwNumber) || '—'],
+      ['Świadectwo charakterystyki energ. (ŚChE)', property.energyCertificate ? ENERGY_CERT_LABELS[property.energyCertificate] : '— nie wskazano —'],
+      ['Ubezpieczenie ważne do', property.insuranceExpiryDate ? fmtDate(property.insuranceExpiryDate) : '— nie wskazano —']
+    ];
+    return `
+      <div class="panel">
+        <h3>Informacje o nieruchomości</h3>
+        <div class="info-grid">
+          ${items.map(([label,value]) => `<div class="info-item"><div class="label">${label}</div><div class="value">${value}</div></div>`).join('')}
+        </div>
+      </div>`;
+  }
+
+  function overviewHtml(property){
+    const t = propertyTotals(property);
+    const occ = occupancy(property);
+    const outstanding = outstandingAmount(property);
+    const taxDue = combinedTaxDue();
+    const months = monthlyTotals(property, 6);
+    const maxVal = Math.max(1, ...months.map(m => Math.max(m.income, m.expense)));
+    const barW = 64, gap = 18, chartW = months.length * (barW + gap), baseY = 150;
+
+    const bars = months.map((m, i) => {
+      const x = i * (barW + gap) + gap/2;
+      const incH = (m.income / maxVal) * 120;
+      const expH = (m.expense / maxVal) * 120;
+      return `
+        <g>
+          <rect x="${x}" y="${baseY - incH}" width="22" height="${incH}" rx="3" fill="var(--income)"></rect>
+          <rect x="${x+26}" y="${baseY - expH}" width="22" height="${expH}" rx="3" fill="var(--expense)"></rect>
+          <text x="${x+24}" y="${baseY+20}" text-anchor="middle" font-size="11" fill="var(--ink-faint)" font-family="IBM Plex Mono, monospace">${m.label}</text>
+        </g>`;
+    }).join('');
+
+    const allEntries = allEffectiveEntries(property);
+    const recent = allEntries.slice().sort((a,b)=> b.entryDate.localeCompare(a.entryDate)).slice(0,5);
+    const recentHtml = recent.length ? recent.map(e => ledgerRow(property, e)).join('') :
+      `<div class="empty-state" style="padding:24px;"><p>Brak wpisów finansowych jeszcze.</p></div>`;
+
+    let modeCard;
+    if(occ !== null){
+      modeCard = `<div class="stat-card"><div class="label">Obłożenie pokoi</div><div class="value">${occ}%</div><div class="sub">${property.rooms.filter(r=>!!activeLeaseFor(property,r.id)).length} / ${property.rooms.length} wynajęte</div></div>`;
+    } else {
+      const lease = activeLeaseFor(property, null);
+      modeCard = lease
+        ? `<div class="stat-card"><div class="label">Aktualny najemca</div><div class="value" style="font-size:18px;">${esc(lease.tenantName)}</div><div class="sub">do ${lease.endDate?fmtDate(lease.endDate):'czasu nieokreślonego'}</div></div>`
+        : `<div class="stat-card"><div class="label">Status najmu</div><div class="value" style="font-size:18px;">Wolne</div><div class="sub">Docelowy czynsz: ${money(property.targetMonthlyRent)}</div></div>`;
+    }
+
+    return `
+      <div class="stat-grid">
+        <div class="stat-card"><div class="label">Przychód łącznie</div><div class="value pos">${money(t.income)}</div></div>
+        <div class="stat-card"><div class="label">Koszty łącznie</div><div class="value neg">${money(t.expense)}</div></div>
+        <div class="stat-card"><div class="label">Zysk netto</div><div class="value ${t.net>=0?'pos':'neg'}">${money(t.net)}</div></div>
+        ${modeCard}
+        <div class="stat-card"><div class="label">Zaległości czynszowe</div><div class="value ${outstanding>0?'neg':''}">${money(outstanding)}</div></div>
+        ${taxDue!==null ? `<div class="stat-card"><div class="label">Podatek do zapłaty (portfel)</div><div class="value ${taxDue>0?'neg':''}">${money(taxDue)}</div></div>` : ''}
+      </div>
+
+      ${infoPanelHtml(property)}
+
+      <div class="panel">
+        <h3>Przychody i koszty — ostatnie 6 miesięcy</h3>
+        <div class="chart-legend"><span><i class="leg-income"></i>Przychód</span><span><i class="leg-expense"></i>Koszt</span></div>
+        <svg viewBox="0 0 ${chartW} 180" style="width:100%; height:180px; overflow:visible;">${bars}</svg>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><h3>Ostatnie wpisy</h3><button class="btn btn-line btn-sm" data-action="set-tab" data-tab="finance">Zobacz wszystkie →</button></div>
+        ${recentHtml}
+      </div>
+    `;
+  }
+
+  /* ======================================================================
+     ROOMS TAB
+     ====================================================================== */
+  function roomsHtml(property){
+    if(!property.rooms.length){
+      return `
+        <div class="empty-state">
+          <h3>Brak dodanych pokoi</h3>
+          <p>To mieszkanie jest oznaczone jako wynajmowane na pokoje. Dodaj pierwszy pokój, aby zacząć podpisywać umowy najmu.</p>
+          <button class="btn btn-brass" data-action="add-room" data-prop="${property.id}">+ Dodaj pokój</button>
+        </div>`;
+    }
+    const cards = property.rooms.map(r => {
+      const lease = activeLeaseFor(property, r.id);
+      const income = allEffectiveEntries(property).filter(e => e.roomId === r.id && e.entryType === 'income').reduce((s,e)=>s+e.amount,0);
+      return `
+      <div class="room-card">
+        <div class="room-top">
+          <div class="room-name">${esc(r.name)}</div>
+          <span class="stamp ${lease?'occupied':'vacant'}">${lease ? 'Wynajęty' : 'Wolny'}</span>
+        </div>
+        <div class="room-line"><span>Metraż</span><span>${r.areaM2 || '—'} m²</span></div>
+        <div class="room-line"><span>${lease ? 'Czynsz / mies.' : 'Docelowy czynsz'}</span><span class="room-rent mono">${money(lease ? lease.monthlyRent : r.targetRent)}</span></div>
+        <div class="room-line"><span>Suma przychodu</span><span class="mono" style="color:var(--income)">${money(income)}</span></div>
+        ${lease ? `<div class="room-tenant">${esc(lease.tenantName)}${lease.tenantContact?' · '+esc(lease.tenantContact):''}<br>do ${lease.endDate?fmtDate(lease.endDate):'czasu nieokreślonego'}</div>` : (r.notes ? `<div class="room-tenant">${esc(r.notes)}</div>` : '')}
+        <div class="room-actions">
+          <button class="btn-icon" data-action="set-tab" data-tab="leases">📄 Umowy</button>
+          <button class="btn-icon" data-action="edit-room" data-prop="${property.id}" data-id="${r.id}">✎</button>
+          <button class="btn-icon" data-action="delete-room" data-prop="${property.id}" data-id="${r.id}">🗑</button>
+        </div>
+      </div>`;
+    }).join('');
+    return `
+      <div class="panel-head">
+        <h3 style="margin:0;">Pokoje (${property.rooms.length})</h3>
+        <button class="btn btn-brass btn-sm" data-action="add-room" data-prop="${property.id}">+ Dodaj pokój</button>
+      </div>
+      <div class="room-grid">${cards}</div>
+    `;
+  }
+
+  function roomFormHtml(r){
+    const isEdit = !!r;
+    r = r || { name:'', areaM2:'', targetRent:'', notes:'' };
+    return `
+      <div class="modal-head"><h3>${isEdit ? 'Edytuj pokój' : 'Nowy pokój'}</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <div class="hint">Najemca i warunki umowy ustawiasz w zakładce „Najem” — tu tylko podstawowe dane pokoju.</div>
+        <form id="roomForm">
+          <div class="form-grid">
+            <div class="field full"><label>Nazwa pokoju</label><input name="name" required value="${esc(r.name)}" placeholder="np. Pokój z balkonem"></div>
+            <div class="field"><label>Metraż (m²)</label><input name="areaM2" type="number" step="0.1" value="${esc(r.areaM2)}"></div>
+            <div class="field"><label>Docelowy czynsz (gdy wolny)</label><input name="targetRent" type="number" value="${esc(r.targetRent)}"></div>
+            <div class="field full"><label>Notatki</label><textarea name="notes">${esc(r.notes)}</textarea></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-room">${isEdit ? 'Zapisz zmiany' : 'Dodaj pokój'}</button>
+      </div>
+    `;
+  }
+  function openRoomForm(propId, editId){
+    const property = getProperty(propId);
+    const r = editId ? property.rooms.find(x => x.id === editId) : null;
+    openModal(roomFormHtml(r));
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.editId = editId || '';
+  }
+  function submitRoomForm(){
+    const form = document.getElementById('roomForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const editId = card.dataset.editId;
+    const data = {
+      name: fd.get('name').trim(), areaM2: parseFloat(fd.get('areaM2')) || null,
+      targetRent: parseFloat(fd.get('targetRent')) || 0, notes: fd.get('notes').trim()
+    };
+    if(editId){
+      Object.assign(property.rooms.find(x => x.id === editId), data);
+      toast('Zapisano zmiany w pokoju.');
+    } else {
+      property.rooms.push(Object.assign({ id: uid('room') }, data));
+      toast('Dodano pokój.');
+    }
+    closeModal();
+    render();
+  }
+  function deleteRoom(propId, roomId){
+    if(!confirm('Usunąć ten pokój? Powiązane umowy najmu i przypisane wpisy finansowe również zostaną zaktualizowane.')) return;
+    const property = getProperty(propId);
+    property.rooms = property.rooms.filter(r => r.id !== roomId);
+    property.leases = property.leases.filter(l => l.roomId !== roomId);
+    property.financeEntries.forEach(e => { if(e.roomId === roomId) e.roomId = null; });
+    toast('Pokój usunięty.');
+    render();
+  }
+
+  /* ======================================================================
+     LEASES (NAJEM) TAB
+     ====================================================================== */
+  function leaseCardHtml(property, lease){
+    const room = lease.roomId ? property.rooms.find(r => r.id === lease.roomId) : null;
+    const status = leaseStatus(lease);
+    const statusMeta = { active:['occupied','Aktywna'], ended:['status-inactive','Zakończona'], upcoming:['status-active','Planowana'] }[status];
+    const termLabel = `${fmtDate(lease.startDate)} → ${lease.endDate ? fmtDate(lease.endDate) : 'czas nieokreślony'}`;
+    const intervalM = PAYMENT_FREQUENCY_MONTHS[lease.paymentFrequency] || 1;
+    const rateAmount = (lease.monthlyRent || 0) * intervalM;
+    const docsHtml = lease.documents.length
+      ? lease.documents.map(d => `
+          <div class="doc-chip">
+            <span class="doc-name">📄 ${esc(d.name)}</span>
+            <span class="meta">${esc(d.sizeLabel)}</span>
+            <a href="${d.url}" target="_blank" rel="noopener">Otwórz</a>
+            <button class="doc-remove" data-action="delete-document" data-prop="${property.id}" data-lease="${lease.id}" data-doc="${d.id}" title="Usuń">×</button>
+          </div>`).join('')
+      : `<div class="meta" style="padding:4px 0;">Brak załączonych dokumentów.</div>`;
+
+    return `
+      <div class="room-card">
+        <div class="room-top">
+          <div>
+            <div class="room-name">${esc(lease.tenantName || 'Najemca')}</div>
+            <div class="meta">${room ? esc(room.name) : 'Cała nieruchomość'}${lease.tenantContact ? ' · '+esc(lease.tenantContact) : ''}${lease.isOccasional ? ' · najem okazjonalny' : ''}</div>
+          </div>
+          <span class="stamp ${statusMeta[0]}">${statusMeta[1]}</span>
+        </div>
+        <div class="room-line"><span>Okres umowy</span><span class="mono">${termLabel}</span></div>
+        <div class="room-line"><span>Kwota raty${intervalM>1 ? ' ('+PAYMENT_FREQUENCY_LABELS[lease.paymentFrequency]+')' : ' / mies.'}</span><span class="mono room-rent">${money(rateAmount)}</span></div>
+        ${intervalM>1 ? `<div class="room-line"><span>Czynsz bazowy / mies.</span><span class="mono">${money(lease.monthlyRent)}</span></div>` : ''}
+        <div class="room-line"><span>Data pierwszej płatności</span><span class="mono">${fmtDate(lease.firstPaymentDate)}</span></div>
+        <div class="room-line"><span>Kolejne płatności</span><span class="mono">${PAYMENT_FREQUENCY_LABELS[lease.paymentFrequency]||'Miesięcznie'} · do ${lease.rentDueDay||10}. dnia</span></div>
+        <div class="room-line">
+          <span>Kaucja</span>
+          <span class="mono">${lease.depositAmount ? money(lease.depositAmount) : '—'}${lease.depositAmount ? `<span class="deposit-badge ${lease.depositPaid?'paid':'unpaid'}">${lease.depositPaid?'✓ Wpłacona':'Niewpłacona'}</span>` : ''}</span>
+        </div>
+        ${lease.notes ? `<div class="room-tenant">${esc(lease.notes)}</div>` : ''}
+        <div class="doc-section">
+          <div class="doc-list">${docsHtml}</div>
+          <label class="btn btn-line btn-sm btn-block doc-upload-btn">
+            + Dodaj dokument (umowa, protokół...)
+            <input type="file" multiple data-action="upload-document" data-prop="${property.id}" data-lease="${lease.id}">
+          </label>
+        </div>
+        <div class="room-actions">
+          <button class="btn-icon" data-action="edit-lease" data-prop="${property.id}" data-id="${lease.id}">✎ Edytuj</button>
+          <button class="btn-icon" data-action="delete-lease" data-prop="${property.id}" data-id="${lease.id}">🗑</button>
+        </div>
+      </div>`;
+  }
+
+  function leasesHtml(property){
+    if(property.rentalMode === 'by_room' && !property.rooms.length){
+      return `
+        <div class="empty-state">
+          <h3>Najpierw dodaj pokój</h3>
+          <p>To mieszkanie jest wynajmowane na pokoje — żeby dodać umowę najmu, potrzebny jest przynajmniej jeden pokój.</p>
+          <button class="btn btn-brass" data-action="set-tab" data-tab="rooms">Przejdź do pokoi →</button>
+        </div>`;
+    }
+    const leases = property.leases.slice().sort((a,b)=> (b.startDate||'').localeCompare(a.startDate||''));
+    const cards = leases.length ? leases.map(l => leaseCardHtml(property,l)).join('') :
+      `<div class="empty-state"><h3>Brak umów najmu</h3><p>Dodaj pierwszą umowę — na jej podstawie będziemy automatycznie liczyć przychód aż do dnia jej wygaśnięcia.</p></div>`;
+    return `
+      <div class="panel-head">
+        <h3 style="margin:0;">Umowy najmu (${leases.length})</h3>
+        <button class="btn btn-brass btn-sm" data-action="add-lease" data-prop="${property.id}">+ Dodaj umowę najmu</button>
+      </div>
+      <div class="room-grid">${cards}</div>
+    `;
+  }
+
+  function leaseFormHtml(property, lease){
+    const isEdit = !!lease;
+    const l = lease || {
+      roomId:'', tenantName:'', tenantContact:'', startDate:TODAY_STR, endDate:'', monthlyRent:'',
+      firstPaymentDate:TODAY_STR, rentDueDay:10, paymentFrequency:'monthly',
+      depositAmount:'', depositPaid:false, isOccasional:false, notes:''
+    };
+    const roomSelect = property.rentalMode === 'by_room' ? `
+      <div class="field full">
+        <label>Pokój</label>
+        <select name="roomId" required>
+          <option value="">— wybierz pokój —</option>
+          ${property.rooms.map(r => `<option value="${r.id}" ${r.id===l.roomId?'selected':''}>${esc(r.name)}</option>`).join('')}
+        </select>
+      </div>` : '';
+    return `
+      <div class="modal-head"><h3>${isEdit?'Edytuj umowę najmu':'Nowa umowa najmu'}</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <div class="hint">„Data pierwszej płatności” to faktyczna data, kiedy najemca wpłaca pierwszy czynsz — często inna niż regularny termin w kolejnych miesiącach (np. gdy umowa zaczyna się w środku miesiąca). Kolejne płatności liczone są od tej daty, w wybranej częstotliwości, z terminem ustawionym na wskazany dzień miesiąca.</div>
+        <form id="leaseForm">
+          <div class="form-grid">
+            ${roomSelect}
+            <div class="field full"><label>Najemca</label><input name="tenantName" required value="${esc(l.tenantName)}"></div>
+            <div class="field"><label>Kontakt</label><input name="tenantContact" value="${esc(l.tenantContact)}"></div>
+            <div class="field"><label>Czynsz bazowy (miesięcznie)</label><input name="monthlyRent" type="number" required value="${esc(l.monthlyRent)}"></div>
+            <div class="field"><label>Data od (start umowy)</label><input name="startDate" type="date" required value="${esc(l.startDate)}"></div>
+            <div class="field"><label>Data do (puste = czas nieokreślony)</label><input name="endDate" type="date" value="${esc(l.endDate)}"></div>
+            <div class="field"><label>Data wpłaty pierwszego czynszu</label><input name="firstPaymentDate" type="date" required value="${esc(l.firstPaymentDate)}"></div>
+            <div class="field"><label>Cykliczność płatności czynszu</label>
+              <select name="paymentFrequency">
+                <option value="monthly" ${l.paymentFrequency==='monthly'?'selected':''}>Miesięcznie</option>
+                <option value="quarterly" ${l.paymentFrequency==='quarterly'?'selected':''}>Kwartalnie</option>
+                <option value="semiannual" ${l.paymentFrequency==='semiannual'?'selected':''}>Co pół roku</option>
+                <option value="annual" ${l.paymentFrequency==='annual'?'selected':''}>Rocznie</option>
+              </select>
+            </div>
+            <div class="field"><label>Termin płatności w kolejnych okresach (dzień miesiąca)</label><input name="rentDueDay" type="number" min="1" max="31" required value="${esc(l.rentDueDay)}"></div>
+            <div class="field"><label>Kwota kaucji</label><input name="depositAmount" type="number" value="${esc(l.depositAmount)}"></div>
+            <div class="field full">
+              <div class="check-row"><input type="checkbox" id="depositPaid" name="depositPaid" ${l.depositPaid?'checked':''}> <label for="depositPaid" style="margin:0;">Kaucja wpłacona</label></div>
+              <div class="check-row"><input type="checkbox" id="isOccasional" name="isOccasional" ${l.isOccasional?'checked':''}> <label for="isOccasional" style="margin:0;">To najem okazjonalny</label></div>
+            </div>
+            <div class="field full"><label>Notatki</label><textarea name="notes">${esc(l.notes)}</textarea></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-lease">${isEdit?'Zapisz zmiany':'Dodaj umowę'}</button>
+      </div>
+    `;
+  }
+  function openLeaseForm(propId, editId){
+    const property = getProperty(propId);
+    const lease = editId ? property.leases.find(x => x.id === editId) : null;
+    openModal(leaseFormHtml(property, lease));
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.editId = editId || '';
+  }
+  function submitLeaseForm(){
+    const form = document.getElementById('leaseForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const editId = card.dataset.editId;
+    const roomId = fd.get('roomId') || null;
+    if(property.rentalMode === 'by_room' && !roomId){
+      alert('Wybierz pokój, do którego przypisana jest umowa.');
+      return;
+    }
+    const data = {
+      roomId, tenantName: fd.get('tenantName').trim(), tenantContact: fd.get('tenantContact').trim(),
+      startDate: fd.get('startDate'), endDate: fd.get('endDate') || null,
+      monthlyRent: parseFloat(fd.get('monthlyRent')) || 0,
+      firstPaymentDate: fd.get('firstPaymentDate'), paymentFrequency: fd.get('paymentFrequency'),
+      rentDueDay: parseInt(fd.get('rentDueDay')) || 10,
+      depositAmount: parseFloat(fd.get('depositAmount')) || 0,
+      depositPaid: fd.get('depositPaid') === 'on', isOccasional: fd.get('isOccasional') === 'on',
+      notes: fd.get('notes').trim()
+    };
+    if(editId){
+      Object.assign(property.leases.find(x => x.id === editId), data);
+      toast('Zapisano zmiany w umowie.');
+    } else {
+      property.leases.push(Object.assign({ id: uid('lease'), documents:[], payments:{} }, data));
+      toast('Dodano umowę najmu.');
+    }
+    closeModal();
+    render();
+  }
+  function deleteLease(propId, id){
+    if(!confirm('Usunąć tę umowę najmu? Powiązane dokumenty również zostaną usunięte.')) return;
+    const property = getProperty(propId);
+    const lease = property.leases.find(l => l.id === id);
+    if(lease) lease.documents.forEach(d => { try{ URL.revokeObjectURL(d.url); }catch(e){} });
+    property.leases = property.leases.filter(l => l.id !== id);
+    toast('Umowa najmu usunięta.');
+    render();
+  }
+  function uploadDocument(propId, leaseId, fileList){
+    const property = getProperty(propId);
+    const lease = property.leases.find(l => l.id === leaseId);
+    Array.from(fileList).forEach(file => {
+      lease.documents.push({
+        id: uid('doc'), name:file.name, sizeLabel:formatSize(file.size),
+        fileType:file.type, url:URL.createObjectURL(file), uploadedAt: TODAY_STR
+      });
+    });
+    toast(fileList.length > 1 ? 'Dodano dokumenty.' : 'Dodano dokument.');
+    render();
+  }
+  function deleteDocument(propId, leaseId, docId){
+    const property = getProperty(propId);
+    const lease = property.leases.find(l => l.id === leaseId);
+    const idx = lease.documents.findIndex(d => d.id === docId);
+    if(idx > -1){ try{ URL.revokeObjectURL(lease.documents[idx].url); }catch(e){} lease.documents.splice(idx,1); }
+    toast('Dokument usunięty.');
+    render();
+  }
+
+  /* ======================================================================
+     FINANCE TAB
+     ====================================================================== */
+  function ledgerRow(property, e, showPropertyTag){
+    const room = e.roomId ? property.rooms.find(r => r.id === e.roomId) : null;
+    let dateMeta;
+    if(e.isVirtual && e.periodStart && e.periodEnd){
+      dateMeta = `<span class="meta mono">okres: ${fmtDate(e.periodStart)} – ${fmtDate(e.periodEnd)} · termin: ${fmtDate(e.dueDate)}</span>`;
+    } else if(e.isVirtual && e.dueDate){
+      dateMeta = `<span class="meta mono">okres: ${monthLabel(monthKey(e.entryDate))} · termin: ${fmtDate(e.dueDate)}</span>`;
+    } else {
+      dateMeta = `<span class="meta mono">${fmtDate(e.entryDate)}</span>`;
+    }
+    let actions;
+    if(e.isVirtual && e.category === 'rent_income'){
+      const lease = property.leases.find(l => l.id === e.leaseId);
+      const mKey = monthKey(e.entryDate);
+      const status = lease ? paymentStatusFor(lease, mKey) : 'unpaid';
+      actions = `
+        <select class="pay-status pay-${status}" data-action="set-payment-status" data-prop="${property.id}" data-lease="${e.leaseId}" data-month="${mKey}">
+          <option value="unpaid" ${status==='unpaid'?'selected':''}>${PAY_STATUS_LABELS.unpaid}</option>
+          <option value="paid" ${status==='paid'?'selected':''}>${PAY_STATUS_LABELS.paid}</option>
+          <option value="late" ${status==='late'?'selected':''}>${PAY_STATUS_LABELS.late}</option>
+        </select>`;
+    } else if(e.isVirtual){
+      actions = `<span class="ledger-auto-tag">auto · cykliczny</span>`;
+    } else {
+      actions = `<div class="row-actions">
+          <button class="btn-icon" data-action="edit-entry" data-prop="${property.id}" data-id="${e.id}">✎</button>
+          <button class="btn-icon" data-action="delete-entry" data-prop="${property.id}" data-id="${e.id}">🗑</button>
+        </div>`;
+    }
+    return `
+      <div class="ledger-row">
+        <div class="desc-block">
+          <span class="desc-text">${esc(e.description) || categoryLabelFor(e)}</span>
+          <span class="tag">${categoryLabelFor(e)}</span>
+          ${showPropertyTag ? `<span class="tag">${esc(property.name)}</span>` : ''}
+          ${room ? `<span class="tag">${esc(room.name)}</span>` : ''}
+        </div>
+        <span class="leader"></span>
+        ${dateMeta}
+        <span class="amount ${e.entryType} mono">${e.entryType==='income' ? '+' : '−'} ${money(e.amount)}</span>
+        ${actions}
+      </div>`;
+  }
+
+  function categoryOptions(type, selected){
+    const cats = type === 'income' ? INCOME_CATS : EXPENSE_CATS;
+    return cats.map(c => `<option value="${c}" ${c===selected?'selected':''}>${CATEGORY_LABELS[c]}</option>`).join('');
+  }
+
+  /* --- recurring costs (spółdzielnia / kredyt / media / własne) --- */
+  function recurringCostCardHtml(property, rc){
+    const tranches = rc.rateHistory.slice().sort((a,b)=> b.startDate.localeCompare(a.startDate));
+    const current = tranches[0];
+    const title = categoryLabelFor(rc);
+    const freq = rc.frequencyMonths || 1;
+    const rows = tranches.map(tr => `
+      <div class="ledger-row">
+        <div class="desc-block"><span class="desc-text mono">od ${fmtDate(tr.startDate)}</span></div>
+        <span class="leader"></span>
+        <span class="meta mono">termin: ${tr.paymentDay}. dnia miesiąca</span>
+        <span class="amount expense mono">${money(tr.amount)}</span>
+        <div class="row-actions">
+          ${tranches.length>1 ? `<button class="btn-icon" data-action="delete-rate-tranche" data-prop="${property.id}" data-cost="${rc.id}" data-tranche="${tr.id}">🗑</button>` : ''}
+        </div>
+      </div>`).join('');
+    return `
+      <div class="room-card">
+        <div class="room-top">
+          <div class="room-name">${title}</div>
+          <button class="btn-icon" data-action="delete-recurring-cost" data-prop="${property.id}" data-id="${rc.id}">🗑</button>
+        </div>
+        <div class="room-line"><span>Aktualna kwota</span><span class="mono room-rent">${money(current.amount)}</span></div>
+        <div class="room-line"><span>Cykliczność</span><span class="mono">${frequencyMonthsLabel(freq)}</span></div>
+        <div class="doc-list">${rows}</div>
+        <button class="btn btn-line btn-sm btn-block" data-action="add-rate-tranche" data-prop="${property.id}" data-cost="${rc.id}">+ Zmiana raty od nowej daty</button>
+      </div>`;
+  }
+  function recurringCostsPanelHtml(property){
+    const list = property.recurringCosts;
+    return `
+      <div class="panel">
+        <div class="panel-head">
+          <h3 style="margin:0;">Koszty cykliczne</h3>
+          <button class="btn btn-brass btn-sm" data-action="add-recurring-cost" data-prop="${property.id}">+ Dodaj koszt cykliczny</button>
+        </div>
+        <div class="hint">Czynsz do spółdzielni, kredyt, internet, sprzątanie, prąd, gaz albo zupełnie własny koszt — ustaw kwotę, termin i cykliczność płatności (np. co miesiąc, co 3 miesiące, raz w roku) raz, a system sam doda wpisy zgodnie z tym cyklem od podanej daty do dziś (wstecz). Gdy zmieni się rata (np. po zmianie stóp procentowych), dodaj nową kwotę „od daty” — poprzednie okresy rozliczą się po starej stawce, kolejne po nowej.</div>
+        ${list.length ? `<div class="room-grid">${list.map(rc => recurringCostCardHtml(property, rc)).join('')}</div>` : `<div class="meta" style="padding:6px 0;">Brak skonfigurowanych kosztów cyklicznych.</div>`}
+      </div>
+    `;
+  }
+  function recurringCostFormHtml(){
+    return `
+      <div class="modal-head"><h3>Nowy koszt cykliczny</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="recurringCostForm">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Rodzaj kosztu</label>
+              <select name="category" id="recurringCostCategory">
+                ${RECURRING_COST_CATS.map(c => `<option value="${c}">${c==='other'?'Inne (własna nazwa)':CATEGORY_LABELS[c]}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field full" id="recurringCustomLabelField" style="display:none;">
+              <label>Nazwa kosztu</label>
+              <input name="customLabel" placeholder="np. Ogrodnik, konserwacja windy...">
+            </div>
+            <div class="field"><label>Kwota za okres rozliczeniowy</label><input name="amount" type="number" required></div>
+            <div class="field"><label>Cykliczność płatności</label>
+              <select name="frequencyMonths">${frequencyMonthsOptions(1)}</select>
+            </div>
+            <div class="field"><label>Termin płatności (dzień miesiąca)</label><input name="paymentDay" type="number" min="1" max="31" value="10" required></div>
+            <div class="field full"><label>Obowiązuje od (miesiąc)</label><input name="startDate" type="date" required value="${TODAY_STR}"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-recurring-cost">Dodaj koszt</button>
+      </div>
+    `;
+  }
+  function openRecurringCostForm(propId){
+    openModal(recurringCostFormHtml(), () => {
+      document.getElementById('recurringCostCategory').addEventListener('change', (ev) => {
+        document.getElementById('recurringCustomLabelField').style.display = ev.target.value === 'other' ? '' : 'none';
+      });
+    });
+    document.getElementById('modalCard').dataset.propId = propId;
+  }
+  function submitRecurringCostForm(){
+    const form = document.getElementById('recurringCostForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const property = getProperty(document.getElementById('modalCard').dataset.propId);
+    property.recurringCosts.push({
+      id: uid('rc'), category: fd.get('category'), customLabel: fd.get('customLabel').trim(),
+      frequencyMonths: parseInt(fd.get('frequencyMonths')) || 1,
+      rateHistory: [{ id: uid('tranche'), startDate: fd.get('startDate'), amount: parseFloat(fd.get('amount'))||0, paymentDay: parseInt(fd.get('paymentDay'))||10 }]
+    });
+    toast('Dodano koszt cykliczny.');
+    closeModal();
+    render();
+  }
+  function deleteRecurringCost(propId, id){
+    if(!confirm('Usunąć ten koszt cykliczny wraz z całą historią rat?')) return;
+    const property = getProperty(propId);
+    property.recurringCosts = property.recurringCosts.filter(rc => rc.id !== id);
+    toast('Koszt cykliczny usunięty.');
+    render();
+  }
+  function rateTrancheFormHtml(){
+    return `
+      <div class="modal-head"><h3>Zmiana raty</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="rateTrancheForm">
+          <div class="form-grid">
+            <div class="field"><label>Nowa kwota</label><input name="amount" type="number" required></div>
+            <div class="field"><label>Termin płatności (dzień miesiąca)</label><input name="paymentDay" type="number" min="1" max="31" value="10" required></div>
+            <div class="field full"><label>Obowiązuje od (miesiąc)</label><input name="startDate" type="date" required></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-rate-tranche">Zapisz zmianę</button>
+      </div>
+    `;
+  }
+  function openRateTrancheForm(propId, costId){
+    openModal(rateTrancheFormHtml());
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.costId = costId;
+  }
+  function submitRateTrancheForm(){
+    const form = document.getElementById('rateTrancheForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const rc = property.recurringCosts.find(x => x.id === card.dataset.costId);
+    rc.rateHistory.push({ id: uid('tranche'), startDate: fd.get('startDate'), amount: parseFloat(fd.get('amount'))||0, paymentDay: parseInt(fd.get('paymentDay'))||10 });
+    toast('Zapisano zmianę raty.');
+    closeModal();
+    render();
+  }
+  function deleteRateTranche(propId, costId, trancheId){
+    const property = getProperty(propId);
+    const rc = property.recurringCosts.find(x => x.id === costId);
+    if(rc.rateHistory.length <= 1){ alert('Musi zostać przynajmniej jedna kwota w historii.'); return; }
+    if(!confirm('Usunąć tę zmianę raty?')) return;
+    rc.rateHistory = rc.rateHistory.filter(t => t.id !== trancheId);
+    toast('Usunięto zmianę raty.');
+    render();
+  }
+
+  /* --- combined finance filter (wiele nieruchomości / wiele pokoi) --- */
+  function buildFinanceLocations(includedProps){
+    const multi = includedProps.length > 1;
+    const locations = [];
+    includedProps.forEach(p => {
+      locations.push({ key: p.id+'|none', propId:p.id, label: (multi? esc(p.name)+' — ':'')+'Cała nieruchomość (bez pokoju)' });
+      p.rooms.forEach(r => locations.push({ key: p.id+'|'+r.id, propId:p.id, label: (multi? esc(p.name)+' — ':'')+esc(r.name) }));
+    });
+    return locations;
+  }
+
+  function financeHtml(property){
+    const f = state.financeFilter;
+    if(!f.propertyIds) f.propertyIds = [property.id];
+    if(!f.propertyIds.includes(property.id)) f.propertyIds = [property.id].concat(f.propertyIds);
+
+    const includedProps = state.properties.filter(p => f.propertyIds.includes(p.id));
+    const multiProp = includedProps.length > 1;
+    const locations = buildFinanceLocations(includedProps);
+
+    if(!f.locationKeys) f.locationKeys = locations.map(l => l.key);
+    f.locationKeys = f.locationKeys.filter(k => locations.some(l => l.key === k));
+    if(!f.locationKeys.length) f.locationKeys = locations.map(l => l.key);
+
+    let rowsData = [];
+    includedProps.forEach(p => {
+      allEffectiveEntries(p).forEach(e => {
+        const locKey = p.id + '|' + (e.roomId || 'none');
+        if(f.locationKeys.includes(locKey)) rowsData.push({ entry:e, property:p });
+      });
+    });
+    if(f.type !== 'all') rowsData = rowsData.filter(x => x.entry.entryType === f.type);
+    rowsData.sort((a,b) => b.entry.entryDate.localeCompare(a.entry.entryDate));
+
+    const rows = rowsData.length ? rowsData.map(x => ledgerRow(x.property, x.entry, multiProp)).join('') :
+      `<div class="empty-state" style="padding:30px;"><p>Brak wpisów dla wybranych filtrów.</p></div>`;
+
+    const propChecklist = state.properties.map(p => `
+      <label><input type="checkbox" ${f.propertyIds.includes(p.id)?'checked':''} ${p.id===property.id?'disabled':''} data-action="filter-toggle-property" data-id="${p.id}"> ${esc(p.name)}${p.id===property.id?' (aktualna)':''}</label>
+    `).join('');
+
+    const locChecklist = locations.map(l => `
+      <label><input type="checkbox" ${f.locationKeys.includes(l.key)?'checked':''} data-action="filter-toggle-location" data-key="${l.key}"> ${l.label}</label>
+    `).join('');
+
+    return `
+      ${recurringCostsPanelHtml(property)}
+      <div class="panel-head">
+        <h3 style="margin:0;">Wpisy finansowe</h3>
+        <button class="btn btn-brass btn-sm" data-action="add-entry" data-prop="${property.id}">+ Dodaj wpis</button>
+      </div>
+      <div class="hint" style="margin-bottom:10px;">Czynsz od najemcy i skonfigurowane koszty cykliczne generują się automatycznie. Nowy ręczny wpis zawsze dotyczy aktualnie otwartej nieruchomości („${esc(property.name)}”).</div>
+
+      <div class="filter-group">
+        <div class="filter-group-head"><span>Typ wpisu</span></div>
+        <select data-action="filter-type">
+          <option value="all" ${f.type==='all'?'selected':''}>Wszystkie typy</option>
+          <option value="income" ${f.type==='income'?'selected':''}>Tylko przychody</option>
+          <option value="expense" ${f.type==='expense'?'selected':''}>Tylko koszty</option>
+        </select>
+      </div>
+
+      ${state.properties.length > 1 ? `
+      <div class="filter-group">
+        <div class="filter-group-head">
+          <span>Nieruchomości w widoku</span>
+          <span><button class="filter-mini-btn" type="button" data-action="filter-all-properties">Zaznacz wszystkie</button> · <button class="filter-mini-btn" type="button" data-action="filter-none-properties">Tylko aktualna</button></span>
+        </div>
+        <div class="checklist">${propChecklist}</div>
+      </div>` : ''}
+
+      ${locations.length ? `
+      <div class="filter-group">
+        <div class="filter-group-head">
+          <span>Pokoje / lokalizacje</span>
+          <span><button class="filter-mini-btn" type="button" data-action="filter-all-locations">Zaznacz wszystkie</button> · <button class="filter-mini-btn" type="button" data-action="filter-none-locations">Odznacz wszystkie</button></span>
+        </div>
+        <div class="checklist">${locChecklist}</div>
+      </div>` : ''}
+
+      <div class="panel" style="padding:6px 18px;">${rows}</div>
+    `;
+  }
+
+  function entryFormHtml(property, e){
+    const isEdit = !!e;
+    e = e || { entryType:'expense', category:'admin_rent', amount:'', entryDate:TODAY_STR, isRecurring:false, recurringFrequency:'monthly', roomId:'', description:'' };
+    const roomSelect = property.rentalMode === 'by_room' ? `
+      <div class="field full">
+        <label>Pokój (opcjonalnie)</label>
+        <select name="roomId">
+          <option value="">— cała nieruchomość —</option>
+          ${property.rooms.map(r => `<option value="${r.id}" ${r.id===e.roomId?'selected':''}>${esc(r.name)}</option>`).join('')}
+        </select>
+      </div>` : '';
+    return `
+      <div class="modal-head"><h3>${isEdit ? 'Edytuj wpis' : 'Nowy wpis finansowy'}</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="entryForm">
+          <div class="field full">
+            <label>Typ wpisu</label>
+            <div class="radio-row">
+              <label class="radio-opt"><input type="radio" name="entryType" value="income" ${e.entryType==='income'?'checked':''}> Przychód</label>
+              <label class="radio-opt"><input type="radio" name="entryType" value="expense" ${e.entryType==='expense'?'checked':''}> Koszt</label>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field full">
+              <label>Kategoria</label>
+              <select name="category" id="categorySelect">${categoryOptions(e.entryType, e.category)}</select>
+            </div>
+            <div class="field"><label>Kwota</label><input name="amount" type="number" step="0.01" required value="${esc(e.amount)}"></div>
+            <div class="field"><label>Data</label><input name="entryDate" type="date" required value="${esc(e.entryDate)}"></div>
+            ${roomSelect}
+            <div class="field full"><label>Opis</label><input name="description" value="${esc(e.description)}" placeholder="np. Naprawa pralki"></div>
+            <div class="field full">
+              <div class="check-row"><input type="checkbox" id="isRecurring" name="isRecurring" ${e.isRecurring?'checked':''}> <label for="isRecurring" style="margin:0;">To wpis powtarzalny</label></div>
+            </div>
+            <div class="field full" id="frequencyField" style="${e.isRecurring?'':'display:none;'}">
+              <label>Częstotliwość</label>
+              <select name="recurringFrequency">
+                <option value="monthly" ${e.recurringFrequency==='monthly'?'selected':''}>Miesięcznie</option>
+                <option value="yearly" ${e.recurringFrequency==='yearly'?'selected':''}>Rocznie</option>
+              </select>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-entry">${isEdit ? 'Zapisz zmiany' : 'Dodaj wpis'}</button>
+      </div>
+    `;
+  }
+  function openEntryForm(propId, editId){
+    const property = getProperty(propId);
+    const e = editId ? property.financeEntries.find(x => x.id === editId) : null;
+    openModal(entryFormHtml(property, e), () => {
+      document.querySelectorAll('input[name="entryType"]').forEach(r => {
+        r.addEventListener('change', (ev) => {
+          document.getElementById('categorySelect').innerHTML = categoryOptions(ev.target.value, null);
+        });
+      });
+      document.getElementById('isRecurring').addEventListener('change', (ev) => {
+        document.getElementById('frequencyField').style.display = ev.target.checked ? '' : 'none';
+      });
+    });
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.editId = editId || '';
+  }
+  function submitEntryForm(){
+    const form = document.getElementById('entryForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const editId = card.dataset.editId;
+    const isRecurring = fd.get('isRecurring') === 'on';
+    const data = {
+      entryType: fd.get('entryType'), category: fd.get('category'),
+      amount: parseFloat(fd.get('amount')) || 0, entryDate: fd.get('entryDate'),
+      roomId: fd.get('roomId') || null, description: fd.get('description').trim(),
+      isRecurring, recurringFrequency: isRecurring ? fd.get('recurringFrequency') : null
+    };
+    if(editId){
+      Object.assign(property.financeEntries.find(x => x.id === editId), data);
+      toast('Zapisano zmiany we wpisie.');
+    } else {
+      property.financeEntries.push(Object.assign({ id: uid('fin') }, data));
+      toast('Dodano wpis finansowy.');
+    }
+    closeModal();
+    render();
+  }
+  function deleteEntry(propId, entryId){
+    if(!confirm('Usunąć ten wpis finansowy?')) return;
+    const property = getProperty(propId);
+    property.financeEntries = property.financeEntries.filter(e => e.id !== entryId);
+    toast('Wpis usunięty.');
+    render();
+  }
+
+  /* ======================================================================
+     TAXES TAB (łącznie dla portfela)
+     ====================================================================== */
+  function taxRowHtml(p){
+    const paid = !!state.taxSettings.payments[p.key];
+    return `
+      <div class="ledger-row">
+        <div class="desc-block">
+          <span class="desc-text">${p.label}</span>
+          <span class="tag">Przychód: ${money(p.revenue)}</span>
+        </div>
+        <span class="leader"></span>
+        <span class="meta mono">termin: ${fmtDate(p.dueDate)}</span>
+        <span class="amount expense mono">${money(p.tax)}</span>
+        <label class="check-row" style="margin:0;">
+          <input type="checkbox" ${paid?'checked':''} data-action="toggle-tax-paid" data-period="${p.key}">
+          Zapłacony
+        </label>
+      </div>`;
+  }
+
+  function taxesHtml(){
+    const settings = state.taxSettings;
+    if(!settings.includedIds.length && state.properties.length){
+      settings.includedIds = state.properties.map(p => p.id);
+    }
+    const checklist = state.properties.map(p => `
+      <label class="check-row" style="margin-bottom:8px;">
+        <input type="checkbox" ${settings.includedIds.includes(p.id)?'checked':''} data-action="toggle-tax-property" data-id="${p.id}">
+        ${esc(p.name)}
+      </label>`).join('');
+
+    const periods = combinedTaxPeriods();
+    const totalDue = periods.filter(p => !settings.payments[p.key]).reduce((s,p)=>s+p.tax,0);
+
+    return `
+      <div class="panel">
+        <h3>Ustawienia rozliczenia ryczałtu (łącznie dla portfela)</h3>
+        <div class="hint" style="margin-top:-4px;">Stawka ryczałtu (8,5% / 12,5%) zależy od SUMY przychodów z najmu ze wszystkich Twoich nieruchomości w danym roku — dlatego rozliczenie łączy przychody z zaznaczonych poniżej nieruchomości w jedno wspólne rozliczenie.</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Stawka podatku</label>
+            <select data-action="set-tax-rate">
+              <option value="" ${!settings.rate?'selected':''}>— wybierz —</option>
+              <option value="8.5" ${settings.rate==='8.5'?'selected':''}>8,5%</option>
+              <option value="12.5" ${settings.rate==='12.5'?'selected':''}>12,5%</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Częstotliwość rozliczania</label>
+            <select data-action="set-tax-frequency">
+              <option value="monthly" ${settings.frequency==='monthly'?'selected':''}>Miesięcznie</option>
+              <option value="quarterly" ${settings.frequency==='quarterly'?'selected':''}>Kwartalnie</option>
+            </select>
+          </div>
+        </div>
+        <div class="field full" style="margin-top:4px;">
+          <label>Nieruchomości uwzględnione w rozliczeniu</label>
+          ${checklist || '<div class="meta">Brak nieruchomości.</div>'}
+        </div>
+      </div>
+      ${(!settings.rate || !periods.length) ? `
+        <div class="empty-state">
+          <h3>${!settings.includedIds.length ? 'Zaznacz nieruchomości' : 'Wybierz stawkę podatku'}</h3>
+          <p>${!settings.includedIds.length ? 'Zaznacz przynajmniej jedną nieruchomość powyżej.' : 'Wybierz stawkę powyżej, aby zobaczyć kwoty do zapłaty za poszczególne okresy (potrzebna jest przynajmniej jedna umowa najmu w zaznaczonych nieruchomościach).'}</p>
+        </div>` : `
+        <div class="panel-head">
+          <h3 style="margin:0;">Kwoty do zapłaty</h3>
+          <div class="stat-card" style="padding:10px 16px;"><div class="label">Suma zaległa</div><div class="value ${totalDue>0?'neg':''}">${money(totalDue)}</div></div>
+        </div>
+        <div class="panel" style="padding:6px 18px;">
+          ${periods.map(p => taxRowHtml(p)).join('')}
+        </div>
+      `}
+    `;
+  }
+
+  /* ======================================================================
+     METERS TAB
+     ====================================================================== */
+  function meterCardHtml(property, meter){
+    const readings = meter.readings.slice().sort((a,b)=> a.date.localeCompare(b.date));
+    const rowsDesc = readings.slice().reverse().map((r) => {
+      const idxAsc = readings.findIndex(x => x.id === r.id);
+      const prev = idxAsc > 0 ? readings[idxAsc-1] : null;
+      const delta = prev ? (r.value - prev.value) : null;
+      return `
+        <div class="ledger-row">
+          <div class="desc-block">
+            <span class="desc-text mono">${fmtDate(r.date)}</span>
+            ${r.note ? `<span class="tag">${esc(r.note)}</span>` : ''}
+          </div>
+          <span class="leader"></span>
+          ${delta!==null ? `<span class="meta mono">zużycie: ${delta} ${esc(meter.unit)}</span>` : '<span class="meta">odczyt początkowy</span>'}
+          <span class="amount mono" style="color:var(--ink);">${r.value} ${esc(meter.unit)}</span>
+          <div class="row-actions">
+            <button class="btn-icon" data-action="delete-reading" data-prop="${property.id}" data-meter="${meter.id}" data-id="${r.id}">🗑</button>
+          </div>
+        </div>`;
+    }).join('');
+    return `
+      <div class="room-card">
+        <div class="room-top">
+          <div>
+            <div class="room-name">${esc(meter.name)}</div>
+            <div class="meta">${esc(meter.meterNumber || 'brak numeru')} · ${esc(meter.unit)}</div>
+          </div>
+          <div class="room-actions" style="margin:0; padding-top:0;">
+            <button class="btn-icon" data-action="edit-meter" data-prop="${property.id}" data-id="${meter.id}">✎</button>
+            <button class="btn-icon" data-action="delete-meter" data-prop="${property.id}" data-id="${meter.id}">🗑</button>
+          </div>
+        </div>
+        <div class="doc-list" style="max-height:240px; overflow-y:auto;">${rowsDesc || '<div class="meta" style="padding:6px 0;">Brak odczytów.</div>'}</div>
+        <button class="btn btn-line btn-sm btn-block" data-action="add-reading" data-prop="${property.id}" data-meter="${meter.id}">+ Dodaj odczyt</button>
+      </div>`;
+  }
+  function metersHtml(property){
+    if(!property.meters.length){
+      return `
+        <div class="empty-state">
+          <h3>Brak dodanych liczników</h3>
+          <p>Dodaj licznik (np. wody, gazu, energii elektrycznej), aby zapisywać jego odczyty i mieć historię potrzebną do rozliczeń z najemcami.</p>
+          <button class="btn btn-brass" data-action="add-meter" data-prop="${property.id}">+ Dodaj licznik</button>
+        </div>`;
+    }
+    return `
+      <div class="panel-head">
+        <h3 style="margin:0;">Liczniki (${property.meters.length})</h3>
+        <button class="btn btn-brass btn-sm" data-action="add-meter" data-prop="${property.id}">+ Dodaj licznik</button>
+      </div>
+      <div class="room-grid" style="grid-template-columns:repeat(auto-fill, minmax(280px,1fr));">
+        ${property.meters.map(m => meterCardHtml(property, m)).join('')}
+      </div>
+    `;
+  }
+  function meterFormHtml(meter){
+    const isEdit = !!meter;
+    const m = meter || { name:'', meterNumber:'', unit:'m³', initialDate:TODAY_STR, initialValue:'' };
+    return `
+      <div class="modal-head"><h3>${isEdit?'Edytuj licznik':'Nowy licznik'}</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="meterForm">
+          <div class="form-grid">
+            <div class="field full"><label>Nazwa licznika</label><input name="name" required value="${esc(m.name)}" placeholder="np. Licznik wody — kuchnia"></div>
+            <div class="field"><label>Numer licznika</label><input name="meterNumber" value="${esc(m.meterNumber)}"></div>
+            <div class="field"><label>Jednostka</label><input name="unit" required value="${esc(m.unit)}" placeholder="m³, kWh..."></div>
+            ${!isEdit ? `
+            <div class="field"><label>Data odczytu początkowego</label><input name="initialDate" type="date" required value="${esc(m.initialDate)}"></div>
+            <div class="field"><label>Stan początkowy</label><input name="initialValue" type="number" step="0.01" required value="${esc(m.initialValue)}"></div>
+            ` : ''}
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-meter">${isEdit?'Zapisz zmiany':'Dodaj licznik'}</button>
+      </div>
+    `;
+  }
+  function openMeterForm(propId, editId){
+    const property = getProperty(propId);
+    const m = editId ? property.meters.find(x => x.id === editId) : null;
+    openModal(meterFormHtml(m));
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.editId = editId || '';
+  }
+  function submitMeterForm(){
+    const form = document.getElementById('meterForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const editId = card.dataset.editId;
+    if(editId){
+      Object.assign(property.meters.find(x => x.id === editId), {
+        name: fd.get('name').trim(), meterNumber: fd.get('meterNumber').trim(), unit: fd.get('unit').trim()
+      });
+      toast('Zapisano zmiany w liczniku.');
+    } else {
+      property.meters.push({
+        id: uid('meter'), name: fd.get('name').trim(), meterNumber: fd.get('meterNumber').trim(),
+        unit: fd.get('unit').trim(),
+        readings: [{ id: uid('read'), date: fd.get('initialDate'), value: parseFloat(fd.get('initialValue')) || 0, note:'Odczyt początkowy' }]
+      });
+      toast('Dodano licznik.');
+    }
+    closeModal();
+    render();
+  }
+  function deleteMeter(propId, id){
+    if(!confirm('Usunąć ten licznik wraz z historią odczytów?')) return;
+    const property = getProperty(propId);
+    property.meters = property.meters.filter(m => m.id !== id);
+    toast('Licznik usunięty.');
+    render();
+  }
+  function readingFormHtml(){
+    return `
+      <div class="modal-head"><h3>Nowy odczyt</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="readingForm">
+          <div class="form-grid">
+            <div class="field"><label>Data odczytu</label><input name="date" type="date" required value="${TODAY_STR}"></div>
+            <div class="field"><label>Stan licznika</label><input name="value" type="number" step="0.01" required></div>
+            <div class="field full"><label>Notatka (opcjonalnie)</label><input name="note" placeholder="np. odczyt przy zmianie najemcy"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-reading">Dodaj odczyt</button>
+      </div>
+    `;
+  }
+  function openReadingForm(propId, meterId){
+    openModal(readingFormHtml());
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.meterId = meterId;
+  }
+  function submitReadingForm(){
+    const form = document.getElementById('readingForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const meter = property.meters.find(m => m.id === card.dataset.meterId);
+    meter.readings.push({ id: uid('read'), date: fd.get('date'), value: parseFloat(fd.get('value')) || 0, note: fd.get('note').trim() });
+    toast('Dodano odczyt.');
+    closeModal();
+    render();
+  }
+  function deleteReading(propId, meterId, readingId){
+    if(!confirm('Usunąć ten odczyt?')) return;
+    const property = getProperty(propId);
+    const meter = property.meters.find(m => m.id === meterId);
+    meter.readings = meter.readings.filter(r => r.id !== readingId);
+    toast('Odczyt usunięty.');
+    render();
+  }
+
+  /* ======================================================================
+     SCHEDULE TAB (przeglądy + alerty)
+     ====================================================================== */
+  function inspectionCardHtml(property, insp){
+    const next = nextInspectionDate(insp);
+    const overdue = next && next < TODAY;
+    const soon = next && !overdue && daysBetween(TODAY, next) <= ALERT_WINDOW_DAYS;
+    const stampClass = overdue ? 'vacant' : (soon ? 'status-active' : 'occupied');
+    const stampLabel = overdue ? 'Po terminie' : (soon ? 'Nadchodzi' : 'Aktualny');
+    return `
+      <div class="room-card">
+        <div class="room-top">
+          <div class="room-name">${esc(inspectionLabel(insp))}</div>
+          <span class="stamp ${stampClass}">${stampLabel}</span>
+        </div>
+        <div class="room-line"><span>Ostatni przegląd</span><span class="mono">${fmtDate(insp.lastDate)}</span></div>
+        <div class="room-line"><span>Następny termin</span><span class="mono">${next ? fmtDate(next.toISOString().slice(0,10)) : '—'}</span></div>
+        <div class="room-line"><span>Częstotliwość</span><span class="mono">${insp.frequencyMonths} mc.</span></div>
+        <div class="room-actions">
+          <button class="btn btn-line btn-sm" data-action="mark-inspection-done" data-prop="${property.id}" data-id="${insp.id}">Wykonano dziś</button>
+          <button class="btn-icon" data-action="edit-inspection" data-prop="${property.id}" data-id="${insp.id}">✎</button>
+          <button class="btn-icon" data-action="delete-inspection" data-prop="${property.id}" data-id="${insp.id}">🗑</button>
+        </div>
+      </div>`;
+  }
+  function scheduleHtml(property){
+    const alerts = computeAlerts(property);
+    const alertsHtml = alerts.length ? alerts.map(a => `
+      <div class="ledger-row">
+        <div class="desc-block"><span class="desc-text" style="max-width:100%; white-space:normal;">${esc(a.text)}</span></div>
+        <span class="stamp ${a.severity==='overdue'?'vacant':'status-active'}">${a.severity==='overdue'?'Po terminie':'Nadchodzi'}</span>
+      </div>`).join('') : `<div class="meta" style="padding:10px 0;">Brak nadchodzących terminów w najbliższych ${ALERT_WINDOW_DAYS} dniach.</div>`;
+
+    return `
+      <div class="panel">
+        <h3>Alerty</h3>
+        ${alertsHtml}
+      </div>
+      <div class="panel-head">
+        <h3 style="margin:0;">Obowiązkowe przeglądy</h3>
+        <button class="btn btn-brass btn-sm" data-action="add-inspection" data-prop="${property.id}">+ Dodaj przegląd</button>
+      </div>
+      ${property.inspections.length ? `<div class="room-grid">${property.inspections.map(i => inspectionCardHtml(property,i)).join('')}</div>` :
+        `<div class="empty-state"><h3>Brak dodanych przeglądów</h3><p>Dodaj przegląd gazowy, kominiarski lub instalacji elektrycznej, aby otrzymywać przypomnienia o terminach.</p></div>`}
+    `;
+  }
+  function inspectionFormHtml(insp){
+    const isEdit = !!insp;
+    const i = insp || { type:'gas', customLabel:'', lastDate:TODAY_STR, frequencyMonths:INSPECTION_TYPES.gas.defaultMonths };
+    return `
+      <div class="modal-head"><h3>${isEdit?'Edytuj przegląd':'Nowy przegląd'}</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="inspectionForm">
+          <div class="form-grid">
+            <div class="field full">
+              <label>Typ przeglądu</label>
+              <select name="type" id="inspectionType">
+                <option value="gas" ${i.type==='gas'?'selected':''}>${INSPECTION_TYPES.gas.label}</option>
+                <option value="chimney" ${i.type==='chimney'?'selected':''}>${INSPECTION_TYPES.chimney.label}</option>
+                <option value="electrical" ${i.type==='electrical'?'selected':''}>${INSPECTION_TYPES.electrical.label}</option>
+                <option value="other" ${i.type==='other'?'selected':''}>Inny</option>
+              </select>
+            </div>
+            <div class="field full" id="customLabelField" style="${i.type==='other'?'':'display:none;'}">
+              <label>Nazwa przeglądu</label>
+              <input name="customLabel" value="${esc(i.customLabel)}">
+            </div>
+            <div class="field"><label>Data ostatniego przeglądu</label><input name="lastDate" type="date" required value="${esc(i.lastDate)}"></div>
+            <div class="field"><label>Częstotliwość (miesiące)</label><input name="frequencyMonths" id="frequencyMonths" type="number" required value="${esc(i.frequencyMonths)}"></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-inspection">${isEdit?'Zapisz zmiany':'Dodaj przegląd'}</button>
+      </div>
+    `;
+  }
+  function openInspectionForm(propId, editId){
+    const property = getProperty(propId);
+    const insp = editId ? property.inspections.find(x => x.id === editId) : null;
+    openModal(inspectionFormHtml(insp), () => {
+      document.getElementById('inspectionType').addEventListener('change', (ev) => {
+        document.getElementById('customLabelField').style.display = ev.target.value === 'other' ? '' : 'none';
+        if(!editId) document.getElementById('frequencyMonths').value = INSPECTION_TYPES[ev.target.value].defaultMonths;
+      });
+    });
+    const card = document.getElementById('modalCard');
+    card.dataset.propId = propId;
+    card.dataset.editId = editId || '';
+  }
+  function submitInspectionForm(){
+    const form = document.getElementById('inspectionForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const card = document.getElementById('modalCard');
+    const property = getProperty(card.dataset.propId);
+    const editId = card.dataset.editId;
+    const data = {
+      type: fd.get('type'), customLabel: fd.get('customLabel').trim(),
+      lastDate: fd.get('lastDate'), frequencyMonths: parseInt(fd.get('frequencyMonths')) || 12
+    };
+    if(editId){
+      Object.assign(property.inspections.find(x => x.id === editId), data);
+      toast('Zapisano zmiany w przeglądzie.');
+    } else {
+      property.inspections.push(Object.assign({ id: uid('insp') }, data));
+      toast('Dodano przegląd.');
+    }
+    closeModal();
+    render();
+  }
+  function deleteInspection(propId, id){
+    if(!confirm('Usunąć ten przegląd z terminarza?')) return;
+    const property = getProperty(propId);
+    property.inspections = property.inspections.filter(i => i.id !== id);
+    toast('Przegląd usunięty.');
+    render();
+  }
+  function markInspectionDone(propId, id){
+    const property = getProperty(propId);
+    const insp = property.inspections.find(i => i.id === id);
+    insp.lastDate = TODAY_STR;
+    toast('Zarejestrowano dzisiejszy przegląd.');
+    render();
+  }
+
+  /* ======================================================================
+     NOTES TAB
+     ====================================================================== */
+  function notesHtml(property){
+    return `
+      <div class="panel">
+        <h3>Notatki</h3>
+        <textarea class="notes-area" id="notesArea">${esc(property.notes)}</textarea>
+        <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+          <button class="btn btn-brass btn-sm" data-action="save-notes" data-prop="${property.id}">Zapisz notatkę</button>
+        </div>
+      </div>
+    `;
+  }
+
+  /* ======================================================================
+     FULL RENDER
+     ====================================================================== */
+  function render(){
+    renderSidebar();
+    renderMain();
+  }
+
+  /* ======================================================================
+     PROPERTY FORM
+     ====================================================================== */
+  function propertyFormHtml(p){
+    const isEdit = !!p;
+    p = p || {
+      name:'', address:'', city:'', postalCode:'', areaM2:'', roomsCount:'', floor:'', yearBuilt:'',
+      purchasePrice:'', currentValue:'', rentalMode:'whole', targetMonthlyRent:'', status:'active',
+      kwNumber:'', energyCertificate:'', insuranceExpiryDate:'', notes:'', photoUrl:''
+    };
+    return `
+      <div class="modal-head"><h3>${isEdit ? 'Edytuj nieruchomość' : 'Nowa nieruchomość'}</h3><button class="modal-close" data-action="close-modal">×</button></div>
+      <div class="modal-body">
+        <form id="propertyForm">
+          <div class="form-grid">
+            <div class="field full"><label>Nazwa</label><input name="name" required value="${esc(p.name)}" placeholder="np. Kwiatowa 5"></div>
+            <div class="field full"><label>Adres</label><input name="address" required value="${esc(p.address)}" placeholder="ul. Kwiatowa 5/3"></div>
+            <div class="field"><label>Miasto</label><input name="city" value="${esc(p.city)}"></div>
+            <div class="field"><label>Kod pocztowy</label><input name="postalCode" value="${esc(p.postalCode)}"></div>
+            <div class="field"><label>Metraż (m²)</label><input name="areaM2" type="number" step="0.1" value="${esc(p.areaM2)}"></div>
+            <div class="field"><label>Liczba pokoi</label><input name="roomsCount" type="number" value="${esc(p.roomsCount)}"></div>
+            <div class="field"><label>Piętro</label><input name="floor" type="number" value="${esc(p.floor)}"></div>
+            <div class="field"><label>Rok budowy</label><input name="yearBuilt" type="number" value="${esc(p.yearBuilt)}"></div>
+            <div class="field"><label>Cena zakupu</label><input name="purchasePrice" type="number" value="${esc(p.purchasePrice)}"></div>
+            <div class="field"><label>Aktualna wartość</label><input name="currentValue" type="number" value="${esc(p.currentValue)}"></div>
+            <div class="field"><label>Numer Księgi Wieczystej (KW)</label><input name="kwNumber" value="${esc(p.kwNumber)}" placeholder="np. WA1M/00012345/6"></div>
+            <div class="field">
+              <label>Świadectwo charakterystyki energ. (ŚChE)</label>
+              <select name="energyCertificate">
+                <option value="" ${!p.energyCertificate?'selected':''}>— nie wskazano —</option>
+                <option value="yes" ${p.energyCertificate==='yes'?'selected':''}>Wyrobione</option>
+                <option value="in_progress" ${p.energyCertificate==='in_progress'?'selected':''}>W trakcie</option>
+                <option value="no" ${p.energyCertificate==='no'?'selected':''}>Niewyrobione</option>
+              </select>
+            </div>
+            <div class="field"><label>Ubezpieczenie ważne do</label><input name="insuranceExpiryDate" type="date" value="${esc(p.insuranceExpiryDate)}"></div>
+            <div class="field full">
+              <label>Sposób wynajmu</label>
+              <div class="radio-row">
+                <label class="radio-opt"><input type="radio" name="rentalMode" value="whole" ${p.rentalMode==='whole'?'checked':''}> Cała nieruchomość</label>
+                <label class="radio-opt"><input type="radio" name="rentalMode" value="by_room" ${p.rentalMode==='by_room'?'checked':''}> Na pokoje</label>
+              </div>
+            </div>
+            <div class="field full" id="targetRentField" style="${p.rentalMode==='by_room'?'display:none;':''}">
+              <label>Docelowy czynsz miesięczny</label>
+              <input name="targetMonthlyRent" type="number" value="${esc(p.targetMonthlyRent)}">
+            </div>
+            <div class="field"><label>Status</label>
+              <select name="status">
+                <option value="active" ${p.status==='active'?'selected':''}>Aktywna</option>
+                <option value="inactive" ${p.status==='inactive'?'selected':''}>Nieaktywna</option>
+                <option value="for_sale" ${p.status==='for_sale'?'selected':''}>Na sprzedaż</option>
+              </select>
+            </div>
+            <div class="field"><label>Zdjęcie (URL, opcjonalnie)</label><input name="photoUrl" value="${esc(p.photoUrl)}"></div>
+            <div class="field full"><label>Notatki</label><textarea name="notes">${esc(p.notes)}</textarea></div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-line" data-action="close-modal">Anuluj</button>
+        <button class="btn btn-brass" data-action="submit-property">${isEdit ? 'Zapisz zmiany' : 'Dodaj nieruchomość'}</button>
+      </div>
+    `;
+  }
+  function openPropertyForm(editId){
+    const p = editId ? getProperty(editId) : null;
+    openModal(propertyFormHtml(p), () => {
+      document.querySelectorAll('input[name="rentalMode"]').forEach(r => {
+        r.addEventListener('change', (e) => {
+          document.getElementById('targetRentField').style.display = e.target.value === 'by_room' ? 'none' : '';
+        });
+      });
+    });
+    document.getElementById('modalCard').dataset.editId = editId || '';
+  }
+  function submitPropertyForm(){
+    const form = document.getElementById('propertyForm');
+    if(!form.reportValidity()) return;
+    const fd = new FormData(form);
+    const editId = document.getElementById('modalCard').dataset.editId;
+    const data = {
+      name: fd.get('name').trim(), address: fd.get('address').trim(), city: fd.get('city').trim(),
+      postalCode: fd.get('postalCode').trim(), areaM2: parseFloat(fd.get('areaM2')) || null,
+      roomsCount: parseInt(fd.get('roomsCount')) || null, floor: parseInt(fd.get('floor')) || null,
+      yearBuilt: parseInt(fd.get('yearBuilt')) || null, purchasePrice: parseFloat(fd.get('purchasePrice')) || null,
+      currentValue: parseFloat(fd.get('currentValue')) || null, rentalMode: fd.get('rentalMode'),
+      targetMonthlyRent: parseFloat(fd.get('targetMonthlyRent')) || null, status: fd.get('status'),
+      kwNumber: fd.get('kwNumber').trim(), energyCertificate: fd.get('energyCertificate'),
+      insuranceExpiryDate: fd.get('insuranceExpiryDate') || null,
+      photoUrl: fd.get('photoUrl').trim(), notes: fd.get('notes').trim()
+    };
+    if(editId){
+      const p = getProperty(editId);
+      Object.assign(p, data);
+      toast('Zapisano zmiany w nieruchomości.');
+    } else {
+      const p = Object.assign({
+        id: uid('prop'), rooms:[], financeEntries:[], leases:[], inspections:[], meters:[], recurringCosts:[]
+      }, data);
+      state.properties.push(p);
+      state.activePropertyId = p.id;
+      state.activeTab = 'overview';
+      state.financeFilter = freshFinanceFilter(p.id);
+      if(!state.taxSettings.includedIds.includes(p.id)) state.taxSettings.includedIds.push(p.id);
+      toast('Dodano nową nieruchomość.');
+    }
+    closeModal();
+    render();
+  }
+  function deleteProperty(id){
+    const p = getProperty(id);
+    if(!confirm(`Usunąć nieruchomość „${p.name}” wraz z pokojami, umowami najmu i wpisami finansowymi?`)) return;
+    p.leases.forEach(l => l.documents.forEach(d => { try{ URL.revokeObjectURL(d.url); }catch(e){} }));
+    state.properties = state.properties.filter(x => x.id !== id);
+    state.taxSettings.includedIds = state.taxSettings.includedIds.filter(x => x !== id);
+    if(state.activePropertyId === id){
+      state.activePropertyId = state.properties[0] ? state.properties[0].id : null;
+      state.activeTab = 'overview';
+      state.financeFilter = freshFinanceFilter(state.activePropertyId);
+    }
+    toast('Nieruchomość usunięta.');
+    render();
+  }
+
+  /* ======================================================================
+     EVENT DELEGATION
+     ====================================================================== */
+  document.addEventListener('click', (ev) => {
+    const t = ev.target.closest('[data-action]');
+    if(!t) return;
+    const action = t.dataset.action;
+
+    if(action === 'select-property'){
+      state.activePropertyId = t.dataset.id;
+      state.activeTab = 'overview';
+      state.financeFilter = freshFinanceFilter(t.dataset.id);
+      render();
+    }
+    else if(action === 'set-tab'){ state.activeTab = t.dataset.tab; renderMain(); }
+    else if(action === 'add-property'){ openPropertyForm(null); }
+    else if(action === 'edit-property'){ openPropertyForm(t.dataset.id); }
+    else if(action === 'delete-property'){ deleteProperty(t.dataset.id); }
+    else if(action === 'submit-property'){ submitPropertyForm(); }
+
+    else if(action === 'add-room'){ openRoomForm(t.dataset.prop, null); }
+    else if(action === 'edit-room'){ openRoomForm(t.dataset.prop, t.dataset.id); }
+    else if(action === 'delete-room'){ deleteRoom(t.dataset.prop, t.dataset.id); }
+    else if(action === 'submit-room'){ submitRoomForm(); }
+
+    else if(action === 'add-lease'){ openLeaseForm(t.dataset.prop, null); }
+    else if(action === 'edit-lease'){ openLeaseForm(t.dataset.prop, t.dataset.id); }
+    else if(action === 'delete-lease'){ deleteLease(t.dataset.prop, t.dataset.id); }
+    else if(action === 'submit-lease'){ submitLeaseForm(); }
+    else if(action === 'delete-document'){ deleteDocument(t.dataset.prop, t.dataset.lease, t.dataset.doc); }
+
+    else if(action === 'add-entry'){ openEntryForm(t.dataset.prop, null); }
+    else if(action === 'edit-entry'){ openEntryForm(t.dataset.prop, t.dataset.id); }
+    else if(action === 'delete-entry'){ deleteEntry(t.dataset.prop, t.dataset.id); }
+    else if(action === 'submit-entry'){ submitEntryForm(); }
+
+    else if(action === 'add-recurring-cost'){ openRecurringCostForm(t.dataset.prop); }
+    else if(action === 'submit-recurring-cost'){ submitRecurringCostForm(); }
+    else if(action === 'delete-recurring-cost'){ deleteRecurringCost(t.dataset.prop, t.dataset.id); }
+    else if(action === 'add-rate-tranche'){ openRateTrancheForm(t.dataset.prop, t.dataset.cost); }
+    else if(action === 'submit-rate-tranche'){ submitRateTrancheForm(); }
+    else if(action === 'delete-rate-tranche'){ deleteRateTranche(t.dataset.prop, t.dataset.cost, t.dataset.tranche); }
+
+    else if(action === 'filter-all-properties'){
+      state.financeFilter.propertyIds = state.properties.map(p => p.id);
+      state.financeFilter.locationKeys = null;
+      renderMain();
+    }
+    else if(action === 'filter-none-properties'){
+      state.financeFilter.propertyIds = [state.activePropertyId];
+      state.financeFilter.locationKeys = null;
+      renderMain();
+    }
+    else if(action === 'filter-all-locations'){
+      const includedProps = state.properties.filter(p => state.financeFilter.propertyIds.includes(p.id));
+      state.financeFilter.locationKeys = buildFinanceLocations(includedProps).map(l => l.key);
+      renderMain();
+    }
+    else if(action === 'filter-none-locations'){
+      state.financeFilter.locationKeys = [];
+      renderMain();
+    }
+
+    else if(action === 'add-meter'){ openMeterForm(t.dataset.prop, null); }
+    else if(action === 'edit-meter'){ openMeterForm(t.dataset.prop, t.dataset.id); }
+    else if(action === 'delete-meter'){ deleteMeter(t.dataset.prop, t.dataset.id); }
+    else if(action === 'submit-meter'){ submitMeterForm(); }
+    else if(action === 'add-reading'){ openReadingForm(t.dataset.prop, t.dataset.meter); }
+    else if(action === 'submit-reading'){ submitReadingForm(); }
+    else if(action === 'delete-reading'){ deleteReading(t.dataset.prop, t.dataset.meter, t.dataset.id); }
+
+    else if(action === 'add-inspection'){ openInspectionForm(t.dataset.prop, null); }
+    else if(action === 'edit-inspection'){ openInspectionForm(t.dataset.prop, t.dataset.id); }
+    else if(action === 'delete-inspection'){ deleteInspection(t.dataset.prop, t.dataset.id); }
+    else if(action === 'submit-inspection'){ submitInspectionForm(); }
+    else if(action === 'mark-inspection-done'){ markInspectionDone(t.dataset.prop, t.dataset.id); }
+
+    else if(action === 'close-modal'){ closeModal(); }
+    else if(action === 'save-notes'){
+      const property = getProperty(t.dataset.prop);
+      property.notes = document.getElementById('notesArea').value;
+      toast('Notatka zapisana.');
+    }
+  });
+
+  document.addEventListener('change', (ev) => {
+    const t = ev.target;
+    if(t.dataset.action === 'filter-type'){ state.financeFilter.type = t.value; renderMain(); }
+    else if(t.dataset.action === 'filter-toggle-property'){
+      const id = t.dataset.id;
+      if(t.checked){ if(!state.financeFilter.propertyIds.includes(id)) state.financeFilter.propertyIds.push(id); }
+      else { state.financeFilter.propertyIds = state.financeFilter.propertyIds.filter(x => x !== id); }
+      state.financeFilter.locationKeys = null;
+      renderMain();
+    }
+    else if(t.dataset.action === 'filter-toggle-location'){
+      const key = t.dataset.key;
+      if(t.checked){ if(!state.financeFilter.locationKeys.includes(key)) state.financeFilter.locationKeys.push(key); }
+      else { state.financeFilter.locationKeys = state.financeFilter.locationKeys.filter(x => x !== key); }
+      renderMain();
+    }
+    else if(t.dataset.action === 'upload-document'){ uploadDocument(t.dataset.prop, t.dataset.lease, t.files); }
+    else if(t.dataset.action === 'set-payment-status'){
+      const property = getProperty(t.dataset.prop);
+      const lease = property.leases.find(l => l.id === t.dataset.lease);
+      if(lease){ if(!lease.payments) lease.payments = {}; lease.payments[t.dataset.month] = t.value; toast('Zapisano status płatności.'); renderMain(); }
+    }
+    else if(t.dataset.action === 'set-tax-rate'){ state.taxSettings.rate = t.value; renderMain(); }
+    else if(t.dataset.action === 'set-tax-frequency'){ state.taxSettings.frequency = t.value; renderMain(); }
+    else if(t.dataset.action === 'toggle-tax-paid'){ state.taxSettings.payments[t.dataset.period] = t.checked; renderMain(); }
+    else if(t.dataset.action === 'toggle-tax-property'){
+      const id = t.dataset.id;
+      if(t.checked){ if(!state.taxSettings.includedIds.includes(id)) state.taxSettings.includedIds.push(id); }
+      else { state.taxSettings.includedIds = state.taxSettings.includedIds.filter(x => x !== id); }
+      renderMain();
+    }
+  });
+
+  document.getElementById('modalOverlay').addEventListener('click', (ev) => {
+    if(ev.target.id === 'modalOverlay') closeModal();
+  });
+  document.addEventListener('keydown', (ev) => {
+    if(ev.key === 'Escape') closeModal();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
