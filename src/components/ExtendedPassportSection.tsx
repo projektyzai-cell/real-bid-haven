@@ -541,7 +541,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 <span className="inline-flex items-center gap-1.5 font-semibold">
                   <GraduationCap className="h-4 w-4 text-gold" /> Aktywny status studenta
                 </span>
-                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+7 pkt</span>
+                
               </span>
             </label>
             {profile.is_student && (
@@ -558,7 +558,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 </select>
                 {profile.student_status === "non_working_supported" && (
                   <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    Wariant uznawany jako próg dochodowy 3001–5000 zł netto (18,75 pkt) — pole „średni miesięczny dochód netto" nie jest wymagane.
+                    Wariant uznawany jako próg dochodowy 3001–5000 zł netto — pole „średni miesięczny dochód netto" nie jest wymagane.
                   </p>
                 )}
               </div>
@@ -572,7 +572,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
               />
               <span className="flex-1">
                 <span className="font-semibold">Akceptuję wpłatę standardowej kaucji jednomiesięcznej</span>
-                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+6 pkt</span>
+                
               </span>
             </label>
 
@@ -586,7 +586,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 <span className="inline-flex items-center gap-1.5 font-semibold">
                   <UserCheck className="h-4 w-4 text-gold" /> Mam możliwość poręczenia umowy najmu przez dodatkową osobę z dochodami
                 </span>
-                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+10 pkt</span>
+                
                 <span className="block text-[11px] text-muted-foreground">Deklaracja — weryfikacja poręczyciela odbędzie się dopiero na etapie podpisywania umowy.</span>
               </span>
             </label>
