@@ -1040,6 +1040,7 @@ export type Database = {
           id: string
           landlord_id: string
           listing_id: string | null
+          match_score: number
           monthly_price: number
           property_address: string | null
           request_id: string
@@ -1051,6 +1052,7 @@ export type Database = {
           id?: string
           landlord_id: string
           listing_id?: string | null
+          match_score?: number
           monthly_price: number
           property_address?: string | null
           request_id: string
@@ -1062,6 +1064,7 @@ export type Database = {
           id?: string
           landlord_id?: string
           listing_id?: string | null
+          match_score?: number
           monthly_price?: number
           property_address?: string | null
           request_id?: string
@@ -1349,6 +1352,19 @@ export type Database = {
         Returns: undefined
       }
       cleanup_old_listings: { Args: never; Returns: undefined }
+      compute_match_score: {
+        Args: {
+          _has_balcony: boolean
+          _has_dishwasher: boolean
+          _has_elevator: boolean
+          _has_parking: boolean
+          _wants_balcony: boolean
+          _wants_dishwasher: boolean
+          _wants_elevator: boolean
+          _wants_parking: boolean
+        }
+        Returns: number
+      }
       delete_my_account: { Args: never; Returns: undefined }
       express_interest: {
         Args: { _listing_id: string; _request_id?: string }
