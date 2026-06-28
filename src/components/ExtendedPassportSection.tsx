@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { computeTrustScore } from "@/lib/trust-score";
+import { sanitizeFilename } from "@/lib/utils";
 import { startPassportRenewal } from "@/lib/passport-actions.functions";
 
 type Profile = Record<string, unknown> & {
@@ -157,7 +158,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
 
   // ---------- Uploads ----------
   async function uploadToBucket(prefix: string, file: File) {
-    const path = `${userId}/${prefix}-${Date.now()}-${file.name}`;
+    const path = `${userId}/${prefix}-${Date.now()}-${sanitizeFilename(file.name)}`;
     const { error } = await supabase.storage.from("passport-docs").upload(path, file, { upsert: true });
     if (error) throw error;
     return path;
@@ -541,7 +542,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 <span className="inline-flex items-center gap-1.5 font-semibold">
                   <GraduationCap className="h-4 w-4 text-gold" /> Aktywny status studenta
                 </span>
-                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+7 pkt</span>
+                
               </span>
             </label>
             {profile.is_student && (
@@ -558,7 +559,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 </select>
                 {profile.student_status === "non_working_supported" && (
                   <p className="mt-1.5 text-[11px] text-muted-foreground">
-                    Wariant uznawany jako próg dochodowy 3001–5000 zł netto (18,75 pkt) — pole „średni miesięczny dochód netto" nie jest wymagane.
+                    Wariant uznawany jako próg dochodowy 3001–5000 zł netto — pole „średni miesięczny dochód netto" nie jest wymagane.
                   </p>
                 )}
               </div>
@@ -572,7 +573,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
               />
               <span className="flex-1">
                 <span className="font-semibold">Akceptuję wpłatę standardowej kaucji jednomiesięcznej</span>
-                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+6 pkt</span>
+                
               </span>
             </label>
 
@@ -586,7 +587,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                 <span className="inline-flex items-center gap-1.5 font-semibold">
                   <UserCheck className="h-4 w-4 text-gold" /> Mam możliwość poręczenia umowy najmu przez dodatkową osobę z dochodami
                 </span>
-                <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-gold">+10 pkt</span>
+                
                 <span className="block text-[11px] text-muted-foreground">Deklaracja — weryfikacja poręczyciela odbędzie się dopiero na etapie podpisywania umowy.</span>
               </span>
             </label>
@@ -822,7 +823,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                     const f = ev.target.files?.[0]; if (!f) return;
                     setUploading("avatar");
                     try {
-                      const path = `${userId}/avatar-${Date.now()}-${f.name}`;
+                      const path = `${userId}/avatar-${Date.now()}-${sanitizeFilename(f.name)}`;
                       const { error } = await supabase.storage.from("passport-docs").upload(path, f, { upsert: true });
                       if (error) throw error;
                       const { data: signed } = await supabase.storage.from("passport-docs").createSignedUrl(path, 60 * 60 * 24 * 365);

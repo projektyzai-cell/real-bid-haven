@@ -29,7 +29,7 @@ interface MyRequest {
 interface OfferRow {
   id: string; request_id: string; landlord_id: string; listing_id: string | null;
   monthly_price: number; description: string; property_address: string | null;
-  status: string; created_at: string;
+  status: string; created_at: string; match_score: number | null;
 }
 interface ListingThumb {
   id: string; title: string; city: string; street: string;
@@ -63,8 +63,8 @@ function MyRequestsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rental_offers" as never)
-        .select("id, request_id, landlord_id, listing_id, monthly_price, description, property_address, status, created_at")
-        .in("request_id", reqIds).order("created_at", { ascending: false });
+        .select("id, request_id, landlord_id, listing_id, monthly_price, description, property_address, status, created_at, match_score")
+        .in("request_id", reqIds).order("match_score", { ascending: false }).order("created_at", { ascending: false });
       if (error) throw error;
       const rows = (data ?? []) as unknown as OfferRow[];
       const landlordIds = Array.from(new Set(rows.map((o) => o.landlord_id)));
@@ -197,7 +197,18 @@ function MyRequestsPage() {
                               </Link>
                             ) : null}
                             <div className="flex-1 min-w-0">
-                              <div className="text-lg font-bold tabular-nums">{formatPLN(o.monthly_price)}/mies.</div>
+                              <div className="flex items-center gap-2">
+                                <div className="text-lg font-bold tabular-nums">{formatPLN(o.monthly_price)}/mies.</div>
+                                {typeof o.match_score === "number" && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`rounded-full text-[10px] font-bold uppercase tracking-wider ${o.match_score >= 90 ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600" : o.match_score >= 75 ? "border-amber-500/50 bg-amber-500/10 text-amber-600" : "border-muted-foreground/30 text-muted-foreground"}`}
+                                    title="Smart Match: 70% twarde reguły (lokalizacja/budżet) + 30% miękkie (udogodnienia)"
+                                  >
+                                    Dopasowanie {o.match_score}%
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="text-xs text-muted-foreground">{o.landlord_name}</div>
                               {o.listing && (
                                 <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="mt-1 block text-sm font-medium hover:text-primary">
