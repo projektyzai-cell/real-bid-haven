@@ -197,7 +197,18 @@ function MyRequestsPage() {
                               </Link>
                             ) : null}
                             <div className="flex-1 min-w-0">
-                              <div className="text-lg font-bold tabular-nums">{formatPLN(o.monthly_price)}/mies.</div>
+                              <div className="flex items-center gap-2">
+                                <div className="text-lg font-bold tabular-nums">{formatPLN(o.monthly_price)}/mies.</div>
+                                {typeof o.match_score === "number" && (
+                                  <Badge
+                                    variant="outline"
+                                    className={`rounded-full text-[10px] font-bold uppercase tracking-wider ${o.match_score >= 90 ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600" : o.match_score >= 75 ? "border-amber-500/50 bg-amber-500/10 text-amber-600" : "border-muted-foreground/30 text-muted-foreground"}`}
+                                    title="Smart Match: 70% twarde reguły (lokalizacja/budżet) + 30% miękkie (udogodnienia)"
+                                  >
+                                    Dopasowanie {o.match_score}%
+                                  </Badge>
+                                )}
+                              </div>
                               <div className="text-xs text-muted-foreground">{o.landlord_name}</div>
                               {o.listing && (
                                 <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="mt-1 block text-sm font-medium hover:text-primary">
