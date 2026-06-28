@@ -158,7 +158,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
 
   // ---------- Uploads ----------
   async function uploadToBucket(prefix: string, file: File) {
-    const path = `${userId}/${prefix}-${Date.now()}-${file.name}`;
+    const path = `${userId}/${prefix}-${Date.now()}-${sanitizeFilename(file.name)}`;
     const { error } = await supabase.storage.from("passport-docs").upload(path, file, { upsert: true });
     if (error) throw error;
     return path;
