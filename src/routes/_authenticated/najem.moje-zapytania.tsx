@@ -29,7 +29,7 @@ interface MyRequest {
 interface OfferRow {
   id: string; request_id: string; landlord_id: string; listing_id: string | null;
   monthly_price: number; description: string; property_address: string | null;
-  status: string; created_at: string;
+  status: string; created_at: string; match_score: number | null;
 }
 interface ListingThumb {
   id: string; title: string; city: string; street: string;
@@ -63,8 +63,8 @@ function MyRequestsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("rental_offers" as never)
-        .select("id, request_id, landlord_id, listing_id, monthly_price, description, property_address, status, created_at")
-        .in("request_id", reqIds).order("created_at", { ascending: false });
+        .select("id, request_id, landlord_id, listing_id, monthly_price, description, property_address, status, created_at, match_score")
+        .in("request_id", reqIds).order("match_score", { ascending: false }).order("created_at", { ascending: false });
       if (error) throw error;
       const rows = (data ?? []) as unknown as OfferRow[];
       const landlordIds = Array.from(new Set(rows.map((o) => o.landlord_id)));
