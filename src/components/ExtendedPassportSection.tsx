@@ -17,6 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { computeTrustScore } from "@/lib/trust-score";
+import { sanitizeFilename } from "@/lib/utils";
 import { startPassportRenewal } from "@/lib/passport-actions.functions";
 
 type Profile = Record<string, unknown> & {
