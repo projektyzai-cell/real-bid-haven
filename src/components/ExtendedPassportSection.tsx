@@ -823,7 +823,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
                     const f = ev.target.files?.[0]; if (!f) return;
                     setUploading("avatar");
                     try {
-                      const path = `${userId}/avatar-${Date.now()}-${f.name}`;
+                      const path = `${userId}/avatar-${Date.now()}-${sanitizeFilename(f.name)}`;
                       const { error } = await supabase.storage.from("passport-docs").upload(path, f, { upsert: true });
                       if (error) throw error;
                       const { data: signed } = await supabase.storage.from("passport-docs").createSignedUrl(path, 60 * 60 * 24 * 365);
