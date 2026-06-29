@@ -793,7 +793,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
       {/* Footer */}
       <div className="space-y-2 border-t border-border/40 bg-background/60 p-4">
-        {chat.offer_id_present !== false && chat.type === "smart-match" ? (
+        {chat.type === "smart-match" ? (
           <div className="flex justify-end">
             <button
               onClick={() => {
