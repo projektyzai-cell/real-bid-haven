@@ -1,0 +1,752 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StaySafe - Wiadomości</title>
+    <style>
+        /* Główne style i reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: #0B132B;
+            color: #FFFFFF;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .dashboard-container {
+            width: 100%;
+            max-width: 1400px;
+            height: 90vh;
+            background: rgba(28, 37, 65, 0.4);
+            border: 1px solid rgba(58, 80, 107, 0.4);
+            border-radius: 24px;
+            backdrop-filter: blur(20px);
+            display: grid;
+            grid-template-columns: 420px 1fr;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        /* INBOX - LEWA STRONA */
+        .inbox-sidebar {
+            border-right: 1px solid rgba(58, 80, 107, 0.4);
+            display: flex;
+            flex-direction: column;
+            background: rgba(11, 19, 43, 0.6);
+        }
+
+        .inbox-header {
+            padding: 24px 24px 15px 24px;
+        }
+
+        .inbox-header h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            margin-bottom: 20px;
+        }
+
+        /* Nawigacja segmentowa (Tabs) */
+        .segmented-tabs {
+            display: flex;
+            background: #0B132B;
+            border: 1px solid rgba(58, 80, 107, 0.6);
+            border-radius: 12px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .tab-button {
+            flex: 1;
+            background: transparent;
+            border: none;
+            color: #A0AEC0;
+            padding: 10px 4px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
+            transition: all 0.25s ease;
+        }
+
+        .tab-button svg {
+            width: 16px;
+            height: 16px;
+            transition: transform 0.2s ease;
+        }
+
+        .tab-button:hover svg {
+            transform: scale(1.15);
+        }
+
+        .tab-button.active {
+            background: #1C2541;
+            color: #D4AF37;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+
+        .tab-badge {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            background: #D4AF37;
+            color: #0B132B;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 1px 5px;
+            border-radius: 10px;
+        }
+
+        /* Lista konwersacji */
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .conversation-list::-webkit-scrollbar {
+            width: 5px;
+        }
+        .conversation-list::-webkit-scrollbar-thumb {
+            background: rgba(58, 80, 107, 0.5);
+            border-radius: 10px;
+        }
+
+        /* Karta Konwersacji (Glassmorphic) */
+        .conversation-card {
+            background: rgba(28, 37, 65, 0.4);
+            border: 1px solid rgba(58, 80, 107, 0.4);
+            border-radius: 16px;
+            overflow: hidden;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+        }
+
+        .conversation-card:hover, .conversation-card.active {
+            background: rgba(28, 37, 65, 0.8);
+            border-color: #D4AF37;
+            transform: translateY(-2px);
+        }
+
+        .card-main-content {
+            padding: 16px;
+            display: flex;
+            gap: 14px;
+            position: relative;
+        }
+
+        /* Lewa strona karty: Miniaturka i rola */
+        .thumbnail-container {
+            position: relative;
+            width: 54px;
+            height: 54px;
+            flex-shrink: 0;
+        }
+
+        .object-thumbnail {
+            width: 100%;
+            height: 100%;
+            border-radius: 12px;
+            border: 2px solid #0B132B;
+            object-fit: cover;
+            background: #1C2541;
+        }
+
+        .role-badge {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            background: #1C2541;
+            border: 1px solid rgba(58, 80, 107, 0.8);
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: #BAC7D5;
+        }
+
+        /* Środek karty */
+        .card-center {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            gap: 3px;
+        }
+
+        .property-title {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 230px;
+        }
+
+        .participant-context {
+            font-size: 0.8rem;
+            color: #BAC7D5;
+        }
+
+        /* Prawa strona karty */
+        .card-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .timestamp {
+            font-size: 0.75rem;
+            color: #A0AEC0;
+        }
+
+        .presence-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .presence-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #A0AEC0;
+        }
+
+        .presence-dot.online {
+            background: #00CC66;
+            box-shadow: 0 0 8px #00CC66;
+        }
+
+        .unread-count {
+            background: #D4AF37;
+            color: #0B132B;
+            font-size: 0.75rem;
+            font-weight: 800;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 4px;
+        }
+
+        /* Dolny status bar karty */
+        .card-footer-status {
+            background: rgba(11, 19, 43, 0.5);
+            border-top: 1px solid rgba(58, 80, 107, 0.3);
+            padding: 6px 16px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: #A0AEC0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .anti-ghost-mini {
+            color: #FF4D4D;
+        }
+
+        /* OKNO CZATU - PRAWA STRONA */
+        .chat-viewport {
+            display: flex;
+            flex-direction: column;
+            background: rgba(28, 37, 65, 0.2);
+            position: relative;
+        }
+
+        /* Nagłówek czatu z paskiem postępu kroków */
+        .chat-header {
+            padding: 20px 30px;
+            border-bottom: 1px solid rgba(58, 80, 107, 0.4);
+            background: rgba(11, 19, 43, 0.8);
+        }
+
+        .chat-header-main {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .chat-target h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+        }
+
+        .chat-target p {
+            font-size: 0.85rem;
+            color: #BAC7D5;
+        }
+
+        .ghosting-alert-banner {
+            background: rgba(255, 77, 77, 0.1);
+            border: 1px solid rgba(255, 77, 77, 0.4);
+            padding: 6px 14px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #FF4D4D;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Wizualny Pasek Postępu (State Machine) */
+        .progress-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            padding: 10px 0 5px 0;
+        }
+
+        .progress-timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 2px;
+            background: rgba(58, 80, 107, 0.5);
+            z-index: 1;
+        }
+
+        .timeline-step {
+            position: relative;
+            z-index: 2;
+            background: #0B132B;
+            border: 1px solid rgba(58, 80, 107, 0.8);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #BAC7D5;
+            transition: all 0.3s ease;
+        }
+
+        .timeline-step.active {
+            border-color: #D4AF37;
+            color: #D4AF37;
+            background: #1C2541;
+            box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+            font-weight: 700;
+        }
+
+        .timeline-step.completed {
+            border-color: #00CC66;
+            color: #00CC66;
+        }
+
+        /* Obszar wiadomości */
+        .chat-messages-area {
+            flex: 1;
+            overflow-y: auto;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .system-separator {
+            text-align: center;
+            position: relative;
+            margin: 10px 0;
+        }
+
+        .system-separator span {
+            background: #0B132B;
+            padding: 4px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #D4AF37;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+        }
+
+        .msg-bubble {
+            max-width: 65%;
+            padding: 16px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .msg-bubble.incoming {
+            background: rgba(28, 37, 65, 0.6);
+            border: 1px solid rgba(58, 80, 107, 0.4);
+            align-self: flex-start;
+            border-top-left-radius: 4px;
+        }
+
+        .msg-bubble.outgoing {
+            background: #1C2541;
+            border: 1px solid rgba(212, 175, 55, 0.2);
+            align-self: flex-end;
+            border-top-right-radius: 4px;
+        }
+
+        /* Karta Premium paszportu wtopiona w czat */
+        .passport-link-card {
+            background: linear-gradient(135deg, rgba(28, 37, 65, 0.9), rgba(11, 19, 43, 0.9));
+            border: 1px solid #D4AF37;
+            border-radius: 12px;
+            padding: 14px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+
+        .passport-info h4 {
+            font-size: 0.9rem;
+            color: #D4AF37;
+            margin-bottom: 2px;
+        }
+
+        .passport-info p {
+            font-size: 0.75rem;
+            color: #BAC7D5;
+        }
+
+        .passport-view-btn {
+            background: #D4AF37;
+            color: #0B132B;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: background 0.2s ease;
+        }
+
+        .passport-view-btn:hover {
+            background: #FFFFFF;
+        }
+
+        /* Blokada rezygnacji (overlay state) */
+        .chat-lock-overlay {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(11, 19, 43, 0.9);
+            z-index: 10;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 15px;
+            backdrop-filter: blur(8px);
+        }
+
+        .chat-lock-overlay p {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #FF4D4D;
+            text-align: center;
+        }
+
+        /* Dolny panel wpisywania / akcji */
+        .chat-footer {
+            padding: 20px 30px;
+            background: rgba(11, 19, 43, 0.8);
+            border-top: 1px solid rgba(58, 80, 107, 0.4);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .action-row {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel-process {
+            background: rgba(255, 77, 77, 0.1);
+            color: #FF4D4D;
+            border: 1px solid rgba(255, 77, 77, 0.4);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cancel-process:hover {
+            background: #FF4D4D;
+            color: #FFFFFF;
+        }
+
+        .input-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: #0B132B;
+            border: 1px solid rgba(58, 80, 107, 0.8);
+            border-radius: 12px;
+            padding: 14px 20px;
+            color: #FFFFFF;
+            font-size: 0.95rem;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: #D4AF37;
+        }
+
+        .btn-send {
+            background: #D4AF37;
+            color: #0B132B;
+            border: none;
+            padding: 0 24px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .btn-send:hover {
+            background: #FFFFFF;
+        }
+
+        /* Pomocnicze klasy ukrywania dla zakładek */
+        .hidden-card {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="dashboard-container">
+        
+        <!-- LEWY PANEL: INBOX SYSTEM -->
+        <div class="inbox-sidebar">
+            <div class="inbox-header">
+                <h1>Wiadomości</h1>
+                
+                <!-- Segmented Tab Navigation -->
+                <div class="segmented-tabs">
+                    <button class="tab-button active" onclick="switchTab(this, 'smart-match')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+                        Smart Match
+                        <span class="tab-badge">1</span>
+                    </button>
+                    <button class="tab-button" onclick="switchTab(this, 'traditional')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                        Tradycyjne
+                    </button>
+                    <button class="tab-button" onclick="switchTab(this, 'alerts')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        Wsparcie
+                    </button>
+                </div>
+            </div>
+
+            <!-- Lista konwersacji (Wszystkie typy kart z osobnymi klasami filtrującymi) -->
+            <div class="conversation-list">
+                
+                <!-- KARTA 1: SMART MATCH (AKTYWNA) -->
+                <div class="conversation-card active" data-type="smart-match">
+                    <div class="card-main-content">
+                        <div class="thumbnail-container">
+                            <!-- Zastępczy kształt grafiki nieruchomości -->
+                            <div class="object-thumbnail" style="background: url('https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=150') center/cover;"></div>
+                            <span class="role-badge">Najemca</span>
+                        </div>
+                        <div class="card-center">
+                            <div class="property-title">Apartament Widokowy, Mokotów</div>
+                            <div class="participant-context">Rozmowa z: Właściciel Daniel</div>
+                        </div>
+                        <div class="card-right">
+                            <span class="timestamp">15:25</span>
+                            <div class="presence-box">
+                                <span class="presence-dot online"></span>
+                                <span class="unread-count">1</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer-status">
+                        <span>⚡ Smart Match: 100% | 🪪 Paszport: 🟢</span>
+                        <span class="anti-ghost-mini">⏱️ 47:59:52</span>
+                    </div>
+                </div>
+
+                <!-- KARTA 2: ZAPYTANIE TRADYCYJNE -->
+                <div class="conversation-card hidden-card" data-type="traditional">
+                    <div class="card-main-content">
+                        <div class="thumbnail-container">
+                            <div class="object-thumbnail" style="background: url('https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?w=150') center/cover;"></div>
+                            <span class="role-badge">Najemca</span>
+                        </div>
+                        <div class="card-center">
+                            <div class="property-title">Przytulna Kawalerka Metro Bemowo</div>
+                            <div class="participant-context">Rozmowa z: Właścicielka Anna</div>
+                        </div>
+                        <div class="card-right">
+                            <span class="timestamp">Wczoraj</span>
+                            <div class="presence-box">
+                                <span class="presence-dot"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer-status">
+                        <span>💬 Standardowe zapytanie ofertowe</span>
+                    </div>
+                </div>
+
+                <!-- KARTA 3: WSPARCIE / ALERT SYSTEMOWY -->
+                <div class="conversation-card hidden-card" data-type="alerts">
+                    <div class="card-main-content">
+                        <div class="thumbnail-container">
+                            <div class="object-thumbnail" style="background: #D4AF37; display: flex; align-items: center; justify-content: center; font-weight: 900; color: #0B132B;">SS</div>
+                            <span class="role-badge">System</span>
+                        </div>
+                        <div class="card-center">
+                            <div class="property-title">Weryfikacja tożsamości zakończona</div>
+                            <div class="participant-context">Nadawca: Zespół StaySafe</div>
+                        </div>
+                        <div class="card-right">
+                            <span class="timestamp">2 dni temu</span>
+                            <div class="presence-box">
+                                <span class="presence-dot online"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-footer-status">
+                        <span>🛡️ Komunikat systemowy StaySafe</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- PRAWY PANEL: OKNO AKTYWNEGO CZATU SMART MATCH -->
+        <div class="chat-viewport">
+            
+            <!-- Blokada overlay aktywowana przyciskiem "Rezygnuję" -->
+            <div class="chat-lock-overlay" id="lockOverlay">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#FF4D4D" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+                <p>Rozmówca zrezygnował z dalszego procesu najmu.</p>
+            </div>
+
+            <!-- Nagłówek aktywnego czatu -->
+            <div class="chat-header">
+                <div class="chat-header-main">
+                    <div class="chat-target">
+                        <h2>Apartament Widokowy, Mokotów</h2>
+                        <p>Rozmowa z: Właściciel Daniel</p>
+                    </div>
+                    <!-- Banner Anty-Ghosting -->
+                    <div class="ghosting-alert-banner">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Czas na odpowiedź Właściciela: 47:59:52</span>
+                    </div>
+                </div>
+
+                <!-- Pasek stanu transakcji (State Machine) -->
+                <div class="progress-timeline">
+                    <div class="timeline-step active">1. Dopasowanie ⚡</div>
+                    <div class="timeline-step">2. Rozmowa 💬</div>
+                    <div class="timeline-step">3. Akceptacja Stron 🤝</div>
+                    <div class="timeline-step">4. Finał i Umowa 📑</div>
+                </div>
+            </div>
+
+            <!-- Obszar wiadomości z wpisami z automatu -->
+            <div class="chat-messages-area">
+                
+                <div class="system-separator">
+                    <span>⚡ System sparował profile na 100% (Lokalizacja, Budżet, Dzieci/Zwierzęta)</span>
+                </div>
+
+                <!-- Spersonalizowana automatyczna wiadomość powitalna najemcy -->
+                <div class="msg-bubble outgoing">
+                    Cześć Daniel. Jestem zainteresowany wynajęciem Twojej nieruchomości. Przesyłam Ci wgląd do mojego paszportu pod poniższym linkiem. Czekam na informacje, kiedy mógłbym obejrzeć?
+                    
+                    <!-- Dynamiczny komponent linku do Paszportu Najemcy -->
+                    <div class="passport-link-card">
+                        <div class="passport-info">
+                            <h4>🪪 Paszport Najemcy Zweryfikowany</h4>
+                            <p>Status: Bezpieczny i Potwierdzony 🟢</p>
+                        </div>
+                        <button class="passport-view-btn" onclick="alert('Otwieranie szyfrowanego widoku Paszportu Lokatora...')">Zobacz mój Paszport</button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Stopka czatu z przyciskami decyzyjnymi -->
+            <div class="chat-footer">
+                <div class="action-row">
+                    <button class="btn-cancel-process" onclick="lockChat()">❌ Rezygnuję z procesu najmu</button>
+                </div>
+                <div class="input-wrapper">
+                    <input type="text" class="chat-input" placeholder="Napisz bezpieczną wiadomość do Daniela...">
+                    <button class="btn-send">Wyślij</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Skrypt sterujący zmianami zakładek oraz przyciskiem blokady procesu -->
+    <script>
+        function switchTab(button, type) {
+            // Przełączanie klasy active na przyciskach menu
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            button.classList.add('active');
+
+            // Filtrowanie kart na liście
+            document.querySelectorAll('.conversation-card').forEach(card => {
+                if (card.getAttribute('data-type') === type) {
+                    card.classList.remove('hidden-card');
+                } else {
+                    card.classList.add('hidden-card');
+                }
+            });
+        }
+
+        function lockChat() {
+            // Absolutna blokada czatu zgodna ze schematem rezygnacji
+            document.getElementById('lockOverlay').style.display = 'flex';
+        }
+    </script>
+</body>
+</html>
