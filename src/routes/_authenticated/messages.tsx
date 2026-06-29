@@ -856,5 +856,4 @@ function formatCountdown(ms: number): string {
   const s = String(total % 60).padStart(2, "0");
   return `${h}:${m}:${s}`;
 }
-// Suppress TS error on placeholder property used only for typing convenience
-declare module "react" {}
+
