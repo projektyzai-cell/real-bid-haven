@@ -11,7 +11,11 @@ import {
   Clock,
   XCircle,
   Inbox,
+  IdCard,
+  CheckCircle2,
+  FileText,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -34,6 +38,11 @@ interface RentalChatRow {
   created_at: string;
   tenant_last_read_at: string;
   landlord_last_read_at: string;
+  tenant_passport_sent_at: string | null;
+  tenant_accepted_at: string | null;
+  landlord_accepted_at: string | null;
+  withdrawn_at: string | null;
+  withdrawn_by: string | null;
 }
 
 interface OfferRow {
@@ -66,6 +75,13 @@ interface ChatItem {
   lastMessage: { content: string; created_at: string } | null;
   unread: number;
   createdAt: string;
+  tenantId: string;
+  landlordId: string;
+  passportSentAt: string | null;
+  tenantAcceptedAt: string | null;
+  landlordAcceptedAt: string | null;
+  withdrawnAt: string | null;
+  withdrawnBy: string | null;
 }
 
 interface AdminMsg {
@@ -207,6 +223,13 @@ function MessagesPage() {
             lastMessage: (lastMsg ?? null) as { content: string; created_at: string } | null,
             unread: unread ?? 0,
             createdAt: c.created_at,
+            tenantId: c.tenant_id,
+            landlordId: c.landlord_id,
+            passportSentAt: c.tenant_passport_sent_at,
+            tenantAcceptedAt: c.tenant_accepted_at,
+            landlordAcceptedAt: c.landlord_accepted_at,
+            withdrawnAt: c.withdrawn_at,
+            withdrawnBy: c.withdrawn_by,
           };
         }),
       );
@@ -595,8 +618,15 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const { user } = useAuth();
   const qc = useQueryClient();
   const [text, setText] = useState("");
-  const [locked, setLocked] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const isTenant = chat.myRole === "Najemca";
+  const passportSent = !!chat.passportSentAt;
+  const iAccepted = isTenant ? !!chat.tenantAcceptedAt : !!chat.landlordAcceptedAt;
+  const otherAccepted = isTenant ? !!chat.landlordAcceptedAt : !!chat.tenantAcceptedAt;
+  const bothAccepted = !!chat.tenantAcceptedAt && !!chat.landlordAcceptedAt;
+  const withdrawn = !!chat.withdrawnAt;
+  const withdrawnByMe = withdrawn && chat.withdrawnBy === user?.id;
 
   const { data: messages } = useQuery({
     queryKey: ["messages-thread", chat.id],
@@ -613,10 +643,9 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
   const markRead = async () => {
     if (!user) return;
-    const patch =
-      chat.myRole === "Najemca"
-        ? { tenant_last_read_at: new Date().toISOString() }
-        : { landlord_last_read_at: new Date().toISOString() };
+    const patch = isTenant
+      ? { tenant_last_read_at: new Date().toISOString() }
+      : { landlord_last_read_at: new Date().toISOString() };
     await supabase
       .from("rental_chats" as never)
       .update(patch as never)
@@ -636,6 +665,11 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
           markRead();
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "rental_chats", filter: `id=eq.${chat.id}` },
+        () => qc.invalidateQueries({ queryKey: ["messages-chats"] }),
+      )
       .subscribe();
     markRead();
     return () => {
@@ -650,6 +684,13 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
+  async function postSystem(content: string) {
+    if (!user) return;
+    await supabase
+      .from("rental_messages" as never)
+      .insert({ chat_id: chat.id, sender_id: user.id, content } as never);
+  }
+
   const sendMut = useMutation({
     mutationFn: async (content: string) => {
       const { error } = await supabase
@@ -659,6 +700,70 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     },
     onError: (e: Error) => toast.error(e.message),
     onSuccess: () => setText(""),
+  });
+
+  const sendPassportMut = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("rental_chats" as never)
+        .update({ tenant_passport_sent_at: new Date().toISOString() } as never)
+        .eq("id", chat.id);
+      if (error) throw new Error(error.message);
+      await postSystem("📇 Najemca udostępnił swój Paszport Najemcy. Wynajmujący może teraz zweryfikować dane na jego profilu.");
+    },
+    onSuccess: () => {
+      toast.success("Paszport został udostępniony wynajmującemu.");
+      qc.invalidateQueries({ queryKey: ["messages-chats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const acceptMut = useMutation({
+    mutationFn: async () => {
+      const patch = isTenant
+        ? { tenant_accepted_at: new Date().toISOString() }
+        : { landlord_accepted_at: new Date().toISOString() };
+      const { error } = await supabase
+        .from("rental_chats" as never)
+        .update(patch as never)
+        .eq("id", chat.id);
+      if (error) throw new Error(error.message);
+      await postSystem(`✅ ${isTenant ? "Najemca" : "Wynajmujący"} zaakceptował dopasowanie i wyraził chęć finalizacji najmu.`);
+    },
+    onSuccess: () => {
+      toast.success("Akceptacja zapisana.");
+      qc.invalidateQueries({ queryKey: ["messages-chats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const withdrawMut = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("rental_chats" as never)
+        .update({
+          withdrawn_at: new Date().toISOString(),
+          withdrawn_by: user!.id,
+        } as never)
+        .eq("id", chat.id);
+      if (error) throw new Error(error.message);
+      await postSystem(`❌ ${isTenant ? "Najemca" : "Wynajmujący"} zrezygnował z procesu najmu.`);
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["messages-chats"] }),
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const undoWithdrawMut = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("rental_chats" as never)
+        .update({ withdrawn_at: null, withdrawn_by: null } as never)
+        .eq("id", chat.id);
+      if (error) throw new Error(error.message);
+      await postSystem("↩️ Rezygnacja została wycofana. Proces najmu wznowiony.");
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["messages-chats"] }),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   // Anti-ghosting countdown: 48h from last message of counterpart (or chat creation)
@@ -680,26 +785,47 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     ? "Przekroczono czas odpowiedzi"
     : formatCountdown(ghostMs);
 
-  // Progress timeline state (UI only)
+  // Progress timeline state — persisted in DB
   const hasMessages = (messages?.length ?? 0) > 0;
-  const steps = [
-    { label: "1. Dopasowanie ⚡", state: "completed" as const },
-    { label: "2. Rozmowa 💬", state: hasMessages ? "active" : "pending" as const },
-    { label: "3. Akceptacja Stron 🤝", state: "pending" as const },
-    { label: "4. Finał i Umowa 📑", state: "pending" as const },
+  type StepState = "completed" | "active" | "pending";
+  const step2: StepState = passportSent
+    ? "completed"
+    : hasMessages
+      ? "active"
+      : "pending";
+  const step3: StepState = bothAccepted
+    ? "completed"
+    : passportSent
+      ? "active"
+      : "pending";
+  const step4: StepState = bothAccepted ? "active" : "pending";
+  const steps: { label: string; state: StepState }[] = [
+    { label: "1. Dopasowanie ⚡", state: "completed" },
+    { label: "2. Rozmowa 💬", state: step2 },
+    { label: "3. Akceptacja Stron 🤝", state: step3 },
+    { label: "4. Finał i Umowa 📑", state: step4 },
   ];
 
   return (
     <div className="relative flex flex-1 flex-col">
-      {locked && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/90 p-6 text-center backdrop-blur">
+      {withdrawn && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/95 p-6 text-center backdrop-blur">
           <XCircle className="h-12 w-12 text-destructive" />
           <p className="max-w-sm text-base font-bold text-destructive">
-            Zrezygnowano z dalszego procesu najmu.
+            {withdrawnByMe
+              ? "Zrezygnowałeś z procesu najmu."
+              : `${isTenant ? "Wynajmujący" : "Najemca"} zrezygnował z procesu najmu.`}
           </p>
-          <Button variant="outline" size="sm" onClick={() => setLocked(false)}>
-            Cofnij
-          </Button>
+          {withdrawnByMe && (
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={undoWithdrawMut.isPending}
+              onClick={() => undoWithdrawMut.mutate()}
+            >
+              Cofnij rezygnację
+            </Button>
+          )}
         </div>
       )}
 
@@ -770,6 +896,16 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
         ) : (
           messages.map((m) => {
             const mine = m.sender_id === user?.id;
+            const isSystem = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(m.content);
+            if (isSystem) {
+              return (
+                <div key={m.id} className="flex justify-center">
+                  <div className="max-w-[90%] rounded-full border border-border/60 bg-background/60 px-3 py-1 text-center text-[11px] font-medium text-muted-foreground">
+                    {m.content}
+                  </div>
+                </div>
+              );
+            }
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
@@ -793,18 +929,84 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
       {/* Footer */}
       <div className="space-y-2 border-t border-border/40 bg-background/60 p-4">
-        {chat.type === "smart-match" ? (
-          <div className="flex justify-end">
+        {chat.type === "smart-match" && (
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap gap-2">
+              {/* Tenant: send passport */}
+              {isTenant && !passportSent && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={sendPassportMut.isPending}
+                  onClick={() => sendPassportMut.mutate()}
+                  className="rounded-lg border-gold/50 text-gold hover:bg-gold/10 hover:text-gold"
+                >
+                  <IdCard className="mr-1.5 h-4 w-4" />
+                  Wyślij Paszport Najemcy
+                </Button>
+              )}
+              {isTenant && passportSent && (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Paszport wysłany
+                </span>
+              )}
+
+              {/* Landlord: passport received indicator */}
+              {!isTenant && passportSent && (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">
+                  <IdCard className="h-3.5 w-3.5" /> Paszport otrzymany
+                </span>
+              )}
+              {!isTenant && !passportSent && (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-background px-2.5 py-1 text-xs text-muted-foreground">
+                  <Clock className="h-3.5 w-3.5" /> Oczekiwanie na Paszport najemcy
+                </span>
+              )}
+
+              {/* Accept match — available after passport sent */}
+              {passportSent && !iAccepted && (
+                <Button
+                  size="sm"
+                  disabled={acceptMut.isPending}
+                  onClick={() => acceptMut.mutate()}
+                  className="rounded-lg bg-emerald-500 text-white hover:bg-emerald-600"
+                >
+                  <CheckCircle2 className="mr-1.5 h-4 w-4" />
+                  Akceptuję dopasowanie
+                </Button>
+              )}
+              {iAccepted && !bothAccepted && (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Czekamy na drugą stronę
+                </span>
+              )}
+              {bothAccepted && (
+                <Link
+                  to="/najem/generator-umow"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-gold-foreground shadow hover:opacity-90"
+                >
+                  <FileText className="h-4 w-4" /> Przejdź do generatora umowy
+                </Link>
+              )}
+              {otherAccepted && !iAccepted && (
+                <span className="text-[11px] text-muted-foreground">
+                  Druga strona już zaakceptowała ✨
+                </span>
+              )}
+            </div>
+
             <button
               onClick={() => {
-                if (confirm("Czy na pewno chcesz zrezygnować z procesu najmu?")) setLocked(true);
+                if (confirm("Czy na pewno chcesz zrezygnować z procesu najmu?"))
+                  withdrawMut.mutate();
               }}
+              disabled={withdrawMut.isPending}
               className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive hover:text-destructive-foreground"
             >
               ❌ Rezygnuję z procesu najmu
             </button>
           </div>
-        ) : null}
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -819,12 +1021,12 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
             onChange={(e) => setText(e.target.value)}
             placeholder={`Napisz wiadomość do ${chat.counterpartName}...`}
             maxLength={4000}
-            disabled={sendMut.isPending || locked}
+            disabled={sendMut.isPending || withdrawn}
             className="rounded-xl"
           />
           <Button
             type="submit"
-            disabled={!text.trim() || sendMut.isPending || locked}
+            disabled={!text.trim() || sendMut.isPending || withdrawn}
             className="rounded-xl"
           >
             <Send className="h-4 w-4" />
@@ -834,6 +1036,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     </div>
   );
 }
+
 
 /* ---------------- Helpers ---------------- */
 

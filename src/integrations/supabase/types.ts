@@ -766,32 +766,47 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          landlord_accepted_at: string | null
           landlord_id: string
           landlord_last_read_at: string
           offer_id: string
           request_id: string
+          tenant_accepted_at: string | null
           tenant_id: string
           tenant_last_read_at: string
+          tenant_passport_sent_at: string | null
+          withdrawn_at: string | null
+          withdrawn_by: string | null
         }
         Insert: {
           created_at?: string
           id?: string
+          landlord_accepted_at?: string | null
           landlord_id: string
           landlord_last_read_at?: string
           offer_id: string
           request_id: string
+          tenant_accepted_at?: string | null
           tenant_id: string
           tenant_last_read_at?: string
+          tenant_passport_sent_at?: string | null
+          withdrawn_at?: string | null
+          withdrawn_by?: string | null
         }
         Update: {
           created_at?: string
           id?: string
+          landlord_accepted_at?: string | null
           landlord_id?: string
           landlord_last_read_at?: string
           offer_id?: string
           request_id?: string
+          tenant_accepted_at?: string | null
           tenant_id?: string
           tenant_last_read_at?: string
+          tenant_passport_sent_at?: string | null
+          withdrawn_at?: string | null
+          withdrawn_by?: string | null
         }
         Relationships: []
       }
