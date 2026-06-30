@@ -38,6 +38,11 @@ interface RentalChatRow {
   created_at: string;
   tenant_last_read_at: string;
   landlord_last_read_at: string;
+  tenant_passport_sent_at: string | null;
+  tenant_accepted_at: string | null;
+  landlord_accepted_at: string | null;
+  withdrawn_at: string | null;
+  withdrawn_by: string | null;
 }
 
 interface OfferRow {
