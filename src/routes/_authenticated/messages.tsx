@@ -11,7 +11,11 @@ import {
   Clock,
   XCircle,
   Inbox,
+  IdCard,
+  CheckCircle2,
+  FileText,
 } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
