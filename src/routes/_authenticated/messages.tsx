@@ -223,6 +223,13 @@ function MessagesPage() {
             lastMessage: (lastMsg ?? null) as { content: string; created_at: string } | null,
             unread: unread ?? 0,
             createdAt: c.created_at,
+            tenantId: c.tenant_id,
+            landlordId: c.landlord_id,
+            passportSentAt: c.tenant_passport_sent_at,
+            tenantAcceptedAt: c.tenant_accepted_at,
+            landlordAcceptedAt: c.landlord_accepted_at,
+            withdrawnAt: c.withdrawn_at,
+            withdrawnBy: c.withdrawn_by,
           };
         }),
       );
