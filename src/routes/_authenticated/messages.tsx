@@ -75,6 +75,13 @@ interface ChatItem {
   lastMessage: { content: string; created_at: string } | null;
   unread: number;
   createdAt: string;
+  tenantId: string;
+  landlordId: string;
+  passportSentAt: string | null;
+  tenantAcceptedAt: string | null;
+  landlordAcceptedAt: string | null;
+  withdrawnAt: string | null;
+  withdrawnBy: string | null;
 }
 
 interface AdminMsg {
