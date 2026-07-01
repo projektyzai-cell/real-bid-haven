@@ -1255,6 +1255,51 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          admin_note: string | null
+          created_at: string
+          details: string | null
+          id: string
+          reason: string
+          reporter_id: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target"]
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason: string
+          reporter_id: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          target_id: string
+          target_type: Database["public"]["Enums"]["report_target"]
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          reason?: string
+          reporter_id?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
+          target_id?: string
+          target_type?: Database["public"]["Enums"]["report_target"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sale_inquiries: {
         Row: {
           buyer_id: string
@@ -1489,6 +1534,14 @@ export type Database = {
         | "dzialka"
         | "dom"
       rating_target: "tenant" | "landlord" | "property"
+      report_status: "new" | "in_progress" | "resolved" | "rejected"
+      report_target:
+        | "rental_listing"
+        | "rental_request"
+        | "user"
+        | "message"
+        | "passport"
+        | "property"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1642,6 +1695,15 @@ export const Constants = {
         "dom",
       ],
       rating_target: ["tenant", "landlord", "property"],
+      report_status: ["new", "in_progress", "resolved", "rejected"],
+      report_target: [
+        "rental_listing",
+        "rental_request",
+        "user",
+        "message",
+        "passport",
+        "property",
+      ],
     },
   },
 } as const
