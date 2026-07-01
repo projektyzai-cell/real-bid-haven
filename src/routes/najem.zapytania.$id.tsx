@@ -124,8 +124,14 @@ function RequestDetailPage() {
               );
             })}
           </div>
+          {user && !isOwner && (
+            <div className="mt-4">
+              <ReportButton targetType="rental_request" targetId={id} variant="outline" />
+            </div>
+          )}
         </div>
       </div>
+
 
       <aside>
         {isOwner ? (
