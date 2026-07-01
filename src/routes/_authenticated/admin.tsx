@@ -128,6 +128,11 @@ function AdminDashboard() {
                   <BarChart3 className="h-4 w-4" /> Statystyki
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="reports" asChild>
+                <Link to="/admin" search={{ tab: "reports" }} className="flex items-center gap-1.5">
+                  <Flag className="h-4 w-4" /> Zgłoszenia
+                </Link>
+              </TabsTrigger>
             </>
           )}
         </TabsList>
