@@ -39,8 +39,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
-  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star,
+  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
 } from "lucide-react";
+import {
+  adminListReports, adminUpdateReport, adminHideReportedTarget, adminDeleteReport,
+} from "@/lib/admin-reports.functions";
 
 const tabSchema = z.object({
   tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports"]).default("apps").optional(),
