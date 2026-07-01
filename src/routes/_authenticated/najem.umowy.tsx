@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { FileSignature, FileText, Wallet, Bell, ShieldCheck } from "lucide-react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { FileSignature, FileText, Wallet, Bell, ShieldCheck, ArrowRight } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/najem/umowy")({
   head: () => ({ meta: [{ title: "Zarządzanie umowami i płatnościami — Stay Safe" }] }),
@@ -7,10 +7,10 @@ export const Route = createFileRoute("/_authenticated/najem/umowy")({
 });
 
 const features = [
-  { icon: FileText, title: "Generator umowy najmu", desc: "Gotowy szablon umowy okazjonalnej i tradycyjnej — wypełniany danymi z paszportu i oferty." },
-  { icon: ShieldCheck, title: "Najem okazjonalny u notariusza", desc: "Wsparcie w organizacji notarialnego poddania się egzekucji." },
-  { icon: Wallet, title: "Harmonogram płatności", desc: "Czynsz, media, kaucja — wszystko w jednym miejscu, z potwierdzeniami." },
-  { icon: Bell, title: "Przypomnienia i powiadomienia", desc: "Automatyczne alerty o zbliżających się terminach płatności i końcu umowy." },
+  { icon: FileText, title: "Rejestr umów najmu", desc: "Umowy okazjonalne i tradycyjne, załączniki, terminy końca najmu — wszystko w jednym miejscu." },
+  { icon: Wallet, title: "Harmonogram płatności", desc: "Czynsz, media, kaucja — wraz ze statusem (opłacone / zaległe) i historią wpłat." },
+  { icon: Bell, title: "Podatek ryczałt (8,5% / 12,5%)", desc: "Rozliczenie łączne z całego portfela, próg 100 000 zł, terminy PIT-28." },
+  { icon: ShieldCheck, title: "Dokumenty i notatki", desc: "Protokoły zdawczo-odbiorcze, świadectwo energetyczne, ubezpieczenia, notatki do najemcy." },
 ];
 
 function UmowyPage() {
@@ -22,9 +22,20 @@ function UmowyPage() {
         </div>
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Zarządzanie umowami i płatnościami</h1>
-          <p className="text-sm text-muted-foreground">Profesjonalne narzędzia dla wynajmujących — wkrótce dostępne.</p>
+          <p className="text-sm text-muted-foreground">Profesjonalny panel dla wynajmujących — wszystkie zmiany zapisują się automatycznie na Twoim koncie.</p>
         </div>
       </div>
+
+      <Link
+        to="/najem/portfel"
+        className="mt-6 flex items-center justify-between rounded-2xl border-2 border-[var(--gold)]/50 bg-gradient-to-br from-[var(--gold)]/15 to-transparent p-5 shadow-card transition hover:border-[var(--gold)] hover:shadow-lg"
+      >
+        <div>
+          <div className="text-lg font-semibold">Otwórz Portfel Nieruchomości</div>
+          <div className="text-sm text-muted-foreground">Zarządzaj mieszkaniami, pokojami, najemcami, wpisami finansowymi i podatkiem.</div>
+        </div>
+        <ArrowRight className="h-5 w-5 text-gold" />
+      </Link>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2">
         {features.map(({ icon: Icon, title, desc }) => (
@@ -32,9 +43,6 @@ function UmowyPage() {
             <Icon className="h-5 w-5 text-gold" />
             <div className="mt-3 font-semibold">{title}</div>
             <div className="mt-1 text-sm text-muted-foreground">{desc}</div>
-            <div className="mt-3 inline-flex rounded-full border border-dashed px-2 py-0.5 text-[10px] uppercase tracking-wider text-muted-foreground">
-              Wkrótce
-            </div>
           </div>
         ))}
       </div>
