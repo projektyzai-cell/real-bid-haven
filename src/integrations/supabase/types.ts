@@ -762,6 +762,24 @@ export type Database = {
         }
         Relationships: []
       }
+      property_manager_state: {
+        Row: {
+          state: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          state?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          state?: Json
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rental_chats: {
         Row: {
           created_at: string

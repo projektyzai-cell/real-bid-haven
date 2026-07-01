@@ -2191,7 +2191,40 @@
     if(ev.key === 'Escape') closeModal();
   });
 
-  render();
+  /* ======================================================================
+     PERSISTENCE BRIDGE — parent (React route) <-> iframe
+     ====================================================================== */
+  let __hydrating = true;
+  const __origRender = render;
+  let __saveTimer = null;
+  render = function(){
+    __origRender();
+    if(__hydrating) return;
+    clearTimeout(__saveTimer);
+    __saveTimer = setTimeout(() => {
+      try {
+        const snapshot = JSON.parse(JSON.stringify(state));
+        window.parent.postMessage({ type:'portfel:save', state: snapshot }, '*');
+      } catch(e){ /* noop */ }
+    }, 500);
+  };
+  window.addEventListener('message', (ev) => {
+    const d = ev.data;
+    if(!d || typeof d !== 'object') return;
+    if(d.type === 'portfel:load'){
+      if(d.state && typeof d.state === 'object'){
+        state.properties = Array.isArray(d.state.properties) ? d.state.properties : [];
+        state.activePropertyId = d.state.activePropertyId || (state.properties[0]?.id ?? null);
+        state.activeTab = d.state.activeTab || 'overview';
+        state.financeFilter = d.state.financeFilter || freshFinanceFilter(state.activePropertyId);
+        state.taxSettings = d.state.taxSettings || { rate:'', frequency:'monthly', includedIds:[], payments:{} };
+      }
+      __hydrating = false;
+      render();
+    }
+  });
+  try { window.parent.postMessage({ type:'portfel:ready' }, '*'); } catch(e){}
+  setTimeout(() => { if(__hydrating){ __hydrating = false; render(); } }, 2000);
 })();
 </script>
 </body>
