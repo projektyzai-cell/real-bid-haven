@@ -39,11 +39,14 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
-  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star,
+  Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
 } from "lucide-react";
+import {
+  adminListReports, adminUpdateReport, adminHideReportedTarget, adminDeleteReport,
+} from "@/lib/admin-reports.functions";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports"]).default("apps").optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -125,6 +128,11 @@ function AdminDashboard() {
                   <BarChart3 className="h-4 w-4" /> Statystyki
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="reports" asChild>
+                <Link to="/admin" search={{ tab: "reports" }} className="flex items-center gap-1.5">
+                  <Flag className="h-4 w-4" /> Zgłoszenia
+                </Link>
+              </TabsTrigger>
             </>
           )}
         </TabsList>
@@ -139,6 +147,7 @@ function AdminDashboard() {
             <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
             <TabsContent value="subadmins" className="mt-6"><SubAdminsTab /></TabsContent>
             <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
+            <TabsContent value="reports" className="mt-6"><ReportsTab /></TabsContent>
           </>
         )}
       </Tabs>
@@ -923,6 +932,148 @@ function RequestsTab() {
           </tbody>
         </table>
       </div>
+    </Card>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// REPORTS TAB — user-submitted moderation reports
+// ---------------------------------------------------------------------------
+const REPORT_STATUS_LABEL: Record<string, string> = {
+  new: "Nowe",
+  in_progress: "W toku",
+  resolved: "Rozwiązane",
+  rejected: "Odrzucone",
+};
+const REPORT_TARGET_LABEL: Record<string, string> = {
+  rental_listing: "Oferta najmu",
+  rental_request: "Zapytanie najmu",
+  user: "Użytkownik",
+  message: "Wiadomość",
+  passport: "Paszport",
+  property: "Nieruchomość",
+};
+
+function ReportsTab() {
+  const qc = useQueryClient();
+  const [filter, setFilter] = useState<"all" | "new" | "in_progress" | "resolved" | "rejected">("new");
+  const [notes, setNotes] = useState<Record<string, string>>({});
+
+  const listFn = useServerFn(adminListReports);
+  const updateFn = useServerFn(adminUpdateReport);
+  const hideFn = useServerFn(adminHideReportedTarget);
+  const deleteFn = useServerFn(adminDeleteReport);
+
+  const { data: reports = [], isLoading } = useQuery({
+    queryKey: ["admin", "reports", filter],
+    queryFn: () => listFn({ data: { status: filter } }),
+  });
+
+  const update = useMutation({
+    mutationFn: (v: { id: string; status: any; admin_note?: string }) => updateFn({ data: v }),
+    onSuccess: () => { toast.success("Zaktualizowano zgłoszenie"); qc.invalidateQueries({ queryKey: ["admin", "reports"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Błąd"),
+  });
+  const hide = useMutation({
+    mutationFn: (v: { target_type: any; target_id: string }) => hideFn({ data: v }),
+    onSuccess: () => toast.success("Ukryto zgłoszony obiekt"),
+    onError: (e: any) => toast.error(e?.message ?? "Błąd"),
+  });
+  const del = useMutation({
+    mutationFn: (id: string) => deleteFn({ data: { id } }),
+    onSuccess: () => { toast.success("Usunięto zgłoszenie"); qc.invalidateQueries({ queryKey: ["admin", "reports"] }); },
+    onError: (e: any) => toast.error(e?.message ?? "Błąd"),
+  });
+
+  return (
+    <Card className="p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <h2 className="text-lg font-semibold">Zgłoszenia użytkowników</h2>
+        <div className="ml-auto flex gap-1">
+          {(["new", "in_progress", "resolved", "rejected", "all"] as const).map((s) => (
+            <Button
+              key={s}
+              size="sm"
+              variant={filter === s ? "default" : "outline"}
+              onClick={() => setFilter(s)}
+            >
+              {s === "all" ? "Wszystkie" : REPORT_STATUS_LABEL[s]}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Ładowanie…
+        </div>
+      ) : reports.length === 0 ? (
+        <p className="py-8 text-center text-sm text-muted-foreground">Brak zgłoszeń w tej kategorii.</p>
+      ) : (
+        <div className="space-y-3">
+          {reports.map((r: any) => {
+            const canHide = ["rental_listing", "rental_request", "property"].includes(r.target_type);
+            return (
+              <div key={r.id} className="rounded-xl border bg-card p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge variant="outline">{REPORT_TARGET_LABEL[r.target_type] ?? r.target_type}</Badge>
+                      <Badge>{REPORT_STATUS_LABEL[r.status] ?? r.status}</Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(r.created_at).toLocaleString("pl-PL")}
+                      </span>
+                    </div>
+                    <div className="mt-1 text-sm">
+                      <span className="font-medium">Powód:</span> {r.reason}
+                    </div>
+                    {r.details && (
+                      <div className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{r.details}</div>
+                    )}
+                    <div className="mt-2 text-xs text-muted-foreground">
+                      Zgłaszający: <span className="font-mono">{r.reporter_name}</span> · Obiekt:{" "}
+                      <span className="font-mono">{r.target_id}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  <Textarea
+                    placeholder="Notatka administratora (opcjonalnie)…"
+                    rows={2}
+                    defaultValue={r.admin_note ?? ""}
+                    onChange={(e) => setNotes((n) => ({ ...n, [r.id]: e.target.value }))}
+                  />
+                  <div className="flex flex-wrap gap-2">
+                    <Button size="sm" variant="outline"
+                      onClick={() => update.mutate({ id: r.id, status: "in_progress", admin_note: notes[r.id] })}>
+                      <Clock className="mr-1 h-4 w-4" /> W toku
+                    </Button>
+                    <Button size="sm"
+                      onClick={() => update.mutate({ id: r.id, status: "resolved", admin_note: notes[r.id] })}>
+                      <CheckCircle2 className="mr-1 h-4 w-4" /> Rozwiąż
+                    </Button>
+                    <Button size="sm" variant="outline"
+                      onClick={() => update.mutate({ id: r.id, status: "rejected", admin_note: notes[r.id] })}>
+                      Odrzuć
+                    </Button>
+                    {canHide && (
+                      <Button size="sm" variant="secondary"
+                        onClick={() => hide.mutate({ target_type: r.target_type, target_id: r.target_id })}>
+                        <AlertTriangle className="mr-1 h-4 w-4" /> Ukryj obiekt
+                      </Button>
+                    )}
+                    <Button size="sm" variant="ghost" className="ml-auto text-destructive"
+                      onClick={() => { if (confirm("Usunąć zgłoszenie?")) del.mutate(r.id); }}>
+                      <Trash2 className="mr-1 h-4 w-4" /> Usuń
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </Card>
   );
 }

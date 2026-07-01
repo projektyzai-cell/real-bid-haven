@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { ExpressInterestPanel } from "@/components/ExpressInterestPanel";
+import { ReportButton } from "@/components/ReportButton";
 
 interface SimilarRow {
   id: string; title: string; city: string; street: string;
@@ -246,8 +247,14 @@ function RentalDetailPage() {
           <p className="mt-2 text-xs text-muted-foreground">
             Dane kontaktowe wynajmującego nie są udostępniane. Wyślij wiadomość poprzez wewnętrzny czat Stay Safe.
           </p>
+          {user && (
+            <div className="mt-3">
+              <ReportButton targetType="rental_listing" targetId={r.id} variant="outline" />
+            </div>
+          )}
         </div>
         {user && <ExpressInterestPanel listingId={r.id} userId={user.id} landlordId={r.landlord_id} />}
+
 
 
         {sent ? (

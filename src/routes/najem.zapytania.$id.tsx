@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { BioDisplay } from "@/components/BioField";
+import { ReportButton } from "@/components/ReportButton";
 
 export const Route = createFileRoute("/najem/zapytania/$id")({
   head: () => ({ meta: [{ title: "Zapytanie najmu — Stay Safe" }] }),
@@ -123,8 +124,14 @@ function RequestDetailPage() {
               );
             })}
           </div>
+          {user && !isOwner && (
+            <div className="mt-4">
+              <ReportButton targetType="rental_request" targetId={id} variant="outline" />
+            </div>
+          )}
         </div>
       </div>
+
 
       <aside>
         {isOwner ? (
