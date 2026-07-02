@@ -47,7 +47,7 @@ function RegulaminPage() {
       </Section>
 
       <Section title="§ 3. Nowy model biznesowy i główne pole działania (Core Business)">
-        <p>1. Głównym zakresem działalności Serwisu StaySafe.pl nie jest prowadzenie publicznej, otwartej tablicy ogłoszeń, lecz udostępnianie inteligentnego systemu operacyjnego dla rynku nieruchomości (PropTech OS).</p>
+        <p>1. Głównym zakresem działalności Serwisu StaySafe.pl nie jest prowadzenie publicznej, otwartej tablicy ogłoszeń, lecz udostępnianie inteligentnego systemu operacyjnego dla rynku nieruchomości (PropTech).</p>
         <p>2. Działanie Strefy Najmu opiera się na zamkniętym procesie transakcyjnym, w którym dostęp do szczegółowych danych kontaktowych i dokumentów weryfikacyjnych jest ściśle kontrolowany i uwarunkowany obopólną zgodą użytkowników.</p>
         <p>3. Platforma umożliwia kompleksowe przejście przez cały cykl najmu: od zdefiniowania potrzeb, przez automatyczne skojarzenie stron, weryfikację wiarygodności, aż po generowanie umów prawnych, obsługę logistyczną i monitoring płatności.</p>
       </Section>
