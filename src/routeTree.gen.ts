@@ -38,6 +38,7 @@ import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_auth
 import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
 import { Route as AuthenticatedNajemGeneratorUmowRouteImport } from './routes/_authenticated/najem.generator-umow'
 import { Route as AuthenticatedNajemConciergeRouteImport } from './routes/_authenticated/najem.concierge'
+import { Route as AuthenticatedNajemAktywneUmowyRouteImport } from './routes/_authenticated/najem.aktywne-umowy'
 import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
 import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin_.passport-stats'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
@@ -196,6 +197,12 @@ const AuthenticatedNajemConciergeRoute =
     path: '/najem/concierge',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemAktywneUmowyRoute =
+  AuthenticatedNajemAktywneUmowyRouteImport.update({
+    id: '/najem/aktywne-umowy',
+    path: '/najem/aktywne-umowy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedAdminPassportsRoute =
   AuthenticatedAdminPassportsRouteImport.update({
     id: '/admin_/passports',
@@ -232,6 +239,7 @@ export interface FileRoutesByFullPath {
   '/najem/': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
+  '/najem/aktywne-umowy': typeof AuthenticatedNajemAktywneUmowyRoute
   '/najem/concierge': typeof AuthenticatedNajemConciergeRoute
   '/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
@@ -265,6 +273,7 @@ export interface FileRoutesByTo {
   '/najem': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
+  '/najem/aktywne-umowy': typeof AuthenticatedNajemAktywneUmowyRoute
   '/najem/concierge': typeof AuthenticatedNajemConciergeRoute
   '/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
@@ -300,6 +309,7 @@ export interface FileRoutesById {
   '/najem/': typeof NajemIndexRoute
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/_authenticated/admin_/passports': typeof AuthenticatedAdminPassportsRoute
+  '/_authenticated/najem/aktywne-umowy': typeof AuthenticatedNajemAktywneUmowyRoute
   '/_authenticated/najem/concierge': typeof AuthenticatedNajemConciergeRoute
   '/_authenticated/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
@@ -335,6 +345,7 @@ export interface FileRouteTypes {
     | '/najem/'
     | '/admin/passport-stats'
     | '/admin/passports'
+    | '/najem/aktywne-umowy'
     | '/najem/concierge'
     | '/najem/generator-umow'
     | '/najem/moj-paszport'
@@ -368,6 +379,7 @@ export interface FileRouteTypes {
     | '/najem'
     | '/admin/passport-stats'
     | '/admin/passports'
+    | '/najem/aktywne-umowy'
     | '/najem/concierge'
     | '/najem/generator-umow'
     | '/najem/moj-paszport'
@@ -402,6 +414,7 @@ export interface FileRouteTypes {
     | '/najem/'
     | '/_authenticated/admin_/passport-stats'
     | '/_authenticated/admin_/passports'
+    | '/_authenticated/najem/aktywne-umowy'
     | '/_authenticated/najem/concierge'
     | '/_authenticated/najem/generator-umow'
     | '/_authenticated/najem/moj-paszport'
@@ -641,6 +654,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNajemConciergeRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/najem/aktywne-umowy': {
+      id: '/_authenticated/najem/aktywne-umowy'
+      path: '/najem/aktywne-umowy'
+      fullPath: '/najem/aktywne-umowy'
+      preLoaderRoute: typeof AuthenticatedNajemAktywneUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/admin_/passports': {
       id: '/_authenticated/admin_/passports'
       path: '/admin/passports'
@@ -671,6 +691,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedUstawieniaRoute: typeof AuthenticatedUstawieniaRoute
   AuthenticatedAdminPassportStatsRoute: typeof AuthenticatedAdminPassportStatsRoute
   AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
+  AuthenticatedNajemAktywneUmowyRoute: typeof AuthenticatedNajemAktywneUmowyRoute
   AuthenticatedNajemConciergeRoute: typeof AuthenticatedNajemConciergeRoute
   AuthenticatedNajemGeneratorUmowRoute: typeof AuthenticatedNajemGeneratorUmowRoute
   AuthenticatedNajemMojPaszportRoute: typeof AuthenticatedNajemMojPaszportRoute
@@ -691,6 +712,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedUstawieniaRoute: AuthenticatedUstawieniaRoute,
   AuthenticatedAdminPassportStatsRoute: AuthenticatedAdminPassportStatsRoute,
   AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
+  AuthenticatedNajemAktywneUmowyRoute: AuthenticatedNajemAktywneUmowyRoute,
   AuthenticatedNajemConciergeRoute: AuthenticatedNajemConciergeRoute,
   AuthenticatedNajemGeneratorUmowRoute: AuthenticatedNajemGeneratorUmowRoute,
   AuthenticatedNajemMojPaszportRoute: AuthenticatedNajemMojPaszportRoute,
@@ -740,13 +762,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

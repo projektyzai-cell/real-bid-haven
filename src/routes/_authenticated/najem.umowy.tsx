@@ -1,17 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileSignature, FileText, Wallet, Bell, ShieldCheck, ArrowRight } from "lucide-react";
+import { FileSignature, ArrowRight, Wallet, FileText } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/najem/umowy")({
   head: () => ({ meta: [{ title: "Zarządzanie umowami i płatnościami — Stay Safe" }] }),
   component: UmowyPage,
 });
-
-const features = [
-  { icon: FileText, title: "Rejestr umów najmu", desc: "Umowy okazjonalne i tradycyjne, załączniki, terminy końca najmu — wszystko w jednym miejscu." },
-  { icon: Wallet, title: "Harmonogram płatności", desc: "Czynsz, media, kaucja — wraz ze statusem (opłacone / zaległe) i historią wpłat." },
-  { icon: Bell, title: "Podatek ryczałt (8,5% / 12,5%)", desc: "Rozliczenie łączne z całego portfela, próg 100 000 zł, terminy PIT-28." },
-  { icon: ShieldCheck, title: "Dokumenty i notatki", desc: "Protokoły zdawczo-odbiorcze, świadectwo energetyczne, ubezpieczenia, notatki do najemcy." },
-];
 
 function UmowyPage() {
   return (
@@ -22,29 +15,44 @@ function UmowyPage() {
         </div>
         <div>
           <h1 className="text-3xl font-semibold tracking-tight">Zarządzanie umowami i płatnościami</h1>
-          <p className="text-sm text-muted-foreground">Profesjonalny panel dla wynajmujących — wszystkie zmiany zapisują się automatycznie na Twoim koncie.</p>
+          <p className="text-sm text-muted-foreground">
+            Profesjonalny panel dla wynajmujących — wszystkie zmiany zapisują się automatycznie na Twoim koncie.
+          </p>
         </div>
       </div>
 
-      <Link
-        to="/najem/portfel"
-        className="mt-6 flex items-center justify-between rounded-2xl border-2 border-[var(--gold)]/50 bg-gradient-to-br from-[var(--gold)]/15 to-transparent p-5 shadow-card transition hover:border-[var(--gold)] hover:shadow-lg"
-      >
-        <div>
-          <div className="text-lg font-semibold">Otwórz Portfel Nieruchomości</div>
-          <div className="text-sm text-muted-foreground">Zarządzaj mieszkaniami, pokojami, najemcami, wpisami finansowymi i podatkiem.</div>
-        </div>
-        <ArrowRight className="h-5 w-5 text-gold" />
-      </Link>
-
-      <div className="mt-8 grid gap-4 sm:grid-cols-2">
-        {features.map(({ icon: Icon, title, desc }) => (
-          <div key={title} className="rounded-2xl border bg-card p-5 shadow-card">
-            <Icon className="h-5 w-5 text-gold" />
-            <div className="mt-3 font-semibold">{title}</div>
-            <div className="mt-1 text-sm text-muted-foreground">{desc}</div>
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        <Link
+          to="/najem/portfel"
+          className="flex items-center justify-between rounded-2xl border-2 border-[var(--gold)]/50 bg-gradient-to-br from-[var(--gold)]/15 to-transparent p-5 shadow-card transition hover:border-[var(--gold)] hover:shadow-lg"
+        >
+          <div className="flex items-start gap-3">
+            <Wallet className="mt-0.5 h-5 w-5 text-gold" />
+            <div>
+              <div className="text-lg font-semibold">Otwórz Portfel Nieruchomości</div>
+              <div className="text-sm text-muted-foreground">
+                Zarządzaj mieszkaniami, pokojami, najemcami, wpisami finansowymi i podatkiem.
+              </div>
+            </div>
           </div>
-        ))}
+          <ArrowRight className="h-5 w-5 shrink-0 text-gold" />
+        </Link>
+
+        <Link
+          to="/najem/aktywne-umowy"
+          className="flex items-center justify-between rounded-2xl border-2 border-[var(--gold)]/50 bg-gradient-to-br from-[var(--gold)]/15 to-transparent p-5 shadow-card transition hover:border-[var(--gold)] hover:shadow-lg"
+        >
+          <div className="flex items-start gap-3">
+            <FileText className="mt-0.5 h-5 w-5 text-gold" />
+            <div>
+              <div className="text-lg font-semibold">Aktywne umowy Stay Safe</div>
+              <div className="text-sm text-muted-foreground">
+                Umowy zawarte z najemcami za pośrednictwem portalu Stay Safe.
+              </div>
+            </div>
+          </div>
+          <ArrowRight className="h-5 w-5 shrink-0 text-gold" />
+        </Link>
       </div>
     </div>
   );
