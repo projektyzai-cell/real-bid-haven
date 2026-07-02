@@ -135,7 +135,7 @@ export function PassportSection({ userId }: { userId: string }) {
       }
       return;
     }
-    toast.success(renew ? "Paszport odnowiony na 90 dni." : "Paszport wystawiony!");
+    toast.success(renew ? "Dane zostały ponownie zanonimizowane w naszym systemie." : "Dane zostały zanonimizowane w naszym systemie.");
     load();
   }
 
