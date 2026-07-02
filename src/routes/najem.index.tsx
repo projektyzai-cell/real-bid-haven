@@ -13,7 +13,7 @@ export const Route = createFileRoute("/najem/")({
   head: () => ({
     meta: [
       { title: "StaySafe — bezpieczeństwo droższe od pieniędzy" },
-      { name: "description", content: "StaySafe to PropTech OS: weryfikacja RODO, paszport najemcy, dopasowanie zamiast spamu i 360° obsługa najmu. Zamknięty, bezpieczny ekosystem zaufania." },
+      { name: "description", content: "StaySafe to PropTech: weryfikacja RODO, paszport najemcy, dopasowanie zamiast spamu i 360° obsługa najmu. Zamknięty, bezpieczny ekosystem zaufania." },
       { property: "og:title", content: "StaySafe — bezpieczeństwo droższe od pieniędzy" },
       { property: "og:description", content: "Paszport najemcy, weryfikacja RODO, dopasowanie zamiast spamu." },
     ],
