@@ -63,7 +63,7 @@ function JakDzialamyPage() {
       <div className="relative overflow-hidden rounded-3xl border border-[var(--gold)]/30 bg-gradient-to-br from-background via-background to-[var(--gold)]/5 p-8 sm:p-12">
         <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[var(--gold)]/15 blur-3xl" />
         <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-xs font-bold uppercase tracking-wider text-gold">
-          <Sparkles className="h-3.5 w-3.5" /> PropTech OS dla najmu
+          <Sparkles className="h-3.5 w-3.5" /> PropTech dla najmu
         </div>
         <h1 className="mt-4 text-4xl font-black uppercase tracking-tight sm:text-5xl">
           Jak działa <span className="bg-gradient-to-r from-[var(--gold)] to-amber-300 bg-clip-text text-transparent">Stay Safe</span>
