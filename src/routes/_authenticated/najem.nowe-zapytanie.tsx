@@ -38,7 +38,12 @@ const schema = z.object({
 type Mode = "district" | "address" | "map";
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
-type FloorPref = "" | "ground" | "above3_no_elevator" | "high_with_elevator";
+type FloorExclusion = "ground" | "above3_no_elevator" | "high_with_elevator";
+const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; label: string }[] = [
+  { value: "ground", label: "Parter" },
+  { value: "above3_no_elevator", label: "Powyżej 3 piętra bez windy" },
+  { value: "high_with_elevator", label: "Wysokie piętra z windą" },
+];
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalRequestPage() {
