@@ -15,6 +15,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useUnreadMessages } from "@/hooks/use-unread-messages";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 
 const tabs = [
   { to: "/jak-dzialamy", label: "Jak działamy", icon: Sparkles },
@@ -59,6 +60,7 @@ export function Navbar() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
+          <LanguageSwitcher />
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

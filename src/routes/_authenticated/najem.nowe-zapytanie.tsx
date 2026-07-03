@@ -38,7 +38,12 @@ const schema = z.object({
 type Mode = "district" | "address" | "map";
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
-type FloorPref = "" | "ground" | "above3_no_elevator" | "high_with_elevator";
+type FloorExclusion = "ground" | "above3_no_elevator" | "high_with_elevator";
+const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; label: string }[] = [
+  { value: "ground", label: "Parter" },
+  { value: "above3_no_elevator", label: "Powyżej 3 piętra bez windy" },
+  { value: "high_with_elevator", label: "Wysokie piętra z windą" },
+];
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalRequestPage() {
@@ -54,7 +59,7 @@ function NewRentalRequestPage() {
   });
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
-  const [floorPref, setFloorPref] = useState<FloorPref>("ground");
+  const [floorExclusions, setFloorExclusions] = useState<FloorExclusion[]>([]);
   const [buildingType, setBuildingType] = useState<BuildingType>("block");
   const [flags, setFlags] = useState({
     wants_balcony: false, wants_basement: false, wants_elevator: false,
@@ -120,7 +125,7 @@ function NewRentalRequestPage() {
       has_children: parsed.data.children_count > 0,
       ...flags,
       min_rooms: Number(form.min_rooms) || null,
-      floor_preference: showRoomFeatures && floorPref ? floorPref : null,
+      floor_preference: showRoomFeatures && floorExclusions.length ? floorExclusions.join(",") : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
       search_lat: mode === "map" && mapArea ? mapArea.lat : null,
       search_lng: mode === "map" && mapArea ? mapArea.lng : null,
@@ -369,14 +374,35 @@ function NewRentalRequestPage() {
                   <Input type="number" min={1} max={10} value={form.min_rooms}
                     onChange={(e) => set("min_rooms", e.target.value)} className="mt-1.5 rounded-xl" />
                 </div>
-                <div>
-                  <Label className="text-xs">Preferencja piętra</Label>
-                  <select value={floorPref} onChange={(e) => setFloorPref(e.target.value as FloorPref)}
-                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                    <option value="ground">Parter</option>
-                    <option value="above3_no_elevator">Powyżej 3 piętra bez windy</option>
-                    <option value="high_with_elevator">Wysokie piętra z windą</option>
-                  </select>
+                <div className="sm:col-span-2">
+                  <Label className="text-xs">Wykluczenia pięter</Label>
+                  <p className="mt-1 text-[11px] text-muted-foreground">
+                    Zaznacz opcje, których <strong>nie</strong> chcesz. Możesz wybrać kilka lub żadnej.
+                  </p>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <label className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background/60 px-3 py-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={floorExclusions.length === 0}
+                        onChange={() => setFloorExclusions([])}
+                      />
+                      Bez znaczenia
+                    </label>
+                    {FLOOR_EXCLUSION_OPTS.map((o) => (
+                      <label key={o.value} className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background/60 px-3 py-2 text-sm">
+                        <input
+                          type="checkbox"
+                          checked={floorExclusions.includes(o.value)}
+                          onChange={(e) =>
+                            setFloorExclusions((prev) =>
+                              e.target.checked ? [...prev, o.value] : prev.filter((v) => v !== o.value),
+                            )
+                          }
+                        />
+                        {o.label}
+                      </label>
+                    ))}
+                  </div>
                 </div>
                 <div className="sm:col-span-2">
                   <Label className="text-xs">Rodzaj budynku</Label>
