@@ -190,9 +190,9 @@ function RentalDetailPage() {
         <Link to="/najem" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
           <ArrowLeft className="h-3.5 w-3.5" /> Powrót do strony głównej
         </Link>
-        <Link to="/najem/oferty" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> Wróć do listy ofert
-        </Link>
+        <button onClick={() => window.history.back()} className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> Cofnij
+        </button>
       </div>
       <div className="mt-4 grid gap-8 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
