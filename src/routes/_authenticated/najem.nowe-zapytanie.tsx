@@ -125,7 +125,7 @@ function NewRentalRequestPage() {
       has_children: parsed.data.children_count > 0,
       ...flags,
       min_rooms: Number(form.min_rooms) || null,
-      floor_preference: showRoomFeatures && floorPref ? floorPref : null,
+      floor_preference: showRoomFeatures && floorExclusions.length ? floorExclusions.join(",") : null,
       building_type: showRoomFeatures && buildingType ? buildingType : null,
       search_lat: mode === "map" && mapArea ? mapArea.lat : null,
       search_lng: mode === "map" && mapArea ? mapArea.lng : null,
