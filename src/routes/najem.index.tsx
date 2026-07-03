@@ -422,20 +422,9 @@ function LatestListings() {
     },
   });
 
-  const { data: promotedPool = [] } = useQuery({
-    queryKey: ["promoted-pool-latest"],
-    queryFn: async () => {
-      const { data, error } = await supabase.from("rental_listings" as never)
-        .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index,promoted")
-        .eq("promoted", true).eq("status", "active").gt("expires_at", new Date().toISOString())
-        .order("created_at", { ascending: false }).limit(12);
-      if (error) throw error;
-      return (data ?? []) as unknown as (Promo & { promoted?: boolean })[];
-    },
-  });
-
-  const combined = [...promotedPool, ...latest];
+  const combined = latest;
   if (combined.length === 0) return null;
+
 
   return (
     <section className="container mx-auto px-4 py-12">
