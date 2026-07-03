@@ -59,7 +59,7 @@ function NewRentalRequestPage() {
   });
   const [propertyType, setPropertyType] = useState<PropertyType>("apartment");
   const [apartmentSubtype, setApartmentSubtype] = useState<ApartmentSubtype>("2rooms");
-  const [floorPref, setFloorPref] = useState<FloorPref>("ground");
+  const [floorExclusions, setFloorExclusions] = useState<FloorExclusion[]>([]);
   const [buildingType, setBuildingType] = useState<BuildingType>("block");
   const [flags, setFlags] = useState({
     wants_balcony: false, wants_basement: false, wants_elevator: false,
