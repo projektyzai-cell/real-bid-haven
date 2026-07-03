@@ -231,9 +231,9 @@ function RentalDetailPage() {
 
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{r.description}</p>
         </div>
-        <Link to="/najem/oferty" className="inline-block text-sm text-muted-foreground hover:text-foreground">
-          ← Wróć do listy
-        </Link>
+        <button onClick={() => window.history.back()} className="inline-block text-sm text-muted-foreground hover:text-foreground">
+          ← Cofnij
+        </button>
       </div>
 
       <aside className="space-y-4">
