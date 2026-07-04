@@ -43,6 +43,7 @@ function NajemHub() {
 
 /* ---------- HERO ---------- */
 function Hero() {
+  const { t } = useTranslation();
   return (
     <section className="relative overflow-hidden">
       {/* Ambient gold glow */}
@@ -52,14 +53,13 @@ function Hero() {
         <div className="relative flex items-center gap-6 lg:gap-8">
           <SealBadge />
           <div className="min-w-0">
-            <div className="text-sm font-medium tracking-wide text-gold">staysafe.pl:</div>
+            <div className="text-sm font-medium tracking-wide text-gold">{t("home.tagline")}</div>
             <h1 className="mt-2 text-4xl font-black uppercase leading-[0.95] tracking-tight sm:text-5xl lg:text-6xl">
-              Bezpieczeństwo<br />droższe od<br />
-              <span className="bg-gradient-to-r from-[var(--gold)] to-amber-300 bg-clip-text text-transparent">pieniędzy.</span>
+              {t("home.heroTitle1")}<br />{t("home.heroTitle2")}<br />
+              <span className="bg-gradient-to-r from-[var(--gold)] to-amber-300 bg-clip-text text-transparent">{t("home.heroTitle3")}</span>
             </h1>
             <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
-              Dopasowanie, weryfikacja RODO i 360° obsługa najmu.<br />
-              Zamknięty, bezpieczny ekosystem zaufania.
+              {t("home.heroSub")}
             </p>
           </div>
         </div>
