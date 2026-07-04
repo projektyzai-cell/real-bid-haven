@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { ChevronDown } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -15,6 +16,7 @@ const LANGS: { code: Lang; label: string; flag: string }[] = [
 
 export function LanguageSwitcher() {
   const { user } = useAuth();
+  const { i18n } = useTranslation();
   const [lang, setLang] = useState<Lang>("pl");
 
   useEffect(() => {
@@ -24,7 +26,8 @@ export function LanguageSwitcher() {
 
   useEffect(() => {
     if (typeof document !== "undefined") document.documentElement.lang = lang;
-  }, [lang]);
+    i18n.changeLanguage(lang);
+  }, [lang, i18n]);
 
   async function pick(code: Lang) {
     setLang(code);

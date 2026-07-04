@@ -16,18 +16,19 @@ import { useUnreadMessages } from "@/hooks/use-unread-messages";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-
-const tabs = [
-  { to: "/jak-dzialamy", label: "Jak działamy", icon: Sparkles },
-  { to: "/paszport-najemcy", label: "Co to jest Paszport Najemcy", icon: BadgeCheck },
-  { to: "/korzysci", label: "Korzyści dla Wynajmującego i Najemcy", icon: HandHeart },
-] as const;
+import { useTranslation } from "react-i18next";
 
 export function Navbar() {
   const { user, displayName, signOut } = useAuth();
   const navigate = useNavigate();
   const unread = useUnreadMessages();
+  const { t } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
+  const tabs = [
+    { to: "/jak-dzialamy", label: t("nav.howItWorks"), icon: Sparkles },
+    { to: "/paszport-najemcy", label: t("nav.passport"), icon: BadgeCheck },
+    { to: "/korzysci", label: t("nav.benefits"), icon: HandHeart },
+  ] as const;
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
@@ -75,7 +76,7 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72 rounded-2xl">
                 <DropdownMenuLabel className="font-normal">
-                  <div className="text-xs text-muted-foreground">Zalogowany jako</div>
+                  <div className="text-xs text-muted-foreground">{t("nav.loggedInAs")}</div>
                   <div className="truncate font-medium">{displayName ?? user.email}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -83,7 +84,7 @@ export function Navbar() {
                 {/* Strefa najmu — NAJEMCA */}
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="my-1 rounded-xl bg-gold/5 py-3 font-semibold text-foreground data-[state=open]:bg-gold/15">
-                    <KeyRound className="h-4 w-4 text-gold" /> Strefa najmu — Najemca
+                    <KeyRound className="h-4 w-4 text-gold" /> {t("nav.tenantZone")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent
@@ -116,7 +117,7 @@ export function Navbar() {
                 {/* Strefa najmu — WYNAJMUJĄCY */}
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="my-1 rounded-xl bg-gold/5 py-3 font-semibold text-foreground data-[state=open]:bg-gold/15">
-                    <Building2 className="h-4 w-4 text-gold" /> Strefa najmu — Wynajmujący
+                    <Building2 className="h-4 w-4 text-gold" /> {t("nav.landlordZone")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent
@@ -139,11 +140,11 @@ export function Navbar() {
 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/najem/generator-umow" })}>
-                  <FileText className="h-4 w-4" /> Generator umów
+                  <FileText className="h-4 w-4" /> {t("nav.contractGen")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
                   className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
-                  <MessageCircle className="h-4 w-4" /> Wiadomości
+                  <MessageCircle className="h-4 w-4" /> {t("nav.messages")}
                   {unread > 0 && (
                     <span className="ml-auto rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-bold text-yellow-950">
                       {unread > 9 ? "9+" : unread}
@@ -151,23 +152,23 @@ export function Navbar() {
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/ustawienia" })}>
-                  <Settings className="h-4 w-4" /> Ustawienia konta
+                  <Settings className="h-4 w-4" /> {t("nav.settings")}
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}
                     className="bg-gold/10 font-semibold text-gold focus:bg-gold/20">
-                    <ShieldCheck className="h-4 w-4" /> Panel administratora
+                    <ShieldCheck className="h-4 w-4" /> {t("nav.admin")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4" /> Wyloguj
+                  <LogOut className="h-4 w-4" /> {t("nav.signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button onClick={() => navigate({ to: "/auth" })} className="rounded-2xl">
-              Zaloguj się
+              {t("nav.signIn")}
             </Button>
           )}
         </div>
