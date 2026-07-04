@@ -117,7 +117,7 @@ export function Navbar() {
                 {/* Strefa najmu — WYNAJMUJĄCY */}
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="my-1 rounded-xl bg-gold/5 py-3 font-semibold text-foreground data-[state=open]:bg-gold/15">
-                    <Building2 className="h-4 w-4 text-gold" /> Strefa najmu — Wynajmujący
+                    <Building2 className="h-4 w-4 text-gold" /> {t("nav.landlordZone")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent
