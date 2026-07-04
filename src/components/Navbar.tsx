@@ -22,7 +22,13 @@ export function Navbar() {
   const { user, displayName, signOut } = useAuth();
   const navigate = useNavigate();
   const unread = useUnreadMessages();
+  const { t } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
+  const tabs = [
+    { to: "/jak-dzialamy", label: t("nav.howItWorks"), icon: Sparkles },
+    { to: "/paszport-najemcy", label: t("nav.passport"), icon: BadgeCheck },
+    { to: "/korzysci", label: t("nav.benefits"), icon: HandHeart },
+  ] as const;
   useEffect(() => {
     if (!user) { setIsAdmin(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
