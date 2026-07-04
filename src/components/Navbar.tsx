@@ -76,7 +76,7 @@ export function Navbar() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-72 rounded-2xl">
                 <DropdownMenuLabel className="font-normal">
-                  <div className="text-xs text-muted-foreground">Zalogowany jako</div>
+                  <div className="text-xs text-muted-foreground">{t("nav.loggedInAs")}</div>
                   <div className="truncate font-medium">{displayName ?? user.email}</div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -84,7 +84,7 @@ export function Navbar() {
                 {/* Strefa najmu — NAJEMCA */}
                 <DropdownMenuSub>
                   <DropdownMenuSubTrigger className="my-1 rounded-xl bg-gold/5 py-3 font-semibold text-foreground data-[state=open]:bg-gold/15">
-                    <KeyRound className="h-4 w-4 text-gold" /> Strefa najmu — Najemca
+                    <KeyRound className="h-4 w-4 text-gold" /> {t("nav.tenantZone")}
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent
