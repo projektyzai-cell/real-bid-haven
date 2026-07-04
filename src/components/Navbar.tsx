@@ -140,11 +140,11 @@ export function Navbar() {
 
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/najem/generator-umow" })}>
-                  <FileText className="h-4 w-4" /> Generator umów
+                  <FileText className="h-4 w-4" /> {t("nav.contractGen")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
                   className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
-                  <MessageCircle className="h-4 w-4" /> Wiadomości
+                  <MessageCircle className="h-4 w-4" /> {t("nav.messages")}
                   {unread > 0 && (
                     <span className="ml-auto rounded-full bg-yellow-400 px-2 py-0.5 text-[10px] font-bold text-yellow-950">
                       {unread > 9 ? "9+" : unread}
@@ -152,23 +152,23 @@ export function Navbar() {
                   )}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/ustawienia" })}>
-                  <Settings className="h-4 w-4" /> Ustawienia konta
+                  <Settings className="h-4 w-4" /> {t("nav.settings")}
                 </DropdownMenuItem>
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}
                     className="bg-gold/10 font-semibold text-gold focus:bg-gold/20">
-                    <ShieldCheck className="h-4 w-4" /> Panel administratora
+                    <ShieldCheck className="h-4 w-4" /> {t("nav.admin")}
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleSignOut}>
-                  <LogOut className="h-4 w-4" /> Wyloguj
+                  <LogOut className="h-4 w-4" /> {t("nav.signOut")}
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <Button onClick={() => navigate({ to: "/auth" })} className="rounded-2xl">
-              Zaloguj się
+              {t("nav.signIn")}
             </Button>
           )}
         </div>
