@@ -16,12 +16,7 @@ import { useUnreadMessages } from "@/hooks/use-unread-messages";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
-
-const tabs = [
-  { to: "/jak-dzialamy", label: "Jak działamy", icon: Sparkles },
-  { to: "/paszport-najemcy", label: "Co to jest Paszport Najemcy", icon: BadgeCheck },
-  { to: "/korzysci", label: "Korzyści dla Wynajmującego i Najemcy", icon: HandHeart },
-] as const;
+import { useTranslation } from "react-i18next";
 
 export function Navbar() {
   const { user, displayName, signOut } = useAuth();
