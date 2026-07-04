@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { ShieldCheck, KeyRound, Building, ArrowRight, Search, Sparkles, Users, Linkedin, CheckCircle2, BadgeCheck, FileText, Handshake } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
