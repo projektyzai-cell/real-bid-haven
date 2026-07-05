@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { MapPin, Search, Eye, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ interface RentalRow {
 }
 
 function RentalListingsPage() {
+  const { t } = useTranslation();
   const [city, setCity] = useState("");
   const [priceMax, setPriceMax] = useState("");
 
