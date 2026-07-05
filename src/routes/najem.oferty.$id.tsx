@@ -47,7 +47,7 @@ function SimilarListings({ currentId, city, kind, price }: { currentId: string; 
     <section className="mt-10">
       <div className="mb-4 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-primary" />
-        <h2 className="text-xl font-bold tracking-tight">Zobacz podobne nieruchomości</h2>
+        <h2 className="text-xl font-bold tracking-tight">{t("offers.similar")}</h2>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {data.map((r) => {
