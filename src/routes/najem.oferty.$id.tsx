@@ -241,15 +241,13 @@ function RentalDetailPage() {
 
       <aside className="space-y-4">
         <div className="rounded-3xl bg-card p-6 shadow-card">
-          <div className="text-xs uppercase tracking-wide text-muted-foreground">Cena najmu</div>
-          <div className="mt-1 text-3xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)} / mc</div>
+          <div className="text-xs uppercase tracking-wide text-muted-foreground">{t("offers.priceLabel")}</div>
+          <div className="mt-1 text-3xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)} {t("offers.perMonth")}</div>
         </div>
         <div className="rounded-3xl bg-card p-6 shadow-card">
-          <h3 className="font-semibold">Wynajmujący</h3>
-          <p className="mt-2 text-sm">{data.owner?.display_name ?? "Użytkownik Stay Safe"}</p>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Dane kontaktowe wynajmującego nie są udostępniane. Wyślij wiadomość poprzez wewnętrzny czat Stay Safe.
-          </p>
+          <h3 className="font-semibold">{t("offers.landlord")}</h3>
+          <p className="mt-2 text-sm">{data.owner?.display_name ?? t("offers.landlordAnonymous")}</p>
+          <p className="mt-2 text-xs text-muted-foreground">{t("offers.landlordNote")}</p>
           {user && (
             <div className="mt-3">
               <ReportButton targetType="rental_listing" targetId={r.id} variant="outline" />
