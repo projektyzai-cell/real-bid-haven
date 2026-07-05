@@ -57,7 +57,7 @@ function SimilarListings({ currentId, city, kind, price }: { currentId: string; 
               className={`group overflow-hidden rounded-3xl border bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-glow ${r.promoted ? "border-amber-400/50" : "border-border"}`}>
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-1.5 p-4">
-                {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">★ Promowane</Badge>}
+                {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>}
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
