@@ -152,7 +152,7 @@ function RentalDetailPage() {
   });
 
   if (isLoading || !data) {
-    return <div className="container mx-auto px-4 py-16 text-muted-foreground">Ładowanie...</div>;
+    return <div className="container mx-auto px-4 py-16 text-muted-foreground">{t("offers.loading")}</div>;
   }
   const r = data.listing as {
     id: string; landlord_id: string; title: string; description: string;
