@@ -61,8 +61,8 @@ function SimilarListings({ currentId, city, kind, price }: { currentId: string; 
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
-                  <span className="font-bold text-primary">{formatPLN(r.monthly_price)} / mc</span>
+                  <span className="text-muted-foreground">{r.rooms} {t("offers.rooms")} · {r.area_m2} m²</span>
+                  <span className="font-bold text-primary">{formatPLN(r.monthly_price)} {t("offers.perMonth")}</span>
                 </div>
               </div>
             </Link>
