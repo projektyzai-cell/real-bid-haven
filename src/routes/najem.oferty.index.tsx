@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { MapPin, Search, Eye, ArrowLeft } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,7 @@ interface RentalRow {
 }
 
 function RentalListingsPage() {
+  const { t } = useTranslation();
   const [city, setCity] = useState("");
   const [priceMax, setPriceMax] = useState("");
 
@@ -57,20 +59,18 @@ function RentalListingsPage() {
   return (
     <div className="container mx-auto px-4 py-10">
       <Link to="/najem" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
-        <ArrowLeft className="h-3.5 w-3.5" /> Powrót do strony głównej
+        <ArrowLeft className="h-3.5 w-3.5" /> {t("offers.backHome")}
       </Link>
-      <h1 className="mt-3 text-3xl font-bold tracking-tight">Oferty wynajmu</h1>
-      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-        Przeglądaj oferty najmu i kontaktuj się bezpośrednio z wynajmującymi przez wewnętrzny czat Stay Safe.
-      </p>
+      <h1 className="mt-3 text-3xl font-bold tracking-tight">{t("offers.pageTitle")}</h1>
+      <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{t("offers.pageSub")}</p>
 
       <div className="mt-6 grid gap-3 rounded-2xl border bg-card p-4 sm:grid-cols-3">
         <div className="relative sm:col-span-2">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder="Miejscowość" className="rounded-xl pl-9" />
+          <Input value={city} onChange={(e) => setCity(e.target.value)} placeholder={t("filters.city")} className="rounded-xl pl-9" />
         </div>
         <Input type="number" value={priceMax} onChange={(e) => setPriceMax(e.target.value)}
-          placeholder="Cena max / mc" className="rounded-xl" />
+          placeholder={t("filters.priceMaxMonthly")} className="rounded-xl" />
       </div>
 
       {isLoading ? (
@@ -79,7 +79,7 @@ function RentalListingsPage() {
         </div>
       ) : filtered.length === 0 ? (
         <div className="mt-8 rounded-3xl border border-dashed bg-card p-12 text-center">
-          <p className="text-muted-foreground">Brak ofert spełniających kryteria.</p>
+          <p className="text-muted-foreground">{t("offers.empty")}</p>
         </div>
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -96,7 +96,7 @@ function RentalListingsPage() {
                 <div className="space-y-2 p-5">
                   <div className="flex items-center gap-2">
                     <Badge className="rounded-full">{r.area_m2} m²</Badge>
-                    {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">★ Promowane</Badge>}
+                    {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>}
                   </div>
                   <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -104,10 +104,10 @@ function RentalListingsPage() {
                   </div>
                   <div className="flex items-baseline justify-between">
                     <span className="text-2xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)}</span>
-                    <span className="text-xs text-muted-foreground">/ mc</span>
+                    <span className="text-xs text-muted-foreground">{t("offers.perMonth")}</span>
                   </div>
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{r.rooms} pok.</span>
+                    <span>{r.rooms} {t("offers.rooms")}</span>
                     <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{r.views_count ?? 0}</span>
                   </div>
                 </div>
