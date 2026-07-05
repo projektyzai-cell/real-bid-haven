@@ -203,12 +203,12 @@ function RentalDetailPage() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <Badge className="rounded-full">{r.area_m2} m²</Badge>
-            <Badge variant="outline" className="rounded-full">{r.rooms} pok.</Badge>
+            <Badge variant="outline" className="rounded-full">{r.rooms} {t("offers.rooms")}</Badge>
             <Badge variant="outline" className="rounded-full">
               <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}{r.apt_no ? `/${r.apt_no}` : ""}
             </Badge>
             <Badge variant="outline" className="rounded-full">
-              {r.kind === "house" ? "Dom" : r.kind === "room" ? "Pokój" : "Mieszkanie"}
+              {r.kind === "house" ? t("offers.house") : r.kind === "room" ? t("offers.room") : t("offers.apartment")}
             </Badge>
             <Badge variant="outline" className="rounded-full"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</Badge>
           </div>
