@@ -22,6 +22,7 @@ interface SimilarRow {
 }
 
 function SimilarListings({ currentId, city, kind, price }: { currentId: string; city: string; kind: string; price: number }) {
+  const { t } = useTranslation();
   const minP = Math.round(price * 0.7);
   const maxP = Math.round(price * 1.3);
   const { data = [] } = useQuery({
