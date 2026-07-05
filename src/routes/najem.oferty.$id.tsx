@@ -191,10 +191,10 @@ function RentalDetailPage() {
     <div className="container mx-auto px-4 py-6">
       <div className="flex flex-wrap items-center gap-4">
         <Link to="/najem" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> Powrót do strony głównej
+          <ArrowLeft className="h-3.5 w-3.5" /> {t("offers.backHome")}
         </Link>
         <button onClick={() => window.history.back()} className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-3.5 w-3.5" /> Cofnij
+          <ArrowLeft className="h-3.5 w-3.5" /> {t("offers.back")}
         </button>
       </div>
       <div className="mt-4 grid gap-8 lg:grid-cols-3">
