@@ -224,18 +224,18 @@ function RentalDetailPage() {
           </dl>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            {r.accepts_pets && <Badge variant="outline" className="rounded-full">🐾 Zwierzęta OK</Badge>}
-            {r.accepts_children && <Badge variant="outline" className="rounded-full">👶 Dzieci OK</Badge>}
-            {r.requires_deposit && <Badge variant="outline" className="rounded-full">Kaucja wymagana</Badge>}
-            {r.notarial_required && <Badge variant="outline" className="rounded-full">Najem okazjonalny</Badge>}
-            {r.requires_insurance && <Badge variant="outline" className="rounded-full">Ubezpieczenie ({r.insurance_payer})</Badge>}
-            {r.kind === "house" && r.has_basement && <Badge variant="outline" className="rounded-full">Piwnica</Badge>}
+            {r.accepts_pets && <Badge variant="outline" className="rounded-full">{t("offers.petsOk")}</Badge>}
+            {r.accepts_children && <Badge variant="outline" className="rounded-full">{t("offers.childrenOk")}</Badge>}
+            {r.requires_deposit && <Badge variant="outline" className="rounded-full">{t("offers.depositRequired")}</Badge>}
+            {r.notarial_required && <Badge variant="outline" className="rounded-full">{t("offers.occasionalLease")}</Badge>}
+            {r.requires_insurance && <Badge variant="outline" className="rounded-full">{t("offers.insurance")} ({r.insurance_payer})</Badge>}
+            {r.kind === "house" && r.has_basement && <Badge variant="outline" className="rounded-full">{t("offers.basement")}</Badge>}
           </div>
 
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{r.description}</p>
         </div>
         <button onClick={() => window.history.back()} className="inline-block text-sm text-muted-foreground hover:text-foreground">
-          ← Cofnij
+          ← {t("offers.back")}
         </button>
       </div>
 
