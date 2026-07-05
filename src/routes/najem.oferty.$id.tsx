@@ -124,6 +124,7 @@ function Gallery({ images, title }: { images: string[]; title: string }) {
 }
 
 function RentalDetailPage() {
+  const { t } = useTranslation();
   const { id } = Route.useParams();
   const { user } = useAuth();
   const [msg, setMsg] = useState("");
