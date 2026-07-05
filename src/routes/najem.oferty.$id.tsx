@@ -260,34 +260,30 @@ function RentalDetailPage() {
 
         {sent ? (
           <div className="rounded-3xl border-2 border-primary/30 bg-primary/5 p-6 text-sm">
-            ✓ Twoje zapytanie zostało wysłane do wynajmującego. Otrzymasz powiadomienie, gdy odpowie.
+            {t("offers.sentBanner")}
           </div>
         ) : !user ? (
           <div className="space-y-3 rounded-3xl border-2 border-primary/40 bg-gradient-to-br from-primary/10 to-primary/5 p-6 text-center shadow-card">
-            <h3 className="text-lg font-semibold">Chcesz skontaktować się z właścicielem?</h3>
-            <p className="text-sm text-muted-foreground">
-              Aby wysłać wiadomość przez bezpieczny czat Stay Safe, musisz mieć konto. Załóż darmowe konto lub zaloguj się — zajmie to chwilę.
-            </p>
+            <h3 className="text-lg font-semibold">{t("offers.contactCta")}</h3>
+            <p className="text-sm text-muted-foreground">{t("offers.contactSub")}</p>
             <div className="flex flex-col gap-2 sm:flex-row">
               <Link to="/auth" search={{ mode: "signup", redirect: `/najem/oferty/${r.id}` } as never} className="flex-1">
-                <Button className="w-full rounded-xl">Załóż konto</Button>
+                <Button className="w-full rounded-xl">{t("offers.signup")}</Button>
               </Link>
               <Link to="/auth" search={{ redirect: `/najem/oferty/${r.id}` } as never} className="flex-1">
-                <Button variant="outline" className="w-full rounded-xl">Zaloguj się</Button>
+                <Button variant="outline" className="w-full rounded-xl">{t("offers.signin")}</Button>
               </Link>
             </div>
-            <p className="text-xs text-muted-foreground">
-              Dane kontaktowe wynajmującego nigdy nie są ujawniane — komunikacja odbywa się przez wewnętrzny czat Stay Safe.
-            </p>
+            <p className="text-xs text-muted-foreground">{t("offers.privacyNote")}</p>
           </div>
         ) : (
           <form onSubmit={sendInquiry} className="space-y-3 rounded-3xl bg-card p-6 shadow-card">
-            <h3 className="font-semibold">Wyślij wiadomość do wynajmującego</h3>
+            <h3 className="font-semibold">{t("offers.sendMessage")}</h3>
             <div>
-              <Label htmlFor="msg">Wiadomość</Label>
+              <Label htmlFor="msg">{t("offers.message")}</Label>
               <Textarea id="msg" required value={msg} onChange={(e) => setMsg(e.target.value)} rows={5}
                 maxLength={2000} className="mt-1.5 rounded-xl"
-                placeholder="Dzień dobry, jestem zainteresowany/a tą ofertą najmu…" />
+                placeholder={t("offers.messagePlaceholder")} />
             </div>
             <label className="flex items-start gap-2 text-xs text-muted-foreground">
               <Checkbox checked={gdpr} onCheckedChange={(v) => setGdpr(v === true)} className="mt-0.5" />
@@ -303,7 +299,7 @@ function RentalDetailPage() {
               </span>
             </label>
             <Button type="submit" disabled={sending || !gdpr || !terms} className="w-full rounded-xl">
-              {sending ? "Wysyłam…" : "Wyślij wiadomość"}
+              {sending ? t("offers.sending") : t("offers.send")}
             </Button>
           </form>
         )}
