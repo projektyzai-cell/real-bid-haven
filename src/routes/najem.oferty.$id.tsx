@@ -215,12 +215,12 @@ function RentalDetailPage() {
           <h1 className="mt-3 text-3xl font-semibold">{r.title}</h1>
 
           <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card/50 p-4 text-sm sm:grid-cols-3">
-            {r.rent_base != null && (<div><dt className="text-xs text-muted-foreground">Odstępne</dt><dd className="font-medium">{formatPLN(r.rent_base)} / mc</dd></div>)}
-            {r.utilities_fee != null && (<div><dt className="text-xs text-muted-foreground">Opłaty</dt><dd className="font-medium">{formatPLN(r.utilities_fee)} / mc</dd></div>)}
-            {r.min_lease_months && (<div><dt className="text-xs text-muted-foreground">Min. okres najmu</dt><dd className="font-medium">{r.min_lease_months} mies.</dd></div>)}
-            {r.year_built && (<div><dt className="text-xs text-muted-foreground">Rok budowy</dt><dd className="font-medium">{r.year_built}</dd></div>)}
-            {r.kind === "house" && r.usable_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">Pow. użytkowa</dt><dd className="font-medium">{r.usable_area_m2} m²</dd></div>)}
-            {r.kind === "house" && r.plot_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">Działka</dt><dd className="font-medium">{r.plot_area_m2} m²</dd></div>)}
+            {r.rent_base != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.rentBase")}</dt><dd className="font-medium">{formatPLN(r.rent_base)} {t("offers.perMonth")}</dd></div>)}
+            {r.utilities_fee != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.utilities")}</dt><dd className="font-medium">{formatPLN(r.utilities_fee)} {t("offers.perMonth")}</dd></div>)}
+            {r.min_lease_months && (<div><dt className="text-xs text-muted-foreground">{t("offers.minLease")}</dt><dd className="font-medium">{r.min_lease_months} {t("offers.months")}</dd></div>)}
+            {r.year_built && (<div><dt className="text-xs text-muted-foreground">{t("offers.yearBuilt")}</dt><dd className="font-medium">{r.year_built}</dd></div>)}
+            {r.kind === "house" && r.usable_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.usableArea")}</dt><dd className="font-medium">{r.usable_area_m2} m²</dd></div>)}
+            {r.kind === "house" && r.plot_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.plot")}</dt><dd className="font-medium">{r.plot_area_m2} m²</dd></div>)}
           </dl>
 
           <div className="mt-4 flex flex-wrap gap-2 text-xs">
