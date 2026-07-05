@@ -1,6 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { MapPin, Eye, X, ChevronLeft, ChevronRight, ArrowLeft, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
