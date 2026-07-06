@@ -41,11 +41,12 @@ type Mode = "district" | "address" | "map";
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
 type FloorExclusion = "ground" | "above3_no_elevator" | "high_with_elevator";
-const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; label: string }[] = [
-  { value: "ground", label: "Parter" },
-  { value: "above3_no_elevator", label: "Powyżej 3 piętra bez windy" },
-  { value: "high_with_elevator", label: "Wysokie piętra z windą" },
+const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; tKey: string }[] = [
+  { value: "ground", tKey: "request.floorGround" },
+  { value: "above3_no_elevator", tKey: "request.floorAbove3" },
+  { value: "high_with_elevator", tKey: "request.floorHighElev" },
 ];
+
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalRequestPage() {
