@@ -50,7 +50,9 @@ const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; tKey: string }[] = [
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalRequestPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
+
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<Mode>("district");
