@@ -391,7 +391,7 @@ function NewRentalRequestPage() {
                         checked={floorExclusions.length === 0}
                         onChange={() => setFloorExclusions([])}
                       />
-                      Bez znaczenia
+                      {t("request.noPref")}
                     </label>
                     {FLOOR_EXCLUSION_OPTS.map((o) => (
                       <label key={o.value} className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background/60 px-3 py-2 text-sm">
