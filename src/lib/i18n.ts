@@ -119,7 +119,7 @@ const resources = {
         step1t: "Określ rejon poszukiwań",
         step1: "Wybierz miasto, a następnie wskaż dzielnice, konkretne ulice lub zaznacz na interaktywnej mapie punkt centralny i obszar wokół niego. Im więcej precyzyjnych danych, tym lepsze dopasowanie.",
         step2t: "Wybierz oferty i aplikuj Paszportem",
-        step2: "System wyświetli nieruchomości zgodne z Twoim budżetem i lokalizacją. Kliknij „Wstępnie zainteresowany" — Paszport Najemcy StaySafe drastycznie zwiększa szanse na szybką akceptację.",
+        step2: "System wyświetli nieruchomości zgodne z Twoim budżetem i lokalizacją. Kliknij „Wstępnie zainteresowany” — Paszport Najemcy StaySafe drastycznie zwiększa szanse na szybką akceptację.",
         step3t: "Formalności i wsparcie Concierge",
         step3: "Po akceptacji dograj szczegóły na czacie i wygeneruj bezpieczną umowę w portalu. Pomożemy w umówieniu notariusza, zamówieniu sprzątania i wezwaniu złotej rączki.",
         passportTitle: "Paszport Najemcy StaySafe",
