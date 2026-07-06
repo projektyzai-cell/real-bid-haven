@@ -334,11 +334,10 @@ const resources = {
         pointOnMap: "Позначте точку на карті.",
         published: "Запит опубліковано!",
       },
-
-      },
     },
   },
 };
+
 
 const stored = typeof window !== "undefined" ? localStorage.getItem("lang") : null;
 
