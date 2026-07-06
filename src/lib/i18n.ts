@@ -44,7 +44,7 @@ const resources = {
         pageTitle: "Oferty wynajmu",
         pageSub: "Przeglądaj oferty najmu i kontaktuj się bezpośrednio z wynajmującymi przez wewnętrzny czat Stay Safe.",
         backHome: "Powrót do strony głównej",
-        back: "Cofnij",
+        back: "Powrót",
         empty: "Brak ofert spełniających kryteria.",
         rooms: "pok.",
         perMonth: "/ mc",
