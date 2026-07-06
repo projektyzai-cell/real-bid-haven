@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
@@ -15,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LocationPicker } from "@/components/LocationPicker";
 
 import { MapAreaPicker, type MapArea } from "@/components/MapAreaPicker";
+
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
   head: () => ({ meta: [{ title: "Nowe zapytanie najemcy — Stay Safe" }] }),
@@ -39,15 +41,18 @@ type Mode = "district" | "address" | "map";
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
 type FloorExclusion = "ground" | "above3_no_elevator" | "high_with_elevator";
-const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; label: string }[] = [
-  { value: "ground", label: "Parter" },
-  { value: "above3_no_elevator", label: "Powyżej 3 piętra bez windy" },
-  { value: "high_with_elevator", label: "Wysokie piętra z windą" },
+const FLOOR_EXCLUSION_OPTS: { value: FloorExclusion; tKey: string }[] = [
+  { value: "ground", tKey: "request.floorGround" },
+  { value: "above3_no_elevator", tKey: "request.floorAbove3" },
+  { value: "high_with_elevator", tKey: "request.floorHighElev" },
 ];
+
 type BuildingType = "" | "block" | "tenement" | "house_section";
 
 function NewRentalRequestPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
+
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<Mode>("district");
@@ -115,7 +120,7 @@ function NewRentalRequestPage() {
       min_lease_months: Number(form.min_lease_months),
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
-    if (mode === "map" && !mapArea) { toast.error("Zaznacz punkt na mapie."); return; }
+    if (mode === "map" && !mapArea) { toast.error(t("request.pointOnMap")); return; }
 
     setSubmitting(true);
     const expiresAt = new Date(Date.now() + parsed.data.active_days * 86_400_000).toISOString();
@@ -135,21 +140,21 @@ function NewRentalRequestPage() {
     } as never).select("id").single();
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Zapytanie opublikowane!");
+    toast.success(t("request.published"));
     navigate({ to: "/najem/moje-zapytania" });
   }
 
   const modeTabs: { id: Mode; label: string; icon: typeof Building2 }[] = [
-    { id: "district", label: "Dzielnica", icon: Building2 },
-    { id: "address", label: "Adres / ulica", icon: MapPin },
-    { id: "map", label: "Obszar na mapie", icon: Map },
+    { id: "district" as Mode, label: t("request.modeDistrict"), icon: Building2 },
+    { id: "address" as Mode, label: t("request.modeAddress"), icon: MapPin },
+    { id: "map" as Mode, label: t("request.modeMap"), icon: Map },
   ];
 
   return (
     <div className="container mx-auto max-w-2xl px-4 py-10">
-      <h1 className="text-3xl font-semibold">Nowe zapytanie najemcy</h1>
+      <h1 className="text-3xl font-semibold">{t("request.title")}</h1>
       <p className="mt-1 text-sm text-muted-foreground">
-        Opisz swoje potrzeby. Wynajmujący prześlą Ci dedykowane oferty. Zapytanie będzie aktywne przez wskazany czas.
+        {t("request.sub")}
       </p>
 
       {/* ── ONBOARDING / EXPLAINER ──────────────────────────────── */}
@@ -161,35 +166,24 @@ function NewRentalRequestPage() {
         <div className="relative flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-gold" />
           <h2 className="text-sm font-semibold uppercase tracking-[0.18em] text-gold">
-            Jak działa inteligentne dopasowanie StaySafe?
+            {t("request.howTitle")}
           </h2>
         </div>
         <ol className="relative mt-4 grid gap-4 md:grid-cols-3">
           {[
             {
-              n: 1, icon: Search, title: "Określ rejon poszukiwań",
-              body: (
-                <>
-                  Wybierz miasto, a następnie wskaż dzielnice, konkretne ulice lub <span className="text-gold">zaznacz na interaktywnej mapie</span> punkt centralny i obszar wokół niego. Im więcej precyzyjnych danych, tym lepsze dopasowanie.
-                </>
-              ),
+              n: 1, icon: Search, title: t("request.step1t"),
+              body: <>{t("request.step1")}</>,
             },
             {
-              n: 2, icon: ShieldCheck, title: "Wybierz oferty i aplikuj Paszportem",
-              body: (
-                <>
-                  System wyświetli nieruchomości zgodne z Twoim budżetem i lokalizacją. Kliknij <em>„Wstępnie zainteresowany”</em> — <span className="text-gold">Paszport Najemcy StaySafe</span> drastycznie zwiększa szanse na szybką akceptację.
-                </>
-              ),
+              n: 2, icon: ShieldCheck, title: t("request.step2t"),
+              body: <>{t("request.step2")}</>,
             },
             {
-              n: 3, icon: FileSignature, title: "Formalności i wsparcie Concierge",
-              body: (
-                <>
-                  Po akceptacji dograj szczegóły na czacie i wygeneruj bezpieczną umowę w portalu. Pomożemy w <span className="text-gold">umówieniu notariusza</span>, zamówieniu sprzątania i wezwaniu złotej rączki.
-                </>
-              ),
+              n: 3, icon: FileSignature, title: t("request.step3t"),
+              body: <>{t("request.step3")}</>,
             },
+
           ].map((s) => {
             const Icon = s.icon;
             return (
@@ -214,17 +208,17 @@ function NewRentalRequestPage() {
           <div className="flex items-start gap-3">
             <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-gold" />
             <div className="flex-1">
-              <p className="text-sm font-semibold">Paszport Najemcy StaySafe</p>
+              <p className="text-sm font-semibold">{t("request.passportTitle")}</p>
               <p className="mt-0.5 text-xs text-muted-foreground">
-                Posiadanie aktualnego paszportu znacząco zwiększa szansę na odpowiedź wynajmującego.
+                {t("request.passportSub")}
               </p>
               <label className="mt-3 flex cursor-pointer items-start gap-2 text-sm">
                 <Checkbox checked={passportChecked} onCheckedChange={(v) => setPassportChecked(!!v)} className="mt-0.5" />
                 <span>
-                  Mam już aktualny Paszport Najemcy
+                  {t("request.havePassport")}
                   {hasPassport && (
                     <span className="ml-2 inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-gold">
-                      <BadgeCheck className="h-3 w-3" /> Wykryto
+                      <BadgeCheck className="h-3 w-3" /> {t("request.detected")}
                     </span>
                   )}
                 </span>
@@ -232,7 +226,7 @@ function NewRentalRequestPage() {
               {!passportChecked && (
                 <a href="/najem/paszport" target="_blank" rel="noopener noreferrer"
                   className="mt-3 inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]">
-                  Stwórz Paszport w nowej karcie <ExternalLink className="h-3 w-3" />
+                  {t("request.createPassport")} <ExternalLink className="h-3 w-3" />
                 </a>
               )}
             </div>
@@ -248,7 +242,7 @@ function NewRentalRequestPage() {
             onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: "", street: "" }))}
           />
           <p className="mt-1 text-xs text-muted-foreground">
-            Wybierz miejscowość, w której poszukujesz nieruchomości do wynajmu.
+            {t("request.cityHelp")}
           </p>
         </div>
 
@@ -256,9 +250,9 @@ function NewRentalRequestPage() {
         <div className="rounded-2xl border bg-background/40 p-4">
           <p className="mb-3 text-xs leading-relaxed text-muted-foreground">
             <span className="mb-1 block text-[11px] font-semibold uppercase tracking-wide text-foreground">
-              Wybierz formę wyszukiwania lokalizacji poszukiwanej nieruchomości
+              {t("request.modeTitle")}
             </span>
-            Masz do wyboru wyszukiwanie ofert po dzielnicy, ulicy, a być może chcesz zaznaczyć na mapie interesujący Cię rejon? Twój wybór!
+            {t("request.modeSub")}
           </p>
           <div className="inline-flex rounded-xl border border-border bg-background p-1 text-sm">
             {modeTabs.map((t) => {
@@ -290,7 +284,7 @@ function NewRentalRequestPage() {
                   onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district, street: v.street }))}
                 />
                 <p className="text-xs text-amber-500/80">
-                  Wybór konkretnej ulicy działa jako twarde dopasowanie — jeżeli nie ma ofert dokładnie na tej ulicy, system spróbuje dopasować oferty z tej samej dzielnicy.
+                  {t("request.streetWarn")}
                 </p>
               </div>
             )}
@@ -302,15 +296,15 @@ function NewRentalRequestPage() {
 
 
         {/* INFORMACJE O NIERUCHOMOŚCI */}
-        <SectionTitle>Informacje o nieruchomości</SectionTitle>
+        <SectionTitle>{t("request.propertyInfo")}</SectionTitle>
         <div className="rounded-2xl border bg-background/40 p-4 space-y-4">
           <div>
-            <Label className="mb-2 block">Co chcesz wynająć?</Label>
+            <Label className="mb-2 block">{t("request.whatRent")}</Label>
             <div className="grid grid-cols-3 gap-2">
               {([
-                ["apartment", "Mieszkanie"],
-                ["room", "Pokój"],
-                ["house", "Dom"],
+                ["apartment", t("offers.apartment")],
+                ["room", t("offers.room")],
+                ["house", t("offers.house")],
               ] as [PropertyType, string][]).map(([id, label]) => (
                 <button key={id} type="button" onClick={() => setPropertyType(id)}
                   className={`h-10 rounded-xl border text-sm font-semibold transition ${
@@ -326,12 +320,12 @@ function NewRentalRequestPage() {
 
           {propertyType === "apartment" && (
             <div>
-              <Label className="mb-2 block">Typ mieszkania</Label>
+              <Label className="mb-2 block">{t("request.apartmentType")}</Label>
               <div className="grid grid-cols-3 gap-2">
                 {([
-                  ["studio", "Kawalerka"],
-                  ["2rooms", "2-pokojowe"],
-                  ["3rooms_plus", "3-pokojowe lub większe"],
+                  ["studio", t("request.studio")],
+                  ["2rooms", t("request.tworooms")],
+                  ["3rooms_plus", t("request.threeplus")],
                 ] as [ApartmentSubtype, string][]).map(([id, label]) => (
                   <button key={id} type="button" onClick={() => setApartmentSubtype(id)}
                     className={`h-10 rounded-xl border text-xs font-semibold transition ${
@@ -348,15 +342,15 @@ function NewRentalRequestPage() {
 
           {showRoomFeatures && (
             <div className="space-y-2">
-              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Wymagane udogodnienia</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("request.amenities")}</p>
               {([
-                ["wants_balcony", "Balkon"],
-                ["wants_basement", "Piwnica"],
-                ["wants_elevator", "Winda"],
-                ["requires_furnished", "Mieszkanie umeblowane"],
-                ["wants_parking_space", "Poszukuję nieruchomości z przynależnym miejscem postojowym"],
-                ["wants_washing_machine", "Pralka"],
-                ["wants_dishwasher", "Zmywarka w mieszkaniu"],
+                ["wants_balcony", t("request.balcony")],
+                ["wants_basement", t("request.basement")],
+                ["wants_elevator", t("request.elevator")],
+                ["requires_furnished", t("request.furnished")],
+                ["wants_parking_space", t("request.parking")],
+                ["wants_washing_machine", t("request.washer")],
+                ["wants_dishwasher", t("request.dishwasher")],
               ] as [keyof typeof flags, string][]).map(([k, label]) => (
                 <label key={k} className="flex items-start gap-3 text-sm">
                   <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
@@ -368,16 +362,16 @@ function NewRentalRequestPage() {
                 <div>
                   <Label className="text-xs">
                     {propertyType === "room"
-                      ? "Akceptowalna max. liczba pokoi w nieruchomości przeznaczona na wynajem"
-                      : "Min. liczba pokoi"}
+                      ? t("request.maxRoomsLabel")
+                      : t("request.minRoomsLabel")}
                   </Label>
                   <Input type="number" min={1} max={10} value={form.min_rooms}
                     onChange={(e) => set("min_rooms", e.target.value)} className="mt-1.5 rounded-xl" />
                 </div>
                 <div className="sm:col-span-2">
-                  <Label className="text-xs">Wykluczenia pięter</Label>
+                  <Label className="text-xs">{t("request.floorExclusions")}</Label>
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Zaznacz opcje, których <strong>nie</strong> chcesz. Możesz wybrać kilka lub żadnej.
+                    {t("request.floorHelp")}
                   </p>
                   <div className="mt-2 grid gap-2 sm:grid-cols-2">
                     <label className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background/60 px-3 py-2 text-sm">
@@ -386,7 +380,7 @@ function NewRentalRequestPage() {
                         checked={floorExclusions.length === 0}
                         onChange={() => setFloorExclusions([])}
                       />
-                      Bez znaczenia
+                      {t("request.noPref")}
                     </label>
                     {FLOOR_EXCLUSION_OPTS.map((o) => (
                       <label key={o.value} className="flex cursor-pointer items-center gap-2 rounded-xl border bg-background/60 px-3 py-2 text-sm">
@@ -399,18 +393,18 @@ function NewRentalRequestPage() {
                             )
                           }
                         />
-                        {o.label}
+                        {t(o.tKey)}
                       </label>
                     ))}
                   </div>
                 </div>
                 <div className="sm:col-span-2">
-                  <Label className="text-xs">Rodzaj budynku</Label>
+                  <Label className="text-xs">{t("request.buildingType")}</Label>
                   <select value={buildingType} onChange={(e) => setBuildingType(e.target.value as BuildingType)}
                     className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                    <option value="block">Blok</option>
-                    <option value="tenement">Kamienica</option>
-                    <option value="house_section">Wydzielona część domu</option>
+                    <option value="block">{t("request.block")}</option>
+                    <option value="tenement">{t("request.tenement")}</option>
+                    <option value="house_section">{t("request.houseSection")}</option>
                   </select>
                 </div>
               </div>
@@ -419,22 +413,22 @@ function NewRentalRequestPage() {
         </div>
 
         {/* WARUNKI UMOWY */}
-        <SectionTitle>Warunki umowy</SectionTitle>
+        <SectionTitle>{t("request.contractTerms")}</SectionTitle>
         <div className="rounded-2xl border bg-background/40 p-4 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label>Budżet max (PLN/mies.)</Label>
+              <Label>{t("request.budgetMax")}</Label>
               <Input type="number" value={form.budget_max} onChange={(e) => set("budget_max", e.target.value)} className="mt-1.5 rounded-xl" />
               <p className="mt-1 text-[11px] text-muted-foreground">
-                Kwota całkowita: czynsz najmu + opłaty eksploatacyjne (administracyjne) + media.
+                {t("request.budgetHelp")}
               </p>
             </div>
             <div>
-              <Label>Minimalna długość umowy</Label>
+              <Label>{t("request.minLeaseLen")}</Label>
               <select value={form.min_lease_months} onChange={(e) => set("min_lease_months", e.target.value)}
                 className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
                 {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-                  <option key={m} value={m}>{m} {m === 1 ? "miesiąc" : m < 5 ? "miesiące" : "miesięcy"}</option>
+                  <option key={m} value={m}>{m} {m === 1 ? t("request.month1") : m < 5 ? t("request.month2") : t("request.month5")}</option>
                 ))}
               </select>
             </div>
@@ -442,23 +436,23 @@ function NewRentalRequestPage() {
 
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <Label>Liczba dorosłych</Label>
+              <Label>{t("request.adults")}</Label>
               <Input type="number" min={1} required value={form.adults_count}
                 onChange={(e) => set("adults_count", e.target.value)} className="mt-1.5 rounded-xl" />
             </div>
             <div>
-              <Label>Liczba dzieci</Label>
+              <Label>{t("request.children")}</Label>
               <Input type="number" min={0} value={form.children_count}
                 onChange={(e) => set("children_count", e.target.value)} className="mt-1.5 rounded-xl" />
-              <p className="mt-1 text-[10px] text-muted-foreground">poniżej 18 r.ż.</p>
+              <p className="mt-1 text-[10px] text-muted-foreground">{t("request.childrenAge")}</p>
             </div>
             <div>
-              <Label>Zapytanie aktywne przez</Label>
+              <Label>{t("request.activeFor")}</Label>
               <select required value={form.active_days} onChange={(e) => set("active_days", e.target.value)}
                 className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                <option value="7">7 dni</option>
-                <option value="14">14 dni</option>
-                <option value="30">30 dni</option>
+                <option value="7">{t("request.days7")}</option>
+                <option value="14">{t("request.days14")}</option>
+                <option value="30">{t("request.days30")}</option>
               </select>
             </div>
           </div>
@@ -467,42 +461,42 @@ function NewRentalRequestPage() {
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.accepts_notarial_lease} onCheckedChange={() => toggle("accepts_notarial_lease")} className="mt-0.5" />
               <span>
-                Zgadzam się na <strong>najem okazjonalny</strong> (notarialny).
+                {t("request.acceptNotarial")}
                 <span className="block text-[11px] text-muted-foreground">
-                  StaySafe może pomóc w formalnościach w ramach usługi Concierge.
+                  {t("request.acceptNotarialSub")}
                 </span>
               </span>
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.accepts_deposit} onCheckedChange={() => toggle("accepts_deposit")} className="mt-0.5" />
-              <span>Akceptuję kaucję co najmniej 1-miesięczną.</span>
+              <span>{t("request.acceptDeposit")}</span>
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.accepts_insurance} onCheckedChange={() => toggle("accepts_insurance")} className="mt-0.5" />
-              <span>Zgadzam się wykupić ubezpieczenie OC najemcy na własny koszt.</span>
+              <span>{t("request.acceptInsurance")}</span>
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.is_student} onCheckedChange={() => toggle("is_student")} className="mt-0.5" />
-              <span>Jestem <strong>studentem</strong></span>
+              <span>{t("request.isStudent")}</span>
             </label>
           </div>
         </div>
 
         {/* INNE PREFERENCJE */}
-        <SectionTitle>Inne preferencje</SectionTitle>
+        <SectionTitle>{t("request.otherPrefs")}</SectionTitle>
         <div className="rounded-2xl border bg-background/40 p-4 space-y-2">
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.pets_caged} onCheckedChange={() => toggle("pets_caged")} className="mt-0.5" />
-            <span>Zwierzęta klatkowe (np. chomik, królik)</span>
+            <span>{t("request.petsCaged")}</span>
           </label>
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.pets_other} onCheckedChange={() => toggle("pets_other")} className="mt-0.5" />
-            <span>Większe zwierzęta — pies / kot / inne</span>
+            <span>{t("request.petsOther")}</span>
           </label>
         </div>
 
         <Button type="submit" disabled={submitting} size="lg" className="w-full rounded-xl">
-          {submitting ? "Publikuję..." : "Opublikuj zapytanie"}
+          {submitting ? t("request.submitting") : t("request.submit")}
         </Button>
       </form>
     </div>
