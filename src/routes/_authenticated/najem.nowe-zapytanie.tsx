@@ -173,28 +173,17 @@ function NewRentalRequestPage() {
           {[
             {
               n: 1, icon: Search, title: t("request.step1t"),
-              body: (
-                <>
-                  Wybierz miasto, a następnie wskaż dzielnice, konkretne ulice lub <span className="text-gold">zaznacz na interaktywnej mapie</span> punkt centralny i obszar wokół niego. Im więcej precyzyjnych danych, tym lepsze dopasowanie.
-                </>
-              ),
+              body: <>{t("request.step1")}</>,
             },
             {
               n: 2, icon: ShieldCheck, title: t("request.step2t"),
-              body: (
-                <>
-                  System wyświetli nieruchomości zgodne z Twoim budżetem i lokalizacją. Kliknij <em>„Wstępnie zainteresowany”</em> — <span className="text-gold">Paszport Najemcy StaySafe</span> drastycznie zwiększa szanse na szybką akceptację.
-                </>
-              ),
+              body: <>{t("request.step2")}</>,
             },
             {
               n: 3, icon: FileSignature, title: t("request.step3t"),
-              body: (
-                <>
-                  Po akceptacji dograj szczegóły na czacie i wygeneruj bezpieczną umowę w portalu. Pomożemy w <span className="text-gold">umówieniu notariusza</span>, zamówieniu sprzątania i wezwaniu złotej rączki.
-                </>
-              ),
+              body: <>{t("request.step3")}</>,
             },
+
           ].map((s) => {
             const Icon = s.icon;
             return (
