@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { z } from "zod";
 import { toast } from "sonner";
 import {
@@ -15,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { LocationPicker } from "@/components/LocationPicker";
 
 import { MapAreaPicker, type MapArea } from "@/components/MapAreaPicker";
+
 
 export const Route = createFileRoute("/_authenticated/najem/nowe-zapytanie")({
   head: () => ({ meta: [{ title: "Nowe zapytanie najemcy — Stay Safe" }] }),
