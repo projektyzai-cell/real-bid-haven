@@ -90,6 +90,7 @@ function SealBadge() {
 }
 
 function PassportCard() {
+  const { t } = useTranslation();
   return (
     <div className="relative w-full max-w-md rotate-[-3deg] transition hover:rotate-0">
       <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-[var(--gold)]/40 via-transparent to-[var(--gold)]/30 blur-2xl" />
@@ -104,15 +105,15 @@ function PassportCard() {
             <div className="truncate text-xl font-bold">Jan Kowalski</div>
             <div className="mt-1 flex items-center gap-1 text-xs">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="text-muted-foreground">Weryfikacja:</span>
-              <span className="font-semibold text-emerald-400">Dobre</span>
+              <span className="text-muted-foreground">{t("home.verification")}</span>
+              <span className="font-semibold text-emerald-400">{t("home.verificationGood")}</span>
             </div>
             <div className="mt-3">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Verified Badges</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("home.verifiedBadges")}</div>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 <MiniBadge icon={<Linkedin className="h-3 w-3" />} label="LinkedIn" tone="blue" />
-                <MiniBadge label="Income" tone="emerald" />
-                <MiniBadge label="Past Contract" tone="amber" />
+                <MiniBadge label={t("home.vIncome")} tone="emerald" />
+                <MiniBadge label={t("home.vPast")} tone="amber" />
               </div>
             </div>
           </div>
@@ -163,6 +164,7 @@ function MiniBadge({ icon, label, tone }: { icon?: React.ReactNode; label: strin
 
 /* ---------- Role cards ---------- */
 function RoleCards() {
+  const { t } = useTranslation();
   return (
     <section className="container mx-auto grid gap-5 px-4 pb-8 md:grid-cols-2 md:gap-6">
       <TenantCard />
@@ -175,13 +177,13 @@ function RoleCards() {
             </div>
             <span className="rounded-full border border-[var(--gold)]/40 px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold">PL/EN</span>
           </div>
-          <div className="mt-4 text-lg font-semibold text-foreground/90">Jestem wynajmującym</div>
-          <h3 className="mt-2 text-base font-black uppercase tracking-wide">Wystaw ofertę i rekrutuj lokatorów</h3>
+          <div className="mt-4 text-lg font-semibold text-foreground/90">{t("home.landlordEyebrow")}</div>
+          <h3 className="mt-2 text-base font-black uppercase tracking-wide">{t("home.landlordTitle")}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Uzyskaj dostęp do zweryfikowanych profili i historii najmu w 100% bezpiecznie.
+            {t("home.landlordSub")}
           </p>
           <div className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
-            Wystaw ofertę i zarządzaj <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            {t("home.landlordCta")} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </div>
         </div>
       </Link>
@@ -190,6 +192,7 @@ function RoleCards() {
 }
 
 function TenantCard() {
+  const { t } = useTranslation();
   return (
     <div className="group relative block">
       <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-br from-[var(--gold)]/40 via-transparent to-[var(--gold)]/20 opacity-60 blur transition group-hover:opacity-100" />
@@ -200,23 +203,23 @@ function TenantCard() {
           </div>
           <span className="rounded-full border border-[var(--gold)]/40 px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold">PL/EN</span>
         </div>
-        <div className="mt-4 text-lg font-semibold text-foreground/90">Jestem najemcą</div>
-        <h3 className="mt-2 text-base font-black uppercase tracking-wide">Paszport Najemcy lub gotowe dopasowanie</h3>
+        <div className="mt-4 text-lg font-semibold text-foreground/90">{t("home.tenantEyebrow")}</div>
+        <h3 className="mt-2 text-base font-black uppercase tracking-wide">{t("home.tenantTitle")}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Zbuduj transparentną deklarację weryfikacji tożsamości, dochodów i household profilu — albo zleć wyszukanie ofert idealnie dopasowanych do Twoich kryteriów.
+          {t("home.tenantSub")}
         </p>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Link
             to="/najem/paszport"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]"
           >
-            <ShieldCheck className="h-4 w-4" /> Stwórz swój paszport
+            <ShieldCheck className="h-4 w-4" /> {t("home.tenantCtaPassport")}
           </Link>
           <Link
             to="/najem/nowe-zapytanie"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-background/40 px-4 py-2 text-sm font-bold uppercase tracking-wide text-foreground transition hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/10 hover:text-gold"
           >
-            <Search className="h-4 w-4" /> Zleć wyszukanie pasujących ofert
+            <Search className="h-4 w-4" /> {t("home.tenantCtaRequest")}
           </Link>
         </div>
       </div>
@@ -237,13 +240,14 @@ type PassportLookup = {
 };
 
 function QuickVerify() {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ serial: string; data: PassportLookup | null } | null>(null);
 
   async function check() {
     const trimmed = q.trim().toUpperCase();
-    if (!trimmed) return toast.error("Wpisz numer paszportu (np. SS-XXXXXXXX)");
+    if (!trimmed) return toast.error(t("home.quickVerifyEnter"));
     setBusy(true);
     const { data, error } = await supabase.rpc("lookup_passport", { _serial: trimmed });
     setBusy(false);
@@ -260,7 +264,7 @@ function QuickVerify() {
       <div className="glass flex flex-col gap-3 rounded-2xl border border-[var(--gold)]/30 p-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex items-center gap-2 px-2 text-sm font-semibold sm:shrink-0">
           <ShieldCheck className="h-5 w-5 text-gold" />
-          Sprawdź Paszport StaySafe
+          {t("home.quickVerifyTitle")}
         </div>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -268,7 +272,7 @@ function QuickVerify() {
             value={q}
             onChange={(e) => setQ(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === "Enter" && check()}
-            placeholder="Numer paszportu (np. SS-XXXXXXXX)"
+            placeholder={t("home.quickVerifyPh")}
             className="rounded-xl border-border bg-background/40 pl-9 font-mono uppercase"
           />
         </div>
@@ -277,14 +281,14 @@ function QuickVerify() {
           disabled={busy}
           className="rounded-xl bg-navy text-navy-foreground hover:opacity-90 sm:shrink-0"
         >
-          {busy ? "Sprawdzam…" : "Sprawdź Paszport"}
+          {busy ? t("home.quickVerifyChecking") : t("home.quickVerifyCheck")}
         </Button>
       </div>
       {result && (
         <div className="mt-3 rounded-2xl border border-[var(--gold)]/30 bg-card/40 p-4 text-sm">
           {!result.data ? (
             <div className="text-muted-foreground">
-              Nie znaleziono aktywnego paszportu dla <span className="font-mono font-semibold text-foreground">{result.serial}</span>.
+              {t("home.quickVerifyNone")} <span className="font-mono font-semibold text-foreground">{result.serial}</span>.
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
@@ -294,23 +298,23 @@ function QuickVerify() {
                   <span className="font-mono text-xs text-muted-foreground">{result.serial}</span>
                   {result.data.is_expired ? (
                     <span className="rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
-                      Wygasł
+                      {t("home.badgeExpired")}
                     </span>
                   ) : (
                     <span className="rounded-full border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
-                      Aktywny
+                      {t("home.badgeActive")}
                     </span>
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                  <VBadge ok={result.data.verified_identity} label="Tożsamość" />
-                  <VBadge ok={result.data.verified_linkedin} label="LinkedIn" />
-                  <VBadge ok={result.data.verified_income} label="Dochód" />
-                  <VBadge ok={result.data.verified_past_contract} label="Poprzednia umowa" />
+                  <VBadge ok={result.data.verified_identity} label={t("home.vIdentity")} />
+                  <VBadge ok={result.data.verified_linkedin} label={t("home.vLinkedin")} />
+                  <VBadge ok={result.data.verified_income} label={t("home.vIncome")} />
+                  <VBadge ok={result.data.verified_past_contract} label={t("home.vPast")} />
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Score</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("home.score")}</div>
                 <div className="text-2xl font-black text-gold">{result.data.trusted_tenant_score}<span className="text-sm text-muted-foreground">/100</span></div>
               </div>
             </div>
@@ -331,17 +335,18 @@ function VBadge({ ok, label }: { ok: boolean; label: string }) {
 
 /* ---------- How it works ---------- */
 function HowItWorks() {
+  const { t } = useTranslation();
   const items = [
-    { icon: <BadgeCheck className="h-4 w-4" />, label: "Paszport & Zapytanie" },
-    { icon: <Building className="h-4 w-4" />, label: "Wystawienie oferty" },
-    { icon: <Users className="h-4 w-4" />, label: "Smart Match" },
-    { icon: <FileText className="h-4 w-4" />, label: "Generator umów" },
-    { icon: <Handshake className="h-4 w-4" />, label: "Serwis Concierge" },
+    { icon: <BadgeCheck className="h-4 w-4" />, label: t("home.howPassport") },
+    { icon: <Building className="h-4 w-4" />, label: t("home.howListing") },
+    { icon: <Users className="h-4 w-4" />, label: t("home.howMatch") },
+    { icon: <FileText className="h-4 w-4" />, label: t("home.howContract") },
+    { icon: <Handshake className="h-4 w-4" />, label: t("home.howConcierge") },
   ];
   return (
     <section className="container mx-auto px-4 py-6">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-3 text-xs sm:text-sm">
-        <span className="mr-2 text-muted-foreground">Jak to działa:</span>
+        <span className="mr-2 text-muted-foreground">{t("home.howLabel")}</span>
         {items.map((it, i) => (
           <span key={it.label} className="flex items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1.5 font-semibold uppercase tracking-wide">
@@ -357,6 +362,7 @@ function HowItWorks() {
 
 /* ---------- Promoted listings (kept from previous) ---------- */
 function PromotedStrip() {
+  const { t } = useTranslation();
   const { data: promoted = [] } = useQuery({
     queryKey: ["promoted-rentals"],
     queryFn: async () => {
@@ -373,7 +379,7 @@ function PromotedStrip() {
     return (
       <section className="container mx-auto px-4 py-10 text-center">
         <Link to="/najem/oferty" className="text-sm text-gold underline-offset-4 hover:underline">
-          Lub przeglądaj wszystkie aktywne oferty najmu →
+          {t("home.browseAll")}
         </Link>
       </section>
     );
@@ -383,7 +389,7 @@ function PromotedStrip() {
     <section className="container mx-auto px-4 py-12">
       <div className="mb-5 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-gold" />
-        <h2 className="text-xl font-bold tracking-tight">Promowane oferty najmu</h2>
+        <h2 className="text-xl font-bold tracking-tight">{t("offers.promoted")}</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {promoted.map((r) => {
@@ -393,12 +399,12 @@ function PromotedStrip() {
               className="group overflow-hidden rounded-3xl border border-[var(--gold)]/30 bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-glow">
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-2 p-4">
-                <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> Promowane</Badge>
+                <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
-                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} / mc</span>
+                  <span className="text-muted-foreground">{r.rooms} {t("home.rooms")} · {r.area_m2} m²</span>
+                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} {t("home.perMonth")}</span>
                 </div>
               </div>
             </Link>
@@ -411,6 +417,7 @@ function PromotedStrip() {
 
 /* ---------- Latest listings: promoted on top + 9 newest non-promoted below ---------- */
 function LatestListings() {
+  const { t } = useTranslation();
   const { data: latest = [] } = useQuery({
     queryKey: ["latest-rentals-non-promoted-9"],
     queryFn: async () => {
@@ -426,13 +433,12 @@ function LatestListings() {
   const combined = latest;
   if (combined.length === 0) return null;
 
-
   return (
     <section className="container mx-auto px-4 py-12">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-bold tracking-tight">Najnowsze oferty najmu</h2>
+        <h2 className="text-xl font-bold tracking-tight">{t("home.latestTitle")}</h2>
         <Link to="/najem/oferty" className="text-sm text-gold underline-offset-4 hover:underline">
-          Zobacz wszystkie →
+          {t("home.seeAll")}
         </Link>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -444,15 +450,15 @@ function LatestListings() {
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-2 p-4">
                 {r.promoted ? (
-                  <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> Promowane</Badge>
+                  <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
                 ) : (
-                  <Badge variant="outline" className="rounded-full">Nowość</Badge>
+                  <Badge variant="outline" className="rounded-full">{t("home.badgeNew")}</Badge>
                 )}
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
-                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} / mc</span>
+                  <span className="text-muted-foreground">{r.rooms} {t("home.rooms")} · {r.area_m2} m²</span>
+                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} {t("home.perMonth")}</span>
                 </div>
               </div>
             </Link>
