@@ -96,19 +96,19 @@ export function Navbar() {
                         onClick={() => navigate({ to: "/najem/paszport" })}
                         className="rounded-xl bg-gold/10 py-3 font-semibold text-gold focus:bg-gold/20"
                       >
-                        <ShieldCheck className="h-4 w-4" /> Wyrób Paszport Najemcy
+                        <ShieldCheck className="h-4 w-4" /> {t("nav.createPassport")}
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => navigate({ to: "/najem/moj-paszport" })}
                         className="rounded-xl bg-gold/10 py-3 font-semibold text-gold focus:bg-gold/20"
                       >
-                        <BadgeCheck className="h-4 w-4" /> Mój Paszport
+                        <BadgeCheck className="h-4 w-4" /> {t("nav.myPassport")}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
-                        <List className="h-4 w-4" /> Moje zapytania i dopasowania
+                        <List className="h-4 w-4" /> {t("nav.myInquiries")}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/concierge" })}>
-                        <Sparkles className="h-4 w-4" /> Usługi Concierge
+                        <Sparkles className="h-4 w-4" /> {t("nav.concierge")}
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
@@ -126,13 +126,13 @@ export function Navbar() {
                       className="w-[min(20rem,calc(100vw-2rem))] rounded-2xl border border-gold/20 bg-popover/95 p-1 shadow-glow backdrop-blur"
                     >
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/nowa-oferta" })}>
-                        <Plus className="h-4 w-4" /> Dodaj nową nieruchomość
+                        <Plus className="h-4 w-4" /> {t("nav.addProperty")}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-oferty" })}>
-                        <Home className="h-4 w-4" /> Moje oferty i zainteresowani
+                        <Home className="h-4 w-4" /> {t("nav.myListings")}
                       </DropdownMenuItem>
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/umowy" })}>
-                        <FileSignature className="h-4 w-4" /> Zarządzanie umowami i płatnościami
+                        <FileSignature className="h-4 w-4" /> {t("nav.manageLeases")}
                       </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
