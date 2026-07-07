@@ -90,6 +90,7 @@ function SealBadge() {
 }
 
 function PassportCard() {
+  const { t } = useTranslation();
   return (
     <div className="relative w-full max-w-md rotate-[-3deg] transition hover:rotate-0">
       <div className="absolute -inset-2 rounded-3xl bg-gradient-to-br from-[var(--gold)]/40 via-transparent to-[var(--gold)]/30 blur-2xl" />
@@ -104,15 +105,15 @@ function PassportCard() {
             <div className="truncate text-xl font-bold">Jan Kowalski</div>
             <div className="mt-1 flex items-center gap-1 text-xs">
               <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />
-              <span className="text-muted-foreground">Weryfikacja:</span>
-              <span className="font-semibold text-emerald-400">Dobre</span>
+              <span className="text-muted-foreground">{t("home.verification")}</span>
+              <span className="font-semibold text-emerald-400">{t("home.verificationGood")}</span>
             </div>
             <div className="mt-3">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Verified Badges</div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">{t("home.verifiedBadges")}</div>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 <MiniBadge icon={<Linkedin className="h-3 w-3" />} label="LinkedIn" tone="blue" />
-                <MiniBadge label="Income" tone="emerald" />
-                <MiniBadge label="Past Contract" tone="amber" />
+                <MiniBadge label={t("home.vIncome")} tone="emerald" />
+                <MiniBadge label={t("home.vPast")} tone="amber" />
               </div>
             </div>
           </div>
