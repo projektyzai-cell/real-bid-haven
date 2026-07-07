@@ -335,17 +335,18 @@ function VBadge({ ok, label }: { ok: boolean; label: string }) {
 
 /* ---------- How it works ---------- */
 function HowItWorks() {
+  const { t } = useTranslation();
   const items = [
-    { icon: <BadgeCheck className="h-4 w-4" />, label: "Paszport & Zapytanie" },
-    { icon: <Building className="h-4 w-4" />, label: "Wystawienie oferty" },
-    { icon: <Users className="h-4 w-4" />, label: "Smart Match" },
-    { icon: <FileText className="h-4 w-4" />, label: "Generator umów" },
-    { icon: <Handshake className="h-4 w-4" />, label: "Serwis Concierge" },
+    { icon: <BadgeCheck className="h-4 w-4" />, label: t("home.howPassport") },
+    { icon: <Building className="h-4 w-4" />, label: t("home.howListing") },
+    { icon: <Users className="h-4 w-4" />, label: t("home.howMatch") },
+    { icon: <FileText className="h-4 w-4" />, label: t("home.howContract") },
+    { icon: <Handshake className="h-4 w-4" />, label: t("home.howConcierge") },
   ];
   return (
     <section className="container mx-auto px-4 py-6">
       <div className="flex flex-wrap items-center gap-x-2 gap-y-3 text-xs sm:text-sm">
-        <span className="mr-2 text-muted-foreground">Jak to działa:</span>
+        <span className="mr-2 text-muted-foreground">{t("home.howLabel")}</span>
         {items.map((it, i) => (
           <span key={it.label} className="flex items-center gap-2">
             <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1.5 font-semibold uppercase tracking-wide">
