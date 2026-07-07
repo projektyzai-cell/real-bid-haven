@@ -362,6 +362,7 @@ function HowItWorks() {
 
 /* ---------- Promoted listings (kept from previous) ---------- */
 function PromotedStrip() {
+  const { t } = useTranslation();
   const { data: promoted = [] } = useQuery({
     queryKey: ["promoted-rentals"],
     queryFn: async () => {
@@ -378,7 +379,7 @@ function PromotedStrip() {
     return (
       <section className="container mx-auto px-4 py-10 text-center">
         <Link to="/najem/oferty" className="text-sm text-gold underline-offset-4 hover:underline">
-          Lub przeglądaj wszystkie aktywne oferty najmu →
+          {t("home.browseAll")}
         </Link>
       </section>
     );
@@ -388,7 +389,7 @@ function PromotedStrip() {
     <section className="container mx-auto px-4 py-12">
       <div className="mb-5 flex items-center gap-2">
         <Sparkles className="h-5 w-5 text-gold" />
-        <h2 className="text-xl font-bold tracking-tight">Promowane oferty najmu</h2>
+        <h2 className="text-xl font-bold tracking-tight">{t("offers.promoted")}</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {promoted.map((r) => {
@@ -398,12 +399,12 @@ function PromotedStrip() {
               className="group overflow-hidden rounded-3xl border border-[var(--gold)]/30 bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-glow">
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-2 p-4">
-                <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> Promowane</Badge>
+                <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
-                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} / mc</span>
+                  <span className="text-muted-foreground">{r.rooms} {t("home.rooms")} · {r.area_m2} m²</span>
+                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} {t("home.perMonth")}</span>
                 </div>
               </div>
             </Link>
