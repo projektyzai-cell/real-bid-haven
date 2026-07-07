@@ -240,13 +240,14 @@ type PassportLookup = {
 };
 
 function QuickVerify() {
+  const { t } = useTranslation();
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<{ serial: string; data: PassportLookup | null } | null>(null);
 
   async function check() {
     const trimmed = q.trim().toUpperCase();
-    if (!trimmed) return toast.error("Wpisz numer paszportu (np. SS-XXXXXXXX)");
+    if (!trimmed) return toast.error(t("home.quickVerifyEnter"));
     setBusy(true);
     const { data, error } = await supabase.rpc("lookup_passport", { _serial: trimmed });
     setBusy(false);
@@ -263,7 +264,7 @@ function QuickVerify() {
       <div className="glass flex flex-col gap-3 rounded-2xl border border-[var(--gold)]/30 p-3 sm:flex-row sm:items-center sm:gap-4">
         <div className="flex items-center gap-2 px-2 text-sm font-semibold sm:shrink-0">
           <ShieldCheck className="h-5 w-5 text-gold" />
-          Sprawdź Paszport StaySafe
+          {t("home.quickVerifyTitle")}
         </div>
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -271,7 +272,7 @@ function QuickVerify() {
             value={q}
             onChange={(e) => setQ(e.target.value.toUpperCase())}
             onKeyDown={(e) => e.key === "Enter" && check()}
-            placeholder="Numer paszportu (np. SS-XXXXXXXX)"
+            placeholder={t("home.quickVerifyPh")}
             className="rounded-xl border-border bg-background/40 pl-9 font-mono uppercase"
           />
         </div>
@@ -280,14 +281,14 @@ function QuickVerify() {
           disabled={busy}
           className="rounded-xl bg-navy text-navy-foreground hover:opacity-90 sm:shrink-0"
         >
-          {busy ? "Sprawdzam…" : "Sprawdź Paszport"}
+          {busy ? t("home.quickVerifyChecking") : t("home.quickVerifyCheck")}
         </Button>
       </div>
       {result && (
         <div className="mt-3 rounded-2xl border border-[var(--gold)]/30 bg-card/40 p-4 text-sm">
           {!result.data ? (
             <div className="text-muted-foreground">
-              Nie znaleziono aktywnego paszportu dla <span className="font-mono font-semibold text-foreground">{result.serial}</span>.
+              {t("home.quickVerifyNone")} <span className="font-mono font-semibold text-foreground">{result.serial}</span>.
             </div>
           ) : (
             <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
@@ -297,23 +298,23 @@ function QuickVerify() {
                   <span className="font-mono text-xs text-muted-foreground">{result.serial}</span>
                   {result.data.is_expired ? (
                     <span className="rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
-                      Wygasł
+                      {t("home.badgeExpired")}
                     </span>
                   ) : (
                     <span className="rounded-full border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
-                      Aktywny
+                      {t("home.badgeActive")}
                     </span>
                   )}
                 </div>
                 <div className="mt-2 flex flex-wrap gap-1.5 text-[11px]">
-                  <VBadge ok={result.data.verified_identity} label="Tożsamość" />
-                  <VBadge ok={result.data.verified_linkedin} label="LinkedIn" />
-                  <VBadge ok={result.data.verified_income} label="Dochód" />
-                  <VBadge ok={result.data.verified_past_contract} label="Poprzednia umowa" />
+                  <VBadge ok={result.data.verified_identity} label={t("home.vIdentity")} />
+                  <VBadge ok={result.data.verified_linkedin} label={t("home.vLinkedin")} />
+                  <VBadge ok={result.data.verified_income} label={t("home.vIncome")} />
+                  <VBadge ok={result.data.verified_past_contract} label={t("home.vPast")} />
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">Score</div>
+                <div className="text-[10px] uppercase tracking-wider text-muted-foreground">{t("home.score")}</div>
                 <div className="text-2xl font-black text-gold">{result.data.trusted_tenant_score}<span className="text-sm text-muted-foreground">/100</span></div>
               </div>
             </div>
