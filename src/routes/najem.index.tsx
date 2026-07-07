@@ -417,6 +417,7 @@ function PromotedStrip() {
 
 /* ---------- Latest listings: promoted on top + 9 newest non-promoted below ---------- */
 function LatestListings() {
+  const { t } = useTranslation();
   const { data: latest = [] } = useQuery({
     queryKey: ["latest-rentals-non-promoted-9"],
     queryFn: async () => {
@@ -432,13 +433,12 @@ function LatestListings() {
   const combined = latest;
   if (combined.length === 0) return null;
 
-
   return (
     <section className="container mx-auto px-4 py-12">
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-xl font-bold tracking-tight">Najnowsze oferty najmu</h2>
+        <h2 className="text-xl font-bold tracking-tight">{t("home.latestTitle")}</h2>
         <Link to="/najem/oferty" className="text-sm text-gold underline-offset-4 hover:underline">
-          Zobacz wszystkie →
+          {t("home.seeAll")}
         </Link>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
@@ -450,15 +450,15 @@ function LatestListings() {
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-2 p-4">
                 {r.promoted ? (
-                  <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> Promowane</Badge>
+                  <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
                 ) : (
-                  <Badge variant="outline" className="rounded-full">Nowość</Badge>
+                  <Badge variant="outline" className="rounded-full">{t("home.badgeNew")}</Badge>
                 )}
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{r.rooms} pok. · {r.area_m2} m²</span>
-                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} / mc</span>
+                  <span className="text-muted-foreground">{r.rooms} {t("home.rooms")} · {r.area_m2} m²</span>
+                  <span className="font-bold text-gold">{formatPLN(r.monthly_price)} {t("home.perMonth")}</span>
                 </div>
               </div>
             </Link>
