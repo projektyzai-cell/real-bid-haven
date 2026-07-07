@@ -164,6 +164,7 @@ function MiniBadge({ icon, label, tone }: { icon?: React.ReactNode; label: strin
 
 /* ---------- Role cards ---------- */
 function RoleCards() {
+  const { t } = useTranslation();
   return (
     <section className="container mx-auto grid gap-5 px-4 pb-8 md:grid-cols-2 md:gap-6">
       <TenantCard />
@@ -176,13 +177,13 @@ function RoleCards() {
             </div>
             <span className="rounded-full border border-[var(--gold)]/40 px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold">PL/EN</span>
           </div>
-          <div className="mt-4 text-lg font-semibold text-foreground/90">Jestem wynajmującym</div>
-          <h3 className="mt-2 text-base font-black uppercase tracking-wide">Wystaw ofertę i rekrutuj lokatorów</h3>
+          <div className="mt-4 text-lg font-semibold text-foreground/90">{t("home.landlordEyebrow")}</div>
+          <h3 className="mt-2 text-base font-black uppercase tracking-wide">{t("home.landlordTitle")}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Uzyskaj dostęp do zweryfikowanych profili i historii najmu w 100% bezpiecznie.
+            {t("home.landlordSub")}
           </p>
           <div className="mt-5 inline-flex items-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition group-hover:bg-[var(--gold)] group-hover:text-[var(--gold-foreground)]">
-            Wystaw ofertę i zarządzaj <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+            {t("home.landlordCta")} <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
           </div>
         </div>
       </Link>
@@ -191,6 +192,7 @@ function RoleCards() {
 }
 
 function TenantCard() {
+  const { t } = useTranslation();
   return (
     <div className="group relative block">
       <div className="absolute -inset-0.5 rounded-3xl bg-gradient-to-br from-[var(--gold)]/40 via-transparent to-[var(--gold)]/20 opacity-60 blur transition group-hover:opacity-100" />
@@ -201,23 +203,23 @@ function TenantCard() {
           </div>
           <span className="rounded-full border border-[var(--gold)]/40 px-2 py-0.5 text-[10px] font-bold tracking-wider text-gold">PL/EN</span>
         </div>
-        <div className="mt-4 text-lg font-semibold text-foreground/90">Jestem najemcą</div>
-        <h3 className="mt-2 text-base font-black uppercase tracking-wide">Paszport Najemcy lub gotowe dopasowanie</h3>
+        <div className="mt-4 text-lg font-semibold text-foreground/90">{t("home.tenantEyebrow")}</div>
+        <h3 className="mt-2 text-base font-black uppercase tracking-wide">{t("home.tenantTitle")}</h3>
         <p className="mt-2 text-sm text-muted-foreground">
-          Zbuduj transparentną deklarację weryfikacji tożsamości, dochodów i household profilu — albo zleć wyszukanie ofert idealnie dopasowanych do Twoich kryteriów.
+          {t("home.tenantSub")}
         </p>
         <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
           <Link
             to="/najem/paszport"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-4 py-2 text-sm font-bold uppercase tracking-wide text-gold transition hover:bg-[var(--gold)] hover:text-[var(--gold-foreground)]"
           >
-            <ShieldCheck className="h-4 w-4" /> Stwórz swój paszport
+            <ShieldCheck className="h-4 w-4" /> {t("home.tenantCtaPassport")}
           </Link>
           <Link
             to="/najem/nowe-zapytanie"
             className="inline-flex items-center justify-center gap-2 rounded-2xl border border-border bg-background/40 px-4 py-2 text-sm font-bold uppercase tracking-wide text-foreground transition hover:border-[var(--gold)]/50 hover:bg-[var(--gold)]/10 hover:text-gold"
           >
-            <Search className="h-4 w-4" /> Zleć wyszukanie pasujących ofert
+            <Search className="h-4 w-4" /> {t("home.tenantCtaRequest")}
           </Link>
         </div>
       </div>
