@@ -57,14 +57,14 @@ const CONTENT: Record<Lang, {
         <p>2. Numery dokumentów są natychmiast zamieniane na hash SHA-256 — nie przechowujemy wersji jawnej.</p>
         <p>3. Paszport ważny przez 90 dni.</p>
       </>) },
-      { title: "§ 6. Lejek transakcyjny i dyscyplina finansowa („Zasada Bata")", body: (<>
-        <p>1. „Wstępnie zainteresowany" udostępnia Paszport Wynajmującemu.</p>
+      { title: "§ 6. Lejek transakcyjny i dyscyplina finansowa („Zasada Bata”)", body: (<>
+        <p>1. „Wstępnie zainteresowany” udostępnia Paszport Wynajmującemu.</p>
         <p>2. Po akceptacji generujemy certyfikowaną umowę.</p>
         <p>3. Zgłoszenie braku płatności uruchamia 72-godzinny zegar. Brak reakcji = −15 pkt Trusted Tenant Score.</p>
         <p>4. Blokada anty-Sybil zapobiega zakładaniu nowych kont przez ukaranych użytkowników.</p>
       </>) },
       { title: "§ 7. StaySafe Concierge", body: (<>
-        <p>1. Usługi dodatkowe: notariusz, sprzątanie, „złota rączka".</p>
+        <p>1. Usługi dodatkowe: notariusz, sprzątanie, „złota rączka”.</p>
         <p>2. Rozliczenie jednorazowe lub abonamentowe.</p>
       </>) },
       { title: "§ 8. Reklamacje i postanowienia końcowe", body: (<>
