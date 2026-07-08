@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { Eye, EyeOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,6 +28,7 @@ export const Route = createFileRoute("/auth")({
 function PasswordInput({ id, value, onChange, autoComplete }: {
   id: string; value: string; onChange: (v: string) => void; autoComplete?: string;
 }) {
+  const { t } = useTranslation();
   const [show, setShow] = useState(false);
   return (
     <div className="relative mt-1.5">
@@ -34,7 +36,7 @@ function PasswordInput({ id, value, onChange, autoComplete }: {
         autoComplete={autoComplete}
         onChange={(e) => onChange(e.target.value)} className="rounded-xl pr-10" />
       <button type="button" onClick={() => setShow((v) => !v)}
-        aria-label={show ? "Ukryj hasło" : "Pokaż hasło"}
+        aria-label={show ? t("auth.hidePassword") : t("auth.showPassword")}
         className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5 text-muted-foreground hover:bg-muted">
         {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
       </button>
@@ -42,17 +44,22 @@ function PasswordInput({ id, value, onChange, autoComplete }: {
   );
 }
 
-function mapAuthError(message: string): string {
-  const m = message.toLowerCase();
-  if (m.includes("invalid login") || m.includes("invalid credentials")) return "Nieprawidłowy e-mail lub hasło.";
-  if (m.includes("email not confirmed")) return "Konto nie zostało jeszcze aktywowane. Sprawdź pocztę.";
-  if (m.includes("user already registered")) return "Konto z tym adresem e-mail już istnieje.";
-  if (m.includes("rate limit")) return "Zbyt wiele prób. Spróbuj ponownie za chwilę.";
-  if (m.includes("password should be")) return "Hasło nie spełnia wymagań.";
-  return message;
+function useAuthErrorMapper() {
+  const { t } = useTranslation();
+  return (message: string): string => {
+    const m = message.toLowerCase();
+    if (m.includes("invalid login") || m.includes("invalid credentials")) return t("auth.errInvalid");
+    if (m.includes("email not confirmed")) return t("auth.errNotConfirmed");
+    if (m.includes("user already registered")) return t("auth.errExists");
+    if (m.includes("rate limit")) return t("auth.errRate");
+    if (m.includes("password should be")) return t("auth.errPwdWeak");
+    return message;
+  };
 }
 
 function AuthPage() {
+  const { t } = useTranslation();
+  const mapAuthError = useAuthErrorMapper();
   const navigate = useNavigate();
   const search = Route.useSearch();
   const redirectTo = search.redirect && search.redirect.startsWith("/") ? search.redirect : "/";
@@ -72,8 +79,7 @@ function AuthPage() {
     const { data: signInData, error } = await supabase.auth.signInWithPassword({ email, password });
     setLoading(false);
     if (error) { toast.error(mapAuthError(error.message)); return; }
-    toast.success("Zalogowano pomyślnie");
-    // Admin → bezpośrednio do panelu administratora
+    toast.success(t("auth.okSignedIn"));
     const uid = signInData.user?.id;
     if (uid) {
       const { data: roleRow } = await supabase
@@ -89,17 +95,11 @@ function AuthPage() {
 
   async function signUp(e: React.FormEvent) {
     e.preventDefault();
-    if (!acceptTerms) { toast.error("Akceptacja Regulaminu jest wymagana."); return; }
-    if (!nick.trim()) { toast.error("Podaj nick."); return; }
+    if (!acceptTerms) { toast.error(t("auth.errTermsRequired")); return; }
+    if (!nick.trim()) { toast.error(t("auth.errNickRequired")); return; }
     const pwdRe = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
-    if (!pwdRe.test(password)) {
-      toast.error("Hasło musi mieć min. 8 znaków, zawierać wielką literę, cyfrę i znak specjalny.");
-      return;
-    }
-    if (password !== password2) {
-      toast.error("Hasła nie są identyczne. Wpisz to samo hasło w obu polach.");
-      return;
-    }
+    if (!pwdRe.test(password)) { toast.error(t("auth.errPwdPattern")); return; }
+    if (password !== password2) { toast.error(t("auth.errPwdMismatch")); return; }
     setLoading(true);
     const { data, error } = await supabase.auth.signUp({
       email, password,
@@ -117,39 +117,39 @@ function AuthPage() {
       ] as never);
     }
     setLoading(false);
-    toast.success("Konto utworzone! Kliknij link weryfikacyjny w wiadomości e-mail, aby aktywować konto.");
+    toast.success(t("auth.okCreated"));
   }
 
   async function resetPwd(e: React.FormEvent) {
     e.preventDefault();
-    if (!email) { toast.error("Podaj adres e-mail przypisany do konta."); return; }
+    if (!email) { toast.error(t("auth.errEmailRequired")); return; }
     setLoading(true);
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`,
     });
     setLoading(false);
     if (error) toast.error(mapAuthError(error.message));
-    else { toast.success("Jeśli konto istnieje, wysłaliśmy link do zmiany hasła. Sprawdź pocztę."); setResetMode(false); }
+    else { toast.success(t("auth.okResetSent")); setResetMode(false); }
   }
 
   if (resetMode) {
     return (
       <div className="container mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center px-4 py-12">
         <div className="w-full rounded-3xl border bg-card p-8 shadow-card">
-          <h1 className="text-2xl font-semibold">Zapomniałem hasła</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Podaj adres e-mail, którym zakładałeś konto. Wyślemy na ten adres link do ustawienia nowego hasła.</p>
+          <h1 className="text-2xl font-semibold">{t("auth.forgotTitle")}</h1>
+          <p className="mt-1 text-sm text-muted-foreground">{t("auth.forgotSub")}</p>
           <form onSubmit={resetPwd} className="mt-6 space-y-4">
             <div>
-              <Label htmlFor="r-email">E-mail przypisany do konta</Label>
+              <Label htmlFor="r-email">{t("auth.emailForAccount")}</Label>
               <Input id="r-email" type="email" required value={email}
                 onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
             </div>
             <Button type="submit" disabled={loading} className="w-full rounded-xl">
-              {loading ? "Wysyłam..." : "Wyślij link do zmiany hasła"}
+              {loading ? t("auth.sending") : t("auth.sendLink")}
             </Button>
             <button type="button" onClick={() => setResetMode(false)}
               className="block w-full text-center text-sm text-muted-foreground hover:underline">
-              ← Wróć do logowania
+              {t("auth.backToLogin")}
             </button>
           </form>
         </div>
@@ -160,32 +160,32 @@ function AuthPage() {
   return (
     <div className="container mx-auto flex min-h-[calc(100vh-4rem)] max-w-md items-center px-4 py-12">
       <div className="w-full rounded-3xl border bg-card p-8 shadow-card">
-        <h1 className="text-2xl font-semibold">Witaj w Stay Safe</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Jedno konto do wszystkich modułów.</p>
+        <h1 className="text-2xl font-semibold">{t("auth.welcome")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground">{t("auth.oneAccount")}</p>
 
         <Tabs defaultValue="signin" className="mt-6">
           <TabsList className="grid w-full grid-cols-2 rounded-xl">
-            <TabsTrigger value="signin">Logowanie</TabsTrigger>
-            <TabsTrigger value="signup">Rejestracja</TabsTrigger>
+            <TabsTrigger value="signin">{t("auth.tabSignin")}</TabsTrigger>
+            <TabsTrigger value="signup">{t("auth.tabSignup")}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="signin">
             <form onSubmit={signIn} className="mt-4 space-y-4">
               <div>
-                <Label htmlFor="email">E-mail</Label>
+                <Label htmlFor="email">{t("auth.email")}</Label>
                 <Input id="email" type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
               <div>
-                <Label htmlFor="password">Hasło</Label>
+                <Label htmlFor="password">{t("auth.password")}</Label>
                 <PasswordInput id="password" value={password} onChange={setPassword} autoComplete="current-password" />
               </div>
               <Button type="submit" disabled={loading} className="w-full rounded-xl">
-                {loading ? "Logowanie..." : "Zaloguj"}
+                {loading ? t("auth.signingIn") : t("auth.signInBtn")}
               </Button>
               <button type="button" onClick={() => setResetMode(true)}
                 className="block w-full text-center text-sm text-primary hover:underline">
-                Zapomniałem hasła
+                {t("auth.forgot")}
               </button>
             </form>
           </TabsContent>
@@ -193,29 +193,29 @@ function AuthPage() {
           <TabsContent value="signup">
             <form onSubmit={signUp} className="mt-4 space-y-4">
               <div>
-                <Label htmlFor="nick">Nick</Label>
+                <Label htmlFor="nick">{t("auth.nick")}</Label>
                 <Input id="nick" required value={nick} maxLength={40}
                   onChange={(e) => setNick(e.target.value)} className="mt-1.5 rounded-xl"
-                  placeholder="np. JanK" />
+                  placeholder={t("auth.nickPh")} />
               </div>
               <div>
-                <Label>Chcę korzystać jako</Label>
+                <Label>{t("auth.wantToUseAs")}</Label>
                 <div className="mt-1.5 grid grid-cols-3 gap-2">
                   {([
-                    ["najemca", "Najemca"],
-                    ["wynajmujacy", "Wynajmujący"],
-                    ["oba", "Oba"],
+                    ["najemca", t("auth.tenant")],
+                    ["wynajmujacy", t("auth.landlord")],
+                    ["oba", t("auth.both")],
                   ] as const).map(([val, lbl]) => (
-                    <button type="button" key={val} onClick={() => setAccountType(val)}
+                    <button type="button" key={val} onClick={() => setAccountType(val as typeof accountType)}
                       className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${accountType === val ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
                       {lbl}
                     </button>
                   ))}
                 </div>
-                <p className="mt-1 text-[11px] text-muted-foreground">Wybór wpływa tylko na podpowiedzi w panelu — w każdej chwili możesz korzystać z obu trybów.</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{t("auth.roleHelp")}</p>
               </div>
               <div>
-                <Label htmlFor="lang">Preferowany język kontaktu</Label>
+                <Label htmlFor="lang">{t("auth.preferredLang")}</Label>
                 <select
                   id="lang"
                   value={preferredLanguage}
@@ -227,40 +227,40 @@ function AuthPage() {
                   <option value="uk">🇺🇦 Українська</option>
                   <option value="es">🇪🇸 Español</option>
                 </select>
-                <p className="mt-1 text-[11px] text-muted-foreground">W tym języku otrzymasz wiadomość powitalną i powiadomienia systemowe.</p>
+                <p className="mt-1 text-[11px] text-muted-foreground">{t("auth.preferredLangHelp")}</p>
               </div>
               <div>
-                <Label htmlFor="email2">E-mail</Label>
+                <Label htmlFor="email2">{t("auth.email")}</Label>
                 <Input id="email2" type="email" required value={email}
                   onChange={(e) => setEmail(e.target.value)} className="mt-1.5 rounded-xl" />
               </div>
               <div>
-                <Label htmlFor="password2">Hasło (min. 8 znaków, wielka litera, cyfra, znak specjalny)</Label>
+                <Label htmlFor="password2">{t("auth.passwordRules")}</Label>
                 <PasswordInput id="password2" value={password} onChange={setPassword} autoComplete="new-password" />
               </div>
               <div>
-                <Label htmlFor="password3">Powtórz hasło</Label>
+                <Label htmlFor="password3">{t("auth.repeatPassword")}</Label>
                 <PasswordInput id="password3" value={password2} onChange={setPassword2} autoComplete="new-password" />
                 {password2.length > 0 && password !== password2 && (
-                  <p className="mt-1 text-xs text-destructive">Hasła nie są identyczne.</p>
+                  <p className="mt-1 text-xs text-destructive">{t("auth.passwordsDiffer")}</p>
                 )}
               </div>
               <label className="flex items-start gap-3 rounded-2xl border bg-background/50 p-3 text-sm">
                 <Checkbox checked={acceptTerms} onCheckedChange={(v) => setAcceptTerms(v === true)} className="mt-0.5" />
                 <span>
-                  <span className="font-semibold text-primary">*</span> Oświadczam, że zapoznałem(-am) się z{" "}
-                  <Link to="/regulamin" target="_blank" className="underline">Regulaminem</Link>{" "}
-                  oraz{" "}
-                  <Link to="/polityka-prywatnosci" target="_blank" className="underline">Polityką Prywatności</Link>{" "}
-                  i akceptuję ich treść.
+                  <span className="font-semibold text-primary">*</span> {t("auth.acceptText1")}{" "}
+                  <Link to="/regulamin" target="_blank" className="underline">{t("auth.termsLink")}</Link>{" "}
+                  {t("auth.andWord")}{" "}
+                  <Link to="/polityka-prywatnosci" target="_blank" className="underline">{t("auth.privacyLink")}</Link>{" "}
+                  {t("auth.acceptText2")}
                 </span>
               </label>
               <p className="rounded-xl bg-muted/50 p-3 text-xs text-muted-foreground">
-                Po rejestracji wyślemy Ci e-mail z linkiem weryfikacyjnym. Kliknij go, aby aktywować konto.
-                <br /><span className="font-medium text-foreground">Konto jest całkowicie darmowe</span> — w każdej chwili możesz je trwale usunąć w Ustawieniach.
+                {t("auth.afterSignupInfo")}
+                <br /><span className="font-medium text-foreground">{t("auth.freeAccount")}</span> {t("auth.deleteAnytime")}
               </p>
               <Button type="submit" disabled={loading || !acceptTerms} className="w-full rounded-xl">
-                {loading ? "Tworzę konto..." : "Załóż konto"}
+                {loading ? t("auth.creating") : t("auth.createAccount")}
               </Button>
             </form>
           </TabsContent>
