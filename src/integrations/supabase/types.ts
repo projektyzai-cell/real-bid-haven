@@ -189,6 +189,47 @@ export type Database = {
         }
         Relationships: []
       }
+      lease_contract_drafts: {
+        Row: {
+          created_at: string
+          data: Json
+          landlord_signed_at: string | null
+          last_edited_at: string
+          last_editor_id: string | null
+          tenant_signed_at: string | null
+          transaction_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json
+          landlord_signed_at?: string | null
+          last_edited_at?: string
+          last_editor_id?: string | null
+          tenant_signed_at?: string | null
+          transaction_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json
+          landlord_signed_at?: string | null
+          last_edited_at?: string
+          last_editor_id?: string | null
+          tenant_signed_at?: string | null
+          transaction_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lease_contract_drafts_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: true
+            referencedRelation: "lease_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lease_history_entries: {
         Row: {
           address: string | null
@@ -305,12 +346,14 @@ export type Database = {
           completed_at: string | null
           created_at: string
           id: string
+          landlord_finalized_at: string | null
           landlord_id: string
           listing_id: string | null
           passport_serial_snapshot: string | null
           passport_shared_at: string | null
           request_id: string | null
           state: Database["public"]["Enums"]["lease_state"]
+          tenant_finalized_at: string | null
           tenant_id: string
           updated_at: string
         }
@@ -321,12 +364,14 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          landlord_finalized_at?: string | null
           landlord_id: string
           listing_id?: string | null
           passport_serial_snapshot?: string | null
           passport_shared_at?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
+          tenant_finalized_at?: string | null
           tenant_id: string
           updated_at?: string
         }
@@ -337,12 +382,14 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           id?: string
+          landlord_finalized_at?: string | null
           landlord_id?: string
           listing_id?: string | null
           passport_serial_snapshot?: string | null
           passport_shared_at?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
+          tenant_finalized_at?: string | null
           tenant_id?: string
           updated_at?: string
         }
@@ -1449,7 +1496,33 @@ export type Database = {
         Returns: string
       }
       extend_rental_listing: { Args: { _id: string }; Returns: string }
+      finalize_lease: { Args: { _transaction_id: string }; Returns: string }
       gen_passport_serial: { Args: never; Returns: string }
+      get_shared_passport: {
+        Args: { _transaction_id: string }
+        Returns: {
+          accepts_notarial_lease: boolean
+          avatar_url: string
+          display_name: string
+          has_tenant_insurance: boolean
+          home_city: string
+          instagram_username: string
+          lease_count: number
+          linkedin_url: string
+          passport_city: string
+          passport_contract_valid: boolean
+          passport_expires_at: string
+          passport_income_verified: boolean
+          passport_issued_at: string
+          passport_name_verified: boolean
+          passport_score: number
+          passport_serial: string
+          passport_social_verified: boolean
+          personal_bio_pl: string
+          social_facebook_url: string
+          willing_tenant_insurance: boolean
+        }[]
+      }
       get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
@@ -1495,6 +1568,10 @@ export type Database = {
       resume_property_listing: {
         Args: { _days: number; _id: string }
         Returns: string
+      }
+      upsert_contract_draft: {
+        Args: { _data: Json; _transaction_id: string }
+        Returns: undefined
       }
       user_rating_summary: {
         Args: {
