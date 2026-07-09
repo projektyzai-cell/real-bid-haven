@@ -37,6 +37,9 @@ type Txn = {
   passport_serial_snapshot: string | null;
   passport_shared_at: string | null;
   accepted_at: string | null;
+  completed_at: string | null;
+  tenant_finalized_at: string | null;
+  landlord_finalized_at: string | null;
   chat_id: string | null;
   created_at: string;
 };
