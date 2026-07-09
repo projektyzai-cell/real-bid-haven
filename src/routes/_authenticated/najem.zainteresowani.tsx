@@ -2,13 +2,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, BadgeCheck, MessageCircle, Loader2, MapPin, Star } from "lucide-react";
+import { ShieldCheck, BadgeCheck, MessageCircle, Loader2, MapPin, Star, FileSignature, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { RateLeaseDialog } from "@/components/RateLeaseDialog";
+import { SharedPassportDialog } from "@/components/SharedPassportDialog";
+import { LeaseStageBar } from "@/components/LeaseStageBar";
 
 export const Route = createFileRoute("/_authenticated/najem/zainteresowani")({
   head: () => ({ meta: [{ title: "Zainteresowani najemcy — StaySafe" }] }),
@@ -35,6 +37,9 @@ type Txn = {
   passport_serial_snapshot: string | null;
   passport_shared_at: string | null;
   accepted_at: string | null;
+  completed_at: string | null;
+  tenant_finalized_at: string | null;
+  landlord_finalized_at: string | null;
   chat_id: string | null;
   created_at: string;
 };
@@ -44,6 +49,7 @@ function InterestedTenantsPage() {
   const navigate = useNavigate();
   const [accepting, setAccepting] = useState<string | null>(null);
   const [rate, setRate] = useState<{ transactionId: string; tenantId: string } | null>(null);
+  const [passportTxn, setPassportTxn] = useState<string | null>(null);
 
   const { data: rows = [], refetch } = useQuery({
     queryKey: ["lease-txns-landlord", user?.id],
@@ -51,7 +57,7 @@ function InterestedTenantsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lease_transactions")
-        .select("id,state,listing_id,request_id,tenant_id,passport_serial_snapshot,passport_shared_at,accepted_at,chat_id,created_at")
+        .select("id,state,listing_id,request_id,tenant_id,passport_serial_snapshot,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at,chat_id,created_at")
         .eq("landlord_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -110,7 +116,18 @@ function InterestedTenantsPage() {
 
       <Section title="Nowe zgłoszenia" count={grouped.new.length}>
         {grouped.new.map((t) => (
-          <TenantRow key={t.id} t={t} onAccept={() => accept(t)} busy={accepting === t.id} />
+          <TenantRow
+            key={t.id}
+            t={t}
+            onAccept={() => accept(t)}
+            busy={accepting === t.id}
+            extraTop={
+              <Button size="sm" variant="outline" onClick={() => setPassportTxn(t.id)}
+                className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10">
+                <Download className="mr-1 h-3.5 w-3.5" /> Pobierz paszport (PDF)
+              </Button>
+            }
+          />
         ))}
       </Section>
 
@@ -119,6 +136,11 @@ function InterestedTenantsPage() {
           <TenantRow
             key={t.id}
             t={t}
+            extraTop={
+              <div className="flex flex-wrap items-center gap-2">
+                <LeaseStageBar t={t} />
+              </div>
+            }
             cta={
               <div className="flex flex-col items-end gap-2">
                 {t.chat_id && (
@@ -126,6 +148,14 @@ function InterestedTenantsPage() {
                     <MessageCircle className="h-4 w-4" /> Otwórz czat
                   </Button>
                 )}
+                <Button size="sm" variant="outline" onClick={() => setPassportTxn(t.id)}
+                  className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10">
+                  <Download className="h-4 w-4" /> Paszport (PDF)
+                </Button>
+                <Link to="/najem/umowa/$transactionId" params={{ transactionId: t.id }}
+                  className="inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-bold uppercase tracking-wide hover:bg-muted">
+                  <FileSignature className="h-3.5 w-3.5" /> Umowa
+                </Link>
                 <Button
                   size="sm"
                   variant="outline"
@@ -146,6 +176,10 @@ function InterestedTenantsPage() {
           onClose={() => setRate(null)}
           direction={{ kind: "landlord-rates-tenant", transactionId: rate.transactionId, tenantId: rate.tenantId }}
         />
+      )}
+
+      {passportTxn && (
+        <SharedPassportDialog transactionId={passportTxn} open onClose={() => setPassportTxn(null)} />
       )}
 
 
@@ -181,9 +215,10 @@ type RowProps = {
   onAccept?: () => void;
   busy?: boolean;
   cta?: React.ReactNode;
+  extraTop?: React.ReactNode;
 };
 
-function TenantRow({ t, onAccept, busy, cta }: RowProps) {
+function TenantRow({ t, onAccept, busy, cta, extraTop }: RowProps) {
   const p = t.passport;
   return (
     <div className="rounded-2xl border border-[var(--gold)]/30 bg-card p-5 shadow-card">
@@ -220,6 +255,7 @@ function TenantRow({ t, onAccept, busy, cta }: RowProps) {
               Udostępniono: {new Date(t.passport_shared_at).toLocaleString("pl-PL")}
             </div>
           )}
+          {extraTop && <div className="mt-3">{extraTop}</div>}
         </div>
         <div className="flex flex-col items-end gap-2">
           {p && (

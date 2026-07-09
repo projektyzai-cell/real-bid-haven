@@ -41,6 +41,7 @@ import { Route as AuthenticatedNajemConciergeRouteImport } from './routes/_authe
 import { Route as AuthenticatedNajemAktywneUmowyRouteImport } from './routes/_authenticated/najem.aktywne-umowy'
 import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
 import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin_.passport-stats'
+import { Route as AuthenticatedNajemUmowaTransactionIdRouteImport } from './routes/_authenticated/najem.umowa.$transactionId'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
@@ -215,6 +216,12 @@ const AuthenticatedAdminPassportStatsRoute =
     path: '/admin/passport-stats',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemUmowaTransactionIdRoute =
+  AuthenticatedNajemUmowaTransactionIdRouteImport.update({
+    id: '/najem/umowa/$transactionId',
+    path: '/najem/umowa/$transactionId',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedNajemChatsIdRoute =
   AuthenticatedNajemChatsIdRouteImport.update({
     id: '/najem/chats/$id',
@@ -255,6 +262,7 @@ export interface FileRoutesByFullPath {
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
   '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
+  '/najem/umowa/$transactionId': typeof AuthenticatedNajemUmowaTransactionIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -289,6 +297,7 @@ export interface FileRoutesByTo {
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
   '/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
+  '/najem/umowa/$transactionId': typeof AuthenticatedNajemUmowaTransactionIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -325,6 +334,7 @@ export interface FileRoutesById {
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
   '/_authenticated/najem/chats/$id': typeof AuthenticatedNajemChatsIdRoute
+  '/_authenticated/najem/umowa/$transactionId': typeof AuthenticatedNajemUmowaTransactionIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
     | '/najem/chats/$id'
+    | '/najem/umowa/$transactionId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -395,6 +406,7 @@ export interface FileRouteTypes {
     | '/najem/zapytania/$id'
     | '/najem/oferty'
     | '/najem/chats/$id'
+    | '/najem/umowa/$transactionId'
   id:
     | '__root__'
     | '/'
@@ -430,6 +442,7 @@ export interface FileRouteTypes {
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
     | '/_authenticated/najem/chats/$id'
+    | '/_authenticated/najem/umowa/$transactionId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -675,6 +688,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPassportStatsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/najem/umowa/$transactionId': {
+      id: '/_authenticated/najem/umowa/$transactionId'
+      path: '/najem/umowa/$transactionId'
+      fullPath: '/najem/umowa/$transactionId'
+      preLoaderRoute: typeof AuthenticatedNajemUmowaTransactionIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/najem/chats/$id': {
       id: '/_authenticated/najem/chats/$id'
       path: '/najem/chats/$id'
@@ -704,6 +724,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNajemUmowyRoute: typeof AuthenticatedNajemUmowyRoute
   AuthenticatedNajemZainteresowaniRoute: typeof AuthenticatedNajemZainteresowaniRoute
   AuthenticatedNajemChatsIdRoute: typeof AuthenticatedNajemChatsIdRoute
+  AuthenticatedNajemUmowaTransactionIdRoute: typeof AuthenticatedNajemUmowaTransactionIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -725,6 +746,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNajemUmowyRoute: AuthenticatedNajemUmowyRoute,
   AuthenticatedNajemZainteresowaniRoute: AuthenticatedNajemZainteresowaniRoute,
   AuthenticatedNajemChatsIdRoute: AuthenticatedNajemChatsIdRoute,
+  AuthenticatedNajemUmowaTransactionIdRoute:
+    AuthenticatedNajemUmowaTransactionIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
@@ -762,13 +785,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

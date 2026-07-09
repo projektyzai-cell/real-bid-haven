@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { MapPin, Clock, MessageCircle, Pencil, Trash2 } from "lucide-react";
+import { MapPin, Clock, MessageCircle, Pencil, Trash2, FileSignature } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,6 +15,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { LocationPicker } from "@/components/LocationPicker";
+import { LeaseStageBar } from "@/components/LeaseStageBar";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-zapytania")({
   head: () => ({ meta: [{ title: "Moje zapytania najmu — Stay Safe" }] }),
@@ -86,6 +87,23 @@ function MyRequestsPage() {
         landlord_name: profMap.get(o.landlord_id) ?? "Wynajmujący",
         listing: o.listing_id ? listingMap.get(o.listing_id) ?? null : null,
       }));
+    },
+  });
+
+  // Load lease_transactions for accepted offers so we can show stage + chat + contract link
+  const acceptedListingIds = (offers ?? []).filter((o) => o.status === "accepted" && o.listing_id).map((o) => o.listing_id!) as string[];
+  const { data: txnMap = {} as Record<string, any> } = useQuery({
+    queryKey: ["my-lease-txns", user?.id, acceptedListingIds.join(",")],
+    enabled: !!user && acceptedListingIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("lease_transactions")
+        .select("id,state,listing_id,chat_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at")
+        .eq("tenant_id", user!.id)
+        .in("listing_id", acceptedListingIds);
+      const m: Record<string, any> = {};
+      for (const t of (data ?? []) as any[]) if (t.listing_id) m[t.listing_id] = t;
+      return m;
     },
   });
 
@@ -220,7 +238,26 @@ function MyRequestsPage() {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               {o.status === "accepted" ? (
-                                <Badge className="rounded-full">Zaakceptowana</Badge>
+                                <>
+                                  <Badge className="rounded-full">Zaakceptowana</Badge>
+                                  {o.listing && (txnMap as any)[o.listing.id] && (
+                                    <>
+                                      <div className="mt-1"><LeaseStageBar t={(txnMap as any)[o.listing.id]} /></div>
+                                      <div className="mt-1 flex flex-wrap gap-2">
+                                        {(txnMap as any)[o.listing.id].chat_id && (
+                                          <Link to="/najem/chats/$id" params={{ id: (txnMap as any)[o.listing.id].chat_id }}
+                                            className="inline-flex items-center gap-1 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20">
+                                            <MessageCircle className="h-3 w-3" /> Czat tej oferty
+                                          </Link>
+                                        )}
+                                        <Link to="/najem/umowa/$transactionId" params={{ transactionId: (txnMap as any)[o.listing.id].id }}
+                                          className="inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-muted">
+                                          <FileSignature className="h-3 w-3" /> Umowa
+                                        </Link>
+                                      </div>
+                                    </>
+                                  )}
+                                </>
                               ) : o.status === "rejected" ? (
                                 <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
                               ) : (
