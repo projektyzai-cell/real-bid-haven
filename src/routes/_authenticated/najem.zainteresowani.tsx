@@ -2,13 +2,15 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShieldCheck, BadgeCheck, MessageCircle, Loader2, MapPin, Star } from "lucide-react";
+import { ShieldCheck, BadgeCheck, MessageCircle, Loader2, MapPin, Star, FileSignature, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { RateLeaseDialog } from "@/components/RateLeaseDialog";
+import { SharedPassportDialog } from "@/components/SharedPassportDialog";
+import { LeaseStageBar } from "@/components/LeaseStageBar";
 
 export const Route = createFileRoute("/_authenticated/najem/zainteresowani")({
   head: () => ({ meta: [{ title: "Zainteresowani najemcy — StaySafe" }] }),
