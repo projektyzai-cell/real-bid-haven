@@ -116,7 +116,18 @@ function InterestedTenantsPage() {
 
       <Section title="Nowe zgłoszenia" count={grouped.new.length}>
         {grouped.new.map((t) => (
-          <TenantRow key={t.id} t={t} onAccept={() => accept(t)} busy={accepting === t.id} />
+          <TenantRow
+            key={t.id}
+            t={t}
+            onAccept={() => accept(t)}
+            busy={accepting === t.id}
+            extraTop={
+              <Button size="sm" variant="outline" onClick={() => setPassportTxn(t.id)}
+                className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10">
+                <Download className="mr-1 h-3.5 w-3.5" /> Pobierz paszport (PDF)
+              </Button>
+            }
+          />
         ))}
       </Section>
 
@@ -125,6 +136,11 @@ function InterestedTenantsPage() {
           <TenantRow
             key={t.id}
             t={t}
+            extraTop={
+              <div className="flex flex-wrap items-center gap-2">
+                <LeaseStageBar t={t} />
+              </div>
+            }
             cta={
               <div className="flex flex-col items-end gap-2">
                 {t.chat_id && (
@@ -132,6 +148,14 @@ function InterestedTenantsPage() {
                     <MessageCircle className="h-4 w-4" /> Otwórz czat
                   </Button>
                 )}
+                <Button size="sm" variant="outline" onClick={() => setPassportTxn(t.id)}
+                  className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10">
+                  <Download className="h-4 w-4" /> Paszport (PDF)
+                </Button>
+                <Link to="/najem/umowa/$transactionId" params={{ transactionId: t.id }}
+                  className="inline-flex items-center gap-1 rounded-xl border px-3 py-1.5 text-xs font-bold uppercase tracking-wide hover:bg-muted">
+                  <FileSignature className="h-3.5 w-3.5" /> Umowa
+                </Link>
                 <Button
                   size="sm"
                   variant="outline"
@@ -152,6 +176,10 @@ function InterestedTenantsPage() {
           onClose={() => setRate(null)}
           direction={{ kind: "landlord-rates-tenant", transactionId: rate.transactionId, tenantId: rate.tenantId }}
         />
+      )}
+
+      {passportTxn && (
+        <SharedPassportDialog transactionId={passportTxn} open onClose={() => setPassportTxn(null)} />
       )}
 
 
