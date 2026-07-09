@@ -56,7 +56,7 @@ function InterestedTenantsPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lease_transactions")
-        .select("id,state,listing_id,request_id,tenant_id,passport_serial_snapshot,passport_shared_at,accepted_at,chat_id,created_at")
+        .select("id,state,listing_id,request_id,tenant_id,passport_serial_snapshot,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at,chat_id,created_at")
         .eq("landlord_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
