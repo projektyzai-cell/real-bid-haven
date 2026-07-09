@@ -49,6 +49,7 @@ function InterestedTenantsPage() {
   const navigate = useNavigate();
   const [accepting, setAccepting] = useState<string | null>(null);
   const [rate, setRate] = useState<{ transactionId: string; tenantId: string } | null>(null);
+  const [passportTxn, setPassportTxn] = useState<string | null>(null);
 
   const { data: rows = [], refetch } = useQuery({
     queryKey: ["lease-txns-landlord", user?.id],
