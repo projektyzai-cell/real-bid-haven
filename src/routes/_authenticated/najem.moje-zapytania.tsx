@@ -90,6 +90,23 @@ function MyRequestsPage() {
     },
   });
 
+  // Load lease_transactions for accepted offers so we can show stage + chat + contract link
+  const acceptedListingIds = (offers ?? []).filter((o) => o.status === "accepted" && o.listing_id).map((o) => o.listing_id!) as string[];
+  const { data: txnMap = {} as Record<string, any> } = useQuery({
+    queryKey: ["my-lease-txns", user?.id, acceptedListingIds.join(",")],
+    enabled: !!user && acceptedListingIds.length > 0,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("lease_transactions")
+        .select("id,state,listing_id,chat_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at")
+        .eq("tenant_id", user!.id)
+        .in("listing_id", acceptedListingIds);
+      const m: Record<string, any> = {};
+      for (const t of (data ?? []) as any[]) if (t.listing_id) m[t.listing_id] = t;
+      return m;
+    },
+  });
+
   useEffect(() => {
     if (!reqIds.length) return;
     const ids = new Set(reqIds);
