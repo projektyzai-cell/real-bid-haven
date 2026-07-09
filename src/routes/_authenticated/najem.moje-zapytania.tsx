@@ -238,7 +238,26 @@ function MyRequestsPage() {
                             </div>
                             <div className="flex flex-col items-end gap-2">
                               {o.status === "accepted" ? (
-                                <Badge className="rounded-full">Zaakceptowana</Badge>
+                                <>
+                                  <Badge className="rounded-full">Zaakceptowana</Badge>
+                                  {o.listing && (txnMap as any)[o.listing.id] && (
+                                    <>
+                                      <div className="mt-1"><LeaseStageBar t={(txnMap as any)[o.listing.id]} /></div>
+                                      <div className="mt-1 flex flex-wrap gap-2">
+                                        {(txnMap as any)[o.listing.id].chat_id && (
+                                          <Link to="/najem/chats/$id" params={{ id: (txnMap as any)[o.listing.id].chat_id }}
+                                            className="inline-flex items-center gap-1 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20">
+                                            <MessageCircle className="h-3 w-3" /> Czat tej oferty
+                                          </Link>
+                                        )}
+                                        <Link to="/najem/umowa/$transactionId" params={{ transactionId: (txnMap as any)[o.listing.id].id }}
+                                          className="inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-muted">
+                                          <FileSignature className="h-3 w-3" /> Umowa
+                                        </Link>
+                                      </div>
+                                    </>
+                                  )}
+                                </>
                               ) : o.status === "rejected" ? (
                                 <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
                               ) : (
