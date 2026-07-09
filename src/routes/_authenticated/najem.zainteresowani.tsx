@@ -255,6 +255,7 @@ function TenantRow({ t, onAccept, busy, cta, extraTop }: RowProps) {
               Udostępniono: {new Date(t.passport_shared_at).toLocaleString("pl-PL")}
             </div>
           )}
+          {extraTop && <div className="mt-3">{extraTop}</div>}
         </div>
         <div className="flex flex-col items-end gap-2">
           {p && (
