@@ -215,9 +215,10 @@ type RowProps = {
   onAccept?: () => void;
   busy?: boolean;
   cta?: React.ReactNode;
+  extraTop?: React.ReactNode;
 };
 
-function TenantRow({ t, onAccept, busy, cta }: RowProps) {
+function TenantRow({ t, onAccept, busy, cta, extraTop }: RowProps) {
   const p = t.passport;
   return (
     <div className="rounded-2xl border border-[var(--gold)]/30 bg-card p-5 shadow-card">
