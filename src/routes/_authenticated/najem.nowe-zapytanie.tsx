@@ -108,7 +108,7 @@ function NewRentalRequestPage() {
     const parsed = schema.safeParse({
       city: form.city.trim(),
       district: mode === "district" && form.district.trim() ? form.district.trim() : undefined,
-      search_street: mode === "address" && form.street.trim() ? form.street.trim() : undefined,
+      search_street: undefined,
       search_mode: mode,
       budget_max: form.budget_max ? Number(form.budget_max) : undefined,
       adults_count: Number(form.adults_count),
@@ -273,19 +273,7 @@ function NewRentalRequestPage() {
                 onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district }))}
               />
             )}
-            {mode === "address" && (
-              <div className="space-y-3">
-                <LocationPicker
-                  fields={["city", "district", "street"]}
-                  strictStreet
-                  value={{ city: form.city, district: form.district, street: form.street }}
-                  onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district, street: v.street }))}
-                />
-                <p className="text-xs text-amber-500/80">
-                  {t("request.streetWarn")}
-                </p>
-              </div>
-            )}
+            {/* address mode removed — simplified to district / map only */}
             {mode === "map" && (
               <MapAreaPicker city={form.city} district={form.district} value={mapArea} onChange={setMapArea} />
             )}
