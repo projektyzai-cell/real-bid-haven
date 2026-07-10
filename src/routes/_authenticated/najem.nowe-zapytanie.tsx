@@ -27,7 +27,7 @@ const schema = z.object({
   city: z.string().min(2, "Miasto jest wymagane").max(80),
   district: z.string().max(120).optional(),
   search_street: z.string().max(160).optional(),
-  search_mode: z.enum(["district", "address", "map"]),
+  search_mode: z.enum(["district", "map"]),
   budget_max: z.number().positive().max(100000).optional(),
   adults_count: z.number().int().min(1).max(20),
   children_count: z.number().int().min(0).max(20),
@@ -37,7 +37,7 @@ const schema = z.object({
   min_lease_months: z.number().int().min(1).max(12),
 });
 
-type Mode = "district" | "address" | "map";
+type Mode = "district" | "map";
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
 type FloorExclusion = "ground" | "above3_no_elevator";
@@ -145,7 +145,6 @@ function NewRentalRequestPage() {
 
   const modeTabs: { id: Mode; label: string; icon: typeof Building2 }[] = [
     { id: "district" as Mode, label: t("request.modeDistrict"), icon: Building2 },
-    { id: "address" as Mode, label: t("request.modeAddress"), icon: MapPin },
     { id: "map" as Mode, label: t("request.modeMap"), icon: Map },
   ];
 
