@@ -148,7 +148,7 @@ function RentalChatPage() {
           {passportAvailable && chat.transaction && (
             <Button size="sm" variant="outline" onClick={() => setShowPassport(true)}
               className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10">
-              <ShieldCheck className="mr-1 h-3.5 w-3.5" /> {t("chat.viewPassport")}
+              <ShieldCheck className="mr-1 h-3.5 w-3.5" /> {t("chat.viewPassport", { defaultValue: "Zobacz paszport" })}
             </Button>
           )}
         </div>
@@ -163,9 +163,9 @@ function RentalChatPage() {
               if (m.is_system) {
                 const key = m.content;
                 const label =
-                  key === "both_accepted_intro" ? t("chat.systemBothAccepted") :
-                  key === "passport_shared" ? t("chat.systemPassportShared") :
-                  key === "lease_completed" ? t("chat.systemLeaseCompleted") :
+                  key === "both_accepted_intro" ? t("chat.systemBothAccepted", { defaultValue: "Obie strony wyraziły chęć zawarcia umowy najmu. Teraz pozostaje zawarcie umowy — możecie ją wygenerować w naszym systemie lub przygotować własną. Po podpisaniu umowy nie zapomnijcie zaznaczyć "Umowa podpisana" — to zabezpieczenie dla Wynajmującego (terminowość) i Najemcy (zwrot kaucji). Pamiętajcie o poprawnych datach startu i końca umowy." }) :
+                  key === "passport_shared" ? t("chat.systemPassportShared", { defaultValue: "Najemca udostępnił Ci swój Paszport StaySafe. Kliknij, aby zobaczyć jego dane." }) :
+                  key === "lease_completed" ? t("chat.systemLeaseCompleted", { defaultValue: "Umowa zawarta obustronnie." }) :
                   m.content;
                 const showPassportBtn = key === "passport_shared" && isLandlord && chat.transaction;
                 return (
@@ -174,14 +174,14 @@ function RentalChatPage() {
                       <div className="flex items-center justify-center gap-1.5 text-gold">
                         {key === "passport_shared" ? <ShieldCheck className="h-3.5 w-3.5" /> : <FileSignature className="h-3.5 w-3.5" />}
                         <span className="font-semibold uppercase tracking-wide">
-                          {key === "passport_shared" ? t("chat.systemPassportSharedTitle") : t("chat.systemNotice")}
+                          {key === "passport_shared" ? t("chat.systemPassportSharedTitle", { defaultValue: "Paszport otrzymany" }) : t("chat.systemNotice", { defaultValue: "Powiadomienie systemowe" })}
                         </span>
                       </div>
                       <p className="mt-1.5 whitespace-pre-line text-foreground/90">{label}</p>
                       {showPassportBtn && (
                         <Button size="sm" variant="outline" className="mt-2 rounded-xl"
                           onClick={() => setShowPassport(true)}>
-                          <ShieldCheck className="mr-1 h-3 w-3" /> {t("chat.viewPassport")}
+                          <ShieldCheck className="mr-1 h-3 w-3" /> {t("chat.viewPassport", { defaultValue: "Zobacz paszport" })}
                         </Button>
                       )}
                     </div>
