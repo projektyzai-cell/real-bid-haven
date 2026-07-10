@@ -72,7 +72,7 @@ function ContractPage() {
     setLoading(true);
     const { data: t, error: e1 } = await supabase
       .from("lease_transactions")
-      .select("id,state,tenant_id,landlord_id,chat_id,listing_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at")
+      .select("id,state,tenant_id,landlord_id,chat_id,listing_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at,contract_start_date,contract_end_date,tenant_dates_confirmed_at,landlord_dates_confirmed_at")
       .eq("id", transactionId)
       .maybeSingle();
     if (e1 || !t) { toast.error(e1?.message ?? "Nie znaleziono transakcji"); setLoading(false); return; }
