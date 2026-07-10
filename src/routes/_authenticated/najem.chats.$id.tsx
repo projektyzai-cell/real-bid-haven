@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
-import { useTranslation } from "@/lib/i18n";
+import { useTranslation } from "react-i18next";
 import { formatPLN } from "@/lib/format";
 import { SharedPassportDialog } from "@/components/SharedPassportDialog";
 
