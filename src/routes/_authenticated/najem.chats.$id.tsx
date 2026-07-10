@@ -2,12 +2,14 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowLeft, Send } from "lucide-react";
+import { ArrowLeft, Send, ShieldCheck, FileSignature } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useTranslation } from "react-i18next";
 import { formatPLN } from "@/lib/format";
+import { SharedPassportDialog } from "@/components/SharedPassportDialog";
 
 export const Route = createFileRoute("/_authenticated/najem/chats/$id")({
   head: () => ({ meta: [{ title: "Czat najmu — Stay Safe" }] }),
@@ -15,15 +17,18 @@ export const Route = createFileRoute("/_authenticated/najem/chats/$id")({
 });
 
 interface RentalMessage {
-  id: string; chat_id: string; sender_id: string; content: string; created_at: string;
+  id: string; chat_id: string; sender_id: string | null; content: string; created_at: string;
+  is_system?: boolean; metadata?: Record<string, unknown> | null;
 }
 
 function RentalChatPage() {
   const { id } = Route.useParams();
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [text, setText] = useState("");
   const [sending, setSending] = useState(false);
+  const [showPassport, setShowPassport] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const { data: chat } = useQuery({
@@ -37,15 +42,29 @@ function RentalChatPage() {
         id: string; tenant_id: string; landlord_id: string; offer_id: string;
       };
       const { data: offer } = await supabase
-        .from("rental_offers" as never).select("monthly_price, property_address").eq("id", c.offer_id).maybeSingle();
+        .from("rental_offers" as never).select("monthly_price, property_address, listing_id").eq("id", c.offer_id).maybeSingle();
       const { data: profs } = await supabase
         .from("profiles").select("id, display_name").in("id", [c.tenant_id, c.landlord_id]);
+      // link this chat with a lease_transaction (if any) so landlord can view the shared passport
+      const listingId = (offer as any)?.listing_id ?? null;
+      let txn: { id: string; passport_shared_at: string | null } | null = null;
+      if (listingId) {
+        const { data: t } = await supabase
+          .from("lease_transactions")
+          .select("id,passport_shared_at")
+          .eq("tenant_id", c.tenant_id)
+          .eq("landlord_id", c.landlord_id)
+          .eq("listing_id", listingId)
+          .maybeSingle();
+        txn = (t as any) ?? null;
+      }
       const map = new Map((profs ?? []).map((p) => [p.id, p.display_name]));
       return {
         chat: c,
-        offer: offer as { monthly_price: number; property_address: string | null } | null,
+        offer: offer as { monthly_price: number; property_address: string | null; listing_id: string | null } | null,
         tenantName: map.get(c.tenant_id) ?? "Najemca",
         landlordName: map.get(c.landlord_id) ?? "Wynajmujący",
+        transaction: txn,
       };
     },
   });
@@ -99,7 +118,7 @@ function RentalChatPage() {
     if (!trimmed || !user) return;
     setSending(true);
     const { error } = await supabase.from("rental_messages" as never).insert({
-      chat_id: id, sender_id: user.id, content: trimmed.slice(0, 4000),
+      chat_id: id, sender_id: user.id, content: trimmed.slice(0, 4000), is_system: false,
     } as never);
     setSending(false);
     if (error) toast.error(error.message);
@@ -108,6 +127,8 @@ function RentalChatPage() {
 
   if (!chat) return <div className="container mx-auto px-4 py-16 text-muted-foreground">Ładowanie...</div>;
   const counterpart = user?.id === chat.chat.tenant_id ? chat.landlordName : chat.tenantName;
+  const isLandlord = user?.id === chat.chat.landlord_id;
+  const passportAvailable = isLandlord && chat.transaction?.passport_shared_at;
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-8">
@@ -115,12 +136,20 @@ function RentalChatPage() {
         <ArrowLeft className="h-4 w-4" /> Wróć
       </Link>
       <div className="mt-4 rounded-3xl border bg-card p-4 shadow-card">
-        <div className="text-sm">
-          Rozmowa z: <strong>{counterpart}</strong>
-          {chat.offer && (
-            <span className="ml-2 text-muted-foreground">
-              · oferta {formatPLN(chat.offer.monthly_price)}/mies.{chat.offer.property_address ? ` · ${chat.offer.property_address}` : ""}
-            </span>
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="text-sm">
+            Rozmowa z: <strong>{counterpart}</strong>
+            {chat.offer && (
+              <span className="ml-2 text-muted-foreground">
+                · oferta {formatPLN(chat.offer.monthly_price)}/mies.{chat.offer.property_address ? ` · ${chat.offer.property_address}` : ""}
+              </span>
+            )}
+          </div>
+          {passportAvailable && chat.transaction && (
+            <Button size="sm" variant="outline" onClick={() => setShowPassport(true)}
+              className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10">
+              <ShieldCheck className="mr-1 h-3.5 w-3.5" /> {t("chat.viewPassport", { defaultValue: "Zobacz paszport" })}
+            </Button>
           )}
         </div>
       </div>
@@ -131,6 +160,34 @@ function RentalChatPage() {
             <p className="py-8 text-center text-sm text-muted-foreground">Brak wiadomości. Napisz pierwszą wiadomość.</p>
           ) : (
             messages.map((m) => {
+              if (m.is_system) {
+                const key = m.content;
+                const label =
+                  key === "both_accepted_intro" ? t("chat.systemBothAccepted", { defaultValue: "Obie strony wyraziły chęć zawarcia umowy najmu. Teraz pozostaje zawarcie umowy — możecie ją wygenerować w naszym systemie lub przygotować własną. Po podpisaniu umowy nie zapomnijcie zaznaczyć "Umowa podpisana" — to zabezpieczenie dla Wynajmującego (terminowość) i Najemcy (zwrot kaucji). Pamiętajcie o poprawnych datach startu i końca umowy." }) :
+                  key === "passport_shared" ? t("chat.systemPassportShared", { defaultValue: "Najemca udostępnił Ci swój Paszport StaySafe. Kliknij, aby zobaczyć jego dane." }) :
+                  key === "lease_completed" ? t("chat.systemLeaseCompleted", { defaultValue: "Umowa zawarta obustronnie." }) :
+                  m.content;
+                const showPassportBtn = key === "passport_shared" && isLandlord && chat.transaction;
+                return (
+                  <div key={m.id} className="my-2 flex justify-center">
+                    <div className="max-w-[85%] rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-4 py-2.5 text-center text-xs">
+                      <div className="flex items-center justify-center gap-1.5 text-gold">
+                        {key === "passport_shared" ? <ShieldCheck className="h-3.5 w-3.5" /> : <FileSignature className="h-3.5 w-3.5" />}
+                        <span className="font-semibold uppercase tracking-wide">
+                          {key === "passport_shared" ? t("chat.systemPassportSharedTitle", { defaultValue: "Paszport otrzymany" }) : t("chat.systemNotice", { defaultValue: "Powiadomienie systemowe" })}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 whitespace-pre-line text-foreground/90">{label}</p>
+                      {showPassportBtn && (
+                        <Button size="sm" variant="outline" className="mt-2 rounded-xl"
+                          onClick={() => setShowPassport(true)}>
+                          <ShieldCheck className="mr-1 h-3 w-3" /> {t("chat.viewPassport", { defaultValue: "Zobacz paszport" })}
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              }
               const mine = m.sender_id === user?.id;
               return (
                 <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
@@ -154,6 +211,10 @@ function RentalChatPage() {
           </Button>
         </form>
       </div>
+
+      {showPassport && chat.transaction && (
+        <SharedPassportDialog transactionId={chat.transaction.id} open onClose={() => setShowPassport(false)} />
+      )}
     </div>
   );
 }

@@ -27,7 +27,7 @@ const schema = z.object({
   city: z.string().min(2, "Miasto jest wymagane").max(80),
   district: z.string().max(120).optional(),
   search_street: z.string().max(160).optional(),
-  search_mode: z.enum(["district", "address", "map"]),
+  search_mode: z.enum(["district", "map"]),
   budget_max: z.number().positive().max(100000).optional(),
   adults_count: z.number().int().min(1).max(20),
   children_count: z.number().int().min(0).max(20),
@@ -37,7 +37,7 @@ const schema = z.object({
   min_lease_months: z.number().int().min(1).max(12),
 });
 
-type Mode = "district" | "address" | "map";
+type Mode = "district" | "map";
 type PropertyType = "apartment" | "room" | "house";
 type ApartmentSubtype = "studio" | "2rooms" | "3rooms_plus";
 type FloorExclusion = "ground" | "above3_no_elevator";
@@ -108,7 +108,7 @@ function NewRentalRequestPage() {
     const parsed = schema.safeParse({
       city: form.city.trim(),
       district: mode === "district" && form.district.trim() ? form.district.trim() : undefined,
-      search_street: mode === "address" && form.street.trim() ? form.street.trim() : undefined,
+      search_street: undefined,
       search_mode: mode,
       budget_max: form.budget_max ? Number(form.budget_max) : undefined,
       adults_count: Number(form.adults_count),
@@ -145,7 +145,6 @@ function NewRentalRequestPage() {
 
   const modeTabs: { id: Mode; label: string; icon: typeof Building2 }[] = [
     { id: "district" as Mode, label: t("request.modeDistrict"), icon: Building2 },
-    { id: "address" as Mode, label: t("request.modeAddress"), icon: MapPin },
     { id: "map" as Mode, label: t("request.modeMap"), icon: Map },
   ];
 
@@ -274,19 +273,7 @@ function NewRentalRequestPage() {
                 onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district }))}
               />
             )}
-            {mode === "address" && (
-              <div className="space-y-3">
-                <LocationPicker
-                  fields={["city", "district", "street"]}
-                  strictStreet
-                  value={{ city: form.city, district: form.district, street: form.street }}
-                  onChange={(v) => setForm((p) => ({ ...p, city: v.city, district: v.district, street: v.street }))}
-                />
-                <p className="text-xs text-amber-500/80">
-                  {t("request.streetWarn")}
-                </p>
-              </div>
-            )}
+            {/* address mode removed — simplified to district / map only */}
             {mode === "map" && (
               <MapAreaPicker city={form.city} district={form.district} value={mapArea} onChange={setMapArea} />
             )}

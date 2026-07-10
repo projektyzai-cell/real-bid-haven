@@ -72,7 +72,7 @@ function ContractPage() {
     setLoading(true);
     const { data: t, error: e1 } = await supabase
       .from("lease_transactions")
-      .select("id,state,tenant_id,landlord_id,chat_id,listing_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at")
+      .select("id,state,tenant_id,landlord_id,chat_id,listing_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at,contract_start_date,contract_end_date,tenant_dates_confirmed_at,landlord_dates_confirmed_at")
       .eq("id", transactionId)
       .maybeSingle();
     if (e1 || !t) { toast.error(e1?.message ?? "Nie znaleziono transakcji"); setLoading(false); return; }
@@ -226,17 +226,17 @@ function ContractPage() {
         <div className="mt-8 rounded-3xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-5">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-5 w-5 text-gold" />
-            <h2 className="text-lg font-bold">Zawarcie umowy — obustronne potwierdzenie</h2>
+            <h2 className="text-lg font-bold">Umowa podpisana — potwierdzenie obu stron</h2>
           </div>
           <p className="mt-1 text-sm text-muted-foreground">
-            Po kliknięciu przez obie strony transakcja zostaje sfinalizowana, oferta jest zamykana, a wpis pojawia się w Historii najmu.
+            Po podpisaniu umowy najmu (wygenerowanej w portalu lub własnej) każda ze stron klika „Umowa podpisana". Następnie obie strony wpisują daty najmu i klikają „Zatwierdź daty" — dopiero to finalizuje transakcję.
           </p>
           <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
             <div className={`rounded-xl border p-3 ${txn.tenant_finalized_at ? "border-emerald-500/50 bg-emerald-500/5" : "border-border"}`}>
-              Najemca: {txn.tenant_finalized_at ? `✓ potwierdził ${new Date(txn.tenant_finalized_at).toLocaleString("pl-PL")}` : "— oczekuje"}
+              Najemca: {txn.tenant_finalized_at ? `✓ podpisał ${new Date(txn.tenant_finalized_at).toLocaleString("pl-PL")}` : "— oczekuje"}
             </div>
             <div className={`rounded-xl border p-3 ${txn.landlord_finalized_at ? "border-emerald-500/50 bg-emerald-500/5" : "border-border"}`}>
-              Wynajmujący: {txn.landlord_finalized_at ? `✓ potwierdził ${new Date(txn.landlord_finalized_at).toLocaleString("pl-PL")}` : "— oczekuje"}
+              Wynajmujący: {txn.landlord_finalized_at ? `✓ podpisał ${new Date(txn.landlord_finalized_at).toLocaleString("pl-PL")}` : "— oczekuje"}
             </div>
           </div>
           <Button
@@ -245,10 +245,70 @@ function ContractPage() {
             className="mt-4 rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
           >
             {finalizing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileSignature className="mr-2 h-4 w-4" />}
-            {myFinalized ? (otherFinalized ? "Umowa zawarta" : "Czekam na drugą stronę") : "Zawrzyj umowę"}
+            {myFinalized ? "Umowa podpisana ✓" : "Umowa podpisana"}
           </Button>
+
+          {txn.tenant_finalized_at && txn.landlord_finalized_at && (
+            <ContractDatesForm txn={txn} role={role} onDone={reload} />
+          )}
         </div>
       )}
     </div>
   );
 }
+
+function ContractDatesForm({
+  txn, role, onDone,
+}: {
+  txn: any; role: "tenant" | "landlord" | null; onDone: () => void;
+}) {
+  const [start, setStart] = useState<string>(txn.contract_start_date ?? "");
+  const [end, setEnd] = useState<string>(txn.contract_end_date ?? "");
+  const [busy, setBusy] = useState(false);
+
+  const myConfirmed = role === "tenant" ? !!txn.tenant_dates_confirmed_at : role === "landlord" ? !!txn.landlord_dates_confirmed_at : false;
+  const otherConfirmed = role === "tenant" ? !!txn.landlord_dates_confirmed_at : role === "landlord" ? !!txn.tenant_dates_confirmed_at : false;
+
+  async function confirm() {
+    if (!start || !end) { toast.error("Podaj datę rozpoczęcia i zakończenia najmu"); return; }
+    setBusy(true);
+    const { data, error } = await supabase.rpc("confirm_contract_dates" as never, {
+      _transaction_id: txn.id, _start_date: start, _end_date: end,
+    } as never);
+    setBusy(false);
+    if (error) { toast.error(error.message); return; }
+    if (data === "completed") toast.success("🎉 Umowa zawarta! Zobacz w Aktywnych umowach Stay Safe.");
+    else toast.success("Twoje daty zapisane. Czekamy na drugą stronę.");
+    onDone();
+  }
+
+  return (
+    <div className="mt-5 rounded-2xl border border-border bg-background/40 p-4">
+      <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">Daty umowy najmu</h3>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div>
+          <Label>Data rozpoczęcia</Label>
+          <Input type="date" value={start} onChange={(e) => setStart(e.target.value)} disabled={myConfirmed} className="mt-1.5 rounded-xl" />
+        </div>
+        <div>
+          <Label>Data zakończenia</Label>
+          <Input type="date" value={end} onChange={(e) => setEnd(e.target.value)} disabled={myConfirmed} className="mt-1.5 rounded-xl" />
+        </div>
+      </div>
+      <div className="mt-3 grid gap-2 text-xs sm:grid-cols-2">
+        <div className={`rounded-xl border p-2 ${txn.tenant_dates_confirmed_at ? "border-emerald-500/50 bg-emerald-500/5" : "border-border"}`}>
+          Najemca: {txn.tenant_dates_confirmed_at ? "✓ zatwierdził" : "— oczekuje"}
+        </div>
+        <div className={`rounded-xl border p-2 ${txn.landlord_dates_confirmed_at ? "border-emerald-500/50 bg-emerald-500/5" : "border-border"}`}>
+          Wynajmujący: {txn.landlord_dates_confirmed_at ? "✓ zatwierdził" : "— oczekuje"}
+        </div>
+      </div>
+      <Button onClick={confirm} disabled={busy || myConfirmed || !start || !end}
+        className="mt-4 rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90">
+        {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+        {myConfirmed ? (otherConfirmed ? "Umowa zawarta ✓" : "Czekam na drugą stronę") : "Zatwierdź daty"}
+      </Button>
+    </div>
+  );
+}
+
