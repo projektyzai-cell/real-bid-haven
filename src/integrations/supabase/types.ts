@@ -344,15 +344,22 @@ export type Database = {
           cancelled_at: string | null
           chat_id: string | null
           completed_at: string | null
+          contract_end_date: string | null
+          contract_start_date: string | null
           created_at: string
           id: string
+          landlord_dates_confirmed_at: string | null
           landlord_finalized_at: string | null
+          landlord_hidden_from_active_at: string | null
           landlord_id: string
           listing_id: string | null
           passport_serial_snapshot: string | null
           passport_shared_at: string | null
+          payment_delay_reported_at: string | null
           request_id: string | null
           state: Database["public"]["Enums"]["lease_state"]
+          system_notice_sent_at: string | null
+          tenant_dates_confirmed_at: string | null
           tenant_finalized_at: string | null
           tenant_id: string
           updated_at: string
@@ -362,15 +369,22 @@ export type Database = {
           cancelled_at?: string | null
           chat_id?: string | null
           completed_at?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
           created_at?: string
           id?: string
+          landlord_dates_confirmed_at?: string | null
           landlord_finalized_at?: string | null
+          landlord_hidden_from_active_at?: string | null
           landlord_id: string
           listing_id?: string | null
           passport_serial_snapshot?: string | null
           passport_shared_at?: string | null
+          payment_delay_reported_at?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
+          system_notice_sent_at?: string | null
+          tenant_dates_confirmed_at?: string | null
           tenant_finalized_at?: string | null
           tenant_id: string
           updated_at?: string
@@ -380,15 +394,22 @@ export type Database = {
           cancelled_at?: string | null
           chat_id?: string | null
           completed_at?: string | null
+          contract_end_date?: string | null
+          contract_start_date?: string | null
           created_at?: string
           id?: string
+          landlord_dates_confirmed_at?: string | null
           landlord_finalized_at?: string | null
+          landlord_hidden_from_active_at?: string | null
           landlord_id?: string
           listing_id?: string | null
           passport_serial_snapshot?: string | null
           passport_shared_at?: string | null
+          payment_delay_reported_at?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
+          system_notice_sent_at?: string | null
+          tenant_dates_confirmed_at?: string | null
           tenant_finalized_at?: string | null
           tenant_id?: string
           updated_at?: string
@@ -1087,21 +1108,27 @@ export type Database = {
           content: string
           created_at: string
           id: string
-          sender_id: string
+          is_system: boolean
+          metadata: Json | null
+          sender_id: string | null
         }
         Insert: {
           chat_id: string
           content: string
           created_at?: string
           id?: string
-          sender_id: string
+          is_system?: boolean
+          metadata?: Json | null
+          sender_id?: string | null
         }
         Update: {
           chat_id?: string
           content?: string
           created_at?: string
           id?: string
-          sender_id?: string
+          is_system?: boolean
+          metadata?: Json | null
+          sender_id?: string | null
         }
         Relationships: [
           {
@@ -1490,6 +1517,14 @@ export type Database = {
         }
         Returns: number
       }
+      confirm_contract_dates: {
+        Args: {
+          _end_date: string
+          _start_date: string
+          _transaction_id: string
+        }
+        Returns: string
+      }
       delete_my_account: { Args: never; Returns: undefined }
       express_interest: {
         Args: { _listing_id: string; _request_id?: string }
@@ -1543,6 +1578,10 @@ export type Database = {
       }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       kw_taken: { Args: { _kw: string }; Returns: boolean }
+      landlord_hide_lease: {
+        Args: { _transaction_id: string }
+        Returns: undefined
+      }
       listing_rating_summary: {
         Args: { _listing_id: string }
         Returns: {
@@ -1563,8 +1602,20 @@ export type Database = {
           verified_past_contract: boolean
         }[]
       }
+      post_chat_system_message: {
+        Args: { _chat_id: string; _content: string }
+        Returns: undefined
+      }
+      post_passport_shared_system_message: {
+        Args: { _transaction_id: string }
+        Returns: undefined
+      }
       ratings_revealed: { Args: { _transaction_id: string }; Returns: boolean }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
+      report_payment_delay: {
+        Args: { _transaction_id: string }
+        Returns: undefined
+      }
       resume_property_listing: {
         Args: { _days: number; _id: string }
         Returns: string
