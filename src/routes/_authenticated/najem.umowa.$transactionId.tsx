@@ -311,6 +311,4 @@ function ContractDatesForm({
     </div>
   );
 }
-    </div>
-  );
-}
+
