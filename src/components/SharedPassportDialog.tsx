@@ -65,7 +65,7 @@ export function SharedPassportDialog({
         creditScoreVerified: false,
       });
     })();
-  }, [open, transactionId, onClose]);
+  }, [open, transactionId, chatId, onClose]);
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
