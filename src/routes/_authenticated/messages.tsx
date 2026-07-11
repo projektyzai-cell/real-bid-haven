@@ -628,6 +628,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [showPassport, setShowPassport] = useState(false);
+  const [showSign, setShowSign] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isTenant = chat.myRole === "Najemca";
