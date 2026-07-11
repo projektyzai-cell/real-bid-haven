@@ -166,6 +166,7 @@ function RentalChatPage() {
                   key === "both_accepted_intro" ? t("chat.systemBothAccepted", { defaultValue: "Obie strony wyraziły wstępne zainteresowanie ofertą najmu. Możecie teraz przez czat omówić szczegóły najmu, umówić się na prezentację nieruchomości będącej przedmiotem najmu oraz uzgodnić warunki umowy. Kiedy dojdziecie do porozumienia — wygenerujcie umowę w naszym systemie lub przygotujcie własną. Po podpisaniu umowy pamiętajcie, aby obie strony kliknęły „Umowa podpisana” i wpisały zgodne daty rozpoczęcia i zakończenia najmu — to zabezpieczenie zarówno dla Wynajmującego (terminowość płatności), jak i dla Najemcy (zwrot kaucji)." }) :
                   key === "passport_shared" ? t("chat.systemPassportShared", { defaultValue: "Najemca udostępnił Ci swój Paszport StaySafe. Kliknij, aby zobaczyć jego dane." }) :
                   key === "lease_completed" ? t("chat.systemLeaseCompleted", { defaultValue: "Umowa zawarta obustronnie." }) :
+                  key === "payment_delay_alert" ? t("chat.systemPaymentDelay", { defaultValue: "⚠ Wynajmujący zgłosił opóźnienie płatności. Masz 72 h na uregulowanie zaległej płatności — po tym czasie Twój Paszport Najemcy otrzyma adnotację o nieterminowości." }) :
                   m.content;
                 const showPassportBtn = key === "passport_shared" && isLandlord && chat.transaction;
                 return (
