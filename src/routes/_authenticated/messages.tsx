@@ -1043,6 +1043,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                   <FileText className="h-4 w-4" /> Przejdź do generatora umowy
                 </Link>
               )}
+              {bothAccepted && (
+                <button
+                  type="button"
+                  onClick={openSignFlow}
+                  disabled={!txn?.id}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-gold-foreground shadow hover:opacity-90 disabled:opacity-60"
+                  title={txn?.id ? "Oznacz umowę jako podpisaną i wpisz daty" : "Transakcja jeszcze się przygotowuje…"}
+                >
+                  <FileSignature className="h-4 w-4" /> Umowa podpisana
+                </button>
+              )}
+
               {otherAccepted && !iAccepted && (
                 <span className="text-[11px] text-muted-foreground">
                   Druga strona już zaakceptowała ✨
