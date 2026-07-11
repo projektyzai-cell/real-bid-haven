@@ -288,6 +288,17 @@ function MyRequestsPage() {
         </div>
       )}
 
+      <TenantLeasesSection userId={user?.id} />
+
+      {signTxn && (
+        <QuickSignContractDialog
+          transactionId={signTxn}
+          open
+          onClose={() => setSignTxn(null)}
+          onDone={() => queryClient.invalidateQueries({ queryKey: ["my-lease-txns"] })}
+        />
+      )}
+
       {editing && (
         <EditRequestDialog
           request={editing}
@@ -298,6 +309,89 @@ function MyRequestsPage() {
     </div>
   );
 }
+
+function TenantLeasesSection({ userId }: { userId: string | undefined }) {
+  const { data: leases = [] } = useQuery({
+    queryKey: ["tenant-active-leases", userId],
+    enabled: !!userId,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("lease_transactions")
+        .select("id,listing_id,contract_start_date,contract_end_date,completed_at,chat_id,payment_delay_reported_at")
+        .eq("tenant_id", userId!)
+        .eq("state", "completed")
+        .order("completed_at", { ascending: false });
+      if (error) throw error;
+      const rows = (data ?? []) as any[];
+      const listingIds = Array.from(new Set(rows.map((r) => r.listing_id).filter(Boolean))) as string[];
+      const { data: listings } = listingIds.length
+        ? await supabase.from("rental_listings").select("id,title,city,street,apt_no,monthly_price").in("id", listingIds)
+        : { data: [] as any[] };
+      const map = new Map((listings ?? []).map((l: any) => [l.id, l]));
+      return rows.map((r) => ({ ...r, listing: r.listing_id ? map.get(r.listing_id) : null }));
+    },
+  });
+
+  if (!userId || leases.length === 0) return null;
+  const today = Date.now();
+
+  return (
+    <div className="mt-12">
+      <h2 className="text-3xl font-bold">Aktywne i zakończone umowy najmu</h2>
+      <div className="mt-6 space-y-4">
+        {leases.map((t: any) => {
+          const start = t.contract_start_date ? new Date(t.contract_start_date) : null;
+          const end = t.contract_end_date ? new Date(t.contract_end_date) : null;
+          const active = start && end && start.getTime() <= today && today <= end.getTime();
+          const finished = end && today > end.getTime();
+          return (
+            <div key={t.id} className="rounded-3xl border bg-card p-6 shadow-card">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2 text-sm">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span className="font-semibold">
+                      {t.listing?.title ?? "Umowa najmu"}{t.listing?.city ? ` · ${t.listing.city}` : ""}
+                    </span>
+                  </div>
+                  {t.listing?.street && (
+                    <div className="mt-0.5 text-xs text-muted-foreground">{t.listing.street}{t.listing.apt_no ? ` / ${t.listing.apt_no}` : ""}</div>
+                  )}
+                  {t.listing?.monthly_price && (
+                    <div className="mt-1 text-xl font-bold tabular-nums">{formatPLN(t.listing.monthly_price)}/mies.</div>
+                  )}
+                  <div className="mt-2 text-sm">
+                    Okres najmu: <span className="font-semibold">
+                      {start ? start.toLocaleDateString("pl-PL") : "—"} → {end ? end.toLocaleDateString("pl-PL") : "—"}
+                    </span>
+                  </div>
+                  {t.payment_delay_reported_at && (
+                    <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
+                      ⚠ Zgłoszono opóźnienie płatności — 72 h na uregulowanie
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <Badge className={`rounded-full ${finished ? "bg-muted text-foreground" : active ? "" : ""}`} variant={finished ? "outline" : "default"}>
+                    <Clock className="h-3 w-3" />
+                    {finished ? "Zakończona" : active ? "Aktywna" : "Nadchodząca"}
+                  </Badge>
+                  {t.chat_id && (
+                    <Link to="/najem/chats/$id" params={{ id: t.chat_id }}
+                      className="inline-flex items-center gap-1 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20">
+                      <MessageCircle className="h-3 w-3" /> Czat
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 function EditRequestDialog({ request, onClose, onSaved }: { request: MyRequest; onClose: () => void; onSaved: () => void }) {
   const [city, setCity] = useState(request.city);
