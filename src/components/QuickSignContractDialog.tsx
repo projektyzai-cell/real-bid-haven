@@ -73,7 +73,7 @@ export function QuickSignContractDialog({
     } as never);
     setBusy(false);
     if (e2) { toast.error(e2.message); return; }
-    if (res === "completed") toast.success("🎉 Umowa zawarta! Znajdziesz ją w sekcji „Aktywne i zakończone umowy".");
+    if (res === "completed") toast.success('🎉 Umowa zawarta! Znajdziesz ją w sekcji „Aktywne i zakończone umowy".');
     else toast.success("Twoje daty zapisane. Czekamy na drugą stronę.");
     onDone?.();
     onClose();
