@@ -47,8 +47,8 @@ export function QuickSignContractDialog({
     })();
   }, [open, transactionId]);
 
-  const { data: { user } = { user: null } as any } = { data: { user: { id: "" } } } as any; // not used
-  const uid = (supabase.auth.getUser as any); void uid;
+
+
 
   async function submit() {
     if (!start || !end) { toast.error("Podaj obie daty (dd-mm-rrrr)"); return; }
