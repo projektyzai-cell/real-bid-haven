@@ -97,10 +97,14 @@ interface AdminMsg {
 interface RentalMessage {
   id: string;
   chat_id: string;
-  sender_id: string;
+  sender_id: string | null;
   content: string;
   created_at: string;
+  is_system?: boolean;
 }
+
+const BOTH_ACCEPTED_INTRO_TEXT =
+  "Obie strony wyraziły wstępne zainteresowanie ofertą najmu. Możecie teraz przez czat omówić szczegóły najmu, umówić się na prezentację nieruchomości będącej przedmiotem najmu oraz uzgodnić warunki umowy. Kiedy dojdziecie do porozumienia — wygenerujcie umowę w naszym systemie lub przygotujcie własną. Po podpisaniu umowy pamiętajcie, aby obie strony kliknęły „Umowa podpisana" i wpisały zgodne daty rozpoczęcia i zakończenia najmu — to zabezpieczenie zarówno dla Wynajmującego (terminowość płatności), jak i dla Najemcy (zwrot kaucji).";
 
 function MessagesPage() {
   const { user } = useAuth();
