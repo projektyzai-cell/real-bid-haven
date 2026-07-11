@@ -261,17 +261,9 @@ function MyRequestsPage() {
                               ) : o.status === "rejected" ? (
                                 <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
                               ) : (
-                                <>
-                                  {o.listing && (
-                                    <Button size="sm" variant="outline" className="rounded-xl border-[var(--gold)]/40 text-gold hover:bg-[var(--gold)]/10"
-                                      onClick={() => expressInterest(o.listing!.id, r.id)}>
-                                      ★ Wyrażam zainteresowanie
-                                    </Button>
-                                  )}
-                                  <Button size="sm" className="rounded-xl" onClick={() => acceptOffer(o.id)}>
-                                    <MessageCircle className="h-4 w-4" /> Akceptuj
-                                  </Button>
-                                </>
+                                <Button size="sm" className="rounded-xl bg-[var(--gold)] text-black hover:bg-[var(--gold)]/90" onClick={() => acceptOffer(o.id)}>
+                                  <MessageCircle className="h-4 w-4" /> Wstępnie zainteresowany
+                                </Button>
                               )}
                             </div>
                           </div>
