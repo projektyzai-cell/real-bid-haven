@@ -16,6 +16,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { LocationPicker } from "@/components/LocationPicker";
 import { LeaseStageBar } from "@/components/LeaseStageBar";
+import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-zapytania")({
   head: () => ({ meta: [{ title: "Moje zapytania najmu — Stay Safe" }] }),
