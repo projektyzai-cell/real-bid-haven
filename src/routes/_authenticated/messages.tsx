@@ -641,6 +641,43 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
   // Landlord opens the tenant's shared passport via chat-based RPC.
 
+  // Look up the lease_transaction linked to this chat so we can open the sign dialog.
+  const { data: txn } = useQuery({
+    enabled: bothAccepted && !!chat.listingId,
+    queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId],
+    queryFn: async () => {
+      if (!chat.listingId) return null;
+      const { data } = await supabase
+        .from("lease_transactions")
+        .select("id")
+        .eq("tenant_id", chat.tenantId)
+        .eq("landlord_id", chat.landlordId)
+        .eq("listing_id", chat.listingId)
+        .maybeSingle();
+      return (data as { id: string } | null) ?? null;
+    },
+  });
+
+  const openSignFlow = async () => {
+    if (txn?.id) { setShowSign(true); return; }
+    if (!chat.listingId) { toast.error("Brak powiązanej oferty"); return; }
+    // Create the lease_transaction on demand (idempotent server-side)
+    const { data, error } = await supabase.rpc("start_lease_transaction" as never, {
+      _tenant_id: chat.tenantId,
+      _landlord_id: chat.landlordId,
+      _listing_id: chat.listingId,
+    } as never);
+    if (error) { toast.error(error.message); return; }
+    const newId = (data as any)?.id ?? (typeof data === "string" ? data : null);
+    if (newId) {
+      qc.invalidateQueries({ queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId] });
+      setShowSign(true);
+    } else {
+      toast.error("Nie udało się utworzyć transakcji");
+    }
+  };
+
+
   const { data: messages } = useQuery({
     queryKey: ["messages-thread", chat.id],
     queryFn: async (): Promise<RentalMessage[]> => {
