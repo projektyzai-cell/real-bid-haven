@@ -100,7 +100,7 @@ function MyRequestsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("lease_transactions")
-        .select("id,state,listing_id,chat_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at")
+        .select("id,state,listing_id,chat_id,passport_shared_at,accepted_at,completed_at,tenant_finalized_at,landlord_finalized_at,contract_start_date,contract_end_date,tenant_dates_confirmed_at,landlord_dates_confirmed_at")
         .eq("tenant_id", user!.id)
         .in("listing_id", acceptedListingIds);
       const m: Record<string, any> = {};
