@@ -232,6 +232,7 @@ function MessagesPage() {
             landlordAcceptedAt: c.landlord_accepted_at,
             withdrawnAt: c.withdrawn_at,
             withdrawnBy: c.withdrawn_by,
+            listingId: offer?.listing_id ?? null,
           };
         }),
       );
