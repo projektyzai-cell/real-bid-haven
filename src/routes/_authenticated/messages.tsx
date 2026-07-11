@@ -1107,6 +1107,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
           onClose={() => setShowPassport(false)}
         />
       )}
+      {showSign && txn?.id && (
+        <QuickSignContractDialog
+          transactionId={txn.id}
+          open
+          onClose={() => setShowSign(false)}
+          onDone={() => {
+            qc.invalidateQueries({ queryKey: ["messages-chats"] });
+            qc.invalidateQueries({ queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId] });
+          }}
+        />
+      )}
+
     </div>
   );
 }
