@@ -21,6 +21,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+import { SharedPassportDialog } from "@/components/SharedPassportDialog";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({ meta: [{ title: "Wiadomości — Stay Safe" }] }),
