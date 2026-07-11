@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { SharedPassportDialog } from "@/components/SharedPassportDialog";
+import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
+import { FileSignature } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({ meta: [{ title: "Wiadomości — Stay Safe" }] }),
@@ -626,6 +628,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const qc = useQueryClient();
   const [text, setText] = useState("");
   const [showPassport, setShowPassport] = useState(false);
+  const [showSign, setShowSign] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isTenant = chat.myRole === "Najemca";
@@ -637,6 +640,30 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const withdrawnByMe = withdrawn && chat.withdrawnBy === user?.id;
 
   // Landlord opens the tenant's shared passport via chat-based RPC.
+
+  // Look up the lease_transaction linked to this chat so we can open the sign dialog.
+  const { data: txn } = useQuery({
+    enabled: bothAccepted && !!chat.listingId,
+    queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId],
+    queryFn: async () => {
+      if (!chat.listingId) return null;
+      const { data } = await supabase
+        .from("lease_transactions")
+        .select("id")
+        .eq("tenant_id", chat.tenantId)
+        .eq("landlord_id", chat.landlordId)
+        .eq("listing_id", chat.listingId)
+        .maybeSingle();
+      return (data as { id: string } | null) ?? null;
+    },
+  });
+
+  const openSignFlow = () => {
+    if (!txn?.id) { toast.error("Brak powiązanej transakcji najmu"); return; }
+    setShowSign(true);
+  };
+
+
 
   const { data: messages } = useQuery({
     queryKey: ["messages-thread", chat.id],
@@ -1016,6 +1043,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                   <FileText className="h-4 w-4" /> Przejdź do generatora umowy
                 </Link>
               )}
+              {bothAccepted && (
+                <button
+                  type="button"
+                  onClick={openSignFlow}
+                  disabled={!txn?.id}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-gold-foreground shadow hover:opacity-90 disabled:opacity-60"
+                  title={txn?.id ? "Oznacz umowę jako podpisaną i wpisz daty" : "Transakcja jeszcze się przygotowuje…"}
+                >
+                  <FileSignature className="h-4 w-4" /> Umowa podpisana
+                </button>
+              )}
+
               {otherAccepted && !iAccepted && (
                 <span className="text-[11px] text-muted-foreground">
                   Druga strona już zaakceptowała ✨
@@ -1068,6 +1107,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
           onClose={() => setShowPassport(false)}
         />
       )}
+      {showSign && txn?.id && (
+        <QuickSignContractDialog
+          transactionId={txn.id}
+          open
+          onClose={() => setShowSign(false)}
+          onDone={() => {
+            qc.invalidateQueries({ queryKey: ["messages-chats"] });
+            qc.invalidateQueries({ queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId] });
+          }}
+        />
+      )}
+
     </div>
   );
 }
