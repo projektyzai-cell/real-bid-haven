@@ -7,10 +7,12 @@ import { toast } from "sonner";
 
 export function SharedPassportDialog({
   transactionId,
+  chatId,
   open,
   onClose,
 }: {
-  transactionId: string;
+  transactionId?: string;
+  chatId?: string;
   open: boolean;
   onClose: () => void;
 }) {
@@ -21,9 +23,10 @@ export function SharedPassportDialog({
     if (!open) return;
     setLoading(true);
     (async () => {
-      const { data: rows, error } = await supabase.rpc("get_shared_passport" as never, {
-        _transaction_id: transactionId,
-      } as never);
+      const call = chatId
+        ? supabase.rpc("get_shared_passport_by_chat" as never, { _chat_id: chatId } as never)
+        : supabase.rpc("get_shared_passport" as never, { _transaction_id: transactionId } as never);
+      const { data: rows, error } = await call;
       setLoading(false);
       if (error) {
         toast.error(error.message);
