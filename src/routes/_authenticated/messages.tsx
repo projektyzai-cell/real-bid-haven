@@ -918,7 +918,9 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                     ? "Najemca udostępnił Ci swój Paszport StaySafe."
                     : m.content === "lease_completed"
                       ? "Umowa zawarta obustronnie."
-                      : m.content;
+                      : m.content === "payment_delay_alert"
+                        ? "⚠ Wynajmujący zgłosił opóźnienie płatności. Masz 72 h na uregulowanie zaległej płatności — po tym czasie Twój Paszport Najemcy otrzyma adnotację o nieterminowości."
+                        : m.content;
               return (
                 <div key={m.id} className="flex justify-center">
                   <div className="max-w-[92%] rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-4 py-2.5 text-center text-xs font-medium text-foreground/90 whitespace-pre-line">
