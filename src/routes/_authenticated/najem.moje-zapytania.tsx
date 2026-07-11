@@ -254,8 +254,15 @@ function MyRequestsPage() {
                                         )}
                                         <Link to="/najem/umowa/$transactionId" params={{ transactionId: (txnMap as any)[o.listing.id].id }}
                                           className="inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-muted">
-                                          <FileSignature className="h-3 w-3" /> Umowa
+                                          <FileSignature className="h-3 w-3" /> Przejdź do generatora umowy
                                         </Link>
+                                        {(txnMap as any)[o.listing.id].state !== "completed" && (
+                                          <button
+                                            onClick={() => setSignTxn((txnMap as any)[o.listing!.id].id)}
+                                            className="inline-flex items-center gap-1 rounded-xl bg-[var(--gold)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
+                                            <FileSignature className="h-3 w-3" /> Umowa podpisana
+                                          </button>
+                                        )}
                                       </div>
                                     </>
                                   )}
