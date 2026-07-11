@@ -83,6 +83,7 @@ interface ChatItem {
   landlordAcceptedAt: string | null;
   withdrawnAt: string | null;
   withdrawnBy: string | null;
+  listingId: string | null;
 }
 
 interface AdminMsg {
