@@ -108,65 +108,99 @@ function AktywneUmowyPage() {
             </p>
           </div>
         ) : (
-          <div className="grid gap-3">
-            {rows.map((t: any) => (
-              <div key={t.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
-                <div className="flex flex-wrap items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                      {t.role === "tenant" ? "Wynajmujący" : "Najemca"}: <span className="font-semibold text-foreground">{t.otherName}</span>
-                    </div>
-                    <div className="mt-1 font-semibold">{t.listing?.title ?? "Oferta"}</div>
-                    {t.listing?.city && (
-                      <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
-                        <MapPin className="h-3 w-3" /> {t.listing.city}
+          (() => {
+            // Group by listing for landlords; tenants keep flat list
+            const groups = new Map<string, any[]>();
+            for (const t of rows as any[]) {
+              const key = t.role === "landlord" ? (t.listing_id ?? "no-listing") : `__flat_${t.id}`;
+              const arr = groups.get(key) ?? [];
+              arr.push(t);
+              groups.set(key, arr);
+            }
+            return (
+              <div className="space-y-6">
+                {Array.from(groups.entries()).map(([key, items]) => {
+                  const isGroup = !key.startsWith("__flat_") && items[0]?.role === "landlord";
+                  const listing = items[0]?.listing;
+                  return (
+                    <div key={key} className={isGroup ? "rounded-3xl border border-border/70 bg-card/60 p-4" : ""}>
+                      {isGroup && (
+                        <div className="mb-3 flex items-center gap-2">
+                          <MapPin className="h-4 w-4 text-gold" />
+                          <div className="font-bold">{listing?.title ?? "Nieruchomość"}</div>
+                          {listing?.city && <div className="text-xs text-muted-foreground">· {listing.city}</div>}
+                          <div className="ml-auto text-[11px] uppercase tracking-wider text-muted-foreground">{items.length} {items.length === 1 ? "umowa" : "umowy"}</div>
+                        </div>
+                      )}
+                      <div className="grid gap-3">
+                        {items.map((t: any) => (
+                          <div key={t.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
+                            <div className="flex flex-wrap items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <div className="text-xs uppercase tracking-wider text-muted-foreground">
+                                  {t.role === "tenant" ? "Wynajmujący" : "Najemca"}: <span className="font-semibold text-foreground">{t.otherName}</span>
+                                </div>
+                                {!isGroup && (
+                                  <>
+                                    <div className="mt-1 font-semibold">{t.listing?.title ?? "Oferta"}</div>
+                                    {t.listing?.city && (
+                                      <div className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground">
+                                        <MapPin className="h-3 w-3" /> {t.listing.city}
+                                      </div>
+                                    )}
+                                  </>
+                                )}
+                                {t.listing?.monthly_price && (
+                                  <div className="mt-1 text-sm text-gold">{formatPLN(t.listing.monthly_price)} / mies.</div>
+                                )}
+                                <div className="mt-2 grid gap-1 text-[11px] text-muted-foreground sm:grid-cols-2">
+                                  <div>Zawarto: <span className="text-foreground">{t.completed_at ? new Date(t.completed_at).toLocaleDateString("pl-PL") : "—"}</span></div>
+                                  <div>Okres najmu: <span className="text-foreground">
+                                    {t.contract_start_date ? new Date(t.contract_start_date).toLocaleDateString("pl-PL") : "—"}
+                                    {" → "}
+                                    {t.contract_end_date ? new Date(t.contract_end_date).toLocaleDateString("pl-PL") : "—"}
+                                  </span></div>
+                                </div>
+                                {t.payment_delay_reported_at && (
+                                  <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
+                                    <AlertTriangle className="h-3 w-3" /> Zgłoszono opóźnienie płatności
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex flex-col items-end gap-2">
+                                {t.chat_id && (
+                                  <Link
+                                    to="/najem/chats/$id"
+                                    params={{ id: t.chat_id }}
+                                    className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20"
+                                  >
+                                    <MessageCircle className="h-3.5 w-3.5" /> Czat
+                                  </Link>
+                                )}
+                                {t.role === "landlord" && (
+                                  <>
+                                    <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:bg-destructive/10"
+                                      onClick={() => reportDelay(t.id)}
+                                      disabled={!!t.payment_delay_reported_at}>
+                                      <AlertTriangle className="mr-1 h-3.5 w-3.5" /> {t.payment_delay_reported_at ? "Zgłoszono" : "Alert nieterminowości"}
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
+                                      onClick={() => hide(t.id)}>
+                                      <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
+                                    </Button>
+                                  </>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    )}
-                    {t.listing?.monthly_price && (
-                      <div className="mt-1 text-sm text-gold">{formatPLN(t.listing.monthly_price)} / mies.</div>
-                    )}
-                    <div className="mt-2 grid gap-1 text-[11px] text-muted-foreground sm:grid-cols-2">
-                      <div>Zawarto: <span className="text-foreground">{t.completed_at ? new Date(t.completed_at).toLocaleDateString("pl-PL") : "—"}</span></div>
-                      <div>Okres najmu: <span className="text-foreground">
-                        {t.contract_start_date ? new Date(t.contract_start_date).toLocaleDateString("pl-PL") : "—"}
-                        {" → "}
-                        {t.contract_end_date ? new Date(t.contract_end_date).toLocaleDateString("pl-PL") : "—"}
-                      </span></div>
                     </div>
-                    {t.payment_delay_reported_at && (
-                      <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
-                        <AlertTriangle className="h-3 w-3" /> Zgłoszono opóźnienie płatności
-                      </div>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    {t.chat_id && (
-                      <Link
-                        to="/najem/chats/$id"
-                        params={{ id: t.chat_id }}
-                        className="inline-flex items-center gap-1.5 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5" /> Czat
-                      </Link>
-                    )}
-                    {t.role === "landlord" && (
-                      <>
-                        <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:bg-destructive/10"
-                          onClick={() => reportDelay(t.id)}
-                          disabled={!!t.payment_delay_reported_at}>
-                          <AlertTriangle className="mr-1 h-3.5 w-3.5" /> {t.payment_delay_reported_at ? "Zgłoszono" : "Zgłoś opóźnienie"}
-                        </Button>
-                        <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
-                          onClick={() => hide(t.id)}>
-                          <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
+            );
+          })()
         )}
       </div>
     </div>
