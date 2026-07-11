@@ -125,7 +125,7 @@ function MyRequestsPage() {
   }, [reqIds.join(","), queryClient]);
 
   async function acceptOffer(offerId: string) {
-    if (!window.confirm("Akceptując ofertę aktywujesz prywatny czat z wynajmującym. Kontynuować?")) return;
+    if (!window.confirm("Oznaczysz się jako wstępnie zainteresowany tą ofertą i aktywujesz prywatny czat z wynajmującym. Kontynuować?")) return;
     const { data, error } = await supabase.rpc("accept_rental_offer" as never, { _offer_id: offerId } as never);
     if (error) { toast.error(error.message); return; }
     toast.success("Oferta zaakceptowana — chat aktywny");
