@@ -971,11 +971,22 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                 </span>
               )}
 
-              {/* Landlord: passport received indicator */}
+              {/* Landlord: click to view shared passport */}
               {!isTenant && passportSent && (
-                <span className="inline-flex items-center gap-1 rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">
-                  <IdCard className="h-3.5 w-3.5" /> Paszport otrzymany
-                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!transactionId) {
+                      toast.error("Nie znaleziono transakcji powiązanej z tym paszportem.");
+                      return;
+                    }
+                    setShowPassport(true);
+                  }}
+                  title="Kliknij, aby zobaczyć paszport Najemcy"
+                  className="inline-flex items-center gap-1 rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold transition hover:bg-gold/20"
+                >
+                  <IdCard className="h-3.5 w-3.5" /> Paszport otrzymany — zobacz
+                </button>
               )}
               {!isTenant && !passportSent && (
                 <span className="inline-flex items-center gap-1 rounded-lg border border-border/60 bg-background px-2.5 py-1 text-xs text-muted-foreground">
