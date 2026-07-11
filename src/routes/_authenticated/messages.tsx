@@ -621,6 +621,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const { user } = useAuth();
   const qc = useQueryClient();
   const [text, setText] = useState("");
+  const [showPassport, setShowPassport] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isTenant = chat.myRole === "Najemca";
@@ -630,6 +631,22 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const bothAccepted = !!chat.tenantAcceptedAt && !!chat.landlordAcceptedAt;
   const withdrawn = !!chat.withdrawnAt;
   const withdrawnByMe = withdrawn && chat.withdrawnBy === user?.id;
+
+  // Look up the lease_transaction linked to this chat so the landlord can view the shared passport.
+  const { data: transactionId } = useQuery({
+    queryKey: ["chat-txn", chat.tenantId, chat.landlordId, chat.listingId],
+    enabled: !isTenant && passportSent && !!chat.listingId,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("lease_transactions")
+        .select("id")
+        .eq("tenant_id", chat.tenantId)
+        .eq("landlord_id", chat.landlordId)
+        .eq("listing_id", chat.listingId!)
+        .maybeSingle();
+      return (data as { id: string } | null)?.id ?? null;
+    },
+  });
 
   const { data: messages } = useQuery({
     queryKey: ["messages-thread", chat.id],
