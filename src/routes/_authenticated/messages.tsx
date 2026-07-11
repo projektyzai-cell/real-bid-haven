@@ -22,6 +22,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { SharedPassportDialog } from "@/components/SharedPassportDialog";
+import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
+import { FileSignature } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/messages")({
   head: () => ({ meta: [{ title: "Wiadomości — Stay Safe" }] }),
