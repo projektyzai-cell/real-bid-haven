@@ -1044,9 +1044,9 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
           </Button>
         </form>
       </div>
-      {showPassport && transactionId && (
+      {showPassport && (
         <SharedPassportDialog
-          transactionId={transactionId}
+          chatId={chat.id}
           open
           onClose={() => setShowPassport(false)}
         />
