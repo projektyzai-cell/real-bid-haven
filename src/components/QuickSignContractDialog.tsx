@@ -94,7 +94,7 @@ export function QuickSignContractDialog({
         ) : (
           <div className="space-y-3">
             <p className="text-sm text-muted-foreground">
-              Potwierdzasz, że umowa najmu została podpisana. Wpisz zadeklarowany okres najmu — po zatwierdzeniu przez obie strony umowa trafi do sekcji „Aktywne i zakończone umowy".
+              Potwierdzasz, że umowa najmu została podpisana. Wpisz zadeklarowany okres najmu — po zatwierdzeniu przez obie strony umowa trafi do sekcji „Aktywne i zakończone umowy”.
             </p>
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
