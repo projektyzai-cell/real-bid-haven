@@ -658,24 +658,11 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     },
   });
 
-  const openSignFlow = async () => {
-    if (txn?.id) { setShowSign(true); return; }
-    if (!chat.listingId) { toast.error("Brak powiązanej oferty"); return; }
-    // Create the lease_transaction on demand (idempotent server-side)
-    const { data, error } = await supabase.rpc("start_lease_transaction" as never, {
-      _tenant_id: chat.tenantId,
-      _landlord_id: chat.landlordId,
-      _listing_id: chat.listingId,
-    } as never);
-    if (error) { toast.error(error.message); return; }
-    const newId = (data as any)?.id ?? (typeof data === "string" ? data : null);
-    if (newId) {
-      qc.invalidateQueries({ queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId] });
-      setShowSign(true);
-    } else {
-      toast.error("Nie udało się utworzyć transakcji");
-    }
+  const openSignFlow = () => {
+    if (!txn?.id) { toast.error("Brak powiązanej transakcji najmu"); return; }
+    setShowSign(true);
   };
+
 
 
   const { data: messages } = useQuery({
