@@ -1558,6 +1558,31 @@ export type Database = {
           willing_tenant_insurance: boolean
         }[]
       }
+      get_shared_passport_by_chat: {
+        Args: { _chat_id: string }
+        Returns: {
+          accepts_notarial_lease: boolean
+          avatar_url: string
+          display_name: string
+          has_tenant_insurance: boolean
+          home_city: string
+          instagram_username: string
+          lease_count: number
+          linkedin_url: string
+          passport_city: string
+          passport_contract_valid: boolean
+          passport_expires_at: string
+          passport_income_verified: boolean
+          passport_issued_at: string
+          passport_name_verified: boolean
+          passport_score: number
+          passport_serial: string
+          passport_social_verified: boolean
+          personal_bio_pl: string
+          social_facebook_url: string
+          willing_tenant_insurance: boolean
+        }[]
+      }
       get_user_stars: { Args: { _user_id: string }; Returns: number }
       has_role: {
         Args: {
