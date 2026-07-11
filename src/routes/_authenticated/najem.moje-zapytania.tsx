@@ -43,6 +43,7 @@ function MyRequestsPage() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<MyRequest | null>(null);
+  const [signTxn, setSignTxn] = useState<string | null>(null);
 
   const { data: requests, refetch: refetchRequests } = useQuery({
     queryKey: ["my-rental-requests", user?.id],
