@@ -906,12 +906,23 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
         ) : (
           messages.map((m) => {
             const mine = m.sender_id === user?.id;
-            const isSystem = /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(m.content);
+            const isSystem =
+              m.is_system === true ||
+              m.sender_id === null ||
+              /^[\p{Emoji_Presentation}\p{Extended_Pictographic}]/u.test(m.content);
             if (isSystem) {
+              const label =
+                m.content === "both_accepted_intro"
+                  ? BOTH_ACCEPTED_INTRO_TEXT
+                  : m.content === "passport_shared"
+                    ? "Najemca udostępnił Ci swój Paszport StaySafe."
+                    : m.content === "lease_completed"
+                      ? "Umowa zawarta obustronnie."
+                      : m.content;
               return (
                 <div key={m.id} className="flex justify-center">
-                  <div className="max-w-[90%] rounded-full border border-border/60 bg-background/60 px-3 py-1 text-center text-[11px] font-medium text-muted-foreground">
-                    {m.content}
+                  <div className="max-w-[92%] rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-4 py-2.5 text-center text-xs font-medium text-foreground/90 whitespace-pre-line">
+                    {label}
                   </div>
                 </div>
               );
