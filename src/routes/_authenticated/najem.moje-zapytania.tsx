@@ -132,7 +132,7 @@ function MyRequestsPage() {
     if (error) { toast.error(error.message); return; }
     toast.success("Oferta zaakceptowana — chat aktywny");
     queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
-    if (data) window.location.href = `/najem/chats/${data}`;
+    if (data) window.location.href = `/messages?tab=smart-match&chat=${data}`;
   }
 
   async function expressInterest(listingId: string, requestId: string) {
