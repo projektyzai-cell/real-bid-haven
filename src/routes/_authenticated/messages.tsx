@@ -115,6 +115,16 @@ function MessagesPage() {
   const [activeChatId, setActiveChatId] = useState<string | null>(null);
   const [activeAdminId, setActiveAdminId] = useState<string | null>(null);
 
+  // Deep-link support: /messages?tab=smart-match&chat=<id>
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sp = new URLSearchParams(window.location.search);
+    const t = sp.get("tab") as TabKey | null;
+    const c = sp.get("chat");
+    if (t === "smart-match" || t === "traditional" || t === "support") setTab(t);
+    if (c) setActiveChatId(c);
+  }, []);
+
   // === Load rental chats + enrich ===
   const chatsQ = useQuery({
     queryKey: ["messages-chats", user?.id],
