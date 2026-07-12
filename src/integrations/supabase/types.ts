@@ -1645,6 +1645,14 @@ export type Database = {
         Args: { _days: number; _id: string }
         Returns: string
       }
+      sign_lease_with_dates: {
+        Args: {
+          _end_date: string
+          _start_date: string
+          _transaction_id: string
+        }
+        Returns: string
+      }
       upsert_contract_draft: {
         Args: { _data: Json; _transaction_id: string }
         Returns: undefined
