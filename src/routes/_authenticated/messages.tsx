@@ -953,11 +953,15 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                   ? BOTH_ACCEPTED_INTRO_TEXT
                   : m.content === "passport_shared"
                     ? "Najemca udostępnił Ci swój Paszport StaySafe."
-                    : m.content === "lease_completed"
-                      ? "Umowa zawarta obustronnie."
-                      : m.content === "payment_delay_alert"
-                        ? "⚠ Wynajmujący zgłosił opóźnienie płatności. Masz 72 h na uregulowanie zaległej płatności — po tym czasie Twój Paszport Najemcy otrzyma adnotację o nieterminowości."
-                        : m.content;
+                  : m.content === "lease_completed"
+                      ? "🎉 Umowa zawarta obustronnie — sprawdź sekcję „Aktywne i zakończone umowy”."
+                      : m.content === "tenant_signed_awaiting_landlord"
+                        ? "✍️ Najemca podpisał umowę i zaproponował daty. Wynajmujący — potwierdź swój podpis w oknie „Umowa podpisana”."
+                        : m.content === "landlord_signed_awaiting_tenant"
+                          ? "✍️ Wynajmujący podpisał umowę i zaproponował daty. Najemca — potwierdź swój podpis w oknie „Umowa podpisana”."
+                          : m.content === "payment_delay_alert"
+                            ? "⚠ Wynajmujący zgłosił opóźnienie płatności. Masz 72 h na uregulowanie zaległej płatności — po tym czasie Twój Paszport Najemcy otrzyma adnotację o nieterminowości."
+                            : m.content;
               return (
                 <div key={m.id} className="flex justify-center">
                   <div className="max-w-[92%] rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 px-4 py-2.5 text-center text-xs font-medium text-foreground/90 whitespace-pre-line">
