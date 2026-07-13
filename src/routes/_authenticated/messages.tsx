@@ -797,6 +797,26 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const partyAcceptMut = useMutation({
+    mutationFn: async () => {
+      const patch = isTenant
+        ? { tenant_party_accepted_at: new Date().toISOString() }
+        : { landlord_party_accepted_at: new Date().toISOString() };
+      const { error } = await supabase
+        .from("rental_chats" as never)
+        .update(patch as never)
+        .eq("id", chat.id);
+      if (error) throw new Error(error.message);
+      await postSystem(`🖊️ ${isTenant ? "Najemca" : "Wynajmujący"} zaakceptował, że będzie stroną umowy najmu.`);
+    },
+    onSuccess: () => {
+      toast.success("Akceptacja strony umowy zapisana.");
+      qc.invalidateQueries({ queryKey: ["messages-chats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const withdrawMut = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
