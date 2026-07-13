@@ -44,9 +44,12 @@ interface RentalChatRow {
   tenant_passport_sent_at: string | null;
   tenant_accepted_at: string | null;
   landlord_accepted_at: string | null;
+  tenant_party_accepted_at: string | null;
+  landlord_party_accepted_at: string | null;
   withdrawn_at: string | null;
   withdrawn_by: string | null;
 }
+
 
 interface OfferRow {
   id: string;
