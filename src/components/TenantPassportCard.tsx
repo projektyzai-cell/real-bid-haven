@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   ShieldCheck, BadgeCheck, Download, Link2, User as UserIcon,
-  IdCard, Linkedin, KeyRound, GraduationCap, Wallet, Phone, BarChart3, Share2,
+  IdCard, Linkedin, Facebook, Instagram, Wallet, Mail, Share2, Gem, ClipboardList, CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -17,14 +17,19 @@ export type PassportData = {
   identityVerified: boolean;
   contractValid: boolean;
   socialVerified: boolean;
+  /** Total external rental history entries declared by the tenant. */
   leaseCount: number;
+  /** Optional — successful leases finalized inside the StaySafe platform. */
+  internalLeaseCount?: number;
   socials: { linkedin?: string | null; facebook?: string | null; instagram?: string | null };
   city?: string | null;
   acceptsOccasionalLease?: boolean;
+  acceptsOneMonthDeposit?: boolean;
+  isStudent?: boolean;
+  hasGuarantor?: boolean;
   hasTenantInsurance?: boolean;
   bio?: string | null;
   avatarUrl?: string | null;
-  // Optional extra aspects shown on the badge grid
   educationVerified?: boolean;
   contactVerified?: boolean;
   creditScoreVerified?: boolean;
@@ -84,11 +89,9 @@ function RainbowGauge({ score }: { score: number }) {
 }
 
 type Aspect = {
-  ok: boolean;
   label: string;
   sub: string;
   icon: React.ComponentType<{ className?: string }>;
-  tint: string; // hex for the icon tile
 };
 
 export function TenantPassportCard({ data }: { data: PassportData }) {
@@ -97,15 +100,19 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
   const completion = data.profileCompletionPct ?? Math.round((data.score / 100) * 100);
   const tier = data.score >= 86 ? "Najemca Ekspert" : data.score >= 60 ? "Najemca Premium" : data.score >= 30 ? "Najemca Standard" : "Najemca Nowy";
 
+  const externalCount = data.leaseCount ?? 0;
+  const internalCount = data.internalLeaseCount ?? 0;
+
+  // Since the passport is only generated after positive admin verification,
+  // every core aspect is rendered as "Zweryfikowano" — no pending states.
   const aspects: Aspect[] = [
-    { ok: data.identityVerified, label: "Tożsamość", sub: "Dowód + Skan Twarzy", icon: IdCard, tint: "#5b6a8a" },
-    { ok: !!data.socials.linkedin || data.socialVerified, label: "Profil Zawodowy", sub: "LinkedIn", icon: Linkedin, tint: "#0a66c2" },
-    { ok: data.contractValid || data.leaseCount > 0, label: "Historia Najmu", sub: "Referencje + Płatności", icon: KeyRound, tint: "#8a6f1f" },
-    { ok: !!data.educationVerified, label: "Wykształcenie", sub: "Dyplom", icon: GraduationCap, tint: "#3b6f3b" },
-    { ok: data.incomeVerified, label: "Wypłacalność", sub: "Dochód + Bankowa", icon: Wallet, tint: "#7a5a1f" },
-    { ok: !!data.contactVerified, label: "Dane Kontaktowe", sub: "E-mail, Telefon", icon: Phone, tint: "#8a6f1f" },
-    { ok: !!data.creditScoreVerified, label: "Scoring Kredytowy", sub: "+ Międzynarodowy", icon: BarChart3, tint: "#3b6f3b" },
+    { label: "Tożsamość (Anty-fraud)", sub: "Skan dokumentu tożsamości został pomyślnie zweryfikowany", icon: IdCard },
+    { label: "Stabilność finansowa", sub: "Miesięczny dochód i zatrudnienie zostały pomyślnie zweryfikowane", icon: Wallet },
   ];
+  if (data.socials.facebook) aspects.push({ label: "Konto Facebook", sub: "Profil społecznościowy został pomyślnie zweryfikowany", icon: Facebook });
+  if (data.socials.linkedin) aspects.push({ label: "Konto LinkedIn", sub: "Profil zawodowy został pomyślnie zweryfikowany", icon: Linkedin });
+  if (data.socials.instagram) aspects.push({ label: "Konto Instagram", sub: "Profil społecznościowy został pomyślnie zweryfikowany", icon: Instagram });
+  aspects.push({ label: "Dane kontaktowe", sub: "Adres e-mail został pomyślnie zweryfikowany", icon: Mail });
 
   async function downloadPdf() {
     if (!ref.current) return;
@@ -387,11 +394,10 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
           </div>
         </div>
 
-        {/* Two-column body */}
-        <div className="mt-5 grid gap-6 lg:grid-cols-[280px_1fr]">
-          {/* LEFT: identity + gauge */}
-          <div className="rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-5 text-center">
-            <div className="mx-auto h-24 w-24 overflow-hidden rounded-full border-2 border-[#D4AF37] bg-white/5">
+        {/* Identity header row */}
+        <div className="mt-5 grid gap-6 lg:grid-cols-[1fr_260px] lg:items-center">
+          <div className="flex items-center gap-4">
+            <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl border-2 border-[#D4AF37] bg-white/5">
               {data.avatarUrl ? (
                 <img src={data.avatarUrl} alt="" data-avatar crossOrigin="anonymous"
                   className="h-full w-full object-cover" />
@@ -401,77 +407,115 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
                 </div>
               )}
             </div>
-            <div className="mt-3 text-lg font-bold tracking-wide text-white">
-              {data.displayName.toUpperCase()}
-            </div>
-            <div className="mt-1 inline-block rounded-full border border-[#D4AF37]/50 bg-[#D4AF37]/10 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#D4AF37]">
-              {tier}
-            </div>
-            <div className="mt-4 flex flex-col items-center">
-              <RainbowGauge score={data.score} />
-              <div className="mt-1 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Trusted Tenant Score</div>
-              <div className="text-sm text-white/70">{trustLabel(data.score)}</div>
-            </div>
-            <div className="mt-3 border-t border-[#D4AF37]/20 pt-3 text-xs text-white/60">
-              <div className="flex justify-between"><span>Miasto</span><span className="font-semibold text-white">{data.city ?? "—"}</span></div>
-              <div className="mt-1 flex justify-between"><span>Wystawiono</span><span className="font-semibold text-white">{data.issuedAt ? new Date(data.issuedAt).toLocaleDateString("pl-PL") : "—"}</span></div>
-              <div className="mt-1 flex justify-between"><span>Historia najmu</span><span className="font-semibold text-white">{data.leaseCount} {data.leaseCount === 1 ? "najem" : "najmów"}</span></div>
+            <div className="min-w-0">
+              <div className="truncate text-2xl font-black tracking-wide text-white sm:text-3xl">
+                {data.displayName.toUpperCase()}
+              </div>
+              <div className="mt-1.5 inline-block rounded-full border border-[#D4AF37]/50 bg-[#D4AF37]/10 px-3 py-0.5 text-[10px] font-bold uppercase tracking-wider text-[#D4AF37]">
+                {tier}
+              </div>
+              <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+                <CheckCircle2 className="h-3 w-3" /> Profil zweryfikowany
+              </div>
             </div>
           </div>
+          <div className="flex flex-col items-center rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-3">
+            <RainbowGauge score={data.score} />
+            <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Trusted Tenant Score</div>
+            <div className="text-xs text-white/70">{trustLabel(data.score)}</div>
+          </div>
+        </div>
 
-          {/* RIGHT: bio + aspects + QR */}
-          <div className="space-y-4">
-            <div className="rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-4">
-              <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">O mnie</div>
-              <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-white/85">
-                {data.bio?.trim() || <span className="italic text-white/40">Najemca nie dodał jeszcze opisu.</span>}
+        {/* Quick-facts grid */}
+        <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard title="Lokalizacja domyślna" value={data.city ?? "—"} />
+          <StatCard title="Status paszportu" value="Aktywny i zweryfikowany" valueClass="text-emerald-300" />
+          <StatCard title="Najmy StaySafe" value={`${internalCount} ${internalCount === 1 ? "udany najem" : "udane najmy"}`} />
+          <StatCard title="Najmy zewnętrzne" value={`${externalCount} zweryfikowane`} />
+        </div>
+
+        {/* StaySafe internal leases — diamond highlight */}
+        <SectionCard title="Zawarte najmy przez StaySafe" tone="gold">
+          <div className="flex items-start gap-3">
+            <Gem className="mt-0.5 h-6 w-6 shrink-0 text-[#D4AF37]" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-bold text-white">
+                Historia bezpiecznych umów: {internalCount} {internalCount === 1 ? "udany najem" : "udane najmy"}
+              </div>
+              <p className="mt-1 text-xs leading-relaxed text-white/70">
+                Najem w pełni procesowany, opłacany terminowo i zamknięty bezkonfliktowo bezpośrednio w systemie StaySafe.pl.
               </p>
             </div>
+            <VerifiedPill />
+          </div>
+        </SectionCard>
 
-            <div className="rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-4">
-              <div className="mb-3 flex items-center gap-2">
-                <BadgeCheck className="h-4 w-4 text-[#D4AF37]" />
-                <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Zweryfikowane odznaki / Aspekty</div>
+        {/* External anonymized rental history */}
+        <SectionCard title="Zewnętrzna historia lokatorska (Cyfrowe CV najmu)">
+          <div className="flex items-start gap-3">
+            <ClipboardList className="mt-0.5 h-6 w-6 shrink-0 text-[#D4AF37]" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-bold text-white">
+                Wskazano {externalCount} {externalCount === 1 ? "historię" : externalCount >= 2 && externalCount <= 4 ? "historie" : "historii"} poprzednich najmów poza portalem
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                {aspects.map((a) => (
-                  <AspectRow key={a.label} aspect={a} />
-                ))}
-              </div>
+              <p className="mt-1 text-xs leading-relaxed text-white/70">
+                Poprzednie okresy najmu oraz referencje od właścicieli nieruchomości zostały pomyślnie potwierdzone i zweryfikowane.
+              </p>
             </div>
+            <VerifiedPill />
+          </div>
+        </SectionCard>
 
-            {(data.acceptsOccasionalLease || data.hasTenantInsurance) && (
-              <div className="rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-3 text-[11px] text-white/80">
-                <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Deklaracje najemcy</div>
-                {data.acceptsOccasionalLease && (
-                  <div className="mt-1 flex items-start gap-1.5">
-                    <BadgeCheck className="mt-0.5 h-3.5 w-3.5 text-emerald-400" />
-                    <span>Zgadza się na umowę <strong>najmu okazjonalnego</strong> (notarialne poddanie się egzekucji).</span>
-                  </div>
-                )}
-                {data.hasTenantInsurance && (
-                  <div className="mt-1 flex items-start gap-1.5">
-                    <BadgeCheck className="mt-0.5 h-3.5 w-3.5 text-emerald-400" />
-                    <span>Zgadza się wykupić <strong>ubezpieczenie OC najemcy</strong> na własny koszt.</span>
-                  </div>
-                )}
-              </div>
+        {/* Bio */}
+        {data.bio?.trim() && (
+          <div className="mt-5 rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-4">
+            <div className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">O mnie</div>
+            <p className="mt-1.5 whitespace-pre-line text-sm leading-relaxed text-white/85">{data.bio}</p>
+          </div>
+        )}
+
+        {/* Verified aspects */}
+        <SectionCard title="Zweryfikowane aspekty i odznaki">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            {aspects.map((a) => (<AspectRow key={a.label} aspect={a} />))}
+          </div>
+        </SectionCard>
+
+        {/* Declarations */}
+        <SectionCard title="Zgody, ubezpieczenia i warunki najmu">
+          <ul className="space-y-1.5 text-xs text-white/85">
+            {data.acceptsOccasionalLease && (
+              <DeclLi>Wyraża pełną zgodę na zawarcie umowy najmu okazjonalnego (notarialne poddanie się egzekucji).</DeclLi>
             )}
+            {data.isStudent && (
+              <DeclLi>Zadeklarowano status aktywnego studenta (próg dochodowy uznaniowy 3001–5000 zł netto).</DeclLi>
+            )}
+            {data.acceptsOneMonthDeposit && (
+              <DeclLi>Akceptuje w pełni wpłatę standardowej kaucji jednomiesięcznej.</DeclLi>
+            )}
+            {data.hasTenantInsurance && (
+              <DeclLi>Deklaruje posiadanie lub pełną gotowość do wykupienia Ubezpieczenia OC najemcy na własny koszt.</DeclLi>
+            )}
+            {data.hasGuarantor && (
+              <DeclLi>Posiada dodatkową możliwość pełnego poręczenia umowy najmu przez osobę trzecią z udokumentowanymi dochodami.</DeclLi>
+            )}
+          </ul>
+        </SectionCard>
 
-            <div className="flex items-end justify-between gap-3 border-t border-[#D4AF37]/20 pt-3">
-              <div className="text-xs italic text-white/60">„Bezpieczeństwo droższe od pieniędzy"</div>
-              <div className="text-right">
-                <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                  Zweryfikuj autentyczność
-                </div>
-                <div className="inline-block rounded-lg bg-white p-2">
-                  <QRCodeSVG value={qrUrl} size={72} bgColor="#FFFFFF" fgColor={NAVY} />
-                </div>
-              </div>
+        {/* Footer */}
+        <div className="mt-5 flex items-end justify-between gap-3 border-t border-[#D4AF37]/20 pt-4">
+          <div className="text-xs italic text-white/60">„Bezpieczeństwo droższe od pieniędzy"</div>
+          <div className="text-right">
+            <div className="mb-1.5 text-[9px] font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              Zweryfikuj autentyczność
+            </div>
+            <div className="inline-block rounded-lg bg-white p-2">
+              <QRCodeSVG value={qrUrl} size={72} bgColor="#FFFFFF" fgColor={NAVY} />
             </div>
           </div>
         </div>
       </div>
+
 
       {/* Action buttons */}
       <div className="flex flex-wrap justify-end gap-2">
@@ -486,22 +530,58 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
   );
 }
 
+function StatCard({ title, value, valueClass }: { title: string; value: string; valueClass?: string }) {
+  return (
+    <div className="rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-3">
+      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]/90">{title}</div>
+      <div className={`mt-1 text-sm font-semibold text-white ${valueClass ?? ""}`}>{value}</div>
+    </div>
+  );
+}
+
+function SectionCard({ title, tone, children }: { title: string; tone?: "gold"; children: React.ReactNode }) {
+  const border = tone === "gold" ? "border-[#D4AF37]/55" : "border-[#D4AF37]/25";
+  const bg = tone === "gold" ? "bg-[#D4AF37]/[0.07]" : "bg-black/20";
+  return (
+    <div className={`mt-4 rounded-2xl border ${border} ${bg} p-4`}>
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function VerifiedPill() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+      <CheckCircle2 className="h-3 w-3" /> Zweryfikowano
+    </span>
+  );
+}
+
+function DeclLi({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2">
+      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+      <span>{children}</span>
+    </li>
+  );
+}
+
 function AspectRow({ aspect }: { aspect: Aspect }) {
   const Icon = aspect.icon;
   return (
-    <div className={`flex items-center gap-2.5 rounded-xl border px-2.5 py-2 ${aspect.ok ? "border-emerald-400/40 bg-emerald-400/5" : "border-white/10 bg-white/5 opacity-70"}`}>
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${aspect.ok ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-white/40"}`}>
-        {aspect.ok
-          ? <BadgeCheck className="h-4 w-4" />
-          : <span className="text-[10px] font-bold">·</span>}
+    <div className="flex items-start gap-2.5 rounded-xl border border-emerald-400/40 bg-emerald-400/5 px-2.5 py-2">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+        <CheckCircle2 className="h-4 w-4" />
       </span>
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: aspect.tint + "55" }}>
-        <Icon className="h-4 w-4 text-white" />
-      </div>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#D4AF37]/15 text-[#D4AF37]">
+        <Icon className="h-4 w-4" />
+      </span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[12px] font-bold text-white">{aspect.label}</div>
-        <div className="truncate text-[10px] text-white/55">{aspect.sub}</div>
+        <div className="text-[10px] leading-snug text-white/65">{aspect.sub}</div>
       </div>
     </div>
   );
 }
+

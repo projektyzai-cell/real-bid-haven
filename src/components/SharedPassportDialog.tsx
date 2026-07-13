@@ -50,6 +50,7 @@ export function SharedPassportDialog({
         contractValid: !!r.passport_contract_valid,
         socialVerified: !!r.passport_social_verified,
         leaseCount: r.lease_count ?? 0,
+        internalLeaseCount: r.internal_lease_count ?? undefined,
         socials: {
           linkedin: r.linkedin_url,
           facebook: r.social_facebook_url,
@@ -57,6 +58,9 @@ export function SharedPassportDialog({
         },
         city: r.passport_city ?? r.home_city,
         acceptsOccasionalLease: !!r.accepts_notarial_lease,
+        acceptsOneMonthDeposit: !!r.accepts_one_month_deposit,
+        isStudent: !!r.is_student,
+        hasGuarantor: !!r.has_guarantor,
         hasTenantInsurance: !!(r.has_tenant_insurance || r.willing_tenant_insurance),
         bio: r.personal_bio_pl ?? null,
         avatarUrl: r.avatar_url ?? null,

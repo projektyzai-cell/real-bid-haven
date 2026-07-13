@@ -13,17 +13,22 @@ export const Route = createFileRoute("/_authenticated/najem/moj-paszport")({
 function MyPassportPage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
-  const [leaseCount, setLeaseCount] = useState(0);
+  const [externalLeaseCount, setExternalLeaseCount] = useState(0);
+  const [internalLeaseCount, setInternalLeaseCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      const { count } = await supabase.from("lease_history_entries")
+      const { count: extCount } = await supabase.from("lease_history_entries")
         .select("*", { count: "exact", head: true }).eq("user_id", user.id);
+      const { count: intCount } = await supabase.from("lease_transactions")
+        .select("*", { count: "exact", head: true })
+        .eq("tenant_id", user.id).eq("state", "completed");
       setProfile(data);
-      setLeaseCount(count ?? 0);
+      setExternalLeaseCount(extCount ?? 0);
+      setInternalLeaseCount(intCount ?? 0);
       setLoading(false);
     })();
   }, [user]);
@@ -70,14 +75,14 @@ function MyPassportPage() {
 
       {!loading && profile?.passport_application_status === "approved" && (
         <div className="mt-8">
-          <TenantPassportCard data={toPassport(profile, leaseCount)} />
+          <TenantPassportCard data={toPassport(profile, externalLeaseCount, internalLeaseCount)} />
         </div>
       )}
     </div>
   );
 }
 
-function toPassport(p: any, leaseCount: number): PassportData {
+function toPassport(p: any, externalLeaseCount: number, internalLeaseCount: number): PassportData {
   return {
     displayName: p.display_name ?? "—",
     serial: p.passport_serial ?? "—",
@@ -88,7 +93,8 @@ function toPassport(p: any, leaseCount: number): PassportData {
     incomeVerified: !!p.passport_income_verified,
     contractValid: !!p.passport_contract_valid,
     socialVerified: !!p.passport_social_verified,
-    leaseCount,
+    leaseCount: externalLeaseCount,
+    internalLeaseCount,
     socials: {
       linkedin: p.linkedin_url,
       facebook: p.social_facebook_url,
@@ -96,12 +102,13 @@ function toPassport(p: any, leaseCount: number): PassportData {
     },
     city: p.passport_city ?? p.home_city,
     acceptsOccasionalLease: !!p.accepts_notarial_lease,
+    acceptsOneMonthDeposit: !!p.accepts_one_month_deposit,
+    isStudent: !!p.is_student,
+    hasGuarantor: !!p.has_guarantor,
     hasTenantInsurance: !!(p.has_tenant_insurance || p.willing_tenant_insurance),
     bio: p.personal_bio_pl ?? null,
     avatarUrl: p.avatar_url ?? null,
-    // Always-true once user has a confirmed account
     contactVerified: true,
-    // Reserved for future verifications
     educationVerified: false,
     creditScoreVerified: false,
   };
