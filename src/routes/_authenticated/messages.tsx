@@ -86,10 +86,13 @@ interface ChatItem {
   passportSentAt: string | null;
   tenantAcceptedAt: string | null;
   landlordAcceptedAt: string | null;
+  tenantPartyAcceptedAt: string | null;
+  landlordPartyAcceptedAt: string | null;
   withdrawnAt: string | null;
   withdrawnBy: string | null;
   listingId: string | null;
 }
+
 
 interface AdminMsg {
   id: string;
