@@ -878,13 +878,20 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     : passportSent
       ? "active"
       : "pending";
-  const step4: StepState = bothAccepted ? "active" : "pending";
+  const step4: StepState = bothPartyAccepted
+    ? "completed"
+    : bothAccepted
+      ? "active"
+      : "pending";
+  const step5: StepState = bothPartyAccepted ? "active" : "pending";
   const steps: { label: string; state: StepState }[] = [
     { label: "1. Dopasowanie ⚡", state: "completed" },
     { label: "2. Rozmowa 💬", state: step2 },
-    { label: "3. Akceptacja Stron 🤝", state: step3 },
-    { label: "4. Finał i Umowa 📑", state: step4 },
+    { label: "3. Akceptacja dopasowania 🤝", state: step3 },
+    { label: "4. Akceptacja stron umowy 🖊️", state: step4 },
+    { label: "5. Finał i Umowa 📑", state: step5 },
   ];
+
 
   return (
     <div className="relative flex flex-1 flex-col">
