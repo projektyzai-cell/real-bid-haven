@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { QRCodeSVG } from "qrcode.react";
 import {
   ShieldCheck, BadgeCheck, Download, Link2, User as UserIcon,
-  IdCard, Linkedin, KeyRound, GraduationCap, Wallet, Phone, BarChart3, Share2,
+  IdCard, Linkedin, Facebook, Instagram, Wallet, Mail, Share2, Gem, ClipboardList, CheckCircle2,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
