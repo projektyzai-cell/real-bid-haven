@@ -855,11 +855,13 @@ export type Database = {
           landlord_accepted_at: string | null
           landlord_id: string
           landlord_last_read_at: string
+          landlord_party_accepted_at: string | null
           offer_id: string
           request_id: string
           tenant_accepted_at: string | null
           tenant_id: string
           tenant_last_read_at: string
+          tenant_party_accepted_at: string | null
           tenant_passport_sent_at: string | null
           withdrawn_at: string | null
           withdrawn_by: string | null
@@ -870,11 +872,13 @@ export type Database = {
           landlord_accepted_at?: string | null
           landlord_id: string
           landlord_last_read_at?: string
+          landlord_party_accepted_at?: string | null
           offer_id: string
           request_id: string
           tenant_accepted_at?: string | null
           tenant_id: string
           tenant_last_read_at?: string
+          tenant_party_accepted_at?: string | null
           tenant_passport_sent_at?: string | null
           withdrawn_at?: string | null
           withdrawn_by?: string | null
@@ -885,11 +889,13 @@ export type Database = {
           landlord_accepted_at?: string | null
           landlord_id?: string
           landlord_last_read_at?: string
+          landlord_party_accepted_at?: string | null
           offer_id?: string
           request_id?: string
           tenant_accepted_at?: string | null
           tenant_id?: string
           tenant_last_read_at?: string
+          tenant_party_accepted_at?: string | null
           tenant_passport_sent_at?: string | null
           withdrawn_at?: string | null
           withdrawn_by?: string | null

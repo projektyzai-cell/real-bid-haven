@@ -44,9 +44,12 @@ interface RentalChatRow {
   tenant_passport_sent_at: string | null;
   tenant_accepted_at: string | null;
   landlord_accepted_at: string | null;
+  tenant_party_accepted_at: string | null;
+  landlord_party_accepted_at: string | null;
   withdrawn_at: string | null;
   withdrawn_by: string | null;
 }
+
 
 interface OfferRow {
   id: string;
@@ -83,10 +86,13 @@ interface ChatItem {
   passportSentAt: string | null;
   tenantAcceptedAt: string | null;
   landlordAcceptedAt: string | null;
+  tenantPartyAcceptedAt: string | null;
+  landlordPartyAcceptedAt: string | null;
   withdrawnAt: string | null;
   withdrawnBy: string | null;
   listingId: string | null;
 }
+
 
 interface AdminMsg {
   id: string;
@@ -246,6 +252,9 @@ function MessagesPage() {
             passportSentAt: c.tenant_passport_sent_at,
             tenantAcceptedAt: c.tenant_accepted_at,
             landlordAcceptedAt: c.landlord_accepted_at,
+            tenantPartyAcceptedAt: c.tenant_party_accepted_at,
+            landlordPartyAcceptedAt: c.landlord_party_accepted_at,
+
             withdrawnAt: c.withdrawn_at,
             withdrawnBy: c.withdrawn_by,
             listingId: offer?.listing_id ?? null,
@@ -646,8 +655,12 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const iAccepted = isTenant ? !!chat.tenantAcceptedAt : !!chat.landlordAcceptedAt;
   const otherAccepted = isTenant ? !!chat.landlordAcceptedAt : !!chat.tenantAcceptedAt;
   const bothAccepted = !!chat.tenantAcceptedAt && !!chat.landlordAcceptedAt;
+  const iPartyAccepted = isTenant ? !!chat.tenantPartyAcceptedAt : !!chat.landlordPartyAcceptedAt;
+  const otherPartyAccepted = isTenant ? !!chat.landlordPartyAcceptedAt : !!chat.tenantPartyAcceptedAt;
+  const bothPartyAccepted = !!chat.tenantPartyAcceptedAt && !!chat.landlordPartyAcceptedAt;
   const withdrawn = !!chat.withdrawnAt;
   const withdrawnByMe = withdrawn && chat.withdrawnBy === user?.id;
+
 
   // Landlord opens the tenant's shared passport via chat-based RPC.
 
@@ -784,6 +797,26 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     onError: (e: Error) => toast.error(e.message),
   });
 
+  const partyAcceptMut = useMutation({
+    mutationFn: async () => {
+      const patch = isTenant
+        ? { tenant_party_accepted_at: new Date().toISOString() }
+        : { landlord_party_accepted_at: new Date().toISOString() };
+      const { error } = await supabase
+        .from("rental_chats" as never)
+        .update(patch as never)
+        .eq("id", chat.id);
+      if (error) throw new Error(error.message);
+      await postSystem(`🖊️ ${isTenant ? "Najemca" : "Wynajmujący"} zaakceptował, że będzie stroną umowy najmu.`);
+    },
+    onSuccess: () => {
+      toast.success("Akceptacja strony umowy zapisana.");
+      qc.invalidateQueries({ queryKey: ["messages-chats"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+
   const withdrawMut = useMutation({
     mutationFn: async () => {
       const { error } = await supabase
@@ -845,13 +878,20 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     : passportSent
       ? "active"
       : "pending";
-  const step4: StepState = bothAccepted ? "active" : "pending";
+  const step4: StepState = bothPartyAccepted
+    ? "completed"
+    : bothAccepted
+      ? "active"
+      : "pending";
+  const step5: StepState = bothPartyAccepted ? "active" : "pending";
   const steps: { label: string; state: StepState }[] = [
     { label: "1. Dopasowanie ⚡", state: "completed" },
     { label: "2. Rozmowa 💬", state: step2 },
-    { label: "3. Akceptacja Stron 🤝", state: step3 },
-    { label: "4. Finał i Umowa 📑", state: step4 },
+    { label: "3. Akceptacja dopasowania 🤝", state: step3 },
+    { label: "4. Akceptacja stron umowy 🖊️", state: step4 },
+    { label: "5. Finał i Umowa 📑", state: step5 },
   ];
+
 
   return (
     <div className="relative flex flex-1 flex-col">
@@ -1049,7 +1089,32 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                   <CheckCircle2 className="h-3.5 w-3.5" /> Czekamy na drugą stronę
                 </span>
               )}
-              {bothAccepted && (
+
+              {/* Step: Accept being a party to the lease contract */}
+              {bothAccepted && !iPartyAccepted && (
+                <Button
+                  size="sm"
+                  disabled={partyAcceptMut.isPending}
+                  onClick={() => partyAcceptMut.mutate()}
+                  className="rounded-lg bg-gold text-gold-foreground shadow hover:opacity-90"
+                >
+                  <FileSignature className="mr-1.5 h-4 w-4" />
+                  Akceptuj stronę umowy
+                </Button>
+              )}
+              {bothAccepted && iPartyAccepted && !bothPartyAccepted && (
+                <span className="inline-flex items-center gap-1 rounded-lg border border-gold/40 bg-gold/10 px-2.5 py-1 text-xs font-semibold text-gold">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Strona umowy zaakceptowana — czekamy na drugą stronę
+                </span>
+              )}
+              {bothAccepted && !iPartyAccepted && otherPartyAccepted && (
+                <span className="text-[11px] text-muted-foreground">
+                  Druga strona zaakceptowała stronę umowy ✨
+                </span>
+              )}
+
+              {/* After both parties accept being party to the contract: contract actions */}
+              {bothPartyAccepted && (
                 <Link
                   to="/najem/generator-umow"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-gold px-3 py-1.5 text-xs font-bold text-gold-foreground shadow hover:opacity-90"
@@ -1057,7 +1122,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                   <FileText className="h-4 w-4" /> Przejdź do generatora umowy
                 </Link>
               )}
-              {bothAccepted && (
+              {bothPartyAccepted && (
                 <button
                   type="button"
                   onClick={openSignFlow}
@@ -1074,6 +1139,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
                   Druga strona już zaakceptowała ✨
                 </span>
               )}
+
             </div>
 
             <button

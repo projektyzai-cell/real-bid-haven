@@ -74,7 +74,7 @@ function AktywneUmowyPage() {
   }
 
   async function reportDelay(id: string) {
-    if (!window.confirm("Zgłosić opóźnienie płatności? Ostrzeżenie: możliwe tylko po 72 h od daty rozpoczęcia umowy.")) return;
+    if (!window.confirm("Zgłosić opóźnienie płatności? Najemca otrzyma w czacie ostrzeżenie i będzie mieć 72 h na uregulowanie zaległości.")) return;
     const { error } = await supabase.rpc("report_payment_delay" as never, { _transaction_id: id } as never);
     if (error) toast.error(error.message);
     else { toast.success("Zgłoszono opóźnienie płatności"); qc.invalidateQueries({ queryKey: ["active-leases"] }); }
