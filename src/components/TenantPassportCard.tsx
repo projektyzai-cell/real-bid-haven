@@ -17,14 +17,19 @@ export type PassportData = {
   identityVerified: boolean;
   contractValid: boolean;
   socialVerified: boolean;
+  /** Total external rental history entries declared by the tenant. */
   leaseCount: number;
+  /** Optional — successful leases finalized inside the StaySafe platform. */
+  internalLeaseCount?: number;
   socials: { linkedin?: string | null; facebook?: string | null; instagram?: string | null };
   city?: string | null;
   acceptsOccasionalLease?: boolean;
+  acceptsOneMonthDeposit?: boolean;
+  isStudent?: boolean;
+  hasGuarantor?: boolean;
   hasTenantInsurance?: boolean;
   bio?: string | null;
   avatarUrl?: string | null;
-  // Optional extra aspects shown on the badge grid
   educationVerified?: boolean;
   contactVerified?: boolean;
   creditScoreVerified?: boolean;
