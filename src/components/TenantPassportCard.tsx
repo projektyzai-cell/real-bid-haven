@@ -89,11 +89,9 @@ function RainbowGauge({ score }: { score: number }) {
 }
 
 type Aspect = {
-  ok: boolean;
   label: string;
   sub: string;
   icon: React.ComponentType<{ className?: string }>;
-  tint: string; // hex for the icon tile
 };
 
 export function TenantPassportCard({ data }: { data: PassportData }) {
@@ -102,15 +100,19 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
   const completion = data.profileCompletionPct ?? Math.round((data.score / 100) * 100);
   const tier = data.score >= 86 ? "Najemca Ekspert" : data.score >= 60 ? "Najemca Premium" : data.score >= 30 ? "Najemca Standard" : "Najemca Nowy";
 
+  const externalCount = data.leaseCount ?? 0;
+  const internalCount = data.internalLeaseCount ?? 0;
+
+  // Since the passport is only generated after positive admin verification,
+  // every core aspect is rendered as "Zweryfikowano" — no pending states.
   const aspects: Aspect[] = [
-    { ok: data.identityVerified, label: "Tożsamość", sub: "Dowód + Skan Twarzy", icon: IdCard, tint: "#5b6a8a" },
-    { ok: !!data.socials.linkedin || data.socialVerified, label: "Profil Zawodowy", sub: "LinkedIn", icon: Linkedin, tint: "#0a66c2" },
-    { ok: data.contractValid || data.leaseCount > 0, label: "Historia Najmu", sub: "Referencje + Płatności", icon: KeyRound, tint: "#8a6f1f" },
-    { ok: !!data.educationVerified, label: "Wykształcenie", sub: "Dyplom", icon: GraduationCap, tint: "#3b6f3b" },
-    { ok: data.incomeVerified, label: "Wypłacalność", sub: "Dochód + Bankowa", icon: Wallet, tint: "#7a5a1f" },
-    { ok: !!data.contactVerified, label: "Dane Kontaktowe", sub: "E-mail, Telefon", icon: Phone, tint: "#8a6f1f" },
-    { ok: !!data.creditScoreVerified, label: "Scoring Kredytowy", sub: "+ Międzynarodowy", icon: BarChart3, tint: "#3b6f3b" },
+    { label: "Tożsamość (Anty-fraud)", sub: "Skan dokumentu tożsamości został pomyślnie zweryfikowany", icon: IdCard },
+    { label: "Stabilność finansowa", sub: "Miesięczny dochód i zatrudnienie zostały pomyślnie zweryfikowane", icon: Wallet },
   ];
+  if (data.socials.facebook) aspects.push({ label: "Konto Facebook", sub: "Profil społecznościowy został pomyślnie zweryfikowany", icon: Facebook });
+  if (data.socials.linkedin) aspects.push({ label: "Konto LinkedIn", sub: "Profil zawodowy został pomyślnie zweryfikowany", icon: Linkedin });
+  if (data.socials.instagram) aspects.push({ label: "Konto Instagram", sub: "Profil społecznościowy został pomyślnie zweryfikowany", icon: Instagram });
+  aspects.push({ label: "Dane kontaktowe", sub: "Adres e-mail został pomyślnie zweryfikowany", icon: Mail });
 
   async function downloadPdf() {
     if (!ref.current) return;
