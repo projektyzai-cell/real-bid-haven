@@ -13,17 +13,22 @@ export const Route = createFileRoute("/_authenticated/najem/moj-paszport")({
 function MyPassportPage() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<any>(null);
-  const [leaseCount, setLeaseCount] = useState(0);
+  const [externalLeaseCount, setExternalLeaseCount] = useState(0);
+  const [internalLeaseCount, setInternalLeaseCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.from("profiles").select("*").eq("id", user.id).maybeSingle();
-      const { count } = await supabase.from("lease_history_entries")
+      const { count: extCount } = await supabase.from("lease_history_entries")
         .select("*", { count: "exact", head: true }).eq("user_id", user.id);
+      const { count: intCount } = await supabase.from("lease_transactions")
+        .select("*", { count: "exact", head: true })
+        .eq("tenant_id", user.id).eq("state", "completed");
       setProfile(data);
-      setLeaseCount(count ?? 0);
+      setExternalLeaseCount(extCount ?? 0);
+      setInternalLeaseCount(intCount ?? 0);
       setLoading(false);
     })();
   }, [user]);
