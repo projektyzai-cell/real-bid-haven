@@ -530,22 +530,58 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
   );
 }
 
+function StatCard({ title, value, valueClass }: { title: string; value: string; valueClass?: string }) {
+  return (
+    <div className="rounded-2xl border border-[#D4AF37]/25 bg-black/20 p-3">
+      <div className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]/90">{title}</div>
+      <div className={`mt-1 text-sm font-semibold text-white ${valueClass ?? ""}`}>{value}</div>
+    </div>
+  );
+}
+
+function SectionCard({ title, tone, children }: { title: string; tone?: "gold"; children: React.ReactNode }) {
+  const border = tone === "gold" ? "border-[#D4AF37]/55" : "border-[#D4AF37]/25";
+  const bg = tone === "gold" ? "bg-[#D4AF37]/[0.07]" : "bg-black/20";
+  return (
+    <div className={`mt-4 rounded-2xl border ${border} ${bg} p-4`}>
+      <div className="mb-3 text-[11px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">{title}</div>
+      {children}
+    </div>
+  );
+}
+
+function VerifiedPill() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+      <CheckCircle2 className="h-3 w-3" /> Zweryfikowano
+    </span>
+  );
+}
+
+function DeclLi({ children }: { children: React.ReactNode }) {
+  return (
+    <li className="flex items-start gap-2">
+      <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
+      <span>{children}</span>
+    </li>
+  );
+}
+
 function AspectRow({ aspect }: { aspect: Aspect }) {
   const Icon = aspect.icon;
   return (
-    <div className={`flex items-center gap-2.5 rounded-xl border px-2.5 py-2 ${aspect.ok ? "border-emerald-400/40 bg-emerald-400/5" : "border-white/10 bg-white/5 opacity-70"}`}>
-      <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${aspect.ok ? "bg-emerald-500/20 text-emerald-300" : "bg-white/10 text-white/40"}`}>
-        {aspect.ok
-          ? <BadgeCheck className="h-4 w-4" />
-          : <span className="text-[10px] font-bold">·</span>}
+    <div className="flex items-start gap-2.5 rounded-xl border border-emerald-400/40 bg-emerald-400/5 px-2.5 py-2">
+      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-300">
+        <CheckCircle2 className="h-4 w-4" />
       </span>
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg" style={{ background: aspect.tint + "55" }}>
-        <Icon className="h-4 w-4 text-white" />
-      </div>
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#D4AF37]/15 text-[#D4AF37]">
+        <Icon className="h-4 w-4" />
+      </span>
       <div className="min-w-0 flex-1">
         <div className="truncate text-[12px] font-bold text-white">{aspect.label}</div>
-        <div className="truncate text-[10px] text-white/55">{aspect.sub}</div>
+        <div className="text-[10px] leading-snug text-white/65">{aspect.sub}</div>
       </div>
     </div>
   );
 }
+
