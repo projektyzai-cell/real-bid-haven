@@ -655,8 +655,12 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const iAccepted = isTenant ? !!chat.tenantAcceptedAt : !!chat.landlordAcceptedAt;
   const otherAccepted = isTenant ? !!chat.landlordAcceptedAt : !!chat.tenantAcceptedAt;
   const bothAccepted = !!chat.tenantAcceptedAt && !!chat.landlordAcceptedAt;
+  const iPartyAccepted = isTenant ? !!chat.tenantPartyAcceptedAt : !!chat.landlordPartyAcceptedAt;
+  const otherPartyAccepted = isTenant ? !!chat.landlordPartyAcceptedAt : !!chat.tenantPartyAcceptedAt;
+  const bothPartyAccepted = !!chat.tenantPartyAcceptedAt && !!chat.landlordPartyAcceptedAt;
   const withdrawn = !!chat.withdrawnAt;
   const withdrawnByMe = withdrawn && chat.withdrawnBy === user?.id;
+
 
   // Landlord opens the tenant's shared passport via chat-based RPC.
 
