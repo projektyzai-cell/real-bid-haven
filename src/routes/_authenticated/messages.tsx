@@ -1058,18 +1058,29 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
         {chat.type === "smart-match" && (
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap gap-2">
-              {/* Tenant: send passport */}
+              {/* Tenant: send passport (only if approved passport exists) */}
               {isTenant && !passportSent && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={sendPassportMut.isPending}
-                  onClick={() => sendPassportMut.mutate()}
-                  className="rounded-lg border-gold/50 text-gold hover:bg-gold/10 hover:text-gold"
-                >
-                  <IdCard className="mr-1.5 h-4 w-4" />
-                  Wyślij Paszport Najemcy
-                </Button>
+                hasApprovedPassport ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={sendPassportMut.isPending}
+                    onClick={() => sendPassportMut.mutate()}
+                    className="rounded-lg border-gold/50 text-gold hover:bg-gold/10 hover:text-gold"
+                  >
+                    <IdCard className="mr-1.5 h-4 w-4" />
+                    Wyślij Paszport Najemcy
+                  </Button>
+                ) : (
+                  <Link
+                    to="/najem/paszport"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-amber-500/50 bg-amber-500/5 px-2.5 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/10"
+                    title="Aby wysłać Paszport, wyrób go najpierw w Strefie najmu"
+                  >
+                    <IdCard className="h-3.5 w-3.5" />
+                    Wyrób Paszport, aby móc go udostępnić →
+                  </Link>
+                )
               )}
               {isTenant && passportSent && (
                 <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
