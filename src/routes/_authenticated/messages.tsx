@@ -664,6 +664,28 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
   // Landlord opens the tenant's shared passport via chat-based RPC.
 
+  // Tenant: check own passport status — can only share an approved passport.
+  const { data: myPassport } = useQuery({
+    enabled: isTenant && !!user,
+    queryKey: ["my-passport-status", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("passport_application_status, passport_serial, passport_expires_at")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data as {
+        passport_application_status: string | null;
+        passport_serial: string | null;
+        passport_expires_at: string | null;
+      } | null;
+    },
+  });
+  const hasApprovedPassport =
+    !!myPassport?.passport_serial &&
+    myPassport.passport_application_status === "approved" &&
+    (!myPassport.passport_expires_at || new Date(myPassport.passport_expires_at) > new Date());
+
   // Look up the lease_transaction linked to this chat so we can open the sign dialog.
   const { data: txn } = useQuery({
     enabled: bothAccepted && !!chat.listingId,
@@ -1036,18 +1058,29 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
         {chat.type === "smart-match" && (
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="flex flex-wrap gap-2">
-              {/* Tenant: send passport */}
+              {/* Tenant: send passport (only if approved passport exists) */}
               {isTenant && !passportSent && (
-                <Button
-                  size="sm"
-                  variant="outline"
-                  disabled={sendPassportMut.isPending}
-                  onClick={() => sendPassportMut.mutate()}
-                  className="rounded-lg border-gold/50 text-gold hover:bg-gold/10 hover:text-gold"
-                >
-                  <IdCard className="mr-1.5 h-4 w-4" />
-                  Wyślij Paszport Najemcy
-                </Button>
+                hasApprovedPassport ? (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={sendPassportMut.isPending}
+                    onClick={() => sendPassportMut.mutate()}
+                    className="rounded-lg border-gold/50 text-gold hover:bg-gold/10 hover:text-gold"
+                  >
+                    <IdCard className="mr-1.5 h-4 w-4" />
+                    Wyślij Paszport Najemcy
+                  </Button>
+                ) : (
+                  <Link
+                    to="/najem/paszport"
+                    className="inline-flex items-center gap-1.5 rounded-lg border border-dashed border-amber-500/50 bg-amber-500/5 px-2.5 py-1.5 text-xs font-semibold text-amber-500 hover:bg-amber-500/10"
+                    title="Aby wysłać Paszport, wyrób go najpierw w Strefie najmu"
+                  >
+                    <IdCard className="h-3.5 w-3.5" />
+                    Wyrób Paszport, aby móc go udostępnić →
+                  </Link>
+                )
               )}
               {isTenant && passportSent && (
                 <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-xs font-semibold text-emerald-400">
