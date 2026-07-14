@@ -118,17 +118,42 @@ function ApplicationDetail({ userId }: { userId: string }) {
     queryFn: () => get({ data: { userId } }),
   });
 
-  const [score, setScore] = useState(80);
+  const [score, setScore] = useState(0);
+  const [scoreEdited, setScoreEdited] = useState(false);
   const [city, setCity] = useState("");
   const [notes, setNotes] = useState("");
+
+  // Auto-compute from V3 config, gated by admin verification flags.
+  const autoScore = (() => {
+    if (!detail.data) return null;
+    const p = detail.data.profile as any;
+    const completed = detail.data.completedRentals ?? 0;
+    return computeTrustScore({
+      is_identity_verified: !!p.passport_name_verified,
+      monthly_income_net: p.passport_income_verified ? p.monthly_income_net : 0,
+      is_student: !!p.is_student,
+      student_status: p.student_status,
+      accepts_one_month_deposit: !!p.accepts_one_month_deposit,
+      has_guarantor: !!p.has_guarantor,
+      social_facebook_url: p.passport_social_verified ? p.social_facebook_url : null,
+      instagram_username: p.passport_social_verified ? p.instagram_username : null,
+      linkedin_url: p.passport_social_verified ? p.linkedin_url : null,
+      lease_history: [],
+      staysafe_completed_rentals_count: completed,
+    });
+  })();
 
   useEffect(() => {
     if (!detail.data) return;
     const p = detail.data.profile as any;
-    setScore(p.passport_score ?? 80);
     setCity(p.passport_city ?? p.home_city ?? "");
     setNotes(p.passport_admin_notes ?? "");
-  }, [detail.data]);
+    setScoreEdited(false);
+  }, [detail.data?.profile?.id]);
+
+  useEffect(() => {
+    if (autoScore && !scoreEdited) setScore(Math.round(autoScore.cappedTotal));
+  }, [autoScore?.cappedTotal, scoreEdited]);
 
   const updateMut = useMutation({
     mutationFn: (patch: Record<string, unknown>) => upd({ data: { userId, ...patch } as any }),
