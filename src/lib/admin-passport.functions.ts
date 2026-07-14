@@ -65,6 +65,7 @@ export const getPassportApplication = createServerFn({ method: "POST" })
     return {
       profile: p,
       history: history ?? [],
+      completedRentals: completedRentals ?? 0,
       docs: {
         identity: await sign(p.identity_doc_urls ?? (p.identity_doc_url ? [p.identity_doc_url] : [])),
         contracts: await sign(p.employment_contract_urls ?? (p.employment_contract_url ? [p.employment_contract_url] : [])),
