@@ -270,11 +270,43 @@ function ApplicationDetail({ userId }: { userId: string }) {
 
       {/* Generate */}
       <Section title="Wygeneruj paszport">
+        {autoScore && (
+          <div className="rounded-lg border border-gold/30 bg-gold/5 p-3 text-xs space-y-1.5">
+            <div className="flex items-center gap-2 font-semibold uppercase tracking-wider text-gold">
+              <Calculator className="h-3.5 w-3.5" /> Automatyczne wyliczenie Trust Score (V3)
+            </div>
+            <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
+              <span>Tożsamość: <b>{autoScore.identity}</b> / 20</span>
+              <span>Finanse (dochód+kaucja+poręczyciel): <b>{autoScore.financeTotal}</b> / 41</span>
+              <span>Społeczność (student+social): <b>{autoScore.socialTotal}</b> / 14</span>
+              <span>Historia zewnętrzna: <b>{autoScore.history}</b> / 10</span>
+              <span>Historia StaySafe: <b>{autoScore.staysafe}</b> / 15</span>
+              <span>Suma surowa: <b>{autoScore.rawTotal}</b></span>
+            </div>
+            <div className="pt-1 border-t border-gold/20 flex items-center justify-between">
+              <span>
+                Wynik po limitach:{" "}
+                <b className="text-gold text-sm">{autoScore.cappedTotal}</b>
+                {!autoScore.hasStaysafeRental && (
+                  <span className="ml-1 text-muted-foreground">(cap 85 — brak najmu StaySafe)</span>
+                )}
+              </span>
+              <Button
+                type="button"
+                size="sm"
+                variant="secondary"
+                onClick={() => { setScore(Math.round(autoScore.cappedTotal)); setScoreEdited(false); }}
+              >
+                Przywróć auto
+              </Button>
+            </div>
+          </div>
+        )}
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <Label>Trusted Score (0–100)</Label>
+            <Label>Trust Score (0–100) — możesz ręcznie nadpisać</Label>
             <Input type="number" min={0} max={100} value={score}
-              onChange={(e) => setScore(Number(e.target.value))} />
+              onChange={(e) => { setScore(Number(e.target.value)); setScoreEdited(true); }} />
           </div>
           <div>
             <Label>Miasto (do statystyk)</Label>
@@ -282,20 +314,23 @@ function ApplicationDetail({ userId }: { userId: string }) {
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-2 rounded-lg border bg-muted/30 p-3 text-xs">
-          <span className="font-semibold uppercase tracking-wider text-muted-foreground">Wymagane:</span>
+          <span className="font-semibold uppercase tracking-wider text-muted-foreground">Zaznaczone weryfikacje:</span>
           <FlagPill ok={flags.name} label="Imię i nazwisko" />
           <FlagPill ok={flags.income} label="Dochód" />
           <FlagPill ok={flags.contract} label="Umowa ważna" />
           <FlagPill ok={flags.social} label="Social media" />
         </div>
         <Button
-          disabled={!flags.name || !flags.income || !flags.contract || !flags.social || !city || generateMut.isPending}
+          disabled={!flags.name || !city || generateMut.isPending}
           onClick={() => generateMut.mutate()}
           className="bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
         >
           {generateMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
           Wygeneruj paszport najemcy
         </Button>
+        <p className="text-xs text-muted-foreground">
+          Paszport może zostać wydany po potwierdzeniu tożsamości — pozostałe punkty naliczają się z automatu na podstawie zatwierdzonych elementów.
+        </p>
       </Section>
     </Card>
   );
