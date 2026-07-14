@@ -19,8 +19,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ShieldCheck, ArrowLeft, FileText, ExternalLink, Sparkles, Loader2, Clock, CheckCircle2,
+  ShieldCheck, ArrowLeft, FileText, ExternalLink, Sparkles, Loader2, Clock, CheckCircle2, Calculator,
 } from "lucide-react";
+import { computeTrustScore } from "@/lib/trust-score";
 
 const searchSchema = z.object({ u: z.string().optional() });
 
