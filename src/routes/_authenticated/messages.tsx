@@ -664,6 +664,28 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
   // Landlord opens the tenant's shared passport via chat-based RPC.
 
+  // Tenant: check own passport status — can only share an approved passport.
+  const { data: myPassport } = useQuery({
+    enabled: isTenant && !!user,
+    queryKey: ["my-passport-status", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("profiles")
+        .select("passport_application_status, passport_serial, passport_expires_at")
+        .eq("id", user!.id)
+        .maybeSingle();
+      return data as {
+        passport_application_status: string | null;
+        passport_serial: string | null;
+        passport_expires_at: string | null;
+      } | null;
+    },
+  });
+  const hasApprovedPassport =
+    !!myPassport?.passport_serial &&
+    myPassport.passport_application_status === "approved" &&
+    (!myPassport.passport_expires_at || new Date(myPassport.passport_expires_at) > new Date());
+
   // Look up the lease_transaction linked to this chat so we can open the sign dialog.
   const { data: txn } = useQuery({
     enabled: bothAccepted && !!chat.listingId,
