@@ -43,6 +43,12 @@ export const getPassportApplication = createServerFn({ method: "POST" })
       .from("lease_history_entries").select("*").eq("user_id", data.userId)
       .order("date_from", { ascending: false });
 
+    const { count: completedRentals } = await supabaseAdmin
+      .from("lease_transactions")
+      .select("*", { count: "exact", head: true })
+      .eq("tenant_id", data.userId)
+      .eq("state", "completed");
+
     async function sign(paths: string[] | null | undefined) {
       if (!paths || paths.length === 0) return [];
       const out: { path: string; url: string }[] = [];
