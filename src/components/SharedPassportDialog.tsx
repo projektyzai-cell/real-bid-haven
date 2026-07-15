@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Loader2, ShieldCheck } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
@@ -18,25 +18,32 @@ export function SharedPassportDialog({
 }) {
   const [data, setData] = useState<PassportData | null>(null);
   const [loading, setLoading] = useState(false);
+  // Keep the latest onClose in a ref so it does not retrigger the fetch effect
+  // (parent components pass an inline arrow, causing an infinite refetch loop
+  // that manifested as the dialog "flickering").
+  const onCloseRef = useRef(onClose);
+  useEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     if (!open) return;
+    let cancelled = false;
     setLoading(true);
     (async () => {
       const call = chatId
         ? supabase.rpc("get_shared_passport_by_chat" as never, { _chat_id: chatId } as never)
         : supabase.rpc("get_shared_passport" as never, { _transaction_id: transactionId } as never);
       const { data: rows, error } = await call;
+      if (cancelled) return;
       setLoading(false);
       if (error) {
         toast.error(error.message);
-        onClose();
+        onCloseRef.current();
         return;
       }
       const r = (rows as any[])?.[0];
       if (!r) {
         toast.error("Brak paszportu do wyświetlenia");
-        onClose();
+        onCloseRef.current();
         return;
       }
       setData({
@@ -69,7 +76,8 @@ export function SharedPassportDialog({
         creditScoreVerified: false,
       });
     })();
-  }, [open, transactionId, chatId, onClose]);
+    return () => { cancelled = true; };
+  }, [open, transactionId, chatId]);
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
