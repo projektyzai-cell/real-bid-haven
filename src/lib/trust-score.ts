@@ -2,6 +2,60 @@
 // Pure functions; no side effects. Used both by the live preview meter on
 // the passport application form and by the admin verification panel.
 
+export type TrustWeights = {
+  identity: number;
+  income_low: number;
+  income_mid: number;
+  income_high: number;
+  deposit: number;
+  guarantor: number;
+  occasional_lease: number;
+  tenant_insurance: number;
+  student: number;
+  facebook: number;
+  instagram: number;
+  linkedin: number;
+  external_history_first: number;
+  external_history_next: number;
+  external_history_reference: number;
+  external_history_scan: number;
+  staysafe_first_rental: number;
+  staysafe_second_rental: number;
+  finance_cap: number;
+  social_cap: number;
+  history_cap: number;
+  staysafe_cap: number;
+  global_cap: number;
+  cap_no_staysafe: number;
+};
+
+export const DEFAULT_TRUST_WEIGHTS: TrustWeights = {
+  identity: 20,
+  income_low: 12.5,
+  income_mid: 18.75,
+  income_high: 25,
+  deposit: 6,
+  guarantor: 10,
+  occasional_lease: 4,
+  tenant_insurance: 3,
+  student: 7,
+  facebook: 2,
+  instagram: 2,
+  linkedin: 3,
+  external_history_first: 3,
+  external_history_next: 0.5,
+  external_history_reference: 1,
+  external_history_scan: 1,
+  staysafe_first_rental: 9,
+  staysafe_second_rental: 6,
+  finance_cap: 41,
+  social_cap: 14,
+  history_cap: 10,
+  staysafe_cap: 15,
+  global_cap: 100,
+  cap_no_staysafe: 85,
+};
+
 export type TrustInput = {
   // 1.0 Identity
   is_identity_verified?: boolean | null;
@@ -9,18 +63,25 @@ export type TrustInput = {
   // 2.1 Income & student status
   monthly_income_net?: number | null;
   is_student?: boolean | null;
-  student_status?: string | null; // 'working' | 'non_working_supported'
+  student_status?: string | null;
 
   // 2.2 / 2.3 financial declarations
   accepts_one_month_deposit?: boolean | null;
   has_guarantor?: boolean | null;
 
-  // 3.2 / 3.3 / 3.4 social
-  social_facebook_url?: string | null;
-  instagram_username?: string | null;
-  linkedin_url?: string | null;
+  // 2.4 / 2.5 lease-type declarations
+  accepts_occasional_lease?: boolean | null;
+  has_tenant_insurance?: boolean | null;
 
-  // 4.x lease history
+  // 3.x social (each with its own admin-approval gate)
+  social_facebook_url?: string | null;
+  social_facebook_verified?: boolean | null;
+  instagram_username?: string | null;
+  social_instagram_verified?: boolean | null;
+  linkedin_url?: string | null;
+  social_linkedin_verified?: boolean | null;
+
+  // 4.x external lease history
   lease_history?: Array<{
     references_available?: boolean | null;
     contract_url?: string | null;
@@ -31,20 +92,22 @@ export type TrustInput = {
 };
 
 export type TrustBreakdown = {
-  identity: number; // 0 or 20
-  income: number;   // 0 / 12.5 / 18.75 / 25
-  deposit: number;  // 0 or 6
-  guarantor: number; // 0 or 10
-  financeTotal: number; // capped 41
-  student: number; // 0 or 7
-  facebook: number; // 0 or 2
-  instagram: number; // 0 or 2
-  linkedin: number; // 0 or 3
-  socialTotal: number; // capped 14
-  history: number; // capped 10
-  staysafe: number; // capped 15
+  identity: number;
+  income: number;
+  deposit: number;
+  guarantor: number;
+  occasionalLease: number;
+  tenantInsurance: number;
+  financeTotal: number;
+  student: number;
+  facebook: number;
+  instagram: number;
+  linkedin: number;
+  socialTotal: number;
+  history: number;
+  staysafe: number;
   rawTotal: number;
-  cappedTotal: number; // global cap (85 without StaySafe rental, else 100)
+  cappedTotal: number;
   hasStaysafeRental: boolean;
 };
 
@@ -63,63 +126,79 @@ function isLi(u?: string | null) {
   } catch { return false; }
 }
 
-export function computeTrustScore(d: TrustInput): TrustBreakdown {
-  // 1.1
-  const identity = d.is_identity_verified ? 20 : 0;
+export function computeTrustScore(
+  d: TrustInput,
+  weights: TrustWeights = DEFAULT_TRUST_WEIGHTS,
+): TrustBreakdown {
+  const w = weights;
+  const identity = d.is_identity_verified ? w.identity : 0;
 
-  // 2.1 — income (with student override)
   let income = 0;
   if (d.is_student && d.student_status === "non_working_supported") {
-    income = 18.75;
+    income = w.income_mid;
   } else {
     const m = Number(d.monthly_income_net ?? 0);
-    if (m >= 5001) income = 25;
-    else if (m >= 3001) income = 18.75;
-    else if (m >= 2000) income = 12.5;
+    if (m >= 5001) income = w.income_high;
+    else if (m >= 3001) income = w.income_mid;
+    else if (m >= 2000) income = w.income_low;
     else income = 0;
   }
 
-  // 2.2 / 2.3
-  const deposit = d.accepts_one_month_deposit ? 6 : 0;
-  const guarantor = d.has_guarantor ? 10 : 0;
-  const financeTotal = Math.min(41, income + deposit + guarantor);
+  const deposit = d.accepts_one_month_deposit ? w.deposit : 0;
+  const guarantor = d.has_guarantor ? w.guarantor : 0;
+  const occasionalLease = d.accepts_occasional_lease ? w.occasional_lease : 0;
+  const tenantInsurance = d.has_tenant_insurance ? w.tenant_insurance : 0;
+  const financeTotal = Math.min(
+    w.finance_cap,
+    income + deposit + guarantor + occasionalLease + tenantInsurance,
+  );
 
-  // 3.1
-  const student = d.is_student ? 7 : 0;
-  // 3.2 / 3.3 / 3.4
-  const facebook = isFb(d.social_facebook_url) ? 2 : 0;
-  const instagram = d.instagram_username && d.instagram_username.trim().length > 0 ? 2 : 0;
-  const linkedin = isLi(d.linkedin_url) ? 3 : 0;
-  const socialTotal = Math.min(14, student + facebook + instagram + linkedin);
+  const student = d.is_student ? w.student : 0;
+  const facebook = isFb(d.social_facebook_url) && d.social_facebook_verified ? w.facebook : 0;
+  const instagram =
+    d.instagram_username && d.instagram_username.trim().length > 0 && d.social_instagram_verified
+      ? w.instagram
+      : 0;
+  const linkedin = isLi(d.linkedin_url) && d.social_linkedin_verified ? w.linkedin : 0;
+  const socialTotal = Math.min(w.social_cap, student + facebook + instagram + linkedin);
 
-  // 4.x — lease history (max 3 entries)
   const entries = (d.lease_history ?? []).slice(0, 3);
   let history = 0;
   entries.forEach((e, i) => {
-    const base = i === 0 ? 3 : 0.5;
-    const ref = e.references_available ? 1 : 0;
-    const scan = e.contract_url ? 1 : 0;
+    const base = i === 0 ? w.external_history_first : w.external_history_next;
+    const ref = e.references_available ? w.external_history_reference : 0;
+    const scan = e.contract_url ? w.external_history_scan : 0;
     history += base + ref + scan;
   });
-  history = Math.min(10, history);
+  history = Math.min(w.history_cap, history);
 
-  // 5.x — StaySafe completed rentals
   const completed = Math.max(0, Number(d.staysafe_completed_rentals_count ?? 0));
   let staysafe = 0;
-  if (completed >= 1) staysafe += 9;
-  if (completed >= 2) staysafe += 6;
-  staysafe = Math.min(15, staysafe);
+  if (completed >= 1) staysafe += w.staysafe_first_rental;
+  if (completed >= 2) staysafe += w.staysafe_second_rental;
+  staysafe = Math.min(w.staysafe_cap, staysafe);
 
   const rawTotal = identity + financeTotal + socialTotal + history + staysafe;
-
-  // Global cap: without at least one completed StaySafe rental, max = 85
   const hasStaysafeRental = completed >= 1;
-  const cappedTotal = hasStaysafeRental ? Math.min(100, rawTotal) : Math.min(85, rawTotal);
+  const cappedTotal = hasStaysafeRental
+    ? Math.min(w.global_cap, rawTotal)
+    : Math.min(w.cap_no_staysafe, rawTotal);
 
   return {
-    identity, income, deposit, guarantor, financeTotal,
-    student, facebook, instagram, linkedin, socialTotal,
-    history, staysafe,
+    identity,
+    income,
+    deposit,
+    guarantor,
+    occasionalLease,
+    tenantInsurance,
+    financeTotal,
+    student,
+    facebook,
+    instagram,
+    linkedin,
+    socialTotal,
+    history,
+    staysafe,
     rawTotal,
     cappedTotal: Math.round(cappedTotal * 100) / 100,
     hasStaysafeRental,
