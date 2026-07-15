@@ -240,7 +240,7 @@ function TrustWeightsEditor() {
 // ---------------- Application detail ----------------
 
 function ApplicationDetail({ userId }: { userId: string }) {
-  const navigate = useNavigate();
+  // no navigate needed
   const qc = useQueryClient();
   const get = useServerFn(getPassportApplication);
   const upd = useServerFn(updateAdminVerification);
