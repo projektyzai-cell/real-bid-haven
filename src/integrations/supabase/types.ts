@@ -520,10 +520,13 @@ export type Database = {
           passport_contract_valid: boolean
           passport_count: number | null
           passport_expires_at: string | null
+          passport_facebook_verified: boolean
           passport_generated_at: string | null
           passport_generated_by: string | null
           passport_income_verified: boolean
+          passport_instagram_verified: boolean
           passport_issued_at: string | null
+          passport_linkedin_verified: boolean
           passport_name_verified: boolean
           passport_pdf_url: string | null
           passport_renewal_requested: boolean | null
@@ -599,10 +602,13 @@ export type Database = {
           passport_contract_valid?: boolean
           passport_count?: number | null
           passport_expires_at?: string | null
+          passport_facebook_verified?: boolean
           passport_generated_at?: string | null
           passport_generated_by?: string | null
           passport_income_verified?: boolean
+          passport_instagram_verified?: boolean
           passport_issued_at?: string | null
+          passport_linkedin_verified?: boolean
           passport_name_verified?: boolean
           passport_pdf_url?: string | null
           passport_renewal_requested?: boolean | null
@@ -678,10 +684,13 @@ export type Database = {
           passport_contract_valid?: boolean
           passport_count?: number | null
           passport_expires_at?: string | null
+          passport_facebook_verified?: boolean
           passport_generated_at?: string | null
           passport_generated_by?: string | null
           passport_income_verified?: boolean
+          passport_instagram_verified?: boolean
           passport_issued_at?: string | null
+          passport_linkedin_verified?: boolean
           passport_name_verified?: boolean
           passport_pdf_url?: string | null
           passport_renewal_requested?: boolean | null
@@ -1451,6 +1460,99 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      trust_score_weights: {
+        Row: {
+          cap_no_staysafe: number
+          deposit: number
+          external_history_first: number
+          external_history_next: number
+          external_history_reference: number
+          external_history_scan: number
+          facebook: number
+          finance_cap: number
+          global_cap: number
+          guarantor: number
+          history_cap: number
+          id: string
+          identity: number
+          income_high: number
+          income_low: number
+          income_mid: number
+          instagram: number
+          linkedin: number
+          occasional_lease: number
+          singleton: boolean
+          social_cap: number
+          staysafe_cap: number
+          staysafe_first_rental: number
+          staysafe_second_rental: number
+          student: number
+          tenant_insurance: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cap_no_staysafe?: number
+          deposit?: number
+          external_history_first?: number
+          external_history_next?: number
+          external_history_reference?: number
+          external_history_scan?: number
+          facebook?: number
+          finance_cap?: number
+          global_cap?: number
+          guarantor?: number
+          history_cap?: number
+          id?: string
+          identity?: number
+          income_high?: number
+          income_low?: number
+          income_mid?: number
+          instagram?: number
+          linkedin?: number
+          occasional_lease?: number
+          singleton?: boolean
+          social_cap?: number
+          staysafe_cap?: number
+          staysafe_first_rental?: number
+          staysafe_second_rental?: number
+          student?: number
+          tenant_insurance?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cap_no_staysafe?: number
+          deposit?: number
+          external_history_first?: number
+          external_history_next?: number
+          external_history_reference?: number
+          external_history_scan?: number
+          facebook?: number
+          finance_cap?: number
+          global_cap?: number
+          guarantor?: number
+          history_cap?: number
+          id?: string
+          identity?: number
+          income_high?: number
+          income_low?: number
+          income_mid?: number
+          instagram?: number
+          linkedin?: number
+          occasional_lease?: number
+          singleton?: boolean
+          social_cap?: number
+          staysafe_cap?: number
+          staysafe_first_rental?: number
+          staysafe_second_rental?: number
+          student?: number
+          tenant_insurance?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       user_consents: {
         Row: {

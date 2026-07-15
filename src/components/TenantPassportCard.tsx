@@ -431,7 +431,7 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
           <StatCard title="Lokalizacja domyślna" value={data.city ?? "—"} />
           <StatCard title="Status paszportu" value="Aktywny i zweryfikowany" valueClass="text-emerald-300" />
           <StatCard title="Najmy StaySafe" value={`${internalCount} ${internalCount === 1 ? "udany najem" : "udane najmy"}`} />
-          <StatCard title="Najmy zewnętrzne" value={`${externalCount} zweryfikowane`} />
+          <StatCard title="Najmy zewnętrzne" value={`${externalCount} zadeklarowane`} />
         </div>
 
         {/* StaySafe internal leases — diamond highlight */}
@@ -456,13 +456,13 @@ export function TenantPassportCard({ data }: { data: PassportData }) {
             <ClipboardList className="mt-0.5 h-6 w-6 shrink-0 text-[#D4AF37]" />
             <div className="min-w-0 flex-1">
               <div className="text-sm font-bold text-white">
-                Wskazano {externalCount} {externalCount === 1 ? "historię" : externalCount >= 2 && externalCount <= 4 ? "historie" : "historii"} poprzednich najmów poza portalem
+                Zadeklarowano {externalCount} {externalCount === 1 ? "historię" : externalCount >= 2 && externalCount <= 4 ? "historie" : "historii"} poprzednich najmów poza portalem
               </div>
               <p className="mt-1 text-xs leading-relaxed text-white/70">
-                Poprzednie okresy najmu oraz referencje od właścicieli nieruchomości zostały pomyślnie potwierdzone i zweryfikowane.
+                Wpisy dodane przez najemcę na własną odpowiedzialność. Najemca zobowiązuje się do udostępnienia referencji od właścicieli oraz skanów umów na żądanie Wynajmującego. Portal StaySafe nie weryfikuje tych wpisów.
               </p>
             </div>
-            <VerifiedPill />
+            <DeclaredPill />
           </div>
         </SectionCard>
 
@@ -554,6 +554,14 @@ function VerifiedPill() {
   return (
     <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-emerald-400/40 bg-emerald-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300">
       <CheckCircle2 className="h-3 w-3" /> Zweryfikowano
+    </span>
+  );
+}
+
+function DeclaredPill() {
+  return (
+    <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-400/40 bg-amber-400/10 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-amber-300">
+      Zadeklarowano
     </span>
   );
 }

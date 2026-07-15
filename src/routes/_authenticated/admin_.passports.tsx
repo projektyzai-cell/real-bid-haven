@@ -1,4 +1,4 @@
-import { createFileRoute, redirect, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, redirect, Link } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect } from "react";
@@ -10,6 +10,8 @@ import {
   getPassportApplication,
   updateAdminVerification,
   generateTenantPassport,
+  getTrustScoreWeights,
+  updateTrustScoreWeights,
 } from "@/lib/admin-passport.functions";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,9 +21,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  ShieldCheck, ArrowLeft, FileText, ExternalLink, Sparkles, Loader2, Clock, CheckCircle2, Calculator,
+  ShieldCheck, ArrowLeft, FileText, ExternalLink, Sparkles, Loader2, Clock,
+  CheckCircle2, Calculator, Settings, ChevronDown, ChevronUp,
 } from "lucide-react";
-import { computeTrustScore } from "@/lib/trust-score";
+import { computeTrustScore, DEFAULT_TRUST_WEIGHTS, type TrustWeights } from "@/lib/trust-score";
 
 const searchSchema = z.object({ u: z.string().optional() });
 
@@ -59,6 +62,8 @@ function AdminPassportsPage() {
         <ShieldCheck className="h-7 w-7 text-gold" />
         <h1 className="text-3xl font-semibold tracking-tight">Aplikacje o paszport najemcy</h1>
       </div>
+
+      <TrustWeightsEditor />
 
       <div className="mt-6 grid gap-6 lg:grid-cols-[420px_1fr]">
         <Card className="overflow-hidden rounded-2xl">
@@ -106,24 +111,165 @@ function AdminPassportsPage() {
   );
 }
 
+// ---------------- Trust score weights editor ----------------
+
+const WEIGHT_FIELDS: { key: keyof TrustWeights; label: string; section: string }[] = [
+  { key: "identity", label: "Tożsamość (1.1)", section: "Tożsamość" },
+  { key: "income_low", label: "Dochód 2000–3000 zł", section: "Dochód i finanse" },
+  { key: "income_mid", label: "Dochód 3001–5000 zł / student niepracujący", section: "Dochód i finanse" },
+  { key: "income_high", label: "Dochód 5001+ zł", section: "Dochód i finanse" },
+  { key: "deposit", label: "Kaucja 1-miesięczna", section: "Dochód i finanse" },
+  { key: "guarantor", label: "Poręczyciel", section: "Dochód i finanse" },
+  { key: "occasional_lease", label: "Zgoda na najem okazjonalny", section: "Dochód i finanse" },
+  { key: "tenant_insurance", label: "OC najemcy", section: "Dochód i finanse" },
+  { key: "finance_cap", label: "Limit sumy finansowej", section: "Dochód i finanse" },
+  { key: "student", label: "Aktywny student", section: "Społeczność" },
+  { key: "facebook", label: "Facebook", section: "Społeczność" },
+  { key: "instagram", label: "Instagram", section: "Społeczność" },
+  { key: "linkedin", label: "LinkedIn", section: "Społeczność" },
+  { key: "social_cap", label: "Limit sumy społeczność", section: "Społeczność" },
+  { key: "external_history_first", label: "Pierwszy najem zewn.", section: "Historia zewnętrzna" },
+  { key: "external_history_next", label: "Kolejny najem zewn.", section: "Historia zewnętrzna" },
+  { key: "external_history_reference", label: "Referencje (per wpis)", section: "Historia zewnętrzna" },
+  { key: "external_history_scan", label: "Skan umowy (per wpis)", section: "Historia zewnętrzna" },
+  { key: "history_cap", label: "Limit historii zewn.", section: "Historia zewnętrzna" },
+  { key: "staysafe_first_rental", label: "1. najem przez StaySafe", section: "Ekosystem StaySafe" },
+  { key: "staysafe_second_rental", label: "2. najem przez StaySafe", section: "Ekosystem StaySafe" },
+  { key: "staysafe_cap", label: "Limit historii StaySafe", section: "Ekosystem StaySafe" },
+  { key: "global_cap", label: "Globalny limit (z najmem SS)", section: "Limity" },
+  { key: "cap_no_staysafe", label: "Limit bez najmu StaySafe", section: "Limity" },
+];
+
+function TrustWeightsEditor() {
+  const get = useServerFn(getTrustScoreWeights);
+  const upd = useServerFn(updateTrustScoreWeights);
+  const qc = useQueryClient();
+  const [open, setOpen] = useState(false);
+  const [values, setValues] = useState<TrustWeights>(DEFAULT_TRUST_WEIGHTS);
+  const [dirty, setDirty] = useState(false);
+
+  const q = useQuery({
+    queryKey: ["trust-weights"],
+    queryFn: () => get(),
+  });
+
+  useEffect(() => {
+    if (q.data) {
+      const w: any = { ...DEFAULT_TRUST_WEIGHTS };
+      for (const k of Object.keys(DEFAULT_TRUST_WEIGHTS)) {
+        if ((q.data as any)[k] !== undefined && (q.data as any)[k] !== null) {
+          w[k] = Number((q.data as any)[k]);
+        }
+      }
+      setValues(w);
+      setDirty(false);
+    }
+  }, [q.data]);
+
+  const save = useMutation({
+    mutationFn: () => upd({ data: values as any }),
+    onSuccess: () => {
+      toast.success("Wagi Trust Score zapisane. Nowe wnioski liczą się według aktualizacji.");
+      setDirty(false);
+      qc.invalidateQueries({ queryKey: ["trust-weights"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const sections = Array.from(new Set(WEIGHT_FIELDS.map((f) => f.section)));
+
+  return (
+    <Card className="mt-6 rounded-2xl">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between gap-2 px-4 py-3 text-left"
+      >
+        <div className="flex items-center gap-2">
+          <Settings className="h-4 w-4 text-gold" />
+          <span className="text-sm font-semibold">Silnik Trust Score — wagi punktów</span>
+          {dirty && <Badge variant="destructive" className="ml-2">Niezapisane zmiany</Badge>}
+        </div>
+        {open ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+      </button>
+      {open && (
+        <div className="border-t p-4 space-y-4">
+          <p className="text-xs text-muted-foreground">
+            Poniższe wagi są używane do automatycznego wyliczania Trust Score dla każdego nowego wniosku.
+            Zmiana wag obowiązuje od razu dla wniosków otwieranych po zapisaniu.
+          </p>
+          {sections.map((s) => (
+            <div key={s}>
+              <div className="mb-1 text-[11px] font-bold uppercase tracking-wider text-gold">{s}</div>
+              <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                {WEIGHT_FIELDS.filter((f) => f.section === s).map((f) => (
+                  <div key={f.key} className="flex items-center gap-2 rounded-lg border bg-muted/20 px-2 py-1.5">
+                    <Label className="flex-1 text-xs">{f.label}</Label>
+                    <Input
+                      type="number" step="0.25"
+                      value={values[f.key]}
+                      onChange={(e) => {
+                        setValues((v) => ({ ...v, [f.key]: Number(e.target.value) }));
+                        setDirty(true);
+                      }}
+                      className="h-8 w-24 text-xs"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          <div className="flex gap-2">
+            <Button size="sm" disabled={!dirty || save.isPending}
+              onClick={() => save.mutate()}
+              className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
+              {save.isPending ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
+              Zapisz wagi
+            </Button>
+            <Button size="sm" variant="ghost"
+              onClick={() => { setValues(DEFAULT_TRUST_WEIGHTS); setDirty(true); }}>
+              Przywróć wartości domyślne
+            </Button>
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// ---------------- Application detail ----------------
+
 function ApplicationDetail({ userId }: { userId: string }) {
-  const navigate = useNavigate();
+  // no navigate needed
   const qc = useQueryClient();
   const get = useServerFn(getPassportApplication);
   const upd = useServerFn(updateAdminVerification);
   const gen = useServerFn(generateTenantPassport);
+  const getW = useServerFn(getTrustScoreWeights);
 
   const detail = useQuery({
     queryKey: ["admin-passport-app", userId],
     queryFn: () => get({ data: { userId } }),
   });
 
+  const weightsQ = useQuery({ queryKey: ["trust-weights"], queryFn: () => getW() });
+  const weights: TrustWeights = (() => {
+    const w: any = { ...DEFAULT_TRUST_WEIGHTS };
+    if (weightsQ.data) {
+      for (const k of Object.keys(DEFAULT_TRUST_WEIGHTS)) {
+        if ((weightsQ.data as any)[k] !== undefined && (weightsQ.data as any)[k] !== null) {
+          w[k] = Number((weightsQ.data as any)[k]);
+        }
+      }
+    }
+    return w;
+  })();
+
   const [score, setScore] = useState(0);
   const [scoreEdited, setScoreEdited] = useState(false);
   const [city, setCity] = useState("");
   const [notes, setNotes] = useState("");
 
-  // Auto-compute from V3 config, gated by admin verification flags.
   const autoScore = (() => {
     if (!detail.data) return null;
     const p = detail.data.profile as any;
@@ -135,12 +281,20 @@ function ApplicationDetail({ userId }: { userId: string }) {
       student_status: p.student_status,
       accepts_one_month_deposit: !!p.accepts_one_month_deposit,
       has_guarantor: !!p.has_guarantor,
-      social_facebook_url: p.passport_social_verified ? p.social_facebook_url : null,
-      instagram_username: p.passport_social_verified ? p.instagram_username : null,
-      linkedin_url: p.passport_social_verified ? p.linkedin_url : null,
-      lease_history: [],
+      accepts_occasional_lease: !!p.accepts_notarial_lease,
+      has_tenant_insurance: !!(p.has_tenant_insurance || p.willing_tenant_insurance),
+      social_facebook_url: p.social_facebook_url,
+      social_facebook_verified: !!p.passport_facebook_verified,
+      instagram_username: p.instagram_username,
+      social_instagram_verified: !!p.passport_instagram_verified,
+      linkedin_url: p.linkedin_url,
+      social_linkedin_verified: !!p.passport_linkedin_verified,
+      lease_history: (detail.data.history ?? []).map((h: any) => ({
+        references_available: !!h.references_available,
+        contract_url: h.contract_url,
+      })),
       staysafe_completed_rentals_count: completed,
-    });
+    }, weights);
   })();
 
   useEffect(() => {
@@ -179,7 +333,9 @@ function ApplicationDetail({ userId }: { userId: string }) {
     name: p.passport_name_verified,
     income: p.passport_income_verified,
     contract: p.passport_contract_valid,
-    social: p.passport_social_verified,
+    facebook: p.passport_facebook_verified,
+    instagram: p.passport_instagram_verified,
+    linkedin: p.passport_linkedin_verified,
   };
 
   return (
@@ -231,16 +387,37 @@ function ApplicationDetail({ userId }: { userId: string }) {
         />
       </Section>
 
-      {/* Social */}
-      <Section title="Social media">
-        <SocialLink label="LinkedIn" url={p.linkedin_url} />
-        <SocialLink label="Facebook" url={p.social_facebook_url} />
-        <SocialLink label="Instagram" url={p.instagram_username ? `https://instagram.com/${p.instagram_username}` : null} />
-        <CheckRow
-          label="Potwierdzam, że profile social media należą do wnioskodawcy"
-          checked={!!flags.social}
-          onChange={(v) => updateMut.mutate({ passport_social_verified: v })}
-        />
+      {/* Tenant declarations — informational (auto-scored) */}
+      <Section title="Deklaracje najemcy (auto-punkty)">
+        <DeclarationRow ok={!!p.accepts_notarial_lease} label="Wyraża zgodę na najem okazjonalny (poddanie się egzekucji)" points={weights.occasional_lease} />
+        <DeclarationRow ok={!!p.accepts_one_month_deposit} label="Akceptuje kaucję 1-miesięczną" points={weights.deposit} />
+        <DeclarationRow ok={!!(p.has_tenant_insurance || p.willing_tenant_insurance)} label="Posiada / wykupi OC najemcy" points={weights.tenant_insurance} />
+        <DeclarationRow ok={!!p.has_guarantor} label="Poręczyciel z dochodem" points={weights.guarantor} />
+        <DeclarationRow ok={!!p.is_student} label="Aktywny student" points={weights.student} />
+      </Section>
+
+      {/* Social — split per channel */}
+      <Section title="Social media (oddzielna weryfikacja każdego kanału)">
+        <div className="space-y-2">
+          <SocialLink label="LinkedIn" url={p.linkedin_url} />
+          <CheckRow
+            label={`Potwierdzam konto LinkedIn (+${weights.linkedin} pkt)`}
+            checked={!!flags.linkedin}
+            onChange={(v) => updateMut.mutate({ passport_linkedin_verified: v })}
+          />
+          <SocialLink label="Facebook" url={p.social_facebook_url} />
+          <CheckRow
+            label={`Potwierdzam konto Facebook (+${weights.facebook} pkt)`}
+            checked={!!flags.facebook}
+            onChange={(v) => updateMut.mutate({ passport_facebook_verified: v })}
+          />
+          <SocialLink label="Instagram" url={p.instagram_username ? `https://instagram.com/${p.instagram_username}` : null} />
+          <CheckRow
+            label={`Potwierdzam konto Instagram (+${weights.instagram} pkt)`}
+            checked={!!flags.instagram}
+            onChange={(v) => updateMut.mutate({ passport_instagram_verified: v })}
+          />
+        </div>
       </Section>
 
       {/* Lease history summary */}
@@ -273,14 +450,21 @@ function ApplicationDetail({ userId }: { userId: string }) {
         {autoScore && (
           <div className="rounded-lg border border-gold/30 bg-gold/5 p-3 text-xs space-y-1.5">
             <div className="flex items-center gap-2 font-semibold uppercase tracking-wider text-gold">
-              <Calculator className="h-3.5 w-3.5" /> Automatyczne wyliczenie Trust Score (V3)
+              <Calculator className="h-3.5 w-3.5" /> Automatyczne wyliczenie Trust Score (z aktualnych wag)
             </div>
             <div className="grid grid-cols-2 gap-x-4 gap-y-1 sm:grid-cols-3">
-              <span>Tożsamość: <b>{autoScore.identity}</b> / 20</span>
-              <span>Finanse (dochód+kaucja+poręczyciel): <b>{autoScore.financeTotal}</b> / 41</span>
-              <span>Społeczność (student+social): <b>{autoScore.socialTotal}</b> / 14</span>
-              <span>Historia zewnętrzna: <b>{autoScore.history}</b> / 10</span>
-              <span>Historia StaySafe: <b>{autoScore.staysafe}</b> / 15</span>
+              <span>Tożsamość: <b>{autoScore.identity}</b> / {weights.identity}</span>
+              <span>Dochód: <b>{autoScore.income}</b></span>
+              <span>Kaucja: <b>{autoScore.deposit}</b></span>
+              <span>Poręczyciel: <b>{autoScore.guarantor}</b></span>
+              <span>Najem okazjonalny: <b>{autoScore.occasionalLease}</b></span>
+              <span>OC najemcy: <b>{autoScore.tenantInsurance}</b></span>
+              <span>Finanse (suma z limitem): <b>{autoScore.financeTotal}</b> / {weights.finance_cap}</span>
+              <span>Student: <b>{autoScore.student}</b></span>
+              <span>LinkedIn: <b>{autoScore.linkedin}</b> · FB: <b>{autoScore.facebook}</b> · IG: <b>{autoScore.instagram}</b></span>
+              <span>Społeczność (suma z limitem): <b>{autoScore.socialTotal}</b> / {weights.social_cap}</span>
+              <span>Historia zewn.: <b>{autoScore.history}</b> / {weights.history_cap}</span>
+              <span>Historia StaySafe: <b>{autoScore.staysafe}</b> / {weights.staysafe_cap}</span>
               <span>Suma surowa: <b>{autoScore.rawTotal}</b></span>
             </div>
             <div className="pt-1 border-t border-gold/20 flex items-center justify-between">
@@ -288,7 +472,7 @@ function ApplicationDetail({ userId }: { userId: string }) {
                 Wynik po limitach:{" "}
                 <b className="text-gold text-sm">{autoScore.cappedTotal}</b>
                 {!autoScore.hasStaysafeRental && (
-                  <span className="ml-1 text-muted-foreground">(cap 85 — brak najmu StaySafe)</span>
+                  <span className="ml-1 text-muted-foreground">(cap {weights.cap_no_staysafe} — brak najmu StaySafe)</span>
                 )}
               </span>
               <Button
@@ -318,7 +502,9 @@ function ApplicationDetail({ userId }: { userId: string }) {
           <FlagPill ok={flags.name} label="Imię i nazwisko" />
           <FlagPill ok={flags.income} label="Dochód" />
           <FlagPill ok={flags.contract} label="Umowa ważna" />
-          <FlagPill ok={flags.social} label="Social media" />
+          <FlagPill ok={flags.linkedin} label="LinkedIn" />
+          <FlagPill ok={flags.facebook} label="Facebook" />
+          <FlagPill ok={flags.instagram} label="Instagram" />
         </div>
         <Button
           disabled={!flags.name || !city || generateMut.isPending}
@@ -326,10 +512,10 @@ function ApplicationDetail({ userId }: { userId: string }) {
           className="bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
         >
           {generateMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}
-          Wygeneruj paszport najemcy
+          Wygeneruj paszport najemcy (ważny 90 dni)
         </Button>
         <p className="text-xs text-muted-foreground">
-          Paszport może zostać wydany po potwierdzeniu tożsamości — pozostałe punkty naliczają się z automatu na podstawie zatwierdzonych elementów.
+          Paszport może zostać wydany po potwierdzeniu tożsamości — pozostałe punkty naliczają się z automatu na podstawie zatwierdzonych elementów i deklaracji najemcy.
         </p>
       </Section>
     </Card>
@@ -390,6 +576,17 @@ function CheckRow({ label, checked, onChange }: { label: string; checked: boolea
       <Checkbox checked={checked} onCheckedChange={(v) => onChange(!!v)} />
       <span className="font-medium">{label}</span>
     </label>
+  );
+}
+function DeclarationRow({ ok, label, points }: { ok: boolean; label: string; points: number }) {
+  return (
+    <div className={`flex items-center justify-between rounded-lg border px-3 py-2 text-sm ${ok ? "border-emerald-500/40 bg-emerald-500/5" : "border-muted bg-muted/20"}`}>
+      <span className="flex items-center gap-2">
+        <span className={ok ? "text-emerald-600" : "text-muted-foreground"}>{ok ? "✓" : "○"}</span>
+        <span>{label}</span>
+      </span>
+      <span className={`text-xs font-mono ${ok ? "text-emerald-600" : "text-muted-foreground"}`}>{ok ? `+${points}` : `0 / ${points}`} pkt</span>
+    </div>
   );
 }
 function FlagPill({ ok, label }: { ok: boolean; label: string }) {
