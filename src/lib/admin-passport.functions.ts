@@ -3,7 +3,6 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
-  // Admins and passport_verifier sub-admins can access passport tooling.
   const { data, error } = await ctx.supabase
     .from("user_roles")
     .select("role")
@@ -12,7 +11,12 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
   if (error || !data || data.length === 0) throw new Error("Forbidden: admin only");
 }
 
-/** Chronological list of submitted passport applications */
+async function assertSuperAdmin(ctx: { supabase: any; userId: string }) {
+  const { data, error } = await ctx.supabase
+    .from("user_roles").select("role").eq("user_id", ctx.userId).eq("role", "admin");
+  if (error || !data || data.length === 0) throw new Error("Forbidden: admin only");
+}
+
 export const listPassportApplications = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -83,6 +87,9 @@ export const updateAdminVerification = createServerFn({ method: "POST" })
       passport_income_verified: z.boolean().optional(),
       passport_contract_valid: z.boolean().optional(),
       passport_social_verified: z.boolean().optional(),
+      passport_facebook_verified: z.boolean().optional(),
+      passport_instagram_verified: z.boolean().optional(),
+      passport_linkedin_verified: z.boolean().optional(),
       passport_admin_notes: z.string().max(2000).optional(),
     }).parse(d),
   )
@@ -90,6 +97,20 @@ export const updateAdminVerification = createServerFn({ method: "POST" })
     await assertAdmin(context as any);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { userId, ...patch } = data;
+    // Mirror aggregate social flag from individual channels for backwards compat.
+    if (
+      patch.passport_facebook_verified !== undefined ||
+      patch.passport_instagram_verified !== undefined ||
+      patch.passport_linkedin_verified !== undefined
+    ) {
+      const { data: cur } = await supabaseAdmin.from("profiles")
+        .select("passport_facebook_verified, passport_instagram_verified, passport_linkedin_verified")
+        .eq("id", userId).maybeSingle();
+      const fb = patch.passport_facebook_verified ?? (cur as any)?.passport_facebook_verified ?? false;
+      const ig = patch.passport_instagram_verified ?? (cur as any)?.passport_instagram_verified ?? false;
+      const li = patch.passport_linkedin_verified ?? (cur as any)?.passport_linkedin_verified ?? false;
+      (patch as any).passport_social_verified = fb || ig || li;
+    }
     const { error } = await supabaseAdmin.from("profiles").update(patch).eq("id", userId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -118,7 +139,8 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
       serial = (s as unknown as string) ?? null;
     }
     const now = new Date();
-    const expires = new Date(now.getTime() + 365 * 24 * 60 * 60 * 1000);
+    // Passport validity: 90 days from issuance.
+    const expires = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
     const { error } = await supabaseAdmin.from("profiles").update({
       passport_application_status: "approved",
       passport_serial: serial,
@@ -147,4 +169,59 @@ export const passportStatsRows = createServerFn({ method: "GET" })
       .order("passport_generated_at", { ascending: false });
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+// -------- Trust score weights (admin-managed silnik) --------
+
+export const getTrustScoreWeights = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context as any);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("trust_score_weights" as any)
+      .select("*").eq("singleton", true).maybeSingle();
+    if (error) throw new Error(error.message);
+    return data ?? null;
+  });
+
+const weightsSchema = z.object({
+  identity: z.number(),
+  income_low: z.number(),
+  income_mid: z.number(),
+  income_high: z.number(),
+  deposit: z.number(),
+  guarantor: z.number(),
+  occasional_lease: z.number(),
+  tenant_insurance: z.number(),
+  student: z.number(),
+  facebook: z.number(),
+  instagram: z.number(),
+  linkedin: z.number(),
+  external_history_first: z.number(),
+  external_history_next: z.number(),
+  external_history_reference: z.number(),
+  external_history_scan: z.number(),
+  staysafe_first_rental: z.number(),
+  staysafe_second_rental: z.number(),
+  finance_cap: z.number(),
+  social_cap: z.number(),
+  history_cap: z.number(),
+  staysafe_cap: z.number(),
+  global_cap: z.number(),
+  cap_no_staysafe: z.number(),
+}).partial();
+
+export const updateTrustScoreWeights = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => weightsSchema.parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context as any);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch = { ...data, updated_at: new Date().toISOString(), updated_by: (context as any).userId };
+    const { error } = await supabaseAdmin
+      .from("trust_score_weights" as any)
+      .update(patch).eq("singleton", true);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
