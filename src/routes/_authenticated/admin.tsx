@@ -155,6 +155,8 @@ function AdminDashboard() {
             <TabsContent value="subadmins" className="mt-6"><SubAdminsTab /></TabsContent>
             <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
             <TabsContent value="reports" className="mt-6"><ReportsTab /></TabsContent>
+            <TabsContent value="concierge" className="mt-6"><ConciergeLeadsTab /></TabsContent>
+
           </>
         )}
       </Tabs>
