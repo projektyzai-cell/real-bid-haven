@@ -139,6 +139,60 @@ export type Database = {
         }
         Relationships: []
       }
+      concierge_leads: {
+        Row: {
+          admin_notes: string | null
+          client_type: string
+          consent_accepted: boolean
+          consent_timestamp: string | null
+          created_at: string
+          email: string
+          forwarded_at: string | null
+          forwarded_by: string | null
+          id: string
+          phone: string
+          service_key: string
+          service_name: string
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          client_type?: string
+          consent_accepted?: boolean
+          consent_timestamp?: string | null
+          created_at?: string
+          email: string
+          forwarded_at?: string | null
+          forwarded_by?: string | null
+          id?: string
+          phone: string
+          service_key: string
+          service_name: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          client_type?: string
+          consent_accepted?: boolean
+          consent_timestamp?: string | null
+          created_at?: string
+          email?: string
+          forwarded_at?: string | null
+          forwarded_by?: string | null
+          id?: string
+          phone?: string
+          service_key?: string
+          service_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       districts: {
         Row: {
           city_id: string
