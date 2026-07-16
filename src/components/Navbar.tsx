@@ -107,12 +107,10 @@ export function Navbar() {
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> {t("nav.myInquiries")}
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/concierge" })}>
-                        <Sparkles className="h-4 w-4" /> {t("nav.concierge")}
-                      </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
+
 
                 {/* Strefa najmu — WYNAJMUJĄCY */}
                 <DropdownMenuSub>
