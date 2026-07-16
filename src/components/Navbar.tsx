@@ -107,12 +107,10 @@ export function Navbar() {
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> {t("nav.myInquiries")}
                       </DropdownMenuItem>
-                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/concierge" })}>
-                        <Sparkles className="h-4 w-4" /> {t("nav.concierge")}
-                      </DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
+
 
                 {/* Strefa najmu — WYNAJMUJĄCY */}
                 <DropdownMenuSub>
@@ -141,6 +139,9 @@ export function Navbar() {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => navigate({ to: "/najem/generator-umow" })}>
                   <FileText className="h-4 w-4" /> {t("nav.contractGen")}
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate({ to: "/najem/concierge" })}>
+                  <Sparkles className="h-4 w-4" /> {t("nav.concierge")}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => navigate({ to: "/messages" })}
                   className={unread > 0 ? "bg-yellow-100 font-semibold text-yellow-900 focus:bg-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-100" : ""}>
