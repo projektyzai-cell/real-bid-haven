@@ -46,8 +46,9 @@ import {
 } from "@/lib/admin-reports.functions";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge"]).default("apps").optional(),
 });
+
 
 export const Route = createFileRoute("/_authenticated/admin")({
   validateSearch: tabSchema,
