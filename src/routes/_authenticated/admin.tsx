@@ -134,6 +134,12 @@ function AdminDashboard() {
                   <Flag className="h-4 w-4" /> Zgłoszenia
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="concierge" asChild>
+                <Link to="/admin" search={{ tab: "concierge" }} className="flex items-center gap-1.5">
+                  <Sparkles className="h-4 w-4" /> Concierge Leads
+                </Link>
+              </TabsTrigger>
+
             </>
           )}
         </TabsList>
