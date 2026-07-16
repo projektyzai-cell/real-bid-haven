@@ -1086,3 +1086,119 @@ function ReportsTab() {
     </Card>
   );
 }
+
+/* ===================== CONCIERGE LEADS ===================== */
+function ConciergeLeadsTab() {
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ["admin-concierge-leads"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("concierge_leads" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return data ?? [];
+    },
+  });
+
+  const forward = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("concierge_leads" as any)
+        .update({ status: "forwarded", forwarded_at: new Date().toISOString() })
+        .eq("id", id);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Zgłoszenie przekazane do wykonawcy. Powiadomienie e-mail wysłane.");
+      qc.invalidateQueries({ queryKey: ["admin-concierge-leads"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const rows: any[] = q.data ?? [];
+  const clientLabel = (t: string, key: string) => {
+    if (key === "sche") return "Wynajmujący";
+    if (t === "landlord") return "Wynajmujący";
+    if (t === "both") return "Najemca / Wynajmujący";
+    return "Najemca";
+  };
+
+  return (
+    <Card className="rounded-2xl p-6 space-y-4">
+      <div className="flex items-center gap-2">
+        <Sparkles className="h-5 w-5 text-gold" />
+        <h2 className="text-xl font-semibold">Concierge — zgłoszenia zainteresowania</h2>
+        <Badge variant="outline">{rows.length}</Badge>
+      </div>
+
+      {q.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+      {q.error && <div className="text-sm text-destructive">{(q.error as Error).message}</div>}
+
+      <div className="overflow-auto rounded-xl border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2 text-left">Data</th>
+              <th className="px-3 py-2 text-left">E-mail</th>
+              <th className="px-3 py-2 text-left">Telefon</th>
+              <th className="px-3 py-2 text-left">Usługa</th>
+              <th className="px-3 py-2 text-left">Typ klienta</th>
+              <th className="px-3 py-2 text-left">Zgoda</th>
+              <th className="px-3 py-2 text-left">Status</th>
+              <th className="px-3 py-2"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr key={r.id} className="border-t align-top">
+                <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(r.created_at).toLocaleString("pl-PL")}
+                </td>
+                <td className="px-3 py-2 text-xs">{r.email}</td>
+                <td className="px-3 py-2 text-xs">{r.phone}</td>
+                <td className="px-3 py-2 text-xs max-w-[240px]">{r.service_name}</td>
+                <td className="px-3 py-2 text-xs">{clientLabel(r.client_type, r.service_key)}</td>
+                <td className="px-3 py-2 text-xs">
+                  {r.consent_accepted ? (
+                    <div className="flex items-center gap-1 text-emerald-600">
+                      <CheckCircle2 className="h-3.5 w-3.5" />
+                      <span className="text-[11px]">
+                        {r.consent_timestamp ? new Date(r.consent_timestamp).toLocaleString("pl-PL") : "tak"}
+                      </span>
+                    </div>
+                  ) : <span className="text-destructive">brak</span>}
+                </td>
+                <td className="px-3 py-2 text-xs">
+                  {r.status === "forwarded"
+                    ? <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/40">Przekazano</Badge>
+                    : <Badge variant="destructive">Nowe</Badge>}
+                </td>
+                <td className="px-3 py-2 text-right">
+                  {r.status !== "forwarded" && (
+                    <Button size="sm"
+                      onClick={() => forward.mutate(r.id)}
+                      disabled={forward.isPending}
+                      style={{ backgroundColor: "#f59e0b", color: "#0b0f19" }}
+                      className="font-bold">
+                      <Send className="mr-1 h-3.5 w-3.5" /> Przekaż do wykonawcy
+                    </Button>
+                  )}
+                  {r.status === "forwarded" && r.forwarded_at && (
+                    <span className="text-[11px] text-muted-foreground">
+                      {new Date(r.forwarded_at).toLocaleString("pl-PL")}
+                    </span>
+                  )}
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && !q.isLoading && (
+              <tr><td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak zgłoszeń.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
