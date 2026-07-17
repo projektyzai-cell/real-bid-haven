@@ -17,6 +17,8 @@ import { formatPLN } from "@/lib/format";
 import { LocationPicker } from "@/components/LocationPicker";
 import { LeaseStageBar } from "@/components/LeaseStageBar";
 import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
+import { ReviewDialog } from "@/components/ReviewDialog";
+import { Star } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-zapytania")({
   head: () => ({ meta: [{ title: "Moje zapytania najmu — Stay Safe" }] }),
@@ -311,13 +313,14 @@ function MyRequestsPage() {
 }
 
 function TenantLeasesSection({ userId }: { userId: string | undefined }) {
+  const [rating, setRating] = useState<{ contractId: string; landlordId: string; listingId: string | null } | null>(null);
   const { data: leases = [] } = useQuery({
     queryKey: ["tenant-active-leases", userId],
     enabled: !!userId,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lease_transactions")
-        .select("id,listing_id,contract_start_date,contract_end_date,completed_at,chat_id,payment_delay_reported_at")
+        .select("id,listing_id,landlord_id,contract_start_date,contract_end_date,completed_at,chat_id,payment_delay_reported_at")
         .eq("tenant_id", userId!)
         .eq("state", "completed")
         .order("completed_at", { ascending: false });
@@ -382,12 +385,26 @@ function TenantLeasesSection({ userId }: { userId: string | undefined }) {
                       <MessageCircle className="h-3 w-3" /> Czat
                     </Link>
                   )}
+                  {finished && (
+                    <button
+                      onClick={() => setRating({ contractId: t.id, landlordId: t.landlord_id, listingId: t.listing_id })}
+                      className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
+                      <Star className="h-3 w-3" /> Oceń wynajmującego i lokal
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
       </div>
+      {rating && (
+        <ReviewDialog
+          open
+          onClose={() => setRating(null)}
+          mode={{ role: "tenant", contractId: rating.contractId, landlordId: rating.landlordId, listingId: rating.listingId }}
+        />
+      )}
     </div>
   );
 }

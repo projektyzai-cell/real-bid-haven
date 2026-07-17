@@ -1443,6 +1443,111 @@ export type Database = {
         }
         Relationships: []
       }
+      reviews: {
+        Row: {
+          consent_status: boolean
+          contract_id: string
+          created_at: string
+          deleted_at: string | null
+          deleted_by: string | null
+          deleted_reason: string | null
+          feedback: string | null
+          id: string
+          kind: Database["public"]["Enums"]["review_kind"]
+          landlord_communication: number | null
+          landlord_fairness: number | null
+          landlord_problem_solving: number | null
+          listing_id: string | null
+          property_accuracy: number | null
+          property_cleanliness: number | null
+          property_location: number | null
+          property_neighbors: number | null
+          property_technical_condition: number | null
+          reviewee_id: string
+          reviewer_id: string
+          status: Database["public"]["Enums"]["review_status"]
+          tags: string[]
+          tenant_cleanliness: number | null
+          tenant_communication: number | null
+          tenant_neighbors: number | null
+          tenant_payments: number | null
+          updated_at: string
+        }
+        Insert: {
+          consent_status?: boolean
+          contract_id: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_reason?: string | null
+          feedback?: string | null
+          id?: string
+          kind: Database["public"]["Enums"]["review_kind"]
+          landlord_communication?: number | null
+          landlord_fairness?: number | null
+          landlord_problem_solving?: number | null
+          listing_id?: string | null
+          property_accuracy?: number | null
+          property_cleanliness?: number | null
+          property_location?: number | null
+          property_neighbors?: number | null
+          property_technical_condition?: number | null
+          reviewee_id: string
+          reviewer_id: string
+          status?: Database["public"]["Enums"]["review_status"]
+          tags?: string[]
+          tenant_cleanliness?: number | null
+          tenant_communication?: number | null
+          tenant_neighbors?: number | null
+          tenant_payments?: number | null
+          updated_at?: string
+        }
+        Update: {
+          consent_status?: boolean
+          contract_id?: string
+          created_at?: string
+          deleted_at?: string | null
+          deleted_by?: string | null
+          deleted_reason?: string | null
+          feedback?: string | null
+          id?: string
+          kind?: Database["public"]["Enums"]["review_kind"]
+          landlord_communication?: number | null
+          landlord_fairness?: number | null
+          landlord_problem_solving?: number | null
+          listing_id?: string | null
+          property_accuracy?: number | null
+          property_cleanliness?: number | null
+          property_location?: number | null
+          property_neighbors?: number | null
+          property_technical_condition?: number | null
+          reviewee_id?: string
+          reviewer_id?: string
+          status?: Database["public"]["Enums"]["review_status"]
+          tags?: string[]
+          tenant_cleanliness?: number | null
+          tenant_communication?: number | null
+          tenant_neighbors?: number | null
+          tenant_payments?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "lease_transactions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sale_inquiries: {
         Row: {
           buyer_id: string
@@ -1661,6 +1766,10 @@ export type Database = {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
       accept_rental_offer: { Args: { _offer_id: string }; Returns: string }
       accept_tenant: { Args: { _transaction_id: string }; Returns: undefined }
+      admin_delete_review: {
+        Args: { _reason: string; _review_id: string }
+        Returns: undefined
+      }
       admin_reset_passport_application: {
         Args: { _user_id: string }
         Returns: undefined
@@ -1776,6 +1885,13 @@ export type Database = {
           total: number
         }[]
       }
+      listing_review_summary: {
+        Args: { _listing_id: string }
+        Returns: {
+          avg_overall: number
+          total: number
+        }[]
+      }
       lookup_passport: {
         Args: { _serial: string }
         Returns: {
@@ -1807,6 +1923,7 @@ export type Database = {
         Args: { _days: number; _id: string }
         Returns: string
       }
+      review_pair_revealed: { Args: { _contract_id: string }; Returns: boolean }
       sign_lease_with_dates: {
         Args: {
           _end_date: string
@@ -1829,6 +1946,16 @@ export type Database = {
           avg_overall: number
           avg_quality: number
           avg_reliability: number
+          total: number
+        }[]
+      }
+      user_review_summary: {
+        Args: {
+          _kind: Database["public"]["Enums"]["review_kind"]
+          _user_id: string
+        }
+        Returns: {
+          avg_overall: number
           total: number
         }[]
       }
@@ -1865,6 +1992,8 @@ export type Database = {
         | "message"
         | "passport"
         | "property"
+      review_kind: "landlord" | "property" | "tenant"
+      review_status: "active" | "deleted"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2027,6 +2156,8 @@ export const Constants = {
         "passport",
         "property",
       ],
+      review_kind: ["landlord", "property", "tenant"],
+      review_status: ["active", "deleted"],
     },
   },
 } as const
