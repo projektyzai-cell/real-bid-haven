@@ -331,11 +331,11 @@ function MessagesPage() {
 
   return (
     <div className="container mx-auto max-w-7xl px-2 py-4 sm:px-4 sm:py-8">
-      <div className="grid h-[calc(100vh-9rem)] grid-cols-1 overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-card backdrop-blur lg:grid-cols-[420px_1fr]">
+      <div className="grid h-[calc(100vh-9rem)] grid-cols-1 overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-card backdrop-blur md:grid-cols-[340px_1fr] lg:grid-cols-[420px_1fr]">
         {/* LEFT — Inbox */}
         <aside
           className={`flex flex-col border-r border-border/60 bg-background/60 ${
-            showRight ? "hidden lg:flex" : "flex"
+            showRight ? "hidden md:flex" : "flex"
           }`}
         >
           <div className="px-5 pb-3 pt-5">
@@ -417,7 +417,7 @@ function MessagesPage() {
         </aside>
 
         {/* RIGHT — Chat viewport / Admin viewport / Empty */}
-        <section className={`flex flex-col ${showRight ? "flex" : "hidden lg:flex"}`}>
+        <section className={`flex flex-col ${showRight ? "flex" : "hidden md:flex"}`}>
           {tab === "support" && activeAdmin ? (
             <AdminViewport
               msg={activeAdmin}
