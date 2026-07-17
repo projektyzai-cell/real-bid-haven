@@ -138,6 +138,8 @@
   .ring-gold { box-shadow: 0 0 0 1px var(--gold); }
   .shadow-card { box-shadow: var(--shadow-card); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
+  .shadow-gold { box-shadow: 0 0 14px oklch(0.78 0.13 86 / 0.5); }
+
   .gradient-hero { background: var(--gradient-hero); }
   .animate-bid-flash { animation: bid-flash 1.2s ease-out; }
   @keyframes bid-flash {
