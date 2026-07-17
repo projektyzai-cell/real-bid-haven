@@ -386,12 +386,26 @@ function TenantLeasesSection({ userId }: { userId: string | undefined }) {
                       <MessageCircle className="h-3 w-3" /> Czat
                     </Link>
                   )}
+                  {finished && (
+                    <button
+                      onClick={() => setRating({ contractId: t.id, landlordId: t.landlord_id, listingId: t.listing_id })}
+                      className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
+                      <Star className="h-3 w-3" /> Oceń wynajmującego i lokal
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
           );
         })}
       </div>
+      {rating && (
+        <ReviewDialog
+          open
+          onClose={() => setRating(null)}
+          mode={{ role: "tenant", contractId: rating.contractId, landlordId: rating.landlordId, listingId: rating.listingId }}
+        />
+      )}
     </div>
   );
 }
