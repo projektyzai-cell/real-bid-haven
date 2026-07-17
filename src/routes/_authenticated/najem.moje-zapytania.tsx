@@ -314,6 +314,7 @@ function MyRequestsPage() {
 }
 
 function TenantLeasesSection({ userId }: { userId: string | undefined }) {
+  const [rating, setRating] = useState<{ contractId: string; landlordId: string; listingId: string | null } | null>(null);
   const { data: leases = [] } = useQuery({
     queryKey: ["tenant-active-leases", userId],
     enabled: !!userId,
