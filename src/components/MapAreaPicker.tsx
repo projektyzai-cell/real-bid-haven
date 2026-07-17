@@ -102,14 +102,17 @@ export function MapAreaPicker({ city, district, value, onChange }: Props) {
       </div>
       <div className="flex items-center gap-3">
         <label className="text-xs font-medium text-muted-foreground">Promień: <strong className="text-foreground">{radius.toFixed(1)} km</strong></label>
-        <input
-          type="range" min={0.5} max={20} step={0.5} value={radius}
-          onChange={(e) => {
-            const r = Number(e.target.value);
+        <Slider
+          min={0.5}
+          max={20}
+          step={0.5}
+          value={[radius]}
+          onValueChange={([r]) => {
+            if (r == null) return;
             setRadius(r);
             if (value) onChange({ ...value, radiusKm: r });
           }}
-          className="flex-1 accent-[var(--gold)]"
+          className="flex-1"
         />
       </div>
       <p className="text-xs text-muted-foreground">
