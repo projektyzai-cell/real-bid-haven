@@ -378,7 +378,7 @@ function MessagesPage() {
             </div>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-4 pt-2">
+          <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto px-4 pb-4 pt-2">
             {tab === "support" ? (
               adminQ.isLoading ? (
                 <EmptyState text="Ładowanie..." />
@@ -636,7 +636,7 @@ function AdminViewport({
           </Button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto whitespace-pre-line p-6 text-sm leading-relaxed">
+      <div className="custom-scrollbar flex-1 overflow-y-auto whitespace-pre-line p-6 text-sm leading-relaxed">
         {msg.body}
       </div>
     </>
@@ -991,7 +991,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
       </div>
 
       {/* Messages */}
-      <div className="flex-1 space-y-4 overflow-y-auto p-5">
+      <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-5">
         {chat.type === "smart-match" && (
           <div className="text-center">
             <span className="inline-block rounded-full border border-gold/40 bg-background px-3 py-1 text-[11px] font-semibold text-gold">
