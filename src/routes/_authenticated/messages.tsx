@@ -378,7 +378,7 @@ function MessagesPage() {
             </div>
           </div>
 
-          <div className="flex-1 space-y-3 overflow-y-auto px-4 pb-4 pt-2">
+          <div className="custom-scrollbar flex-1 space-y-3 overflow-y-auto px-4 pb-4 pt-2">
             {tab === "support" ? (
               adminQ.isLoading ? (
                 <EmptyState text="Ładowanie..." />
