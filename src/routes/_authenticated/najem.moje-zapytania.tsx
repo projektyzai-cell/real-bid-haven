@@ -17,6 +17,9 @@ import { formatPLN } from "@/lib/format";
 import { LocationPicker } from "@/components/LocationPicker";
 import { LeaseStageBar } from "@/components/LeaseStageBar";
 import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
+import { ReviewDialog } from "@/components/ReviewDialog";
+import { UserRatingBadge } from "@/components/ReviewBadges";
+import { Star } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-zapytania")({
   head: () => ({ meta: [{ title: "Moje zapytania najmu — Stay Safe" }] }),
