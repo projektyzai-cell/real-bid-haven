@@ -636,7 +636,7 @@ function AdminViewport({
           </Button>
         )}
       </div>
-      <div className="flex-1 overflow-y-auto whitespace-pre-line p-6 text-sm leading-relaxed">
+      <div className="custom-scrollbar flex-1 overflow-y-auto whitespace-pre-line p-6 text-sm leading-relaxed">
         {msg.body}
       </div>
     </>
