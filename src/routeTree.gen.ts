@@ -9,7 +9,6 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as SliderTestRouteImport } from './routes/slider-test'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as RegulaminRouteImport } from './routes/regulamin'
 import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
@@ -45,11 +44,6 @@ import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_a
 import { Route as AuthenticatedNajemUmowaTransactionIdRouteImport } from './routes/_authenticated/najem.umowa.$transactionId'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
 
-const SliderTestRoute = SliderTestRouteImport.update({
-  id: '/slider-test',
-  path: '/slider-test',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
   path: '/reset-password',
@@ -244,7 +238,6 @@ export interface FileRoutesByFullPath {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/slider-test': typeof SliderTestRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
@@ -280,7 +273,6 @@ export interface FileRoutesByTo {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/slider-test': typeof SliderTestRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
@@ -318,7 +310,6 @@ export interface FileRoutesById {
   '/polityka-prywatnosci': typeof PolitykaPrywatnosciRoute
   '/regulamin': typeof RegulaminRoute
   '/reset-password': typeof ResetPasswordRoute
-  '/slider-test': typeof SliderTestRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
@@ -356,7 +347,6 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
-    | '/slider-test'
     | '/admin'
     | '/messages'
     | '/ustawienia'
@@ -392,7 +382,6 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
-    | '/slider-test'
     | '/admin'
     | '/messages'
     | '/ustawienia'
@@ -429,7 +418,6 @@ export interface FileRouteTypes {
     | '/polityka-prywatnosci'
     | '/regulamin'
     | '/reset-password'
-    | '/slider-test'
     | '/_authenticated/admin'
     | '/_authenticated/messages'
     | '/_authenticated/ustawienia'
@@ -467,7 +455,6 @@ export interface RootRouteChildren {
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
-  SliderTestRoute: typeof SliderTestRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
   NajemIndexRoute: typeof NajemIndexRoute
@@ -477,13 +464,6 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/slider-test': {
-      id: '/slider-test'
-      path: '/slider-test'
-      fullPath: '/slider-test'
-      preLoaderRoute: typeof SliderTestRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/reset-password': {
       id: '/reset-password'
       path: '/reset-password'
@@ -796,7 +776,6 @@ const rootRouteChildren: RootRouteChildren = {
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
-  SliderTestRoute: SliderTestRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
   NajemIndexRoute: NajemIndexRoute,
