@@ -1210,3 +1210,180 @@ function ConciergeLeadsTab() {
     </Card>
   );
 }
+
+/* ===================== REVIEWS ===================== */
+function ReviewsTab() {
+  const qc = useQueryClient();
+  const [kindFilter, setKindFilter] = useState<"all" | "landlord" | "property" | "tenant">("all");
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "deleted">("active");
+  const [minScore, setMinScore] = useState<string>("");
+  const [maxScore, setMaxScore] = useState<string>("");
+  const [search, setSearch] = useState("");
+
+  const { data: rows = [], isLoading } = useQuery({
+    queryKey: ["admin-reviews", kindFilter, statusFilter],
+    queryFn: async () => {
+      let q = supabase.from("reviews" as never).select("*").order("created_at", { ascending: false }).limit(500);
+      if (kindFilter !== "all") q = q.eq("kind" as never, kindFilter);
+      if (statusFilter !== "all") q = q.eq("status" as never, statusFilter);
+      const { data, error } = await q;
+      if (error) throw error;
+      const list = (data ?? []) as any[];
+      const userIds = Array.from(new Set(list.flatMap((r) => [r.reviewer_id, r.reviewee_id])));
+      const { data: profs } = userIds.length
+        ? await supabase.from("profiles").select("id,display_name").in("id", userIds)
+        : { data: [] as any[] };
+      const nameMap = new Map((profs ?? []).map((p: any) => [p.id, p.display_name]));
+      return list.map((r) => {
+        let scoreStr = "";
+        let overall = 0;
+        if (r.kind === "landlord") {
+          overall = (r.landlord_communication + r.landlord_problem_solving + r.landlord_fairness) / 3;
+          scoreStr = `komunikacja ${r.landlord_communication} · problemy ${r.landlord_problem_solving} · uczciwość ${r.landlord_fairness}`;
+        } else if (r.kind === "property") {
+          overall = (r.property_technical_condition + r.property_accuracy + r.property_cleanliness + r.property_location + r.property_neighbors) / 5;
+          scoreStr = `stan ${r.property_technical_condition} · zgodność ${r.property_accuracy} · czystość ${r.property_cleanliness} · lokalizacja ${r.property_location} · sąsiedzi ${r.property_neighbors}`;
+        } else {
+          overall = (r.tenant_payments + r.tenant_cleanliness + r.tenant_neighbors + r.tenant_communication) / 4;
+          scoreStr = `płatności ${r.tenant_payments} · czystość ${r.tenant_cleanliness} · sąsiedzi ${r.tenant_neighbors} · komunikacja ${r.tenant_communication}`;
+        }
+        return {
+          ...r,
+          reviewerName: nameMap.get(r.reviewer_id) ?? "—",
+          revieweeName: nameMap.get(r.reviewee_id) ?? "—",
+          overall,
+          scoreStr,
+        };
+      });
+    },
+  });
+
+  const filtered = rows.filter((r: any) => {
+    if (minScore && r.overall < Number(minScore)) return false;
+    if (maxScore && r.overall > Number(maxScore)) return false;
+    if (search) {
+      const s = search.toLowerCase();
+      if (!(
+        r.contract_id.toLowerCase().includes(s) ||
+        r.reviewerName.toLowerCase().includes(s) ||
+        r.revieweeName.toLowerCase().includes(s)
+      )) return false;
+    }
+    return true;
+  });
+
+  async function del(id: string) {
+    const reason = window.prompt("Podaj powód usunięcia opinii (będzie zapisany w audycie):", "Naruszenie regulaminu");
+    if (!reason) return;
+    if (!window.confirm("Czy na pewno chcesz usunąć tę opinię po wyjaśnieniu sprawy? Ta operacja jest nieodwracalna.")) return;
+    const { error } = await supabase.rpc("admin_delete_review" as never, { _review_id: id, _reason: reason } as never);
+    if (error) toast.error(error.message);
+    else {
+      toast.success("Opinia usunięta — średnie ocen zostały automatycznie przeliczone.");
+      qc.invalidateQueries({ queryKey: ["admin-reviews"] });
+      qc.invalidateQueries({ queryKey: ["user-review-summary"] });
+      qc.invalidateQueries({ queryKey: ["listing-review-summary"] });
+    }
+  }
+
+  return (
+    <Card className="space-y-4 rounded-2xl border-[#1e293b] bg-[#0b0f19] p-6">
+      <div className="flex flex-wrap items-end gap-3">
+        <div>
+          <Label className="text-xs uppercase text-muted-foreground">Typ oceny</Label>
+          <select value={kindFilter} onChange={(e) => setKindFilter(e.target.value as any)}
+            className="mt-1 rounded-lg border border-[#1e293b] bg-[#0f172a] px-2 py-1.5 text-sm">
+            <option value="all">Wszystkie</option>
+            <option value="landlord">Wynajmujący</option>
+            <option value="property">Lokal</option>
+            <option value="tenant">Najemca</option>
+          </select>
+        </div>
+        <div>
+          <Label className="text-xs uppercase text-muted-foreground">Status</Label>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as any)}
+            className="mt-1 rounded-lg border border-[#1e293b] bg-[#0f172a] px-2 py-1.5 text-sm">
+            <option value="all">Wszystkie</option>
+            <option value="active">Aktywne</option>
+            <option value="deleted">Usunięte</option>
+          </select>
+        </div>
+        <div>
+          <Label className="text-xs uppercase text-muted-foreground">Min ocena</Label>
+          <Input type="number" min={1} max={10} step={0.1} value={minScore} onChange={(e) => setMinScore(e.target.value)}
+            className="mt-1 h-8 w-24 rounded-lg" />
+        </div>
+        <div>
+          <Label className="text-xs uppercase text-muted-foreground">Max ocena</Label>
+          <Input type="number" min={1} max={10} step={0.1} value={maxScore} onChange={(e) => setMaxScore(e.target.value)}
+            className="mt-1 h-8 w-24 rounded-lg" />
+        </div>
+        <div className="flex-1 min-w-[200px]">
+          <Label className="text-xs uppercase text-muted-foreground">Szukaj (ID umowy lub użytkownik)</Label>
+          <Input value={search} onChange={(e) => setSearch(e.target.value)}
+            placeholder="np. Anna Kowalska lub UUID" className="mt-1 h-8 rounded-lg" />
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Ładuję…</div>
+      ) : (
+        <div className="overflow-x-auto rounded-xl border border-[#1e293b]">
+          <table className="w-full text-sm">
+            <thead className="bg-[#0f172a] text-xs uppercase text-muted-foreground">
+              <tr>
+                <th className="px-3 py-2 text-left">Data</th>
+                <th className="px-3 py-2 text-left">ID umowy</th>
+                <th className="px-3 py-2 text-left">Typ</th>
+                <th className="px-3 py-2 text-left">Oceniający</th>
+                <th className="px-3 py-2 text-left">Oceniany</th>
+                <th className="px-3 py-2 text-left">Śr.</th>
+                <th className="px-3 py-2 text-left">Sub-oceny</th>
+                <th className="px-3 py-2 text-left">Uwagi</th>
+                <th className="px-3 py-2 text-left">Status</th>
+                <th className="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((r: any) => (
+                <tr key={r.id} className="border-t border-[#1e293b] hover:bg-[#0f172a]/40">
+                  <td className="px-3 py-2 text-xs text-muted-foreground">{new Date(r.created_at).toLocaleDateString("pl-PL")}</td>
+                  <td className="px-3 py-2 font-mono text-[10px] text-muted-foreground">{r.contract_id.slice(0, 8)}…</td>
+                  <td className="px-3 py-2 text-xs">
+                    {r.kind === "landlord" ? "Wynajmujący" : r.kind === "property" ? "Lokal" : "Najemca"}
+                  </td>
+                  <td className="px-3 py-2 text-xs">{r.reviewerName}</td>
+                  <td className="px-3 py-2 text-xs">{r.revieweeName}</td>
+                  <td className={`px-3 py-2 text-sm font-bold tabular-nums ${r.overall < 5 ? "text-red-400" : r.overall > 8 ? "text-[#f59e0b]" : "text-foreground"}`}>{r.overall.toFixed(1)}</td>
+                  <td className="px-3 py-2 text-[11px] text-muted-foreground">{r.scoreStr}</td>
+                  <td className="px-3 py-2 max-w-[240px] text-xs">
+                    <div className="line-clamp-2">{r.feedback ?? "—"}</div>
+                    {r.tags?.length > 0 && <div className="mt-1 flex flex-wrap gap-1">{r.tags.map((t: string) => <span key={t} className="rounded-full border border-[#1e293b] px-1.5 py-0.5 text-[10px]">{t}</span>)}</div>}
+                  </td>
+                  <td className="px-3 py-2">
+                    {r.status === "active" ? (
+                      <Badge className="rounded-full bg-emerald-500/15 text-emerald-400">Aktywna</Badge>
+                    ) : (
+                      <Badge variant="outline" className="rounded-full text-destructive">Usunięta</Badge>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    {r.status === "active" && (
+                      <Button size="sm" variant="outline" onClick={() => del(r.id)} className="rounded-lg text-destructive hover:bg-destructive/10">
+                        <Trash2 className="mr-1 h-3 w-3" /> Usuń
+                      </Button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr><td colSpan={10} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak opinii.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
+  );
+}
+
