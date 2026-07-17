@@ -33,6 +33,7 @@ type Txn = {
 function AktywneUmowyPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const [rating, setRating] = useState<{ contractId: string; tenantId: string; listingId: string | null } | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["active-leases", user?.id],
