@@ -334,10 +334,11 @@ function MessagesPage() {
       <div className="grid h-[calc(100vh-9rem)] grid-cols-1 overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-card backdrop-blur md:grid-cols-[340px_1fr] lg:grid-cols-[420px_1fr]">
         {/* LEFT — Inbox */}
         <aside
-          className={`flex flex-col border-r border-border/60 bg-background/60 ${
+          className={`min-h-0 flex-col border-r border-border/60 bg-background/60 ${
             showRight ? "hidden md:flex" : "flex"
           }`}
         >
+
           <div className="px-5 pb-3 pt-5">
             <h1 className="mb-4 text-2xl font-bold tracking-tight">Wiadomości</h1>
             <div className="flex gap-1 rounded-xl border border-border/70 bg-background p-1">
@@ -417,7 +418,7 @@ function MessagesPage() {
         </aside>
 
         {/* RIGHT — Chat viewport / Admin viewport / Empty */}
-        <section className={`flex flex-col ${showRight ? "flex" : "hidden md:flex"}`}>
+        <section className={`min-h-0 flex-col ${showRight ? "flex" : "hidden md:flex"}`}>
           {tab === "support" && activeAdmin ? (
             <AdminViewport
               msg={activeAdmin}
@@ -916,7 +917,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
 
   return (
-    <div className="relative flex flex-1 flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col">
       {withdrawn && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/95 p-6 text-center backdrop-blur">
           <XCircle className="h-12 w-12 text-destructive" />
