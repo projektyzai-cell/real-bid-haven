@@ -139,6 +139,12 @@ function AdminDashboard() {
                   <Sparkles className="h-4 w-4" /> Concierge Leads
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="reviews" asChild>
+                <Link to="/admin" search={{ tab: "reviews" }} className="flex items-center gap-1.5">
+                  <Star className="h-4 w-4" /> Opinie i Oceny
+                </Link>
+              </TabsTrigger>
+
 
             </>
           )}
