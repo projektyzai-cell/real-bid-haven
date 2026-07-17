@@ -334,10 +334,11 @@ function MessagesPage() {
       <div className="grid h-[calc(100vh-9rem)] grid-cols-1 overflow-hidden rounded-3xl border border-border/60 bg-card/40 shadow-card backdrop-blur md:grid-cols-[340px_1fr] lg:grid-cols-[420px_1fr]">
         {/* LEFT — Inbox */}
         <aside
-          className={`flex flex-col border-r border-border/60 bg-background/60 ${
+          className={`min-h-0 flex-col border-r border-border/60 bg-background/60 ${
             showRight ? "hidden md:flex" : "flex"
           }`}
         >
+
           <div className="px-5 pb-3 pt-5">
             <h1 className="mb-4 text-2xl font-bold tracking-tight">Wiadomości</h1>
             <div className="flex gap-1 rounded-xl border border-border/70 bg-background p-1">
