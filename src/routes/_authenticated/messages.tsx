@@ -917,7 +917,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
 
   return (
-    <div className="relative flex flex-1 flex-col">
+    <div className="relative flex min-h-0 flex-1 flex-col">
       {withdrawn && (
         <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-background/95 p-6 text-center backdrop-blur">
           <XCircle className="h-12 w-12 text-destructive" />
