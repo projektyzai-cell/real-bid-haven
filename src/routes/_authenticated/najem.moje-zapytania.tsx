@@ -321,7 +321,7 @@ function TenantLeasesSection({ userId }: { userId: string | undefined }) {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("lease_transactions")
-        .select("id,listing_id,contract_start_date,contract_end_date,completed_at,chat_id,payment_delay_reported_at")
+        .select("id,listing_id,landlord_id,contract_start_date,contract_end_date,completed_at,chat_id,payment_delay_reported_at")
         .eq("tenant_id", userId!)
         .eq("state", "completed")
         .order("completed_at", { ascending: false });
