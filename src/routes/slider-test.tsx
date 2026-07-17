@@ -1,7 +1,8 @@
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { Slider } from "@/components/ui/slider";
 
-export default function SliderTest() {
+function SliderTest() {
   const [value, setValue] = useState([5]);
   return (
     <div className="mx-auto max-w-md p-10">
@@ -11,3 +12,7 @@ export default function SliderTest() {
     </div>
   );
 }
+
+export const Route = createFileRoute("/slider-test")({
+  component: SliderTest,
+});
