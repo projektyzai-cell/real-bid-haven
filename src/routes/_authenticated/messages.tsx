@@ -418,7 +418,7 @@ function MessagesPage() {
         </aside>
 
         {/* RIGHT — Chat viewport / Admin viewport / Empty */}
-        <section className={`flex flex-col ${showRight ? "flex" : "hidden md:flex"}`}>
+        <section className={`min-h-0 flex-col ${showRight ? "flex" : "hidden md:flex"}`}>
           {tab === "support" && activeAdmin ? (
             <AdminViewport
               msg={activeAdmin}
