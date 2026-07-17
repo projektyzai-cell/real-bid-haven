@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { MapContainer, TileLayer, Marker, Circle, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { Slider } from "@/components/ui/slider";
 import { geocodeArea } from "@/lib/nominatim";
 
 // Fix default marker icons (Vite asset-resolution quirk)
