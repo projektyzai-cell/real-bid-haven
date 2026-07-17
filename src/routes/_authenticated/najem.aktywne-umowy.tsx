@@ -164,6 +164,15 @@ function AktywneUmowyPage() {
                                     {t.contract_end_date ? new Date(t.contract_end_date).toLocaleDateString("pl-PL") : "—"}
                                   </span></div>
                                 </div>
+                                {(() => {
+                                  const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
+                                  const finished = end !== null && end < Date.now();
+                                  return finished ? (
+                                    <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-muted bg-muted/30 px-2 py-0.5 text-[10px] font-bold uppercase text-foreground">
+                                      <Clock className="h-3 w-3" /> Zakończona
+                                    </div>
+                                  ) : null;
+                                })()}
                                 {t.payment_delay_reported_at && (
                                   <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
                                     <AlertTriangle className="h-3 w-3" /> Zgłoszono opóźnienie płatności
@@ -180,19 +189,30 @@ function AktywneUmowyPage() {
                                     <MessageCircle className="h-3.5 w-3.5" /> Czat
                                   </Link>
                                 )}
-                                {t.role === "landlord" && (
-                                  <>
-                                    <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:bg-destructive/10"
-                                      onClick={() => reportDelay(t.id)}
-                                      disabled={!!t.payment_delay_reported_at}>
-                                      <AlertTriangle className="mr-1 h-3.5 w-3.5" /> {t.payment_delay_reported_at ? "Zgłoszono" : "Alert nieterminowości"}
-                                    </Button>
-                                    <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
-                                      onClick={() => hide(t.id)}>
-                                      <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
-                                    </Button>
-                                  </>
-                                )}
+                                {t.role === "landlord" && (() => {
+                                  const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
+                                  const finished = end !== null && end < Date.now();
+                                  return (
+                                    <>
+                                      <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:bg-destructive/10"
+                                        onClick={() => reportDelay(t.id)}
+                                        disabled={!!t.payment_delay_reported_at}>
+                                        <AlertTriangle className="mr-1 h-3.5 w-3.5" /> {t.payment_delay_reported_at ? "Zgłoszono" : "Alert nieterminowości"}
+                                      </Button>
+                                      {finished && (
+                                        <button
+                                          onClick={() => setRating({ contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}
+                                          className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
+                                          <Star className="h-3 w-3" /> Oceń najemcę
+                                        </button>
+                                      )}
+                                      <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
+                                        onClick={() => hide(t.id)}>
+                                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
+                                      </Button>
+                                    </>
+                                  );
+                                })()}
                               </div>
                             </div>
                           </div>
@@ -206,6 +226,13 @@ function AktywneUmowyPage() {
           })()
         )}
       </div>
+      {rating && (
+        <ReviewDialog
+          open
+          onClose={() => setRating(null)}
+          mode={{ role: "landlord", contractId: rating.contractId, tenantId: rating.tenantId, listingId: rating.listingId }}
+        />
+      )}
     </div>
   );
 }
