@@ -991,7 +991,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
       </div>
 
       {/* Messages */}
-      <div className="flex-1 space-y-4 overflow-y-auto p-5">
+      <div className="custom-scrollbar flex-1 space-y-4 overflow-y-auto p-5">
         {chat.type === "smart-match" && (
           <div className="text-center">
             <span className="inline-block rounded-full border border-gold/40 bg-background px-3 py-1 text-[11px] font-semibold text-gold">
