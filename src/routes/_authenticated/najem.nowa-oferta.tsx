@@ -335,6 +335,18 @@ function NewRentalListing() {
             </div>
           )}
 
+          {propertyType === "room" && (
+            <div>
+              <Label>Nazwa lub numer pokoju</Label>
+              <Input value={roomLabel} onChange={(e) => setRoomLabel(e.target.value)}
+                placeholder="np. Pokój nr 1 / Pokój od strony ogrodu"
+                className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Pomaga rozróżnić pokoje w tej samej nieruchomości — pokoje można oceniać oddzielnie.
+              </p>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <Label>
@@ -345,7 +357,7 @@ function NewRentalListing() {
               <Input type="number" min={1} value={form.rooms} onChange={(e) => setF("rooms", Number(e.target.value))} className="mt-1.5 rounded-xl" />
             </div>
             <div>
-              <Label>Metraż (m²)</Label>
+              <Label>{propertyType === "room" ? "Powierzchnia pokoju w m²" : "Metraż (m²)"}</Label>
               <Input type="number" min={1} step="0.01" value={form.area_m2} onChange={(e) => setF("area_m2", Number(e.target.value))} className="mt-1.5 rounded-xl" />
             </div>
             <div>
@@ -353,6 +365,7 @@ function NewRentalListing() {
               <Input type="number" min={1800} max={2100} value={form.year_built} onChange={(e) => setF("year_built", e.target.value as never)} className="mt-1.5 rounded-xl" />
             </div>
           </div>
+
 
           {showRoomFeatures && (
             <div className="space-y-2">
