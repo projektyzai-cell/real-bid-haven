@@ -233,7 +233,10 @@ function RentalDetailPage() {
           </div>
 
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{r.description}</p>
+
+          <ExtraFeaturesPanel kind={r.kind} extras={r.extra_features} />
         </div>
+
         <button onClick={() => window.history.back()} className="inline-block text-sm text-muted-foreground hover:text-foreground">
           ← {t("offers.back")}
         </button>
