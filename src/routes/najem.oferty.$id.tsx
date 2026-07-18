@@ -198,7 +198,7 @@ function RentalDetailPage() {
         <Gallery images={images} title={r.title} />
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className="rounded-full">{r.area_m2} m²</Badge>
+            <Badge className="rounded-full">{r.kind === "room" ? `Pokój ${r.area_m2} m²` : `${r.area_m2} m²`}</Badge>
             <Badge variant="outline" className="rounded-full">{r.rooms} {t("offers.rooms")}</Badge>
             <Badge variant="outline" className="rounded-full">
               <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}{r.apt_no ? `/${r.apt_no}` : ""}
@@ -209,6 +209,10 @@ function RentalDetailPage() {
             <Badge variant="outline" className="rounded-full"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</Badge>
           </div>
           <h1 className="mt-3 text-3xl font-semibold">{r.title}</h1>
+          {r.kind === "room" && r.room_label && (
+            <p className="mt-1 text-sm text-muted-foreground">Oznaczenie pokoju: <strong className="text-foreground">{r.room_label}</strong></p>
+          )}
+
 
           <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card/50 p-4 text-sm sm:grid-cols-3">
             {r.rent_base != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.rentBase")}</dt><dd className="font-medium">{formatPLN(r.rent_base)} {t("offers.perMonth")}</dd></div>)}
