@@ -1018,6 +1018,7 @@ export type Database = {
           description: string
           district: string | null
           expires_at: string
+          extra_features: Json
           floor_number: string | null
           has_balcony: boolean
           has_basement: boolean | null
@@ -1049,6 +1050,7 @@ export type Database = {
           requires_deposit: boolean
           requires_insurance: boolean
           requires_passport: boolean
+          room_label: string | null
           rooms: number
           status: string
           street: string
@@ -1073,6 +1075,7 @@ export type Database = {
           description?: string
           district?: string | null
           expires_at?: string
+          extra_features?: Json
           floor_number?: string | null
           has_balcony?: boolean
           has_basement?: boolean | null
@@ -1104,6 +1107,7 @@ export type Database = {
           requires_deposit?: boolean
           requires_insurance?: boolean
           requires_passport?: boolean
+          room_label?: string | null
           rooms?: number
           status?: string
           street: string
@@ -1128,6 +1132,7 @@ export type Database = {
           description?: string
           district?: string | null
           expires_at?: string
+          extra_features?: Json
           floor_number?: string | null
           has_balcony?: boolean
           has_basement?: boolean | null
@@ -1159,6 +1164,7 @@ export type Database = {
           requires_deposit?: boolean
           requires_insurance?: boolean
           requires_passport?: boolean
+          room_label?: string | null
           rooms?: number
           status?: string
           street?: string

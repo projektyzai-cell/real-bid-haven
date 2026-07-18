@@ -49,10 +49,28 @@ function NewRentalListing() {
     pets_caged_allowed: false, pets_other_allowed: false,
     accepts_students: false,
   });
+  const [roomLabel, setRoomLabel] = useState("");
+  // TURA 1 – dodatkowe pola widoczne w ogłoszeniu (nie biorą udziału w Auto-Matching)
+  const [extras, setExtras] = useState({
+    // pokój / mieszkanie z pokojem
+    room_lock: "" as "" | "key" | "patent" | "none",
+    owner_lives_in: false,
+    room_occupancy: "" as "" | "single" | "double",
+    max_total_occupants: "" as number | "",
+    shared_bathrooms_count: "" as number | "",
+    separate_wc: false,
+    common_areas: [] as string[], // kitchen | living | balcony | garden | basement
+    // dom
+    house_levels: "" as number | "",
+    heating_type: "" as "" | "district" | "gas" | "heatpump" | "electric" | "solid_fuel",
+    parking_type: "" as "" | "garage_built_in" | "garage_detached" | "carport" | "driveway" | "none",
+    security_features: [] as string[], // alarm | cameras | shutters | fenced | intercom
+  });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(isEdit);
+
 
   useEffect(() => {
     if (!isEdit || !user) return;
@@ -93,7 +111,12 @@ function NewRentalListing() {
         accepts_students: !!r.accepts_students,
       });
       setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
+      setRoomLabel(r.room_label ?? "");
+      if (r.extra_features && typeof r.extra_features === "object") {
+        setExtras((s) => ({ ...s, ...r.extra_features }));
+      }
       setLoading(false);
+
     })();
   }, [editId, isEdit, user, navigate]);
 
@@ -160,7 +183,10 @@ function NewRentalListing() {
       usable_area_m2: propertyType === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
+      room_label: propertyType === "room" ? (roomLabel.trim() || null) : null,
+      extra_features: buildExtraFeatures(propertyType, extras),
     };
+
     let error;
     if (isEdit && editId) {
       ({ error } = await supabase.from("rental_listings" as never)
@@ -309,6 +335,18 @@ function NewRentalListing() {
             </div>
           )}
 
+          {propertyType === "room" && (
+            <div>
+              <Label>Nazwa lub numer pokoju</Label>
+              <Input value={roomLabel} onChange={(e) => setRoomLabel(e.target.value)}
+                placeholder="np. Pokój nr 1 / Pokój od strony ogrodu"
+                className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Pomaga rozróżnić pokoje w tej samej nieruchomości — pokoje można oceniać oddzielnie.
+              </p>
+            </div>
+          )}
+
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <Label>
@@ -319,7 +357,7 @@ function NewRentalListing() {
               <Input type="number" min={1} value={form.rooms} onChange={(e) => setF("rooms", Number(e.target.value))} className="mt-1.5 rounded-xl" />
             </div>
             <div>
-              <Label>Metraż (m²)</Label>
+              <Label>{propertyType === "room" ? "Powierzchnia pokoju w m²" : "Metraż (m²)"}</Label>
               <Input type="number" min={1} step="0.01" value={form.area_m2} onChange={(e) => setF("area_m2", Number(e.target.value))} className="mt-1.5 rounded-xl" />
             </div>
             <div>
@@ -327,6 +365,7 @@ function NewRentalListing() {
               <Input type="number" min={1800} max={2100} value={form.year_built} onChange={(e) => setF("year_built", e.target.value as never)} className="mt-1.5 rounded-xl" />
             </div>
           </div>
+
 
           {showRoomFeatures && (
             <div className="space-y-2">
@@ -373,6 +412,101 @@ function NewRentalListing() {
             </div>
           )}
 
+          {/* TURA 1 – dodatkowe informacje o pokoju / mieszkaniu (nie brane pod uwagę w Auto-Matching) */}
+          {showRoomFeatures && (
+            <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">Dodatkowe informacje o pokoju</p>
+
+              <div>
+                <Label className="mb-2 block text-xs">Zamek w drzwiach pokoju</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    ["key", "Na klucz"],
+                    ["patent", "Zamek patentowy"],
+                    ["none", "Brak zamka"],
+                  ] as const).map(([v, label]) => (
+                    <button key={v} type="button"
+                      onClick={() => setExtras((s) => ({ ...s, room_lock: v }))}
+                      className={`h-9 rounded-xl border text-xs font-semibold transition ${
+                        extras.room_lock === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+
+              <label className="flex items-center justify-between gap-3 rounded-xl border bg-background/50 p-3 text-sm">
+                <span>Właściciel mieszka w nieruchomości?</span>
+                <Checkbox checked={extras.owner_lives_in}
+                  onCheckedChange={(v) => setExtras((s) => ({ ...s, owner_lives_in: v === true }))} />
+              </label>
+
+              <div>
+                <Label className="mb-2 block text-xs">Liczba akceptowalnych osób w pokoju</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    ["single", "Jednoosobowy"],
+                    ["double", "Dwuosobowy"],
+                  ] as const).map(([v, label]) => (
+                    <button key={v} type="button"
+                      onClick={() => setExtras((s) => ({ ...s, room_occupancy: v }))}
+                      className={`h-9 rounded-xl border text-xs font-semibold transition ${
+                        extras.room_occupancy === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs">Łączna maks. liczba lokatorów w nieruchomości</Label>
+                  <Input type="number" min={1} value={extras.max_total_occupants}
+                    onChange={(e) => setExtras((s) => ({ ...s, max_total_occupants: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    className="mt-1.5 rounded-xl" />
+                </div>
+                <div>
+                  <Label className="text-xs">Liczba wspólnych łazienek</Label>
+                  <Input type="number" min={0} value={extras.shared_bathrooms_count}
+                    onChange={(e) => setExtras((s) => ({ ...s, shared_bathrooms_count: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    className="mt-1.5 rounded-xl" />
+                </div>
+              </div>
+
+              <label className="flex items-center justify-between gap-3 rounded-xl border bg-background/50 p-3 text-sm">
+                <span>Oddzielne WC</span>
+                <Checkbox checked={extras.separate_wc}
+                  onCheckedChange={(v) => setExtras((s) => ({ ...s, separate_wc: v === true }))} />
+              </label>
+
+              <div>
+                <Label className="mb-2 block text-xs">Dostęp do części wspólnych</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {([
+                    ["kitchen", "Kuchnia"],
+                    ["living", "Salon"],
+                    ["balcony", "Balkon lub taras"],
+                    ["garden", "Ogród"],
+                    ["basement", "Piwnica lub komórka lokatorska"],
+                  ] as const).map(([v, label]) => (
+                    <label key={v} className="flex items-center gap-2 rounded-xl border bg-background/50 p-2.5 text-sm">
+                      <Checkbox checked={extras.common_areas.includes(v)}
+                        onCheckedChange={(c) => setExtras((s) => ({
+                          ...s,
+                          common_areas: c === true
+                            ? [...s.common_areas, v]
+                            : s.common_areas.filter((x) => x !== v),
+                        }))} />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {propertyType === "house" && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
@@ -391,7 +525,74 @@ function NewRentalListing() {
               </label>
             </div>
           )}
+
+          {/* TURA 1 – dodatkowe informacje o domu */}
+          {propertyType === "house" && (
+            <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">Dodatkowe informacje o domu</p>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs">Liczba poziomów / pięter w domu</Label>
+                  <Input type="number" min={1} value={extras.house_levels}
+                    onChange={(e) => setExtras((s) => ({ ...s, house_levels: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    className="mt-1.5 rounded-xl" />
+                </div>
+                <div>
+                  <Label className="text-xs">Rodzaj ogrzewania</Label>
+                  <select value={extras.heating_type}
+                    onChange={(e) => setExtras((s) => ({ ...s, heating_type: e.target.value as typeof extras.heating_type }))}
+                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                    <option value="">— wybierz —</option>
+                    <option value="district">Miejskie</option>
+                    <option value="gas">Gazowe</option>
+                    <option value="heatpump">Pompa ciepła</option>
+                    <option value="electric">Elektryczne</option>
+                    <option value="solid_fuel">Paliwo stałe (pellet, węgiel)</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label className="text-xs">Miejsca parkingowe / Garaż</Label>
+                  <select value={extras.parking_type}
+                    onChange={(e) => setExtras((s) => ({ ...s, parking_type: e.target.value as typeof extras.parking_type }))}
+                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                    <option value="">— wybierz —</option>
+                    <option value="garage_built_in">Garaż w bryle budynku</option>
+                    <option value="garage_detached">Garaż wolnostojący</option>
+                    <option value="carport">Wiata</option>
+                    <option value="driveway">Miejsce na podjeździe</option>
+                    <option value="none">Brak dedykowanego miejsca</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block text-xs">Bezpieczeństwo i zabezpieczenia</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {([
+                    ["alarm", "System alarmowy"],
+                    ["cameras", "Kamery (monitoring)"],
+                    ["shutters", "Rolety antywłamaniowe"],
+                    ["fenced", "Teren ogrodzony"],
+                    ["intercom", "Domofon lub wideofon"],
+                  ] as const).map(([v, label]) => (
+                    <label key={v} className="flex items-center gap-2 rounded-xl border bg-background/50 p-2.5 text-sm">
+                      <Checkbox checked={extras.security_features.includes(v)}
+                        onCheckedChange={(c) => setExtras((s) => ({
+                          ...s,
+                          security_features: c === true
+                            ? [...s.security_features, v]
+                            : s.security_features.filter((x) => x !== v),
+                        }))} />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+
 
         {/* WARUNKI UMOWY */}
         <SectionTitle>Warunki umowy</SectionTitle>
@@ -541,3 +742,39 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+// TURA 1 – filtruje puste pola i buduje payload extra_features w zależności od typu nieruchomości.
+type ExtrasState = {
+  room_lock: "" | "key" | "patent" | "none";
+  owner_lives_in: boolean;
+  room_occupancy: "" | "single" | "double";
+  max_total_occupants: number | "";
+  shared_bathrooms_count: number | "";
+  separate_wc: boolean;
+  common_areas: string[];
+  house_levels: number | "";
+  heating_type: "" | "district" | "gas" | "heatpump" | "electric" | "solid_fuel";
+  parking_type: "" | "garage_built_in" | "garage_detached" | "carport" | "driveway" | "none";
+  security_features: string[];
+};
+
+function buildExtraFeatures(kind: "apartment" | "room" | "house", e: ExtrasState): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if (kind === "room" || kind === "apartment") {
+    if (e.room_lock) out.room_lock = e.room_lock;
+    out.owner_lives_in = !!e.owner_lives_in;
+    if (e.room_occupancy) out.room_occupancy = e.room_occupancy;
+    if (e.max_total_occupants !== "") out.max_total_occupants = e.max_total_occupants;
+    if (e.shared_bathrooms_count !== "") out.shared_bathrooms_count = e.shared_bathrooms_count;
+    out.separate_wc = !!e.separate_wc;
+    if (e.common_areas.length) out.common_areas = e.common_areas;
+  }
+  if (kind === "house") {
+    if (e.house_levels !== "") out.house_levels = e.house_levels;
+    if (e.heating_type) out.heating_type = e.heating_type;
+    if (e.parking_type) out.parking_type = e.parking_type;
+    if (e.security_features.length) out.security_features = e.security_features;
+  }
+  return out;
+}
+

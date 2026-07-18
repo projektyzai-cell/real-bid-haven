@@ -167,7 +167,10 @@ function RentalDetailPage() {
     usable_area_m2: number | null; plot_area_m2: number | null;
     year_built: number | null; has_basement: boolean | null;
     views_count: number;
+    room_label: string | null;
+    extra_features: Record<string, unknown> | null;
   };
+
   const images = r.images ?? [];
 
   async function sendInquiry(e: React.FormEvent) {
@@ -195,7 +198,7 @@ function RentalDetailPage() {
         <Gallery images={images} title={r.title} />
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge className="rounded-full">{r.area_m2} m²</Badge>
+            <Badge className="rounded-full">{r.kind === "room" ? `Pokój ${r.area_m2} m²` : `${r.area_m2} m²`}</Badge>
             <Badge variant="outline" className="rounded-full">{r.rooms} {t("offers.rooms")}</Badge>
             <Badge variant="outline" className="rounded-full">
               <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}{r.apt_no ? `/${r.apt_no}` : ""}
@@ -206,6 +209,10 @@ function RentalDetailPage() {
             <Badge variant="outline" className="rounded-full"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</Badge>
           </div>
           <h1 className="mt-3 text-3xl font-semibold">{r.title}</h1>
+          {r.kind === "room" && r.room_label && (
+            <p className="mt-1 text-sm text-muted-foreground">Oznaczenie pokoju: <strong className="text-foreground">{r.room_label}</strong></p>
+          )}
+
 
           <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card/50 p-4 text-sm sm:grid-cols-3">
             {r.rent_base != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.rentBase")}</dt><dd className="font-medium">{formatPLN(r.rent_base)} {t("offers.perMonth")}</dd></div>)}
@@ -226,7 +233,10 @@ function RentalDetailPage() {
           </div>
 
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{r.description}</p>
+
+          <ExtraFeaturesPanel kind={r.kind} extras={r.extra_features} />
         </div>
+
         <button onClick={() => window.history.back()} className="inline-block text-sm text-muted-foreground hover:text-foreground">
           ← {t("offers.back")}
         </button>
@@ -302,3 +312,64 @@ function RentalDetailPage() {
     </div>
   );
 }
+
+const ROOM_LOCK_LABEL: Record<string, string> = { key: "Na klucz", patent: "Zamek patentowy", none: "Brak zamka" };
+const ROOM_OCCUPANCY_LABEL: Record<string, string> = { single: "Jednoosobowy", double: "Dwuosobowy" };
+const COMMON_AREA_LABEL: Record<string, string> = {
+  kitchen: "Kuchnia", living: "Salon", balcony: "Balkon / taras",
+  garden: "Ogród", basement: "Piwnica / komórka lokatorska",
+};
+const HEATING_LABEL: Record<string, string> = {
+  district: "Miejskie", gas: "Gazowe", heatpump: "Pompa ciepła",
+  electric: "Elektryczne", solid_fuel: "Paliwo stałe",
+};
+const PARKING_LABEL: Record<string, string> = {
+  garage_built_in: "Garaż w bryle budynku", garage_detached: "Garaż wolnostojący",
+  carport: "Wiata", driveway: "Miejsce na podjeździe", none: "Brak dedykowanego miejsca",
+};
+const SECURITY_LABEL: Record<string, string> = {
+  alarm: "System alarmowy", cameras: "Kamery (monitoring)",
+  shutters: "Rolety antywłamaniowe", fenced: "Teren ogrodzony", intercom: "Domofon / wideofon",
+};
+
+function ExtraFeaturesPanel({ kind, extras }: { kind: string; extras: Record<string, unknown> | null }) {
+  if (!extras || typeof extras !== "object") return null;
+  const rows: { label: string; value: string }[] = [];
+  const push = (label: string, value: string | undefined | null) => { if (value) rows.push({ label, value }); };
+  const arr = (k: string): string[] => Array.isArray(extras[k]) ? (extras[k] as string[]) : [];
+
+  if (kind === "room" || kind === "apartment") {
+    push("Zamek w drzwiach pokoju", ROOM_LOCK_LABEL[String(extras.room_lock ?? "")]);
+    if (typeof extras.owner_lives_in === "boolean")
+      push("Właściciel mieszka w nieruchomości", extras.owner_lives_in ? "Tak" : "Nie");
+    push("Liczba osób w pokoju", ROOM_OCCUPANCY_LABEL[String(extras.room_occupancy ?? "")]);
+    if (extras.max_total_occupants != null) push("Maks. liczba lokatorów w nieruchomości", String(extras.max_total_occupants));
+    if (extras.shared_bathrooms_count != null) push("Wspólne łazienki", String(extras.shared_bathrooms_count));
+    if (typeof extras.separate_wc === "boolean") push("Oddzielne WC", extras.separate_wc ? "Tak" : "Nie");
+    const commons = arr("common_areas").map((v) => COMMON_AREA_LABEL[v] ?? v).join(", ");
+    push("Dostęp do części wspólnych", commons || undefined);
+  }
+  if (kind === "house") {
+    if (extras.house_levels != null) push("Poziomy / piętra", String(extras.house_levels));
+    push("Rodzaj ogrzewania", HEATING_LABEL[String(extras.heating_type ?? "")]);
+    push("Parking / garaż", PARKING_LABEL[String(extras.parking_type ?? "")]);
+    const sec = arr("security_features").map((v) => SECURITY_LABEL[v] ?? v).join(", ");
+    push("Bezpieczeństwo i zabezpieczenia", sec || undefined);
+  }
+
+  if (rows.length === 0) return null;
+  return (
+    <div className="mt-6 rounded-2xl border bg-card/50 p-4">
+      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Dodatkowe informacje</h3>
+      <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+        {rows.map((row) => (
+          <div key={row.label}>
+            <dt className="text-xs text-muted-foreground">{row.label}</dt>
+            <dd className="font-medium">{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
