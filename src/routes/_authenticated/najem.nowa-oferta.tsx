@@ -183,7 +183,10 @@ function NewRentalListing() {
       usable_area_m2: propertyType === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
+      room_label: propertyType === "room" ? (roomLabel.trim() || null) : null,
+      extra_features: buildExtraFeatures(propertyType, extras),
     };
+
     let error;
     if (isEdit && editId) {
       ({ error } = await supabase.from("rental_listings" as never)
