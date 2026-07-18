@@ -742,3 +742,39 @@ function SectionTitle({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
+
+// TURA 1 – filtruje puste pola i buduje payload extra_features w zależności od typu nieruchomości.
+type ExtrasState = {
+  room_lock: "" | "key" | "patent" | "none";
+  owner_lives_in: boolean;
+  room_occupancy: "" | "single" | "double";
+  max_total_occupants: number | "";
+  shared_bathrooms_count: number | "";
+  separate_wc: boolean;
+  common_areas: string[];
+  house_levels: number | "";
+  heating_type: "" | "district" | "gas" | "heatpump" | "electric" | "solid_fuel";
+  parking_type: "" | "garage_built_in" | "garage_detached" | "carport" | "driveway" | "none";
+  security_features: string[];
+};
+
+function buildExtraFeatures(kind: "apartment" | "room" | "house", e: ExtrasState): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  if (kind === "room" || kind === "apartment") {
+    if (e.room_lock) out.room_lock = e.room_lock;
+    out.owner_lives_in = !!e.owner_lives_in;
+    if (e.room_occupancy) out.room_occupancy = e.room_occupancy;
+    if (e.max_total_occupants !== "") out.max_total_occupants = e.max_total_occupants;
+    if (e.shared_bathrooms_count !== "") out.shared_bathrooms_count = e.shared_bathrooms_count;
+    out.separate_wc = !!e.separate_wc;
+    if (e.common_areas.length) out.common_areas = e.common_areas;
+  }
+  if (kind === "house") {
+    if (e.house_levels !== "") out.house_levels = e.house_levels;
+    if (e.heating_type) out.heating_type = e.heating_type;
+    if (e.parking_type) out.parking_type = e.parking_type;
+    if (e.security_features.length) out.security_features = e.security_features;
+  }
+  return out;
+}
+
