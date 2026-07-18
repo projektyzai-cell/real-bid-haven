@@ -111,7 +111,12 @@ function NewRentalListing() {
         accepts_students: !!r.accepts_students,
       });
       setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
+      setRoomLabel(r.room_label ?? "");
+      if (r.extra_features && typeof r.extra_features === "object") {
+        setExtras((s) => ({ ...s, ...r.extra_features }));
+      }
       setLoading(false);
+
     })();
   }, [editId, isEdit, user, navigate]);
 
