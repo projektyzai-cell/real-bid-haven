@@ -5,7 +5,7 @@ export const Route = createFileRoute("/polityka-prywatnosci")({
   head: () => ({
     meta: [
       { title: "Polityka prywatności (RODO) — Stay Safe" },
-      { name: "description", content: "Polityka prywatności i klauzula informacyjna RODO serwisu StaySafe.pl." },
+      { name: "description", content: "Polityka prywatności i klauzula informacyjna RODO portalu StaySafe." },
     ],
   }),
   component: PrivacyPage,
@@ -23,124 +23,113 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 type Lang = "pl" | "en" | "uk";
 
 const CONTENT: Record<Lang, {
-  title: string; version: string; intro: string; backHome: string;
+  title: string; version: string; backHome: string;
   sections: { title: string; body: React.ReactNode }[];
 }> = {
   pl: {
-    title: "Polityka prywatności StaySafe.pl",
-    version: "Wersja obowiązująca od dnia 12 czerwca 2026 r.",
+    title: "Polityka prywatności i klauzula informacyjna (RODO) Portalu StaySafe",
+    version: "Data ostatniej aktualizacji: 16 lipca 2026 r.",
     backHome: "← Wróć na stronę główną",
-    intro: "W StaySafe.pl wiemy, że bezpieczeństwo Twoich danych jest tak samo ważne, jak bezpieczeństwo Twojego wynajmu. Poniższy dokument wyjaśnia, jak przetwarzamy dane Najemców i Wynajmujących, jak realizujemy zasadę Privacy-by-Design oraz jakie prawa Ci przysługują.",
     sections: [
-      { title: "1. Kto jest Administratorem Twoich danych?", body: (<>
-        <p>Administratorem danych osobowych użytkowników platformy StaySafe.pl jest <strong>StaySafe Sp. z o.o.</strong> z siedzibą w Warszawie, ul. Nowy Świat 1, NIP: <strong>5252651283</strong> (dalej jako: <em>StaySafe</em> lub <em>Administrator</em>).</p>
-        <p>Kontakt w sprawach związanych z ochroną danych: <a href="mailto:iodo@staysafe.pl" className="underline">iodo@staysafe.pl</a>.</p>
+      { title: "I. Administrator Danych Osobowych (ADO)", body: (<>
+        <p>Administratorem danych osobowych Użytkowników Portalu StaySafe jest spółka <strong>Stay Safe sp. z o.o.</strong> z siedzibą w Warszawie (00-844), przy ul. Łuckiej 15, wpisana do Rejestru Przedsiębiorców Krajowego Rejestru Sądowego prowadzonego przez Sąd Rejonowy dla m.st. Warszawy w Warszawie, XII Wydział Gospodarczy Krajowego Rejestru Sądowego pod numerem KRS: <strong>0000607397</strong>, posiadająca numer NIP: <strong>5252651283</strong> (dalej jako: „Administrator" lub „StaySafe").</p>
+        <p>We wszelkich sprawach związanych z przetwarzaniem danych osobowych oraz realizacją praw wynikających z RODO, Użytkownik może skontaktować się z Administratorem drogą elektroniczną pod adresem e-mail: <a href="mailto:kontakt@staysafe.pl" className="underline">kontakt@staysafe.pl</a>.</p>
       </>) },
-      { title: "2. Na jakiej podstawie i w jakim celu przetwarzamy dane?", body: (<>
-        <p>Twoje dane osobowe przetwarzane są na podstawie art. 6 ust. 1 RODO w następujących celach:</p>
+      { title: "II. Zakres i cele przetwarzania danych osobowych", body: (<p>StaySafe przetwarza dane osobowe Użytkowników (Najemców oraz Wynajmujących) w celach niezbędnych do świadczenia usług drogą elektroniczną, ułatwienia bezpiecznego zawierania umów najmu oraz dostarczania usług dodatkowych. Poniżej opisano szczegółowe zasady przetwarzania danych w ramach kluczowych funkcjonalności portalu.</p>) },
+      { title: "1. Usługi Concierge i przekazywanie danych partnerom zewnętrznym", body: (<ul className="list-disc space-y-1 pl-6">
+        <li><strong>Cel przetwarzania:</strong> realizacja zamówionych przez Użytkownika usług dodatkowych (wsparcie techniczne, prawne, ubezpieczeniowe, logistyczne) oferowanych w zakładce „Concierge".</li>
+        <li><strong>Podstawa prawna:</strong> wyraźna i dobrowolna zgoda Użytkownika (Art. 6 ust. 1 lit. a RODO) wyrażana poprzez kliknięcie przycisku „Zgłoś zainteresowanie" oraz zaznaczenie dedykowanego pola (checkboxa) zgody.</li>
+        <li><strong>Przekazywanie danych (Odbiorcy):</strong> w celu realizacji usługi, dane kontaktowe Użytkownika (imię, nazwisko, adres e-mail, numer telefonu) są bezpiecznie przekazywane wybranemu Partnerowi Zewnętrznemu (wykonawcy usługi), z którym StaySafe ma podpisaną umowę o współpracy (np. ubezpieczycielowi, kancelarii notarialnej, firmie przeprowadzkowej, dostawcy adresu zastępczego lub certyfikowanemu audytorowi energetycznemu). Z chwilą przekazania danych, Partner staje się odrębnym i niezależnym Administratorem tych danych osobowych i przetwarza je w celu przedstawienia oferty oraz realizacji danej usługi.</li>
+      </ul>) },
+      { title: "2. System Auto-Matching (automatyczne dopasowywanie ofert)", body: (<ul className="list-disc space-y-1 pl-6">
+        <li><strong>Cel przetwarzania:</strong> kojarzenie profili Najemców z ofertami Wynajmujących w celu optymalizacji procesu poszukiwania nieruchomości i lokatorów.</li>
+        <li><strong>Podstawa prawna:</strong> niezbędność do wykonania umowy o świadczenie usług drogą elektroniczną (Art. 6 ust. 1 lit. b RODO).</li>
+        <li><strong>Profilowanie i zautomatyzowane decyzje:</strong> StaySafe analizuje preferencje Użytkowników (np. budżet, lokalizacja, wymagania dotyczące zwierząt, posiadanie Paszportu Najemcy) za pomocą algorytmów w celu rekomendowania najlepszych dopasowań.</li>
+        <li><strong>Ważna informacja:</strong> proces ten nie stanowi wyłącznie zautomatyzowanego podejmowania decyzji, które wywołuje wobec Użytkownika skutki prawne lub w podobny sposób istotnie na niego wpływa (w rozumieniu Art. 22 RODO). System auto-matchingu pełni wyłącznie funkcję doradczą i prezentuje rekomendacje, natomiast ostateczna decyzja o nawiązaniu kontaktu lub zawarciu umowy zawsze zależy wyłącznie od woli człowieka (Użytkownika).</li>
+      </ul>) },
+      { title: "3. Bezpośredni kontakt stron transakcji", body: (<ul className="list-disc space-y-1 pl-6">
+        <li><strong>Cel przetwarzania:</strong> umożliwienie sprawnej i bezpośredniej komunikacji telefonicznej oraz mailowej pomiędzy Najemcą a Wynajmującym po zaakceptowaniu dopasowania przez obie strony.</li>
+        <li><strong>Podstawa prawna:</strong> podjęcie działań na żądanie osoby, której dane dotyczą, przed zawarciem umowy najmu (Art. 6 ust. 1 lit. b RODO).</li>
+        <li><strong>Podział odpowiedzialności prawnej:</strong> w momencie, gdy obie strony (Najemca i Wynajmujący) wyrażą wolę bezpośredniego kontaktu, StaySafe udostępnia im wzajemnie dane kontaktowe (numer telefonu oraz adres e-mail). Z tą chwilą każda ze stron transakcji staje się niezależnym Administratorem Danych Osobowych drugiej strony i jest zobowiązana do ich przetwarzania wyłącznie w celu negocjacji, zawarcia i realizacji umowy najmu, zgodnie z przepisami RODO. StaySafe nie ponosi odpowiedzialności za dalsze przetwarzanie danych przez te osoby trzecie poza infrastrukturą portalu.</li>
+      </ul>) },
+      { title: "4. Dwustronny system ocen (opinie o stronach i nieruchomościach)", body: (<ul className="list-disc space-y-1 pl-6">
+        <li><strong>Cel przetwarzania:</strong> prowadzenie rzetelnego, dwustronnego systemu opinii i ocen po zakończeniu umowy najmu, służącego weryfikacji wiarygodności użytkowników, zasilaniu „Paszportu Najemcy" oraz podnoszeniu bezpieczeństwa obrotu nieruchomościami.</li>
+        <li><strong>Podstawa prawna:</strong> prawnie uzasadniony interes Administratora oraz Użytkowników portalu (Art. 6 ust. 1 lit. f RODO) polegający na ochronie przed nieuczciwymi praktykami i zapewnieniu bezpieczeństwa transakcji.</li>
+        <li><strong>Zasada „Ślepej Próby" (Double-Blind):</strong> w celu zapewnienia maksymalnej rzetelności i ochrony przed odwetowymi, nieprawdziwymi ocenami, opinie cząstkowe (aspekty techniczne, komunikacja, terminowość itp.) oraz opisowe pozostają całkowicie ukryte przed drugą stroną do czasu, aż obie strony prześlą swoje recenzje, lub do upływu 14 dni od momentu zakończenia umowy najmu.</li>
+        <li><strong>Prawo do sprzeciwu i moderacja:</strong> każdy Użytkownik ma prawo do wniesienia sprzeciwu wobec wystawionej mu oceny lub żądania jej weryfikacji. StaySafe udostępnia panel moderacji, za pośrednictwem którego Administrator – po przeprowadzeniu postępowania wyjaśniającego ze stronami i analizie dowodów – ma prawo trwale usunąć nieprawdziwą lub naruszającą regulamin opinię. Usunięcie opinii skutkuje natychmiastowym automatycznym przeliczeniem średniej ocen profilu lub nieruchomości.</li>
+      </ul>) },
+      { title: "III. Prawa Użytkownika w związku z przetwarzaniem danych", body: (<>
+        <p>Każdemu Użytkownikowi, którego dane są przetwarzane przez StaySafe, przysługuje prawo do:</p>
+        <ol className="list-decimal space-y-1 pl-6">
+          <li>Dostępu do swoich danych oraz otrzymania ich kopii;</li>
+          <li>Sprostowania (poprawiania) swoich danych, jeśli są błędne lub nieaktualne;</li>
+          <li>Usunięcia danych („prawo do bycia zapomnianym"), o ile nie zachodzą inne podstawy prawne uniemożliwiające ich usunięcie;</li>
+          <li>Ograniczenia przetwarzania danych;</li>
+          <li>Przenoszenia danych do innego administratora;</li>
+          <li>Wniesienia sprzeciwu wobec przetwarzania danych (w szczególności wobec ocen i profilowania opartych na prawnie uzasadnionym interesie ADO);</li>
+          <li>Cofnięcia zgody w dowolnym momencie (np. w przypadku usług Concierge) bez wpływu na zgodność z prawem przetwarzania, którego dokonano na podstawie zgody przed jej cofnięciem;</li>
+          <li>Wniesienia skargi do organu nadzorczego – Prezesa Urzędu Ochrony Danych Osobowych (PUODO), ul. Stawki 2, 00-193 Warszawa.</li>
+        </ol>
+      </>) },
+      { title: "IV. Okres przechowywania danych", body: (<>
+        <p>Dane osobowe Użytkowników będą przechowywane przez okres aktywności konta w portalu StaySafe.</p>
         <ul className="list-disc space-y-1 pl-6">
-          <li><strong>Świadczenie usług drogą elektroniczną</strong> (Art. 6 ust. 1 lit. b RODO): rejestracja konta, obsługa Strefy Najmu, publikacja ogłoszeń, wysyłanie zapytań ofertowych oraz obsługa wewnętrznego komunikatora (czatu).</li>
-          <li><strong>Realizacja algorytmu inteligentnego dopasowania</strong> (Art. 6 ust. 1 lit. b RODO): przetwarzanie kryteriów lokalizacyjnych oraz budżetowych w celu parowania Najemców i Wynajmujących.</li>
-          <li><strong>Prawnie uzasadniony interes Administratora</strong> (Art. 6 ust. 1 lit. f RODO): weryfikacja wiarygodności, ochrona antyfraudowa, dochodzenie roszczeń.</li>
+          <li>Dane dotyczące zapytań o usługi Concierge przechowywane są przez okres niezbędny do przekazania leadu i potwierdzenia realizacji usługi przez Partnera (nie dłużej niż 12 miesięcy od zgłoszenia zainteresowania).</li>
+          <li>Dane związane z umowami najmu oraz wzajemnymi ocenami (w tym w Paszporcie Najemcy) są przetwarzane przez okres niezbędny do dochodzenia ewentualnych roszczeń prawnych lub do momentu wniesienia uzasadnionego sprzeciwu/usunięcia konta przez Użytkownika.</li>
         </ul>
       </>) },
-      { title: "3. Szyfrowanie tożsamości (kryptograficzny hash)", body: (<ul className="list-disc space-y-1 pl-6">
-        <li><strong>Brak przechowywania jawnych numerów dokumentów.</strong></li>
-        <li><strong>Zasada nieodwracalnego skrótu (SHA-256):</strong> Wprowadzone numery są natychmiast zamieniane na hash.</li>
-        <li><strong>Bezpieczeństwo w bazie danych:</strong> Przechowujemy wyłącznie skrót — nikt nie odczyta oryginalnego numeru.</li>
-      </ul>) },
-      { title: "4. Kto ma wgląd w Twoje dane?", body: (<ul className="list-disc space-y-1 pl-6">
-        <li><strong>Ścieżka Najemcy:</strong> dane udostępniane wyłącznie Wynajmującemu, którym zainteresujesz się kliknięciem „Wstępnie zainteresowany".</li>
-        <li><strong>Podmioty przetwarzające:</strong> hosting, płatności, partnerzy Concierge — na podstawie umów powierzenia.</li>
-      </ul>) },
-      { title: "5. Jak długo przechowujemy dane?", body: (<ul className="list-disc space-y-1 pl-6">
-        <li>Dane konta — do momentu jego usunięcia przez Użytkownika.</li>
-        <li>Paszport Najemcy — 90 dni od weryfikacji.</li>
-        <li>Hashe antyfraudowe — dłużej, ze względu na prawnie uzasadniony interes.</li>
-      </ul>) },
-      { title: "6. Twoje prawa RODO", body: (<ol className="list-decimal space-y-1 pl-6">
-        <li>Dostęp i kopia danych.</li><li>Sprostowanie.</li><li>Usunięcie („prawo do bycia zapomnianym").</li>
-        <li>Ograniczenie przetwarzania.</li><li>Przenoszenie danych.</li><li>Sprzeciw.</li><li>Skarga do PUODO.</li>
-      </ol>) },
-      { title: "7. Dobrowolność podania danych", body: (<p>Podanie danych jest dobrowolne, ale niezbędne do korzystania z funkcjonalności Strefy Najmu.</p>) },
     ],
   },
   en: {
-    title: "StaySafe.pl Privacy Policy",
-    version: "Version effective from 12 June 2026.",
+    title: "StaySafe Portal Privacy Policy and GDPR Information Notice",
+    version: "Last updated: 16 July 2026.",
     backHome: "← Back to home",
-    intro: "At StaySafe.pl we know your data security matters as much as the safety of your rental. This document explains how we process Tenant and Landlord data, how we implement Privacy-by-Design, and what your rights are.",
     sections: [
-      { title: "1. Who is the Data Controller?", body: (<>
-        <p>The controller of personal data of StaySafe.pl users is <strong>StaySafe Sp. z o.o.</strong>, based in Warsaw, ul. Nowy Świat 1, VAT ID: <strong>5252651283</strong> (hereinafter: <em>StaySafe</em> or <em>Controller</em>).</p>
-        <p>Data protection contact: <a href="mailto:iodo@staysafe.pl" className="underline">iodo@staysafe.pl</a>.</p>
+      { title: "I. Data Controller", body: (<>
+        <p>The controller of personal data of StaySafe Portal Users is <strong>Stay Safe sp. z o.o.</strong>, based in Warsaw (00-844), ul. Łucka 15, KRS: <strong>0000607397</strong>, VAT ID: <strong>5252651283</strong> ("Controller" or "StaySafe").</p>
+        <p>For all data protection matters contact: <a href="mailto:kontakt@staysafe.pl" className="underline">kontakt@staysafe.pl</a>.</p>
       </>) },
-      { title: "2. On what basis and for what purposes do we process data?", body: (<>
-        <p>Your data is processed under Article 6(1) GDPR for:</p>
-        <ul className="list-disc space-y-1 pl-6">
-          <li><strong>Providing electronic services</strong> (Art. 6(1)(b)): account registration, Rental Zone, listings, inquiries, in-app chat.</li>
-          <li><strong>Smart matching algorithm</strong> (Art. 6(1)(b)): processing location and budget criteria to pair Tenants and Landlords.</li>
-          <li><strong>Legitimate interest</strong> (Art. 6(1)(f)): trust verification, anti-fraud protection, claims defence.</li>
-        </ul>
-      </>) },
-      { title: "3. Identity encryption (cryptographic hash)", body: (<ul className="list-disc space-y-1 pl-6">
-        <li><strong>No plaintext ID numbers stored.</strong></li>
-        <li><strong>Irreversible hash (SHA-256):</strong> numbers are hashed immediately in your browser.</li>
-        <li><strong>Database security:</strong> only the mathematical fingerprint is stored — nobody can recover the original number.</li>
-      </ul>) },
-      { title: "4. Who can access your data?", body: (<ul className="list-disc space-y-1 pl-6">
-        <li><strong>Tenant path:</strong> your profile is shared only with the Landlord you click "Initially interested" for.</li>
-        <li><strong>Processors:</strong> hosting, payments, Concierge partners — under Data Processing Agreements.</li>
-      </ul>) },
-      { title: "5. How long do we keep data?", body: (<ul className="list-disc space-y-1 pl-6">
-        <li>Account data — until you delete the account.</li>
-        <li>Tenant Passport — 90 days from verification.</li>
-        <li>Anti-fraud hashes — longer, based on legitimate interest.</li>
-      </ul>) },
-      { title: "6. Your GDPR rights", body: (<ol className="list-decimal space-y-1 pl-6">
-        <li>Access and a copy of your data.</li><li>Rectification.</li><li>Erasure ("right to be forgotten").</li>
-        <li>Restriction of processing.</li><li>Data portability.</li><li>Objection.</li><li>Complaint to the Polish DPA (PUODO).</li>
+      { title: "II. Scope and purposes of processing", body: (<p>StaySafe processes personal data of Users (Tenants and Landlords) as necessary to provide electronic services, facilitate safe rental agreements and provide add-on services, as detailed below.</p>) },
+      { title: "1. Concierge services and transfers to external partners", body: (<p>Processing is based on the User's explicit consent (Art. 6(1)(a) GDPR) given by clicking "Report interest" and ticking the consent box. Contact data (name, email, phone) is transferred to a vetted External Partner who becomes an independent controller from that moment.</p>) },
+      { title: "2. Auto-Matching", body: (<p>Legal basis: performance of the electronic services contract (Art. 6(1)(b) GDPR). The system profiles preferences to recommend matches; it is advisory only and does not constitute automated decision-making within Art. 22 GDPR.</p>) },
+      { title: "3. Direct contact between transaction parties", body: (<p>Once both sides accept the match, StaySafe mutually shares phone and email. Each party becomes an independent controller of the other's data and must process it solely for negotiating and performing the lease.</p>) },
+      { title: "4. Two-sided review system", body: (<p>Legitimate interest (Art. 6(1)(f)). Double-blind: partial reviews stay hidden until both sides submit or 14 days pass after the lease ends. Users can object and request moderation; deletion triggers immediate recalculation of averages.</p>) },
+      { title: "III. User rights", body: (<ol className="list-decimal space-y-1 pl-6">
+        <li>Access and copy of data.</li><li>Rectification.</li><li>Erasure ("right to be forgotten").</li>
+        <li>Restriction of processing.</li><li>Data portability.</li><li>Objection.</li>
+        <li>Withdrawal of consent at any time.</li>
+        <li>Complaint to the Polish DPA (PUODO), ul. Stawki 2, 00-193 Warszawa.</li>
       </ol>) },
-      { title: "7. Voluntary nature of providing data", body: (<p>Providing data is voluntary but necessary to use the Rental Zone functionality.</p>) },
+      { title: "IV. Retention", body: (<ul className="list-disc space-y-1 pl-6">
+        <li>Concierge inquiries — up to 12 months from submission.</li>
+        <li>Lease and review data (incl. Tenant Passport) — for as long as needed for legal claims or until account deletion / justified objection.</li>
+      </ul>) },
     ],
   },
   uk: {
-    title: "Політика приватності StaySafe.pl",
-    version: "Версія чинна з 12 червня 2026 р.",
+    title: "Політика приватності та інформаційне повідомлення (GDPR) Порталу StaySafe",
+    version: "Дата останнього оновлення: 16 липня 2026 р.",
     backHome: "← Повернутися на головну",
-    intro: "У StaySafe.pl ми знаємо, що безпека ваших даних настільки ж важлива, як і безпека вашої оренди. Цей документ пояснює, як ми обробляємо дані Орендарів і Орендодавців, як реалізуємо принцип Privacy-by-Design та які у вас є права.",
     sections: [
-      { title: "1. Хто є Контролером ваших даних?", body: (<>
-        <p>Контролером персональних даних користувачів StaySafe.pl є <strong>StaySafe Sp. z o.o.</strong>, м. Варшава, ul. Nowy Świat 1, NIP: <strong>5252651283</strong> (далі: <em>StaySafe</em> або <em>Контролер</em>).</p>
-        <p>Контакт із питань захисту даних: <a href="mailto:iodo@staysafe.pl" className="underline">iodo@staysafe.pl</a>.</p>
+      { title: "I. Контролер персональних даних", body: (<>
+        <p>Контролером персональних даних Користувачів Порталу StaySafe є <strong>Stay Safe sp. z o.o.</strong>, м. Варшава (00-844), ul. Łucka 15, KRS: <strong>0000607397</strong>, NIP: <strong>5252651283</strong> («Контролер» або «StaySafe»).</p>
+        <p>Контакт із питань захисту даних: <a href="mailto:kontakt@staysafe.pl" className="underline">kontakt@staysafe.pl</a>.</p>
       </>) },
-      { title: "2. На якій підставі та з якою метою ми обробляємо дані?", body: (<>
-        <p>Ваші дані обробляються на підставі ст. 6(1) GDPR з такою метою:</p>
-        <ul className="list-disc space-y-1 pl-6">
-          <li><strong>Надання електронних послуг</strong> (ст. 6(1)(b)): реєстрація, Зона оренди, оголошення, запити, внутрішній чат.</li>
-          <li><strong>Алгоритм розумного підбору</strong> (ст. 6(1)(b)): обробка локаційних та бюджетних критеріїв.</li>
-          <li><strong>Законний інтерес</strong> (ст. 6(1)(f)): перевірка надійності, антифрод, захист вимог.</li>
-        </ul>
-      </>) },
-      { title: "3. Шифрування особистості (криптографічний хеш)", body: (<ul className="list-disc space-y-1 pl-6">
-        <li><strong>Не зберігаємо відкриті номери документів.</strong></li>
-        <li><strong>Незворотний хеш (SHA-256):</strong> введені номери одразу перетворюються на хеш у браузері.</li>
-        <li><strong>Безпека в базі:</strong> зберігаємо лише математичний відбиток — оригінал відновити неможливо.</li>
-      </ul>) },
-      { title: "4. Хто має доступ до ваших даних?", body: (<ul className="list-disc space-y-1 pl-6">
-        <li><strong>Шлях Орендаря:</strong> ваш профіль передається лише Орендодавцю, якого ви обрали «Попередньо зацікавлений».</li>
-        <li><strong>Оператори:</strong> хостинг, платежі, партнери Concierge — на підставі договорів обробки.</li>
-      </ul>) },
-      { title: "5. Як довго зберігаємо дані?", body: (<ul className="list-disc space-y-1 pl-6">
-        <li>Дані акаунта — до його видалення користувачем.</li>
-        <li>Паспорт Орендаря — 90 днів від верифікації.</li>
-        <li>Антифрод-хеші — довше, на підставі законного інтересу.</li>
-      </ul>) },
-      { title: "6. Ваші права за GDPR", body: (<ol className="list-decimal space-y-1 pl-6">
-        <li>Доступ та копія даних.</li><li>Виправлення.</li><li>Видалення («право бути забутим»).</li>
-        <li>Обмеження обробки.</li><li>Перенесення даних.</li><li>Заперечення.</li><li>Скарга до PUODO.</li>
+      { title: "II. Обсяг та цілі обробки даних", body: (<p>StaySafe обробляє дані Користувачів (Орендарів та Орендодавців) з метою надання електронних послуг, безпечного укладення договорів оренди та надання додаткових послуг.</p>) },
+      { title: "1. Послуги Concierge та передача даних партнерам", body: (<p>Підстава: пряма згода Користувача (ст. 6(1)(a) GDPR) при кліку «Повідомити про зацікавлення». Контактні дані передаються перевіреному Партнеру, який стає незалежним контролером.</p>) },
+      { title: "2. Auto-Matching", body: (<p>Підстава: виконання договору про надання електронних послуг (ст. 6(1)(b) GDPR). Система має рекомендаційний характер і не є автоматизованим рішенням у розумінні ст. 22 GDPR.</p>) },
+      { title: "3. Прямий контакт сторін", body: (<p>Після взаємної згоди сторін StaySafe надає їм контактні дані. З цього моменту кожна сторона стає незалежним контролером даних іншої сторони.</p>) },
+      { title: "4. Двосторонній система оцінок", body: (<p>Законний інтерес (ст. 6(1)(f)). Double-blind: часткові оцінки приховані до подання обох сторін або протягом 14 днів після закінчення оренди. Модерація доступна.</p>) },
+      { title: "III. Права Користувача", body: (<ol className="list-decimal space-y-1 pl-6">
+        <li>Доступ та копія даних.</li><li>Виправлення.</li><li>Видалення.</li>
+        <li>Обмеження обробки.</li><li>Перенесення.</li><li>Заперечення.</li>
+        <li>Відкликання згоди.</li>
+        <li>Скарга до PUODO, ul. Stawki 2, 00-193 Warszawa.</li>
       </ol>) },
-      { title: "7. Добровільність надання даних", body: (<p>Надання даних добровільне, але необхідне для використання функцій Зони оренди.</p>) },
+      { title: "IV. Строк зберігання", body: (<ul className="list-disc space-y-1 pl-6">
+        <li>Запити Concierge — до 12 місяців.</li>
+        <li>Дані договорів та оцінок — до вирішення претензій або видалення акаунта.</li>
+      </ul>) },
     ],
   },
 };
@@ -153,7 +142,6 @@ function PrivacyPage() {
     <article className="container mx-auto max-w-3xl px-4 py-12">
       <h1 className="text-3xl font-bold tracking-tight">{c.title}</h1>
       <p className="mt-2 text-sm text-muted-foreground">{c.version}</p>
-      <p className="mt-4 text-sm leading-relaxed text-muted-foreground">{c.intro}</p>
       {c.sections.map((s, i) => <Section key={i} title={s.title}>{s.body}</Section>)}
       <Link to="/" className="mt-10 inline-block text-sm text-muted-foreground hover:text-foreground">{c.backHome}</Link>
     </article>
