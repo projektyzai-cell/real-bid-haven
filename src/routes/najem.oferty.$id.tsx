@@ -167,7 +167,10 @@ function RentalDetailPage() {
     usable_area_m2: number | null; plot_area_m2: number | null;
     year_built: number | null; has_basement: boolean | null;
     views_count: number;
+    room_label: string | null;
+    extra_features: Record<string, unknown> | null;
   };
+
   const images = r.images ?? [];
 
   async function sendInquiry(e: React.FormEvent) {
