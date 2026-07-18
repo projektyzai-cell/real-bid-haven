@@ -412,6 +412,101 @@ function NewRentalListing() {
             </div>
           )}
 
+          {/* TURA 1 – dodatkowe informacje o pokoju / mieszkaniu (nie brane pod uwagę w Auto-Matching) */}
+          {showRoomFeatures && (
+            <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">Dodatkowe informacje o pokoju</p>
+
+              <div>
+                <Label className="mb-2 block text-xs">Zamek w drzwiach pokoju</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {([
+                    ["key", "Na klucz"],
+                    ["patent", "Zamek patentowy"],
+                    ["none", "Brak zamka"],
+                  ] as const).map(([v, label]) => (
+                    <button key={v} type="button"
+                      onClick={() => setExtras((s) => ({ ...s, room_lock: v }))}
+                      className={`h-9 rounded-xl border text-xs font-semibold transition ${
+                        extras.room_lock === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+
+              <label className="flex items-center justify-between gap-3 rounded-xl border bg-background/50 p-3 text-sm">
+                <span>Właściciel mieszka w nieruchomości?</span>
+                <Checkbox checked={extras.owner_lives_in}
+                  onCheckedChange={(v) => setExtras((s) => ({ ...s, owner_lives_in: v === true }))} />
+              </label>
+
+              <div>
+                <Label className="mb-2 block text-xs">Liczba akceptowalnych osób w pokoju</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    ["single", "Jednoosobowy"],
+                    ["double", "Dwuosobowy"],
+                  ] as const).map(([v, label]) => (
+                    <button key={v} type="button"
+                      onClick={() => setExtras((s) => ({ ...s, room_occupancy: v }))}
+                      className={`h-9 rounded-xl border text-xs font-semibold transition ${
+                        extras.room_occupancy === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs">Łączna maks. liczba lokatorów w nieruchomości</Label>
+                  <Input type="number" min={1} value={extras.max_total_occupants}
+                    onChange={(e) => setExtras((s) => ({ ...s, max_total_occupants: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    className="mt-1.5 rounded-xl" />
+                </div>
+                <div>
+                  <Label className="text-xs">Liczba wspólnych łazienek</Label>
+                  <Input type="number" min={0} value={extras.shared_bathrooms_count}
+                    onChange={(e) => setExtras((s) => ({ ...s, shared_bathrooms_count: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    className="mt-1.5 rounded-xl" />
+                </div>
+              </div>
+
+              <label className="flex items-center justify-between gap-3 rounded-xl border bg-background/50 p-3 text-sm">
+                <span>Oddzielne WC</span>
+                <Checkbox checked={extras.separate_wc}
+                  onCheckedChange={(v) => setExtras((s) => ({ ...s, separate_wc: v === true }))} />
+              </label>
+
+              <div>
+                <Label className="mb-2 block text-xs">Dostęp do części wspólnych</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {([
+                    ["kitchen", "Kuchnia"],
+                    ["living", "Salon"],
+                    ["balcony", "Balkon lub taras"],
+                    ["garden", "Ogród"],
+                    ["basement", "Piwnica lub komórka lokatorska"],
+                  ] as const).map(([v, label]) => (
+                    <label key={v} className="flex items-center gap-2 rounded-xl border bg-background/50 p-2.5 text-sm">
+                      <Checkbox checked={extras.common_areas.includes(v)}
+                        onCheckedChange={(c) => setExtras((s) => ({
+                          ...s,
+                          common_areas: c === true
+                            ? [...s.common_areas, v]
+                            : s.common_areas.filter((x) => x !== v),
+                        }))} />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           {propertyType === "house" && (
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
@@ -430,7 +525,74 @@ function NewRentalListing() {
               </label>
             </div>
           )}
+
+          {/* TURA 1 – dodatkowe informacje o domu */}
+          {propertyType === "house" && (
+            <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">Dodatkowe informacje o domu</p>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div>
+                  <Label className="text-xs">Liczba poziomów / pięter w domu</Label>
+                  <Input type="number" min={1} value={extras.house_levels}
+                    onChange={(e) => setExtras((s) => ({ ...s, house_levels: e.target.value === "" ? "" : Number(e.target.value) }))}
+                    className="mt-1.5 rounded-xl" />
+                </div>
+                <div>
+                  <Label className="text-xs">Rodzaj ogrzewania</Label>
+                  <select value={extras.heating_type}
+                    onChange={(e) => setExtras((s) => ({ ...s, heating_type: e.target.value as typeof extras.heating_type }))}
+                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                    <option value="">— wybierz —</option>
+                    <option value="district">Miejskie</option>
+                    <option value="gas">Gazowe</option>
+                    <option value="heatpump">Pompa ciepła</option>
+                    <option value="electric">Elektryczne</option>
+                    <option value="solid_fuel">Paliwo stałe (pellet, węgiel)</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-2">
+                  <Label className="text-xs">Miejsca parkingowe / Garaż</Label>
+                  <select value={extras.parking_type}
+                    onChange={(e) => setExtras((s) => ({ ...s, parking_type: e.target.value as typeof extras.parking_type }))}
+                    className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
+                    <option value="">— wybierz —</option>
+                    <option value="garage_built_in">Garaż w bryle budynku</option>
+                    <option value="garage_detached">Garaż wolnostojący</option>
+                    <option value="carport">Wiata</option>
+                    <option value="driveway">Miejsce na podjeździe</option>
+                    <option value="none">Brak dedykowanego miejsca</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block text-xs">Bezpieczeństwo i zabezpieczenia</Label>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {([
+                    ["alarm", "System alarmowy"],
+                    ["cameras", "Kamery (monitoring)"],
+                    ["shutters", "Rolety antywłamaniowe"],
+                    ["fenced", "Teren ogrodzony"],
+                    ["intercom", "Domofon lub wideofon"],
+                  ] as const).map(([v, label]) => (
+                    <label key={v} className="flex items-center gap-2 rounded-xl border bg-background/50 p-2.5 text-sm">
+                      <Checkbox checked={extras.security_features.includes(v)}
+                        onCheckedChange={(c) => setExtras((s) => ({
+                          ...s,
+                          security_features: c === true
+                            ? [...s.security_features, v]
+                            : s.security_features.filter((x) => x !== v),
+                        }))} />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
+
 
         {/* WARUNKI UMOWY */}
         <SectionTitle>Warunki umowy</SectionTitle>
