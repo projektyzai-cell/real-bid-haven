@@ -312,3 +312,64 @@ function RentalDetailPage() {
     </div>
   );
 }
+
+const ROOM_LOCK_LABEL: Record<string, string> = { key: "Na klucz", patent: "Zamek patentowy", none: "Brak zamka" };
+const ROOM_OCCUPANCY_LABEL: Record<string, string> = { single: "Jednoosobowy", double: "Dwuosobowy" };
+const COMMON_AREA_LABEL: Record<string, string> = {
+  kitchen: "Kuchnia", living: "Salon", balcony: "Balkon / taras",
+  garden: "Ogród", basement: "Piwnica / komórka lokatorska",
+};
+const HEATING_LABEL: Record<string, string> = {
+  district: "Miejskie", gas: "Gazowe", heatpump: "Pompa ciepła",
+  electric: "Elektryczne", solid_fuel: "Paliwo stałe",
+};
+const PARKING_LABEL: Record<string, string> = {
+  garage_built_in: "Garaż w bryle budynku", garage_detached: "Garaż wolnostojący",
+  carport: "Wiata", driveway: "Miejsce na podjeździe", none: "Brak dedykowanego miejsca",
+};
+const SECURITY_LABEL: Record<string, string> = {
+  alarm: "System alarmowy", cameras: "Kamery (monitoring)",
+  shutters: "Rolety antywłamaniowe", fenced: "Teren ogrodzony", intercom: "Domofon / wideofon",
+};
+
+function ExtraFeaturesPanel({ kind, extras }: { kind: string; extras: Record<string, unknown> | null }) {
+  if (!extras || typeof extras !== "object") return null;
+  const rows: { label: string; value: string }[] = [];
+  const push = (label: string, value: string | undefined | null) => { if (value) rows.push({ label, value }); };
+  const arr = (k: string): string[] => Array.isArray(extras[k]) ? (extras[k] as string[]) : [];
+
+  if (kind === "room" || kind === "apartment") {
+    push("Zamek w drzwiach pokoju", ROOM_LOCK_LABEL[String(extras.room_lock ?? "")]);
+    if (typeof extras.owner_lives_in === "boolean")
+      push("Właściciel mieszka w nieruchomości", extras.owner_lives_in ? "Tak" : "Nie");
+    push("Liczba osób w pokoju", ROOM_OCCUPANCY_LABEL[String(extras.room_occupancy ?? "")]);
+    if (extras.max_total_occupants != null) push("Maks. liczba lokatorów w nieruchomości", String(extras.max_total_occupants));
+    if (extras.shared_bathrooms_count != null) push("Wspólne łazienki", String(extras.shared_bathrooms_count));
+    if (typeof extras.separate_wc === "boolean") push("Oddzielne WC", extras.separate_wc ? "Tak" : "Nie");
+    const commons = arr("common_areas").map((v) => COMMON_AREA_LABEL[v] ?? v).join(", ");
+    push("Dostęp do części wspólnych", commons || undefined);
+  }
+  if (kind === "house") {
+    if (extras.house_levels != null) push("Poziomy / piętra", String(extras.house_levels));
+    push("Rodzaj ogrzewania", HEATING_LABEL[String(extras.heating_type ?? "")]);
+    push("Parking / garaż", PARKING_LABEL[String(extras.parking_type ?? "")]);
+    const sec = arr("security_features").map((v) => SECURITY_LABEL[v] ?? v).join(", ");
+    push("Bezpieczeństwo i zabezpieczenia", sec || undefined);
+  }
+
+  if (rows.length === 0) return null;
+  return (
+    <div className="mt-6 rounded-2xl border bg-card/50 p-4">
+      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Dodatkowe informacje</h3>
+      <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+        {rows.map((row) => (
+          <div key={row.label}>
+            <dt className="text-xs text-muted-foreground">{row.label}</dt>
+            <dd className="font-medium">{row.value}</dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+  );
+}
+
