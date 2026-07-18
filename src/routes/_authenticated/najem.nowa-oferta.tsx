@@ -49,10 +49,28 @@ function NewRentalListing() {
     pets_caged_allowed: false, pets_other_allowed: false,
     accepts_students: false,
   });
+  const [roomLabel, setRoomLabel] = useState("");
+  // TURA 1 – dodatkowe pola widoczne w ogłoszeniu (nie biorą udziału w Auto-Matching)
+  const [extras, setExtras] = useState({
+    // pokój / mieszkanie z pokojem
+    room_lock: "" as "" | "key" | "patent" | "none",
+    owner_lives_in: false,
+    room_occupancy: "" as "" | "single" | "double",
+    max_total_occupants: "" as number | "",
+    shared_bathrooms_count: "" as number | "",
+    separate_wc: false,
+    common_areas: [] as string[], // kitchen | living | balcony | garden | basement
+    // dom
+    house_levels: "" as number | "",
+    heating_type: "" as "" | "district" | "gas" | "heatpump" | "electric" | "solid_fuel",
+    parking_type: "" as "" | "garage_built_in" | "garage_detached" | "carport" | "driveway" | "none",
+    security_features: [] as string[], // alarm | cameras | shutters | fenced | intercom
+  });
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(isEdit);
+
 
   useEffect(() => {
     if (!isEdit || !user) return;
