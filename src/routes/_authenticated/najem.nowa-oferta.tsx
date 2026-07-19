@@ -93,13 +93,17 @@ function NewRentalListing() {
         city: r.city ?? "", street: r.street ?? "", district: r.district ?? "",
         apt_no: r.apt_no ?? "", kw_number: r.kw_number ?? "",
         rooms: r.rooms ?? 2, area_m2: r.area_m2 ?? 40,
-        rent_base: r.rent_base ?? 0, utilities_fee: r.utilities_fee ?? 0,
+        rent_base: r.rent_base ?? 0,
+        admin_fee: r.admin_fee ?? 0,
+        utilities_advance: r.utilities_advance ?? (r.utilities_fee ?? 0),
+        utilities_by_usage: !!r.utilities_by_usage,
         min_lease_months: r.min_lease_months ?? 12,
         max_adults: r.max_adults ?? 2, max_children: r.max_children ?? 0,
         active_days: r.active_days ?? 30,
         has_energy_cert: !!r.has_energy_cert,
         wants_energy_cert_discount: !!r.wants_energy_cert_discount,
         promoted: !!r.promoted,
+        sche_contact_email: "", sche_contact_phone: "",
         usable_area_m2: r.usable_area_m2 ?? "", plot_area_m2: r.plot_area_m2 ?? "",
         year_built: r.year_built ?? "",
       });
@@ -112,6 +116,8 @@ function NewRentalListing() {
         requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
         pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
         accepts_students: !!r.accepts_students,
+        allows_modifications: !!r.allows_modifications,
+        allows_furniture_additions: !!r.allows_furniture_additions,
       });
       setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
       setRoomLabel(r.room_label ?? "");
