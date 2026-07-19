@@ -613,17 +613,44 @@ function NewRentalListing() {
         <div className="rounded-2xl border bg-background/40 p-4 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label>Odstępne (czynsz najmu, PLN/mc)</Label>
+              <Label>Czynsz najmu (PLN/mc)</Label>
               <Input type="number" min={0} step="0.01" value={form.rent_base} onChange={(e) => setF("rent_base", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">Kwota należna Wynajmującemu z tytułu najmu.</p>
             </div>
             <div>
-              <Label>Opłaty eksploatacyjne (PLN/mc)</Label>
-              <Input type="number" min={0} step="0.01" value={form.utilities_fee} onChange={(e) => setF("utilities_fee", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+              <Label>Czynsz administracyjny (PLN/mc)</Label>
+              <Input type="number" min={0} step="0.01" value={form.admin_fee} onChange={(e) => setF("admin_fee", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">Opłata do spółdzielni / wspólnoty / zarządcy nieruchomości.</p>
+            </div>
+            <div className="sm:col-span-2 rounded-xl border bg-background/40 p-3 space-y-2">
+              <div className="text-sm font-semibold">Media</div>
+              <div className="flex flex-wrap gap-2 text-sm">
+                <button type="button" onClick={() => setF("utilities_by_usage", false)}
+                  className={`rounded-lg border px-3 py-1.5 ${!form.utilities_by_usage ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold" : "border-border"}`}>
+                  Zaliczka miesięczna
+                </button>
+                <button type="button" onClick={() => setF("utilities_by_usage", true)}
+                  className={`rounded-lg border px-3 py-1.5 ${form.utilities_by_usage ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold" : "border-border"}`}>
+                  Rozliczenie wg zużycia
+                </button>
+              </div>
+              {!form.utilities_by_usage && (
+                <div>
+                  <Label>Zaliczka na media (PLN/mc)</Label>
+                  <Input type="number" min={0} step="0.01" value={form.utilities_advance} onChange={(e) => setF("utilities_advance", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+                </div>
+              )}
+              {form.utilities_by_usage && (
+                <p className="text-[11px] text-muted-foreground">
+                  Najemca będzie rozliczany na podstawie faktycznego zużycia (liczniki / faktury dostawców).
+                </p>
+              )}
             </div>
             <div className="sm:col-span-2 rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3 text-sm">
-              Szacowana całkowita kwota najmu z opłatami: <strong className="text-gold">{((form.rent_base || 0) + (form.utilities_fee || 0)).toLocaleString("pl-PL")} PLN / mc</strong>
-              <span className="block text-[11px] text-muted-foreground">+ media wg zużycia</span>
+              Łączna kwota miesięczna: <strong className="text-gold">{((form.rent_base || 0) + (form.admin_fee || 0) + (form.utilities_by_usage ? 0 : (form.utilities_advance || 0))).toLocaleString("pl-PL")} PLN / mc</strong>
+              {form.utilities_by_usage && <span className="block text-[11px] text-muted-foreground">+ media wg zużycia</span>}
             </div>
+
             <div>
               <Label>Minimalna długość umowy</Label>
               <select value={form.min_lease_months} onChange={(e) => setF("min_lease_months", Number(e.target.value))}
