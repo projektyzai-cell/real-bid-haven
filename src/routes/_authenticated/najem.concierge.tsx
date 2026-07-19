@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import {
   Sparkles, Truck, Wrench, Brush, Shield, FileSignature, Home, UserSearch, Zap,
-  ChevronDown, ChevronUp, Loader2, CheckCircle2,
+  Gavel, ChevronDown, ChevronUp, Loader2, CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,6 +100,15 @@ const services: Service[] = [
     title: "Sporządzenie Świadectwa Charakterystyki Energetycznej (ŚChE)",
     short: "Szybkie i zgodne z prawem wyrobienie obowiązkowego certyfikatu energetycznego dla Twojej nieruchomości.",
     long: "Posiadanie Świadectwa Charakterystyki Energetycznej (ŚChE) to ustawowy obowiązek każdego Właściciela i Wynajmującego przy zawieraniu nowej umowy najmu. Brak ważnego certyfikatu grozi wysokimi grzywnami. Nasz certyfikowany audytor energetyczny sporządzi dla Ciebie wymagany dokument w 100% online, bez konieczności kłopotliwych wizyt w mieszkaniu. Gotowe świadectwo, wpisane do centralnego rejestru MRiT i podpisane kwalifikowanym podpisem elektronicznym, otrzymasz na e-mail w zaledwie 48-72h.",
+    client: "landlord",
+    audienceLabel: "Dla Wynajmującego",
+  },
+  {
+    key: "windykacja",
+    icon: Gavel,
+    title: "Windykacja należności od Najemcy",
+    short: "Profesjonalne odzyskiwanie zaległego czynszu i opłat od nierzetelnego Najemcy.",
+    long: "Twój Najemca zalega z płatnościami i nie reaguje na wezwania? Nasi partnerzy — kancelarie prawne i licencjonowane firmy windykacyjne — przejmą sprawę na każdym etapie: od polubownego wezwania do zapłaty i mediacji, przez postępowanie sądowe (nakaz zapłaty w e-Sądzie), aż po egzekucję komorniczą. Otrzymasz jasny cennik (najczęściej rozliczenie prowizyjne od odzyskanej kwoty), pełne wsparcie procesowe oraz raporty statusu sprawy. Usługa działa również przy najmie okazjonalnym — z opróżnieniem lokalu włącznie.",
     client: "landlord",
     audienceLabel: "Dla Wynajmującego",
   },

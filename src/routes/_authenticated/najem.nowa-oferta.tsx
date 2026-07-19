@@ -36,9 +36,11 @@ function NewRentalListing() {
     title: "", description: "",
     city: "", street: "", district: "", apt_no: "", kw_number: "",
     rooms: 2, area_m2: 40,
-    rent_base: 2000, utilities_fee: 500, min_lease_months: 12,
+    rent_base: 2000, admin_fee: 0, utilities_advance: 500, utilities_by_usage: false,
+    min_lease_months: 12,
     max_adults: 2, max_children: 0, active_days: 30,
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
+    sche_contact_email: "", sche_contact_phone: "",
     usable_area_m2: "", plot_area_m2: "", year_built: "",
   });
   const [flags, setFlags] = useState({
@@ -48,6 +50,7 @@ function NewRentalListing() {
     requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
     accepts_students: false,
+    allows_modifications: false, allows_furniture_additions: false,
   });
   const [roomLabel, setRoomLabel] = useState("");
   // TURA 1 – dodatkowe pola widoczne w ogłoszeniu (nie biorą udziału w Auto-Matching)
@@ -90,13 +93,17 @@ function NewRentalListing() {
         city: r.city ?? "", street: r.street ?? "", district: r.district ?? "",
         apt_no: r.apt_no ?? "", kw_number: r.kw_number ?? "",
         rooms: r.rooms ?? 2, area_m2: r.area_m2 ?? 40,
-        rent_base: r.rent_base ?? 0, utilities_fee: r.utilities_fee ?? 0,
+        rent_base: r.rent_base ?? 0,
+        admin_fee: r.admin_fee ?? 0,
+        utilities_advance: r.utilities_advance ?? (r.utilities_fee ?? 0),
+        utilities_by_usage: !!r.utilities_by_usage,
         min_lease_months: r.min_lease_months ?? 12,
         max_adults: r.max_adults ?? 2, max_children: r.max_children ?? 0,
         active_days: r.active_days ?? 30,
         has_energy_cert: !!r.has_energy_cert,
         wants_energy_cert_discount: !!r.wants_energy_cert_discount,
         promoted: !!r.promoted,
+        sche_contact_email: "", sche_contact_phone: "",
         usable_area_m2: r.usable_area_m2 ?? "", plot_area_m2: r.plot_area_m2 ?? "",
         year_built: r.year_built ?? "",
       });
@@ -109,6 +116,8 @@ function NewRentalListing() {
         requires_insurance: !!r.requires_insurance, requires_passport: !!r.requires_passport,
         pets_caged_allowed: !!r.pets_caged_allowed, pets_other_allowed: !!r.pets_other_allowed,
         accepts_students: !!r.accepts_students,
+        allows_modifications: !!r.allows_modifications,
+        allows_furniture_additions: !!r.allows_furniture_additions,
       });
       setImages(r.images ?? []); setMainIdx(r.main_image_index ?? 0);
       setRoomLabel(r.room_label ?? "");
@@ -141,7 +150,8 @@ function NewRentalListing() {
     if (!user) return;
     if (!form.city.trim()) { toast.error("Podaj miasto"); return; }
     setBusy(true);
-    const totalPrice = (form.rent_base || 0) + (form.utilities_fee || 0);
+    const utilAdvance = form.utilities_by_usage ? 0 : (form.utilities_advance || 0);
+    const totalPrice = (form.rent_base || 0) + (form.admin_fee || 0) + utilAdvance;
     const expiresAt = new Date(Date.now() + form.active_days * 86_400_000).toISOString();
     const payload: Record<string, unknown> = {
       title: form.title.trim(), description: form.description.trim(),
@@ -152,7 +162,11 @@ function NewRentalListing() {
       apt_no: form.apt_no.trim() || null, kw_number: form.kw_number.trim() || null,
       rooms: form.rooms, area_m2: form.area_m2,
       monthly_price: totalPrice,
-      rent_base: form.rent_base, utilities_fee: form.utilities_fee,
+      rent_base: form.rent_base,
+      admin_fee: form.admin_fee || 0,
+      utilities_advance: utilAdvance,
+      utilities_by_usage: form.utilities_by_usage,
+      utilities_fee: utilAdvance,
       min_lease_months: form.min_lease_months,
       max_adults: form.max_adults,
       max_children: form.max_children,
@@ -168,6 +182,8 @@ function NewRentalListing() {
       requires_passport: flags.requires_passport,
       notarial_required: flags.notarial_required,
       accepts_students: flags.accepts_students,
+      allows_modifications: flags.allows_modifications,
+      allows_furniture_additions: flags.allows_furniture_additions,
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
       is_furnished: flags.is_furnished,
@@ -197,6 +213,23 @@ function NewRentalListing() {
     }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+
+    // ŚChE lead — if consent given, insert a concierge lead for admin follow-up
+    if (form.wants_energy_cert_discount && (form.sche_contact_email.trim() || form.sche_contact_phone.trim())) {
+      await supabase.from("concierge_leads" as never).insert({
+        user_id: user.id,
+        service_key: "energy-cert",
+        service_name: "Świadectwo charakterystyki energetycznej (ŚChE)",
+        client_type: "landlord",
+        email: form.sche_contact_email.trim(),
+        phone: form.sche_contact_phone.trim(),
+        consent_accepted: true,
+        consent_timestamp: new Date().toISOString(),
+        admin_notes: `Oferta: ${form.title || form.street} (${form.city})`,
+      } as never);
+    }
+
+
     toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
   }
@@ -599,17 +632,44 @@ function NewRentalListing() {
         <div className="rounded-2xl border bg-background/40 p-4 space-y-4">
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label>Odstępne (czynsz najmu, PLN/mc)</Label>
+              <Label>Czynsz najmu (PLN/mc)</Label>
               <Input type="number" min={0} step="0.01" value={form.rent_base} onChange={(e) => setF("rent_base", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">Kwota należna Wynajmującemu z tytułu najmu.</p>
             </div>
             <div>
-              <Label>Opłaty eksploatacyjne (PLN/mc)</Label>
-              <Input type="number" min={0} step="0.01" value={form.utilities_fee} onChange={(e) => setF("utilities_fee", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+              <Label>Czynsz administracyjny (PLN/mc)</Label>
+              <Input type="number" min={0} step="0.01" value={form.admin_fee} onChange={(e) => setF("admin_fee", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+              <p className="mt-1 text-[11px] text-muted-foreground">Opłata do spółdzielni / wspólnoty / zarządcy nieruchomości.</p>
+            </div>
+            <div className="sm:col-span-2 rounded-xl border bg-background/40 p-3 space-y-2">
+              <div className="text-sm font-semibold">Media</div>
+              <div className="flex flex-wrap gap-2 text-sm">
+                <button type="button" onClick={() => setF("utilities_by_usage", false)}
+                  className={`rounded-lg border px-3 py-1.5 ${!form.utilities_by_usage ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold" : "border-border"}`}>
+                  Zaliczka miesięczna
+                </button>
+                <button type="button" onClick={() => setF("utilities_by_usage", true)}
+                  className={`rounded-lg border px-3 py-1.5 ${form.utilities_by_usage ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold" : "border-border"}`}>
+                  Rozliczenie wg zużycia
+                </button>
+              </div>
+              {!form.utilities_by_usage && (
+                <div>
+                  <Label>Zaliczka na media (PLN/mc)</Label>
+                  <Input type="number" min={0} step="0.01" value={form.utilities_advance} onChange={(e) => setF("utilities_advance", Number(e.target.value))} className="mt-1.5 rounded-xl" />
+                </div>
+              )}
+              {form.utilities_by_usage && (
+                <p className="text-[11px] text-muted-foreground">
+                  Najemca będzie rozliczany na podstawie faktycznego zużycia (liczniki / faktury dostawców).
+                </p>
+              )}
             </div>
             <div className="sm:col-span-2 rounded-xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-3 text-sm">
-              Szacowana całkowita kwota najmu z opłatami: <strong className="text-gold">{((form.rent_base || 0) + (form.utilities_fee || 0)).toLocaleString("pl-PL")} PLN / mc</strong>
-              <span className="block text-[11px] text-muted-foreground">+ media wg zużycia</span>
+              Łączna kwota miesięczna: <strong className="text-gold">{((form.rent_base || 0) + (form.admin_fee || 0) + (form.utilities_by_usage ? 0 : (form.utilities_advance || 0))).toLocaleString("pl-PL")} PLN / mc</strong>
+              {form.utilities_by_usage && <span className="block text-[11px] text-muted-foreground">+ media wg zużycia</span>}
             </div>
+
             <div>
               <Label>Minimalna długość umowy</Label>
               <select value={form.min_lease_months} onChange={(e) => setF("min_lease_months", Number(e.target.value))}
@@ -665,12 +725,18 @@ function NewRentalListing() {
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.requires_insurance} onCheckedChange={() => toggle("requires_insurance")} className="mt-0.5" />
-              <span>Wymagam zawarcia ubezpieczenia OC najemcy na jego koszt.</span>
+              <span>
+                Wymagam zawarcia <strong>ubezpieczenia OC najemcy</strong> na jego koszt.
+                <span className="block text-[11px] text-muted-foreground">
+                  Analogicznie jak przy najmie okazjonalnym — polisa OC obejmuje szkody wyrządzone w lokalu i mieniu Wynajmującego.
+                </span>
+              </span>
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
               <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
             </label>
+
           </div>
         </div>
 
@@ -689,7 +755,20 @@ function NewRentalListing() {
             <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
             <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
           </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.allows_modifications} onCheckedChange={() => toggle("allows_modifications")} className="mt-0.5" />
+            <span>
+              Zgadzam się na <strong>modyfikacje w mieszkaniu</strong> (drobne prace: malowanie, wieszanie półek itp.) po wcześniejszym uzgodnieniu.
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.allows_furniture_additions} onCheckedChange={() => toggle("allows_furniture_additions")} className="mt-0.5" />
+            <span>
+              Zgadzam się na <strong>doposażenie / dodanie mebli</strong> przez Najemcę (po uzgodnieniu formy i miejsca).
+            </span>
+          </label>
         </div>
+
 
         {/* OPIS + ZDJĘCIA */}
         <SectionTitle>Opis i zdjęcia</SectionTitle>
@@ -710,12 +789,34 @@ function NewRentalListing() {
             Posiadam świadectwo charakterystyki energetycznej (ŚChE)
           </label>
           {!form.has_energy_cert && (
-            <label className="flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
-              <Checkbox checked={form.wants_energy_cert_discount}
-                onCheckedChange={(v) => setF("wants_energy_cert_discount", v === true)} className="mt-0.5" />
-              <span>Chcę zamówić ŚChE u partnera Stay Safe ze zniżką.</span>
-            </label>
+            <div className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+              <label className="flex items-start gap-2">
+                <Checkbox checked={form.wants_energy_cert_discount}
+                  onCheckedChange={(v) => setF("wants_energy_cert_discount", v === true)} className="mt-0.5" />
+                <span>
+                  <strong>Wyrażam zgodę</strong> na przekazanie moich danych kontaktowych partnerowi StaySafe w celu przygotowania oferty na wykonanie ŚChE ze zniżką. Zamówienie jest niezobowiązujące.
+                </span>
+              </label>
+              {form.wants_energy_cert_discount && (
+                <div className="grid gap-2 sm:grid-cols-2 pl-7">
+                  <div>
+                    <Label className="text-xs">Telefon kontaktowy</Label>
+                    <Input value={form.sche_contact_phone} onChange={(e) => setF("sche_contact_phone", e.target.value)}
+                      placeholder="+48 …" className="mt-1 rounded-lg" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">E-mail kontaktowy</Label>
+                    <Input type="email" value={form.sche_contact_email} onChange={(e) => setF("sche_contact_email", e.target.value)}
+                      placeholder="you@example.com" className="mt-1 rounded-lg" />
+                  </div>
+                  <p className="sm:col-span-2 text-[11px] text-muted-foreground">
+                    Zgłoszenie trafi do administratora StaySafe, który skontaktuje się z partnerem świadczącym usługę.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
+
           <label className="flex items-start gap-2 rounded-xl border border-primary/40 bg-primary/5 p-3 text-sm">
             <Checkbox checked={form.promoted}
               onCheckedChange={(v) => setF("promoted", v === true)} className="mt-0.5" />

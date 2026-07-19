@@ -1009,6 +1009,9 @@ export type Database = {
           accepts_pets: boolean
           accepts_students: boolean | null
           active_days: number | null
+          admin_fee: number
+          allows_furniture_additions: boolean
+          allows_modifications: boolean
           apartment_subtype: string | null
           apt_no: string | null
           area_m2: number
@@ -1056,6 +1059,8 @@ export type Database = {
           street: string
           title: string
           usable_area_m2: number | null
+          utilities_advance: number
+          utilities_by_usage: boolean
           utilities_fee: number | null
           views_count: number
           wants_energy_cert_discount: boolean
@@ -1066,6 +1071,9 @@ export type Database = {
           accepts_pets?: boolean
           accepts_students?: boolean | null
           active_days?: number | null
+          admin_fee?: number
+          allows_furniture_additions?: boolean
+          allows_modifications?: boolean
           apartment_subtype?: string | null
           apt_no?: string | null
           area_m2: number
@@ -1113,6 +1121,8 @@ export type Database = {
           street: string
           title: string
           usable_area_m2?: number | null
+          utilities_advance?: number
+          utilities_by_usage?: boolean
           utilities_fee?: number | null
           views_count?: number
           wants_energy_cert_discount?: boolean
@@ -1123,6 +1133,9 @@ export type Database = {
           accepts_pets?: boolean
           accepts_students?: boolean | null
           active_days?: number | null
+          admin_fee?: number
+          allows_furniture_additions?: boolean
+          allows_modifications?: boolean
           apartment_subtype?: string | null
           apt_no?: string | null
           area_m2?: number
@@ -1170,6 +1183,8 @@ export type Database = {
           street?: string
           title?: string
           usable_area_m2?: number | null
+          utilities_advance?: number
+          utilities_by_usage?: boolean
           utilities_fee?: number | null
           views_count?: number
           wants_energy_cert_discount?: boolean
