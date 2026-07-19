@@ -182,6 +182,8 @@ function NewRentalListing() {
       requires_passport: flags.requires_passport,
       notarial_required: flags.notarial_required,
       accepts_students: flags.accepts_students,
+      allows_modifications: flags.allows_modifications,
+      allows_furniture_additions: flags.allows_furniture_additions,
       has_balcony: showRoomFeatures && flags.has_balcony,
       has_elevator: showRoomFeatures && flags.has_elevator,
       is_furnished: flags.is_furnished,
