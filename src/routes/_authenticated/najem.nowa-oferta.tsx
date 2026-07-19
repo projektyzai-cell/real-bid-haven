@@ -213,6 +213,19 @@ function NewRentalListing() {
     }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+
+    // ŚChE lead — if consent given, insert a concierge lead for admin follow-up
+    if (form.wants_energy_cert_discount && (form.sche_contact_email.trim() || form.sche_contact_phone.trim())) {
+      await supabase.from("concierge_leads" as never).insert({
+        user_id: user.id,
+        service_key: "energy-cert",
+        contact_email: form.sche_contact_email.trim() || null,
+        contact_phone: form.sche_contact_phone.trim() || null,
+        note: `Zamówienie ŚChE ze zniżką dla oferty: ${form.title || form.street} (${form.city})`,
+        consent_data_sharing: true,
+      } as never);
+    }
+
     toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
   }
