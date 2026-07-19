@@ -219,12 +219,16 @@ function NewRentalListing() {
       await supabase.from("concierge_leads" as never).insert({
         user_id: user.id,
         service_key: "energy-cert",
-        contact_email: form.sche_contact_email.trim() || null,
-        contact_phone: form.sche_contact_phone.trim() || null,
-        note: `Zamówienie ŚChE ze zniżką dla oferty: ${form.title || form.street} (${form.city})`,
-        consent_data_sharing: true,
+        service_name: "Świadectwo charakterystyki energetycznej (ŚChE)",
+        client_type: "landlord",
+        email: form.sche_contact_email.trim(),
+        phone: form.sche_contact_phone.trim(),
+        consent_accepted: true,
+        consent_timestamp: new Date().toISOString(),
+        admin_notes: `Oferta: ${form.title || form.street} (${form.city})`,
       } as never);
     }
+
 
     toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
