@@ -770,12 +770,34 @@ function NewRentalListing() {
             Posiadam świadectwo charakterystyki energetycznej (ŚChE)
           </label>
           {!form.has_energy_cert && (
-            <label className="flex items-start gap-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
-              <Checkbox checked={form.wants_energy_cert_discount}
-                onCheckedChange={(v) => setF("wants_energy_cert_discount", v === true)} className="mt-0.5" />
-              <span>Chcę zamówić ŚChE u partnera Stay Safe ze zniżką.</span>
-            </label>
+            <div className="space-y-2 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3 text-sm">
+              <label className="flex items-start gap-2">
+                <Checkbox checked={form.wants_energy_cert_discount}
+                  onCheckedChange={(v) => setF("wants_energy_cert_discount", v === true)} className="mt-0.5" />
+                <span>
+                  <strong>Wyrażam zgodę</strong> na przekazanie moich danych kontaktowych partnerowi StaySafe w celu przygotowania oferty na wykonanie ŚChE ze zniżką. Zamówienie jest niezobowiązujące.
+                </span>
+              </label>
+              {form.wants_energy_cert_discount && (
+                <div className="grid gap-2 sm:grid-cols-2 pl-7">
+                  <div>
+                    <Label className="text-xs">Telefon kontaktowy</Label>
+                    <Input value={form.sche_contact_phone} onChange={(e) => setF("sche_contact_phone", e.target.value)}
+                      placeholder="+48 …" className="mt-1 rounded-lg" />
+                  </div>
+                  <div>
+                    <Label className="text-xs">E-mail kontaktowy</Label>
+                    <Input type="email" value={form.sche_contact_email} onChange={(e) => setF("sche_contact_email", e.target.value)}
+                      placeholder="you@example.com" className="mt-1 rounded-lg" />
+                  </div>
+                  <p className="sm:col-span-2 text-[11px] text-muted-foreground">
+                    Zgłoszenie trafi do administratora StaySafe, który skontaktuje się z partnerem świadczącym usługę.
+                  </p>
+                </div>
+              )}
+            </div>
           )}
+
           <label className="flex items-start gap-2 rounded-xl border border-primary/40 bg-primary/5 p-3 text-sm">
             <Checkbox checked={form.promoted}
               onCheckedChange={(v) => setF("promoted", v === true)} className="mt-0.5" />
