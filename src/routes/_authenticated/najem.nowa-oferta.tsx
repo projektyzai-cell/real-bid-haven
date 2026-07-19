@@ -150,7 +150,8 @@ function NewRentalListing() {
     if (!user) return;
     if (!form.city.trim()) { toast.error("Podaj miasto"); return; }
     setBusy(true);
-    const totalPrice = (form.rent_base || 0) + (form.utilities_fee || 0);
+    const utilAdvance = form.utilities_by_usage ? 0 : (form.utilities_advance || 0);
+    const totalPrice = (form.rent_base || 0) + (form.admin_fee || 0) + utilAdvance;
     const expiresAt = new Date(Date.now() + form.active_days * 86_400_000).toISOString();
     const payload: Record<string, unknown> = {
       title: form.title.trim(), description: form.description.trim(),
@@ -161,7 +162,11 @@ function NewRentalListing() {
       apt_no: form.apt_no.trim() || null, kw_number: form.kw_number.trim() || null,
       rooms: form.rooms, area_m2: form.area_m2,
       monthly_price: totalPrice,
-      rent_base: form.rent_base, utilities_fee: form.utilities_fee,
+      rent_base: form.rent_base,
+      admin_fee: form.admin_fee || 0,
+      utilities_advance: utilAdvance,
+      utilities_by_usage: form.utilities_by_usage,
+      utilities_fee: utilAdvance,
       min_lease_months: form.min_lease_months,
       max_adults: form.max_adults,
       max_children: form.max_children,
