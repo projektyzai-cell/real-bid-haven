@@ -706,12 +706,18 @@ function NewRentalListing() {
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.requires_insurance} onCheckedChange={() => toggle("requires_insurance")} className="mt-0.5" />
-              <span>Wymagam zawarcia ubezpieczenia OC najemcy na jego koszt.</span>
+              <span>
+                Wymagam zawarcia <strong>ubezpieczenia OC najemcy</strong> na jego koszt.
+                <span className="block text-[11px] text-muted-foreground">
+                  Analogicznie jak przy najmie okazjonalnym — polisa OC obejmuje szkody wyrządzone w lokalu i mieniu Wynajmującego.
+                </span>
+              </span>
             </label>
             <label className="flex items-start gap-3 text-sm">
               <Checkbox checked={flags.accepts_students} onCheckedChange={() => toggle("accepts_students")} className="mt-0.5" />
               <span>Akceptuję <strong>studentów</strong> jako najemców.</span>
             </label>
+
           </div>
         </div>
 
