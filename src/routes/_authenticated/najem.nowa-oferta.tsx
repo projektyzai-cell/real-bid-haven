@@ -36,9 +36,11 @@ function NewRentalListing() {
     title: "", description: "",
     city: "", street: "", district: "", apt_no: "", kw_number: "",
     rooms: 2, area_m2: 40,
-    rent_base: 2000, utilities_fee: 500, min_lease_months: 12,
+    rent_base: 2000, admin_fee: 0, utilities_advance: 500, utilities_by_usage: false,
+    min_lease_months: 12,
     max_adults: 2, max_children: 0, active_days: 30,
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
+    sche_contact_email: "", sche_contact_phone: "",
     usable_area_m2: "", plot_area_m2: "", year_built: "",
   });
   const [flags, setFlags] = useState({
@@ -48,6 +50,7 @@ function NewRentalListing() {
     requires_passport: false,
     pets_caged_allowed: false, pets_other_allowed: false,
     accepts_students: false,
+    allows_modifications: false, allows_furniture_additions: false,
   });
   const [roomLabel, setRoomLabel] = useState("");
   // TURA 1 – dodatkowe pola widoczne w ogłoszeniu (nie biorą udziału w Auto-Matching)
