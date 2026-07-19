@@ -103,6 +103,15 @@ const services: Service[] = [
     client: "landlord",
     audienceLabel: "Dla Wynajmującego",
   },
+  {
+    key: "windykacja",
+    icon: Gavel,
+    title: "Windykacja należności od Najemcy",
+    short: "Profesjonalne odzyskiwanie zaległego czynszu i opłat od nierzetelnego Najemcy.",
+    long: "Twój Najemca zalega z płatnościami i nie reaguje na wezwania? Nasi partnerzy — kancelarie prawne i licencjonowane firmy windykacyjne — przejmą sprawę na każdym etapie: od polubownego wezwania do zapłaty i mediacji, przez postępowanie sądowe (nakaz zapłaty w e-Sądzie), aż po egzekucję komorniczą. Otrzymasz jasny cennik (najczęściej rozliczenie prowizyjne od odzyskanej kwoty), pełne wsparcie procesowe oraz raporty statusu sprawy. Usługa działa również przy najmie okazjonalnym — z opróżnieniem lokalu włącznie.",
+    client: "landlord",
+    audienceLabel: "Dla Wynajmującego",
+  },
 ];
 
 function ConciergePage() {
