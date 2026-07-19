@@ -736,7 +736,20 @@ function NewRentalListing() {
             <Checkbox checked={flags.requires_passport} onCheckedChange={() => toggle("requires_passport")} className="mt-0.5" />
             <span>Wymagam aktualnego <strong>Paszportu Najemcy StaySafe</strong>.</span>
           </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.allows_modifications} onCheckedChange={() => toggle("allows_modifications")} className="mt-0.5" />
+            <span>
+              Zgadzam się na <strong>modyfikacje w mieszkaniu</strong> (drobne prace: malowanie, wieszanie półek itp.) po wcześniejszym uzgodnieniu.
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.allows_furniture_additions} onCheckedChange={() => toggle("allows_furniture_additions")} className="mt-0.5" />
+            <span>
+              Zgadzam się na <strong>doposażenie / dodanie mebli</strong> przez Najemcę (po uzgodnieniu formy i miejsca).
+            </span>
+          </label>
         </div>
+
 
         {/* OPIS + ZDJĘCIA */}
         <SectionTitle>Opis i zdjęcia</SectionTitle>
