@@ -1947,6 +1947,31 @@ export type Database = {
         Args: { _transaction_id: string }
         Returns: undefined
       }
+      public_user_reviews: {
+        Args: {
+          _kind: Database["public"]["Enums"]["review_kind"]
+          _user_id: string
+        }
+        Returns: {
+          created_at: string
+          feedback: string
+          id: string
+          kind: Database["public"]["Enums"]["review_kind"]
+          landlord_communication: number
+          landlord_fairness: number
+          landlord_problem_solving: number
+          listing_id: string
+          overall: number
+          reviewer_avatar_url: string
+          reviewer_display_name: string
+          reviewer_id: string
+          tags: string[]
+          tenant_cleanliness: number
+          tenant_communication: number
+          tenant_neighbors: number
+          tenant_payments: number
+        }[]
+      }
       ratings_revealed: { Args: { _transaction_id: string }; Returns: boolean }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
       report_payment_delay: {
