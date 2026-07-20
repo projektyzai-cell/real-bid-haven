@@ -47,6 +47,8 @@ function MyRequestsPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<MyRequest | null>(null);
   const [signTxn, setSignTxn] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingOfferId, setPendingOfferId] = useState<string | null>(null);
 
   const { data: requests, refetch: refetchRequests } = useQuery({
     queryKey: ["my-rental-requests", user?.id],
