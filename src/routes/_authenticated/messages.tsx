@@ -695,14 +695,15 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
       if (!chat.listingId) return null;
       const { data } = await supabase
         .from("lease_transactions")
-        .select("id")
+        .select("id,state,completed_at")
         .eq("tenant_id", chat.tenantId)
         .eq("landlord_id", chat.landlordId)
         .eq("listing_id", chat.listingId)
         .maybeSingle();
-      return (data as { id: string } | null) ?? null;
+      return (data as { id: string; state: string; completed_at: string | null } | null) ?? null;
     },
   });
+  const leaseCompleted = txn?.state === "completed" || !!txn?.completed_at;
 
   const openSignFlow = () => {
     if (!txn?.id) { toast.error("Brak powiązanej transakcji najmu"); return; }
