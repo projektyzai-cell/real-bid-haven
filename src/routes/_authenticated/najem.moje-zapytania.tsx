@@ -19,6 +19,7 @@ import { LeaseStageBar } from "@/components/LeaseStageBar";
 import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
 import { ReviewDialog } from "@/components/ReviewDialog";
 import { Star } from "lucide-react";
+import { InterestModal } from "@/components/InterestModal";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-zapytania")({
   head: () => ({ meta: [{ title: "Moje zapytania najmu — Stay Safe" }] }),
