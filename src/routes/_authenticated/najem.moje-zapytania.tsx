@@ -304,7 +304,7 @@ function MyRequestsPage() {
       <TenantLeasesSection userId={user?.id} />
 
       <InterestModal
-        open={isModalOpen}
+        isOpen={isModalOpen}
         onClose={() => { setIsModalOpen(false); setPendingOfferId(null); }}
         onConfirm={confirmAcceptOffer}
       />
