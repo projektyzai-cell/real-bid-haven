@@ -649,6 +649,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const [text, setText] = useState("");
   const [showPassport, setShowPassport] = useState(false);
   const [showSign, setShowSign] = useState(false);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isTenant = chat.myRole === "Najemca";
