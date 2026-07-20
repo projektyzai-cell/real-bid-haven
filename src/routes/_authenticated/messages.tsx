@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { SharedPassportDialog } from "@/components/SharedPassportDialog";
 import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { FileSignature } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/messages")({
@@ -649,6 +650,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const [text, setText] = useState("");
   const [showPassport, setShowPassport] = useState(false);
   const [showSign, setShowSign] = useState(false);
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const isTenant = chat.myRole === "Najemca";
@@ -695,14 +697,15 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
       if (!chat.listingId) return null;
       const { data } = await supabase
         .from("lease_transactions")
-        .select("id")
+        .select("id,state,completed_at")
         .eq("tenant_id", chat.tenantId)
         .eq("landlord_id", chat.landlordId)
         .eq("listing_id", chat.listingId)
         .maybeSingle();
-      return (data as { id: string } | null) ?? null;
+      return (data as { id: string; state: string; completed_at: string | null } | null) ?? null;
     },
   });
+  const leaseCompleted = txn?.state === "completed" || !!txn?.completed_at;
 
   const openSignFlow = () => {
     if (!txn?.id) { toast.error("Brak powiązanej transakcji najmu"); return; }
@@ -1176,16 +1179,15 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
             </div>
 
-            <button
-              onClick={() => {
-                if (confirm("Czy na pewno chcesz zrezygnować z procesu najmu?"))
-                  withdrawMut.mutate();
-              }}
-              disabled={withdrawMut.isPending}
-              className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive hover:text-destructive-foreground"
-            >
-              ❌ Rezygnuję z procesu najmu
-            </button>
+            {!leaseCompleted && (
+              <button
+                onClick={() => setConfirmWithdraw(true)}
+                disabled={withdrawMut.isPending}
+                className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive hover:text-destructive-foreground"
+              >
+                ❌ Rezygnuję z procesu najmu
+              </button>
+            )}
           </div>
         )}
         <form
@@ -1232,7 +1234,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
           }}
         />
       )}
-
+      <ConfirmDialog
+        open={confirmWithdraw}
+        title="Zrezygnować z procesu najmu?"
+        description="Druga strona zobaczy wiadomość systemową o Twojej rezygnacji. Możesz później cofnąć decyzję z poziomu czatu."
+        confirmLabel="Zrezygnuj"
+        destructive
+        loading={withdrawMut.isPending}
+        onCancel={() => setConfirmWithdraw(false)}
+        onConfirm={() => {
+          withdrawMut.mutate(undefined, { onSuccess: () => setConfirmWithdraw(false) });
+        }}
+      />
     </div>
   );
 }

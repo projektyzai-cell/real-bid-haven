@@ -410,6 +410,9 @@ export type Database = {
           passport_serial_snapshot: string | null
           passport_shared_at: string | null
           payment_delay_reported_at: string | null
+          pending_extension_end_date: string | null
+          pending_extension_requested_at: string | null
+          pending_extension_requested_by: string | null
           request_id: string | null
           state: Database["public"]["Enums"]["lease_state"]
           system_notice_sent_at: string | null
@@ -435,6 +438,9 @@ export type Database = {
           passport_serial_snapshot?: string | null
           passport_shared_at?: string | null
           payment_delay_reported_at?: string | null
+          pending_extension_end_date?: string | null
+          pending_extension_requested_at?: string | null
+          pending_extension_requested_by?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
           system_notice_sent_at?: string | null
@@ -460,6 +466,9 @@ export type Database = {
           passport_serial_snapshot?: string | null
           passport_shared_at?: string | null
           payment_delay_reported_at?: string | null
+          pending_extension_end_date?: string | null
+          pending_extension_requested_at?: string | null
+          pending_extension_requested_by?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
           system_notice_sent_at?: string | null
@@ -1795,6 +1804,10 @@ export type Database = {
         Args: { _user_id: string }
         Returns: undefined
       }
+      cancel_payment_delay: {
+        Args: { _transaction_id: string }
+        Returns: undefined
+      }
       cleanup_old_listings: { Args: never; Returns: undefined }
       compute_match_score: {
         Args: {
@@ -1938,6 +1951,14 @@ export type Database = {
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
       report_payment_delay: {
         Args: { _transaction_id: string }
+        Returns: undefined
+      }
+      request_lease_extension: {
+        Args: { _new_end_date: string; _transaction_id: string }
+        Returns: undefined
+      }
+      respond_lease_extension: {
+        Args: { _accept: boolean; _transaction_id: string }
         Returns: undefined
       }
       resume_property_listing: {
