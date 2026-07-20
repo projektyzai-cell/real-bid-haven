@@ -1177,16 +1177,15 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
 
             </div>
 
-            <button
-              onClick={() => {
-                if (confirm("Czy na pewno chcesz zrezygnować z procesu najmu?"))
-                  withdrawMut.mutate();
-              }}
-              disabled={withdrawMut.isPending}
-              className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive hover:text-destructive-foreground"
-            >
-              ❌ Rezygnuję z procesu najmu
-            </button>
+            {!leaseCompleted && (
+              <button
+                onClick={() => setConfirmWithdraw(true)}
+                disabled={withdrawMut.isPending}
+                className="rounded-lg border border-destructive/40 bg-destructive/10 px-3 py-1.5 text-xs font-semibold text-destructive transition hover:bg-destructive hover:text-destructive-foreground"
+              >
+                ❌ Rezygnuję z procesu najmu
+              </button>
+            )}
           </div>
         )}
         <form
