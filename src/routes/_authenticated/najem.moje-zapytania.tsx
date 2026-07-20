@@ -303,6 +303,12 @@ function MyRequestsPage() {
 
       <TenantLeasesSection userId={user?.id} />
 
+      <InterestModal
+        open={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setPendingOfferId(null); }}
+        onConfirm={confirmAcceptOffer}
+      />
+
       {signTxn && (
         <QuickSignContractDialog
           transactionId={signTxn}
