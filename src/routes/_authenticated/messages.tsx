@@ -23,6 +23,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { SharedPassportDialog } from "@/components/SharedPassportDialog";
 import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { FileSignature } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/messages")({
