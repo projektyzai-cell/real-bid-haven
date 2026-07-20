@@ -19,6 +19,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NajemIndexRouteImport } from './routes/najem.index'
+import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
@@ -91,6 +92,11 @@ const IndexRoute = IndexRouteImport.update({
 const NajemIndexRoute = NajemIndexRouteImport.update({
   id: '/najem/',
   path: '/najem/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilIdRoute = ProfilIdRouteImport.update({
+  id: '/profil/$id',
+  path: '/profil/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
@@ -243,6 +249,7 @@ export interface FileRoutesByFullPath {
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/profil/$id': typeof ProfilIdRoute
   '/najem/': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
@@ -278,6 +285,7 @@ export interface FileRoutesByTo {
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/profil/$id': typeof ProfilIdRoute
   '/najem': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
@@ -315,6 +323,7 @@ export interface FileRoutesById {
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/profil/$id': typeof ProfilIdRoute
   '/najem/': typeof NajemIndexRoute
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/_authenticated/admin_/passports': typeof AuthenticatedAdminPassportsRoute
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/ustawienia'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/profil/$id'
     | '/najem/'
     | '/admin/passport-stats'
     | '/admin/passports'
@@ -387,6 +397,7 @@ export interface FileRouteTypes {
     | '/ustawienia'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/profil/$id'
     | '/najem'
     | '/admin/passport-stats'
     | '/admin/passports'
@@ -423,6 +434,7 @@ export interface FileRouteTypes {
     | '/_authenticated/ustawienia'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/profil/$id'
     | '/najem/'
     | '/_authenticated/admin_/passport-stats'
     | '/_authenticated/admin_/passports'
@@ -457,6 +469,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+  ProfilIdRoute: typeof ProfilIdRoute
   NajemIndexRoute: typeof NajemIndexRoute
   NajemOfertyIdRoute: typeof NajemOfertyIdRoute
   NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
@@ -532,6 +545,13 @@ declare module '@tanstack/react-router' {
       path: '/najem'
       fullPath: '/najem/'
       preLoaderRoute: typeof NajemIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profil/$id': {
+      id: '/profil/$id'
+      path: '/profil/$id'
+      fullPath: '/profil/$id'
+      preLoaderRoute: typeof ProfilIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/najem/zapytania': {
@@ -778,6 +798,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+  ProfilIdRoute: ProfilIdRoute,
   NajemIndexRoute: NajemIndexRoute,
   NajemOfertyIdRoute: NajemOfertyIdRoute,
   NajemOfertyIndexRoute: NajemOfertyIndexRoute,
