@@ -1233,7 +1233,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
           }}
         />
       )}
-
+      <ConfirmDialog
+        open={confirmWithdraw}
+        title="Zrezygnować z procesu najmu?"
+        description="Druga strona zobaczy wiadomość systemową o Twojej rezygnacji. Możesz później cofnąć decyzję z poziomu czatu."
+        confirmLabel="Zrezygnuj"
+        destructive
+        loading={withdrawMut.isPending}
+        onCancel={() => setConfirmWithdraw(false)}
+        onConfirm={() => {
+          withdrawMut.mutate(undefined, { onSuccess: () => setConfirmWithdraw(false) });
+        }}
+      />
     </div>
   );
 }
