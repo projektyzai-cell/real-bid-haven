@@ -1,6 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 /** Property badge based on average from active property reviews. */
 export function PropertyRatingBadge({ listingId }: { listingId: string }) {
@@ -46,12 +48,17 @@ export function UserRatingBadge({ userId, kind }: { userId: string; kind: "landl
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <span className="inline-flex cursor-help items-center gap-1 rounded-full border border-[#f59e0b]/50 bg-[#f59e0b]/10 px-2 py-0.5 text-[11px] font-bold text-[#f59e0b]">
+          <Link
+            to="/profil/$id"
+            params={{ id: userId }}
+            className="inline-flex cursor-pointer items-center gap-1 rounded-full border border-[#f59e0b]/50 bg-[#f59e0b]/10 px-2 py-0.5 text-[11px] font-bold text-[#f59e0b] hover:bg-[#f59e0b]/20"
+          >
             {icon} {avg.toFixed(1)}
-          </span>
+          </Link>
         </TooltipTrigger>
-        <TooltipContent className="max-w-xs">{label}</TooltipContent>
+        <TooltipContent className="max-w-xs">{label} — kliknij, aby zobaczyć profil publiczny</TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
 }
+
