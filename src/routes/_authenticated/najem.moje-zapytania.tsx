@@ -19,6 +19,7 @@ import { LeaseStageBar } from "@/components/LeaseStageBar";
 import { QuickSignContractDialog } from "@/components/QuickSignContractDialog";
 import { ReviewDialog } from "@/components/ReviewDialog";
 import { Star } from "lucide-react";
+import { InterestModal } from "@/components/InterestModal";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-zapytania")({
   head: () => ({ meta: [{ title: "Moje zapytania najmu — Stay Safe" }] }),
@@ -46,6 +47,8 @@ function MyRequestsPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<MyRequest | null>(null);
   const [signTxn, setSignTxn] = useState<string | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [pendingOfferId, setPendingOfferId] = useState<string | null>(null);
 
   const { data: requests, refetch: refetchRequests } = useQuery({
     queryKey: ["my-rental-requests", user?.id],
@@ -129,11 +132,19 @@ function MyRequestsPage() {
   }, [reqIds.join(","), queryClient]);
 
   async function acceptOffer(offerId: string) {
-    if (!window.confirm("Oznaczysz się jako wstępnie zainteresowany tą ofertą i aktywujesz prywatny czat z wynajmującym. Kontynuować?")) return;
+    setPendingOfferId(offerId);
+    setIsModalOpen(true);
+  }
+
+  async function confirmAcceptOffer() {
+    if (!pendingOfferId) return;
+    const offerId = pendingOfferId;
+    setIsModalOpen(false);
     const { data, error } = await supabase.rpc("accept_rental_offer" as never, { _offer_id: offerId } as never);
-    if (error) { toast.error(error.message); return; }
+    if (error) { toast.error(error.message); setPendingOfferId(null); return; }
     toast.success("Oferta zaakceptowana — chat aktywny");
     queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
+    setPendingOfferId(null);
     if (data) window.location.href = `/messages?tab=smart-match&chat=${data}`;
   }
 
@@ -291,6 +302,12 @@ function MyRequestsPage() {
       )}
 
       <TenantLeasesSection userId={user?.id} />
+
+      <InterestModal
+        open={isModalOpen}
+        onClose={() => { setIsModalOpen(false); setPendingOfferId(null); }}
+        onConfirm={confirmAcceptOffer}
+      />
 
       {signTxn && (
         <QuickSignContractDialog
