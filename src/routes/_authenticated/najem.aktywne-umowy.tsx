@@ -311,6 +311,12 @@ function AktywneUmowyPage() {
                                       <CalendarPlus className="mr-1 h-3.5 w-3.5" /> Przedłuż umowę
                                     </Button>
                                   )}
+                                  {t.role === "tenant" && !finished && (
+                                    <Button size="sm" variant="outline" className="rounded-xl"
+                                      onClick={() => setReportFor(t.id)}>
+                                      <Wrench className="mr-1 h-3.5 w-3.5" /> Zgłoś usterkę
+                                    </Button>
+                                  )}
                                   {t.role === "landlord" && (
                                     <>
                                       {t.payment_delay_reported_at ? (
