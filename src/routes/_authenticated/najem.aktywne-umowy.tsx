@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ExtendLeaseDialog } from "@/components/ExtendLeaseDialog";
 import { MaintenanceReportDialog } from "@/components/MaintenanceReportDialog";
 import { MaintenanceReportsList } from "@/components/MaintenanceReportsList";
+import { UserRatingBadge } from "@/components/ReviewBadges";
 
 export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   head: () => ({ meta: [{ title: "Aktywne umowy Stay Safe — Stay Safe" }] }),
@@ -48,7 +49,11 @@ type ConfirmState = {
 function AktywneUmowyPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [rating, setRating] = useState<{ contractId: string; tenantId: string; listingId: string | null } | null>(null);
+  const [rating, setRating] = useState<
+    | { role: "landlord"; contractId: string; tenantId: string; listingId: string | null }
+    | { role: "tenant"; contractId: string; landlordId: string; listingId: string | null }
+    | null
+  >(null);
   const [confirmState, setConfirmState] = useState<ConfirmState>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [extendFor, setExtendFor] = useState<Txn | null>(null);
@@ -214,7 +219,8 @@ function AktywneUmowyPage() {
                       <div className="grid gap-3">
                         {items.map((t: any) => {
                           const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
-                          const finished = end !== null && end < Date.now();
+                          // treat contract as finished only the day AFTER the end date, so buttons remain active on the last day
+                          const finished = end !== null && end + 24 * 60 * 60 * 1000 < Date.now();
                           const thumb = !finished ? thumbnailFor(t.listing) : null;
                           const hasPendingExtension = !!t.pending_extension_end_date;
                           const iRequestedExtension = hasPendingExtension && t.pending_extension_requested_by === user?.id;
@@ -235,8 +241,9 @@ function AktywneUmowyPage() {
                                     </div>
                                   ) : null}
                                   <div className="min-w-0 flex-1">
-                                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                                      {t.role === "tenant" ? "Wynajmujący" : "Najemca"}: <span className="font-semibold text-foreground">{t.otherName}</span>
+                                    <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                                      <span>{t.role === "tenant" ? "Wynajmujący" : "Najemca"}: <span className="font-semibold text-foreground normal-case tracking-normal">{t.otherName}</span></span>
+                                      <UserRatingBadge userId={t.role === "tenant" ? t.landlord_id : t.tenant_id} kind={t.role === "tenant" ? "landlord" : "tenant"} />
                                     </div>
                                     {!isGroup && (
                                       <>
@@ -317,6 +324,13 @@ function AktywneUmowyPage() {
                                       <Wrench className="mr-1 h-3.5 w-3.5" /> Zgłoś usterkę
                                     </Button>
                                   )}
+                                  {t.role === "tenant" && finished && (
+                                    <button
+                                      onClick={() => setRating({ role: "tenant", contractId: t.id, landlordId: t.landlord_id, listingId: t.listing_id })}
+                                      className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
+                                      <Star className="h-3 w-3" /> Oceń wynajmującego
+                                    </button>
+                                  )}
                                   {t.role === "landlord" && (
                                     <>
                                       {t.payment_delay_reported_at ? (
@@ -332,7 +346,7 @@ function AktywneUmowyPage() {
                                       )}
                                       {finished && (
                                         <button
-                                          onClick={() => setRating({ contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}
+                                          onClick={() => setRating({ role: "landlord", contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}
                                           className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
                                           <Star className="h-3 w-3" /> Oceń najemcę
                                         </button>
@@ -362,7 +376,7 @@ function AktywneUmowyPage() {
         <ReviewDialog
           open
           onClose={() => setRating(null)}
-          mode={{ role: "landlord", contractId: rating.contractId, tenantId: rating.tenantId, listingId: rating.listingId }}
+          mode={rating}
         />
       )}
       {extendFor && (
