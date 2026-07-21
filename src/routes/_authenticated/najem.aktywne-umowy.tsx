@@ -52,6 +52,7 @@ function AktywneUmowyPage() {
   const [confirmState, setConfirmState] = useState<ConfirmState>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [extendFor, setExtendFor] = useState<Txn | null>(null);
+  const [reportFor, setReportFor] = useState<string | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["active-leases", user?.id],
