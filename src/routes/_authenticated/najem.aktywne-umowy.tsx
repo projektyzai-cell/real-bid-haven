@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { FileSignature, Loader2, MessageCircle, MapPin, AlertTriangle, Trash2, Star, Clock, CalendarPlus, Check, X, ImageOff } from "lucide-react";
+import { FileSignature, Loader2, MessageCircle, MapPin, AlertTriangle, Trash2, Star, Clock, CalendarPlus, Check, X, ImageOff, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,6 +10,8 @@ import { formatPLN } from "@/lib/format";
 import { ReviewDialog } from "@/components/ReviewDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ExtendLeaseDialog } from "@/components/ExtendLeaseDialog";
+import { MaintenanceReportDialog } from "@/components/MaintenanceReportDialog";
+import { MaintenanceReportsList } from "@/components/MaintenanceReportsList";
 
 export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   head: () => ({ meta: [{ title: "Aktywne umowy Stay Safe — Stay Safe" }] }),
