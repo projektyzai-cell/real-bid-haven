@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { FileSignature, Loader2, MessageCircle, MapPin, AlertTriangle, Trash2, Star, Clock, CalendarPlus, Check, X, ImageOff } from "lucide-react";
+import { FileSignature, Loader2, MessageCircle, MapPin, AlertTriangle, Trash2, Star, Clock, CalendarPlus, Check, X, ImageOff, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
@@ -10,6 +10,8 @@ import { formatPLN } from "@/lib/format";
 import { ReviewDialog } from "@/components/ReviewDialog";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ExtendLeaseDialog } from "@/components/ExtendLeaseDialog";
+import { MaintenanceReportDialog } from "@/components/MaintenanceReportDialog";
+import { MaintenanceReportsList } from "@/components/MaintenanceReportsList";
 
 export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   head: () => ({ meta: [{ title: "Aktywne umowy Stay Safe — Stay Safe" }] }),
@@ -50,6 +52,7 @@ function AktywneUmowyPage() {
   const [confirmState, setConfirmState] = useState<ConfirmState>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [extendFor, setExtendFor] = useState<Txn | null>(null);
+  const [reportFor, setReportFor] = useState<string | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["active-leases", user?.id],
@@ -308,6 +311,12 @@ function AktywneUmowyPage() {
                                       <CalendarPlus className="mr-1 h-3.5 w-3.5" /> Przedłuż umowę
                                     </Button>
                                   )}
+                                  {t.role === "tenant" && !finished && (
+                                    <Button size="sm" variant="outline" className="rounded-xl"
+                                      onClick={() => setReportFor(t.id)}>
+                                      <Wrench className="mr-1 h-3.5 w-3.5" /> Zgłoś usterkę
+                                    </Button>
+                                  )}
                                   {t.role === "landlord" && (
                                     <>
                                       {t.payment_delay_reported_at ? (
@@ -336,6 +345,7 @@ function AktywneUmowyPage() {
                                   )}
                                 </div>
                               </div>
+                              <MaintenanceReportsList transactionId={t.id} role={t.role} />
                             </div>
                           );
                         })}
@@ -362,6 +372,14 @@ function AktywneUmowyPage() {
           currentEndDate={extendFor.contract_end_date}
           onClose={() => setExtendFor(null)}
           onDone={() => qc.invalidateQueries({ queryKey: ["active-leases"] })}
+        />
+      )}
+      {reportFor && (
+        <MaintenanceReportDialog
+          open
+          transactionId={reportFor}
+          onClose={() => setReportFor(null)}
+          onCreated={() => qc.invalidateQueries({ queryKey: ["maintenance-reports", reportFor] })}
         />
       )}
       <ConfirmDialog
