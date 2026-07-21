@@ -346,7 +346,7 @@ function AktywneUmowyPage() {
                                       )}
                                       {finished && (
                                         <button
-                                          onClick={() => setRating({ contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}
+                                          onClick={() => setRating({ role: "landlord", contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}
                                           className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
                                           <Star className="h-3 w-3" /> Oceń najemcę
                                         </button>
