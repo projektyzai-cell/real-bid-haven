@@ -695,14 +695,19 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     queryKey: ["chat-lease-transaction", chat.tenantId, chat.landlordId, chat.listingId],
     queryFn: async () => {
       if (!chat.listingId) return null;
+      // A tenant may re-lease the same listing after a previous completed contract,
+      // so multiple rows can exist. Prefer the most recent non-terminal transaction.
       const { data } = await supabase
         .from("lease_transactions")
-        .select("id,state,completed_at")
+        .select("id,state,completed_at,created_at")
         .eq("tenant_id", chat.tenantId)
         .eq("landlord_id", chat.landlordId)
         .eq("listing_id", chat.listingId)
-        .maybeSingle();
-      return (data as { id: string; state: string; completed_at: string | null } | null) ?? null;
+        .order("created_at", { ascending: false })
+        .limit(20);
+      const rows = (data ?? []) as { id: string; state: string; completed_at: string | null; created_at: string }[];
+      const active = rows.find((r) => r.state !== "completed" && r.state !== "cancelled");
+      return active ?? rows[0] ?? null;
     },
   });
   const leaseCompleted = txn?.state === "completed" || !!txn?.completed_at;
