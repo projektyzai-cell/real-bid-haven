@@ -236,8 +236,9 @@ function AktywneUmowyPage() {
                                     </div>
                                   ) : null}
                                   <div className="min-w-0 flex-1">
-                                    <div className="text-xs uppercase tracking-wider text-muted-foreground">
-                                      {t.role === "tenant" ? "Wynajmujący" : "Najemca"}: <span className="font-semibold text-foreground">{t.otherName}</span>
+                                    <div className="flex flex-wrap items-center gap-2 text-xs uppercase tracking-wider text-muted-foreground">
+                                      <span>{t.role === "tenant" ? "Wynajmujący" : "Najemca"}: <span className="font-semibold text-foreground normal-case tracking-normal">{t.otherName}</span></span>
+                                      <UserRatingBadge userId={t.role === "tenant" ? t.landlord_id : t.tenant_id} kind={t.role === "tenant" ? "landlord" : "tenant"} />
                                     </div>
                                     {!isGroup && (
                                       <>
