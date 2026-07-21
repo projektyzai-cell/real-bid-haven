@@ -345,6 +345,7 @@ function AktywneUmowyPage() {
                                   )}
                                 </div>
                               </div>
+                              <MaintenanceReportsList transactionId={t.id} role={t.role} />
                             </div>
                           );
                         })}
