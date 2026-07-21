@@ -215,7 +215,8 @@ function AktywneUmowyPage() {
                       <div className="grid gap-3">
                         {items.map((t: any) => {
                           const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
-                          const finished = end !== null && end < Date.now();
+                          // treat contract as finished only the day AFTER the end date, so buttons remain active on the last day
+                          const finished = end !== null && end + 24 * 60 * 60 * 1000 < Date.now();
                           const thumb = !finished ? thumbnailFor(t.listing) : null;
                           const hasPendingExtension = !!t.pending_extension_end_date;
                           const iRequestedExtension = hasPendingExtension && t.pending_extension_requested_by === user?.id;
