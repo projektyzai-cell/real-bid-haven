@@ -49,7 +49,11 @@ type ConfirmState = {
 function AktywneUmowyPage() {
   const { user } = useAuth();
   const qc = useQueryClient();
-  const [rating, setRating] = useState<{ contractId: string; tenantId: string; listingId: string | null } | null>(null);
+  const [rating, setRating] = useState<
+    | { role: "landlord"; contractId: string; tenantId: string; listingId: string | null }
+    | { role: "tenant"; contractId: string; landlordId: string; listingId: string | null }
+    | null
+  >(null);
   const [confirmState, setConfirmState] = useState<ConfirmState>(null);
   const [confirmBusy, setConfirmBusy] = useState(false);
   const [extendFor, setExtendFor] = useState<Txn | null>(null);
