@@ -501,6 +501,78 @@ export type Database = {
           },
         ]
       }
+      maintenance_reports: {
+        Row: {
+          acknowledged_at: string | null
+          category: string
+          created_at: string
+          description: string
+          id: string
+          images: string[]
+          landlord_id: string
+          landlord_note: string | null
+          listing_id: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["maintenance_status"]
+          tenant_id: string
+          title: string
+          transaction_id: string
+          updated_at: string
+          urgency: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          images?: string[]
+          landlord_id: string
+          landlord_note?: string | null
+          listing_id?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          tenant_id: string
+          title: string
+          transaction_id: string
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Update: {
+          acknowledged_at?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          images?: string[]
+          landlord_id?: string
+          landlord_note?: string | null
+          listing_id?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["maintenance_status"]
+          tenant_id?: string
+          title?: string
+          transaction_id?: string
+          updated_at?: string
+          urgency?: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_reports_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "rental_listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_reports_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "lease_transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           chat_id: string
@@ -1830,6 +1902,17 @@ export type Database = {
         }
         Returns: string
       }
+      create_maintenance_report: {
+        Args: {
+          _category: string
+          _description: string
+          _images: string[]
+          _title: string
+          _transaction_id: string
+          _urgency: Database["public"]["Enums"]["maintenance_urgency"]
+        }
+        Returns: string
+      }
       delete_my_account: { Args: never; Returns: undefined }
       express_interest: {
         Args: { _listing_id: string; _request_id?: string }
@@ -1999,6 +2082,14 @@ export type Database = {
         }
         Returns: string
       }
+      update_maintenance_status: {
+        Args: {
+          _landlord_note: string
+          _report_id: string
+          _status: Database["public"]["Enums"]["maintenance_status"]
+        }
+        Returns: undefined
+      }
       upsert_contract_draft: {
         Args: { _data: Json; _transaction_id: string }
         Returns: undefined
@@ -2036,6 +2127,13 @@ export type Database = {
         | "accepted"
         | "completed"
         | "cancelled"
+      maintenance_status:
+        | "reported"
+        | "acknowledged"
+        | "in_progress"
+        | "resolved"
+        | "rejected"
+      maintenance_urgency: "low" | "medium" | "high" | "critical"
       market_type: "primary" | "secondary"
       ownership_type:
         | "cooperative_with_kw"
@@ -2197,6 +2295,14 @@ export const Constants = {
         "completed",
         "cancelled",
       ],
+      maintenance_status: [
+        "reported",
+        "acknowledged",
+        "in_progress",
+        "resolved",
+        "rejected",
+      ],
+      maintenance_urgency: ["low", "medium", "high", "critical"],
       market_type: ["primary", "secondary"],
       ownership_type: [
         "cooperative_with_kw",
