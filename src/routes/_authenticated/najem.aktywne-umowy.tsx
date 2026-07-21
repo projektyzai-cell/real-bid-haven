@@ -374,6 +374,14 @@ function AktywneUmowyPage() {
           onDone={() => qc.invalidateQueries({ queryKey: ["active-leases"] })}
         />
       )}
+      {reportFor && (
+        <MaintenanceReportDialog
+          open
+          transactionId={reportFor}
+          onClose={() => setReportFor(null)}
+          onCreated={() => qc.invalidateQueries({ queryKey: ["maintenance-reports", reportFor] })}
+        />
+      )}
       <ConfirmDialog
         open={!!confirmState}
         title={confirmState?.title ?? ""}
