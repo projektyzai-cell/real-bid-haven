@@ -376,7 +376,7 @@ function AktywneUmowyPage() {
         <ReviewDialog
           open
           onClose={() => setRating(null)}
-          mode={{ role: "landlord", contractId: rating.contractId, tenantId: rating.tenantId, listingId: rating.listingId }}
+          mode={rating}
         />
       )}
       {extendFor && (
