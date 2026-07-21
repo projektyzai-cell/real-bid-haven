@@ -320,6 +320,13 @@ function AktywneUmowyPage() {
                                       <Wrench className="mr-1 h-3.5 w-3.5" /> Zgłoś usterkę
                                     </Button>
                                   )}
+                                  {t.role === "tenant" && finished && (
+                                    <button
+                                      onClick={() => setRating({ contractId: t.id, tenantId: t.landlord_id, listingId: t.listing_id })}
+                                      className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
+                                      <Star className="h-3 w-3" /> Oceń wynajmującego
+                                    </button>
+                                  )}
                                   {t.role === "landlord" && (
                                     <>
                                       {t.payment_delay_reported_at ? (
