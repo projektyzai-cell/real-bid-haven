@@ -12,6 +12,7 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { ExtendLeaseDialog } from "@/components/ExtendLeaseDialog";
 import { MaintenanceReportDialog } from "@/components/MaintenanceReportDialog";
 import { MaintenanceReportsList } from "@/components/MaintenanceReportsList";
+import { UserRatingBadge } from "@/components/ReviewBadges";
 
 export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   head: () => ({ meta: [{ title: "Aktywne umowy Stay Safe — Stay Safe" }] }),
