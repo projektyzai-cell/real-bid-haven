@@ -145,11 +145,22 @@ function AdminDashboard() {
                   <Sparkles className="h-4 w-4" /> Concierge Leads
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="contractors" asChild>
+                <Link to="/admin" search={{ tab: "contractors" }} className="flex items-center gap-1.5">
+                  <Wrench className="h-4 w-4" /> Wykonawcy
+                </Link>
+              </TabsTrigger>
+              <TabsTrigger value="assignments" asChild>
+                <Link to="/admin" search={{ tab: "assignments" }} className="flex items-center gap-1.5">
+                  <ClipboardList className="h-4 w-4" /> Zlecenia podwykonawców
+                </Link>
+              </TabsTrigger>
               <TabsTrigger value="reviews" asChild>
                 <Link to="/admin" search={{ tab: "reviews" }} className="flex items-center gap-1.5">
                   <Star className="h-4 w-4" /> Opinie i Oceny
                 </Link>
               </TabsTrigger>
+
 
 
             </>
