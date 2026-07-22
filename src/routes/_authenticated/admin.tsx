@@ -1122,35 +1122,60 @@ function ConciergeLeadsTab() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("concierge_leads" as any)
-        .select("*")
+        .select("*, contractor:contractors(id, company_name, services)")
         .order("created_at", { ascending: false });
       if (error) throw new Error(error.message);
       return data ?? [];
     },
   });
 
-  const forward = useMutation({
-    mutationFn: async (id: string) => {
-      const { error } = await supabase
-        .from("concierge_leads" as any)
-        .update({ status: "forwarded", forwarded_at: new Date().toISOString() })
-        .eq("id", id);
+  const contractorsQ = useQuery({
+    queryKey: ["admin-contractors-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contractors" as any)
+        .select("id, company_name, services, cities, nationwide, active")
+        .eq("active", true)
+        .order("company_name");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as any[];
+    },
+  });
+
+  const assign = useMutation({
+    mutationFn: async ({ id, contractor_id }: { id: string; contractor_id: string | null }) => {
+      const patch: Record<string, unknown> = {
+        contractor_id,
+        assignment_status: contractor_id ? "assigned" : "new",
+        assigned_at: contractor_id ? new Date().toISOString() : null,
+        status: contractor_id ? "forwarded" : "new",
+        forwarded_at: contractor_id ? new Date().toISOString() : null,
+      };
+      const { error } = await supabase.from("concierge_leads" as any).update(patch).eq("id", id);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      toast.success("Zgłoszenie przekazane do wykonawcy. Powiadomienie e-mail wysłane.");
+      toast.success("Zlecenie przypisane wykonawcy.");
       qc.invalidateQueries({ queryKey: ["admin-concierge-leads"] });
+      qc.invalidateQueries({ queryKey: ["admin-assignments"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
 
   const rows: any[] = q.data ?? [];
+  const contractors = contractorsQ.data ?? [];
   const clientLabel = (t: string, key: string) => {
     if (key === "sche") return "Wynajmujący";
     if (t === "landlord") return "Wynajmujący";
     if (t === "both") return "Najemca / Wynajmujący";
     return "Najemca";
   };
+
+  function matchingContractors(serviceKey: string) {
+    const cat = leadServiceToContractorService(serviceKey);
+    if (!cat) return contractors;
+    return contractors.filter((c: any) => (c.services ?? []).includes(cat));
+  }
 
   return (
     <Card className="rounded-2xl p-6 space-y-4">
@@ -1168,60 +1193,55 @@ function ConciergeLeadsTab() {
           <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
             <tr>
               <th className="px-3 py-2 text-left">Data</th>
-              <th className="px-3 py-2 text-left">E-mail</th>
-              <th className="px-3 py-2 text-left">Telefon</th>
+              <th className="px-3 py-2 text-left">Klient</th>
               <th className="px-3 py-2 text-left">Usługa</th>
-              <th className="px-3 py-2 text-left">Typ klienta</th>
-              <th className="px-3 py-2 text-left">Zgoda</th>
               <th className="px-3 py-2 text-left">Status</th>
-              <th className="px-3 py-2"></th>
+              <th className="px-3 py-2 text-left">Wykonawca</th>
+              <th className="px-3 py-2 text-left">Przypisz</th>
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
-              <tr key={r.id} className="border-t align-top">
-                <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
-                  {new Date(r.created_at).toLocaleString("pl-PL")}
-                </td>
-                <td className="px-3 py-2 text-xs">{r.email}</td>
-                <td className="px-3 py-2 text-xs">{r.phone}</td>
-                <td className="px-3 py-2 text-xs max-w-[240px]">{r.service_name}</td>
-                <td className="px-3 py-2 text-xs">{clientLabel(r.client_type, r.service_key)}</td>
-                <td className="px-3 py-2 text-xs">
-                  {r.consent_accepted ? (
-                    <div className="flex items-center gap-1 text-emerald-600">
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      <span className="text-[11px]">
-                        {r.consent_timestamp ? new Date(r.consent_timestamp).toLocaleString("pl-PL") : "tak"}
-                      </span>
-                    </div>
-                  ) : <span className="text-destructive">brak</span>}
-                </td>
-                <td className="px-3 py-2 text-xs">
-                  {r.status === "forwarded"
-                    ? <Badge className="bg-emerald-500/15 text-emerald-700 border-emerald-500/40">Przekazano</Badge>
-                    : <Badge variant="destructive">Nowe</Badge>}
-                </td>
-                <td className="px-3 py-2 text-right">
-                  {r.status !== "forwarded" && (
-                    <Button size="sm"
-                      onClick={() => forward.mutate(r.id)}
-                      disabled={forward.isPending}
-                      style={{ backgroundColor: "#f59e0b", color: "#0b0f19" }}
-                      className="font-bold">
-                      <Send className="mr-1 h-3.5 w-3.5" /> Przekaż do wykonawcy
-                    </Button>
-                  )}
-                  {r.status === "forwarded" && r.forwarded_at && (
-                    <span className="text-[11px] text-muted-foreground">
-                      {new Date(r.forwarded_at).toLocaleString("pl-PL")}
-                    </span>
-                  )}
-                </td>
-              </tr>
-            ))}
+            {rows.map((r) => {
+              const candidates = matchingContractors(r.service_key);
+              const assigned = r.contractor?.company_name ?? null;
+              const st = r.assignment_status ?? "new";
+              return (
+                <tr key={r.id} className="border-t align-top">
+                  <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                    {new Date(r.created_at).toLocaleString("pl-PL")}
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    <div>{r.email}</div>
+                    <div className="text-muted-foreground">{r.phone}</div>
+                    <div className="text-[11px] text-muted-foreground">{clientLabel(r.client_type, r.service_key)}</div>
+                  </td>
+                  <td className="px-3 py-2 text-xs max-w-[240px]">{r.service_name}</td>
+                  <td className="px-3 py-2 text-xs">
+                    <Badge className={assignmentStatusColor(st)}>{assignmentStatusLabel(st)}</Badge>
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    {assigned ?? <span className="text-muted-foreground">—</span>}
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    <select
+                      className="rounded-md border border-input bg-background px-2 py-1 text-xs"
+                      value={r.contractor_id ?? ""}
+                      disabled={assign.isPending}
+                      onChange={(e) => assign.mutate({ id: r.id, contractor_id: e.target.value || null })}
+                    >
+                      <option value="">— Wybierz wykonawcę —</option>
+                      {candidates.map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.company_name}{c.nationwide ? " · PL" : ""}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                </tr>
+              );
+            })}
             {rows.length === 0 && !q.isLoading && (
-              <tr><td colSpan={8} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak zgłoszeń.</td></tr>
+              <tr><td colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak zgłoszeń.</td></tr>
             )}
           </tbody>
         </table>
@@ -1229,6 +1249,194 @@ function ConciergeLeadsTab() {
     </Card>
   );
 }
+
+/* ===================== CONTRACTORS LIST ===================== */
+function ContractorsTab() {
+  const [serviceFilter, setServiceFilter] = useState<string>("");
+  const [cityFilter, setCityFilter] = useState<string>("");
+
+  const q = useQuery({
+    queryKey: ["admin-contractors"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contractors" as any)
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return (data ?? []) as any[];
+    },
+  });
+
+  const rows = (q.data ?? []).filter((r: any) => {
+    if (serviceFilter && !(r.services ?? []).includes(serviceFilter)) return false;
+    if (cityFilter) {
+      if (cityFilter === "__nationwide__") return r.nationwide;
+      if (!(r.cities ?? []).includes(cityFilter) && !r.nationwide) return false;
+    }
+    return true;
+  });
+
+  return (
+    <Card className="rounded-2xl p-6 space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <Wrench className="h-5 w-5 text-gold" />
+        <h2 className="text-xl font-semibold">Wykonawcy Concierge</h2>
+        <Badge variant="outline">{rows.length}</Badge>
+        <div className="ml-auto flex flex-wrap gap-2">
+          <select value={serviceFilter} onChange={(e) => setServiceFilter(e.target.value)}
+            className="rounded-md border border-input bg-background px-2 py-1 text-xs">
+            <option value="">Wszystkie usługi</option>
+            {CONTRACTOR_SERVICES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+          </select>
+          <select value={cityFilter} onChange={(e) => setCityFilter(e.target.value)}
+            className="rounded-md border border-input bg-background px-2 py-1 text-xs">
+            <option value="">Wszystkie miasta</option>
+            <option value="__nationwide__">Zasięg ogólnopolski</option>
+            {CONTRACTOR_CITIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {q.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+
+      <div className="overflow-auto rounded-xl border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2 text-left">Firma</th>
+              <th className="px-3 py-2 text-left">Kontakt</th>
+              <th className="px-3 py-2 text-left">Usługi</th>
+              <th className="px-3 py-2 text-left">Zasięg</th>
+              <th className="px-3 py-2 text-left">Dodano</th>
+              <th className="px-3 py-2 text-left">Aktywny</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((c) => (
+              <tr key={c.id} className="border-t align-top">
+                <td className="px-3 py-2 text-xs font-medium">{c.company_name}</td>
+                <td className="px-3 py-2 text-xs">
+                  <div>{c.email ?? "—"}</div>
+                  <div className="text-muted-foreground">{c.phone ?? "—"}</div>
+                </td>
+                <td className="px-3 py-2 text-xs max-w-[280px]">
+                  <div className="flex flex-wrap gap-1">
+                    {(c.services ?? []).map((s: string) => (
+                      <Badge key={s} variant="outline" className="text-[10px]">{contractorServiceLabel(s)}</Badge>
+                    ))}
+                  </div>
+                </td>
+                <td className="px-3 py-2 text-xs max-w-[220px]">
+                  {c.nationwide
+                    ? <Badge className="bg-amber-500/15 text-amber-600 border-amber-500/40">Ogólnopolski</Badge>
+                    : <span className="text-muted-foreground">{(c.cities ?? []).join(", ") || "—"}</span>}
+                </td>
+                <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                  {new Date(c.created_at).toLocaleString("pl-PL")}
+                </td>
+                <td className="px-3 py-2 text-xs">
+                  {c.active
+                    ? <Badge className="bg-emerald-500/15 text-emerald-600 border-emerald-500/40">Aktywny</Badge>
+                    : <Badge variant="destructive">Wyłączony</Badge>}
+                </td>
+              </tr>
+            ))}
+            {rows.length === 0 && !q.isLoading && (
+              <tr><td colSpan={6} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak wykonawców.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
+/* ===================== ASSIGNMENTS ===================== */
+function AssignmentsTab() {
+  const [statusFilter, setStatusFilter] = useState<string>("");
+
+  const q = useQuery({
+    queryKey: ["admin-assignments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("concierge_leads" as any)
+        .select("*, contractor:contractors(company_name, phone, email)")
+        .not("contractor_id", "is", null)
+        .order("assigned_at", { ascending: false });
+      if (error) throw new Error(error.message);
+      return (data ?? []) as any[];
+    },
+  });
+
+  const rows = (q.data ?? []).filter((r: any) => !statusFilter || r.assignment_status === statusFilter);
+
+  return (
+    <Card className="rounded-2xl p-6 space-y-4">
+      <div className="flex flex-wrap items-center gap-3">
+        <ClipboardList className="h-5 w-5 text-gold" />
+        <h2 className="text-xl font-semibold">Zlecenia podwykonawców</h2>
+        <Badge variant="outline">{rows.length}</Badge>
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
+          className="ml-auto rounded-md border border-input bg-background px-2 py-1 text-xs">
+          <option value="">Wszystkie statusy</option>
+          {ASSIGNMENT_STATUSES.map((s) => <option key={s.key} value={s.key}>{s.label}</option>)}
+        </select>
+      </div>
+
+      {q.isLoading && <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />}
+
+      <div className="overflow-auto rounded-xl border">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-xs uppercase text-muted-foreground">
+            <tr>
+              <th className="px-3 py-2 text-left">Przypisano</th>
+              <th className="px-3 py-2 text-left">Wykonawca</th>
+              <th className="px-3 py-2 text-left">Klient</th>
+              <th className="px-3 py-2 text-left">Usługa</th>
+              <th className="px-3 py-2 text-left">Etap</th>
+              <th className="px-3 py-2 text-left">Notatki wykonawcy</th>
+              <th className="px-3 py-2 text-left">Zakończono</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => {
+              const st = r.assignment_status ?? "assigned";
+              return (
+                <tr key={r.id} className="border-t align-top">
+                  <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                    {r.assigned_at ? new Date(r.assigned_at).toLocaleString("pl-PL") : "—"}
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    <div className="font-medium">{r.contractor?.company_name ?? "—"}</div>
+                    <div className="text-muted-foreground">{r.contractor?.phone ?? ""}</div>
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    <div>{r.email}</div>
+                    <div className="text-muted-foreground">{r.phone}</div>
+                  </td>
+                  <td className="px-3 py-2 text-xs max-w-[220px]">{r.service_name}</td>
+                  <td className="px-3 py-2 text-xs">
+                    <Badge className={assignmentStatusColor(st)}>{assignmentStatusLabel(st)}</Badge>
+                  </td>
+                  <td className="px-3 py-2 text-xs max-w-[280px] whitespace-pre-wrap text-muted-foreground">
+                    {r.contractor_notes || "—"}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                    {r.completed_at ? new Date(r.completed_at).toLocaleString("pl-PL") : "—"}
+                  </td>
+                </tr>
+              );
+            })}
+            {rows.length === 0 && !q.isLoading && (
+              <tr><td colSpan={7} className="px-3 py-8 text-center text-sm text-muted-foreground">Brak zleceń.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </Card>
+  );
+}
+
 
 /* ===================== REVIEWS ===================== */
 function ReviewsTab() {
