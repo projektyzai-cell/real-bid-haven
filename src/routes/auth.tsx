@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { CONTRACTOR_SERVICES, CONTRACTOR_CITIES } from "@/lib/contractor-constants";
 
 type AuthSearch = { redirect?: string; mode?: string };
 
