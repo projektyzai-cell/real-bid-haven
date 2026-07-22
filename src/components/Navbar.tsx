@@ -158,6 +158,12 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => navigate({ to: "/ustawienia" })}>
                   <Settings className="h-4 w-4" /> {t("nav.settings")}
                 </DropdownMenuItem>
+                {isContractor && (
+                  <DropdownMenuItem onClick={() => navigate({ to: "/wykonawca" })}
+                    className="bg-amber-500/10 font-semibold text-amber-600 focus:bg-amber-500/20">
+                    <Wrench className="h-4 w-4" /> Strefa Wykonawcy
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}
                     className="bg-gold/10 font-semibold text-gold focus:bg-gold/20">
