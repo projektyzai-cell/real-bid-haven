@@ -40,13 +40,19 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
   Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
+  Wrench, ClipboardList,
 } from "lucide-react";
 import {
   adminListReports, adminUpdateReport, adminHideReportedTarget, adminDeleteReport,
 } from "@/lib/admin-reports.functions";
+import {
+  CONTRACTOR_SERVICES, CONTRACTOR_CITIES, ASSIGNMENT_STATUSES,
+  assignmentStatusColor, assignmentStatusLabel, contractorServiceLabel,
+  leadServiceToContractorService,
+} from "@/lib/contractor-constants";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments"]).default("apps").optional(),
 });
 
 
