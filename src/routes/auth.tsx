@@ -68,7 +68,12 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
-  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba">("najemca");
+  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba" | "contractor">("najemca");
+  const [companyName, setCompanyName] = useState("");
+  const [contractorPhone, setContractorPhone] = useState("");
+  const [contractorServices, setContractorServices] = useState<string[]>([]);
+  const [contractorCities, setContractorCities] = useState<string[]>([]);
+  const [contractorNationwide, setContractorNationwide] = useState(false);
   const [preferredLanguage, setPreferredLanguage] = useState<"pl" | "en" | "uk" | "es">("pl");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
