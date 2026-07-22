@@ -106,12 +106,32 @@ function AuthPage() {
     const pwdRe = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!pwdRe.test(password)) { toast.error(t("auth.errPwdPattern")); return; }
     if (password !== password2) { toast.error(t("auth.errPwdMismatch")); return; }
+    if (accountType === "contractor") {
+      if (!companyName.trim()) { toast.error("Podaj nazwę firmy / imię i nazwisko wykonawcy."); return; }
+      if (contractorServices.length === 0) { toast.error("Wybierz co najmniej jedną kategorię usług."); return; }
+      if (!contractorNationwide && contractorCities.length === 0) {
+        toast.error("Wybierz co najmniej jedno miasto lub zaznacz zasięg ogólnopolski."); return;
+      }
+      if (contractorPhone.replace(/\D/g, "").length < 9) { toast.error("Podaj poprawny numer telefonu."); return; }
+    }
     setLoading(true);
+    const metadata: Record<string, unknown> = {
+      display_name: nick.trim(),
+      account_type: accountType,
+      preferred_language: preferredLanguage,
+    };
+    if (accountType === "contractor") {
+      metadata.company_name = companyName.trim();
+      metadata.contractor_services = contractorServices;
+      metadata.contractor_cities = contractorNationwide ? [] : contractorCities;
+      metadata.contractor_nationwide = contractorNationwide;
+      metadata.contractor_phone = contractorPhone.trim();
+    }
     const { data, error } = await supabase.auth.signUp({
       email, password,
       options: {
         emailRedirectTo: `${window.location.origin}${redirectTo}`,
-        data: { display_name: nick.trim(), account_type: accountType, preferred_language: preferredLanguage },
+        data: metadata,
       },
     });
     if (error) { setLoading(false); toast.error(mapAuthError(error.message)); return; }
