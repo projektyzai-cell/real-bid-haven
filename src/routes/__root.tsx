@@ -127,17 +127,19 @@ function WelcomeMessageBridge() {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const bare = pathname.startsWith("/wykonawca");
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RealtimeBridge />
         <WelcomeMessageBridge />
         <div className="min-h-screen flex flex-col">
-          <Navbar />
+          {!bare && <Navbar />}
           <main className="flex-1">
             <Outlet />
           </main>
-          <Footer />
+          {!bare && <Footer />}
         </div>
         <CookieConsent />
         <Toaster position="bottom-right" richColors closeButton expand={false} />
