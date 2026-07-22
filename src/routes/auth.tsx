@@ -2,13 +2,14 @@ import { createFileRoute, useNavigate, redirect, Link } from "@tanstack/react-ro
 import { useState } from "react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
+import { CONTRACTOR_SERVICES, CONTRACTOR_CITIES } from "@/lib/contractor-constants";
 
 type AuthSearch = { redirect?: string; mode?: string };
 
@@ -67,7 +68,12 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
-  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba">("najemca");
+  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba" | "contractor">("najemca");
+  const [companyName, setCompanyName] = useState("");
+  const [contractorPhone, setContractorPhone] = useState("");
+  const [contractorServices, setContractorServices] = useState<string[]>([]);
+  const [contractorCities, setContractorCities] = useState<string[]>([]);
+  const [contractorNationwide, setContractorNationwide] = useState(false);
   const [preferredLanguage, setPreferredLanguage] = useState<"pl" | "en" | "uk" | "es">("pl");
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -82,13 +88,13 @@ function AuthPage() {
     toast.success(t("auth.okSignedIn"));
     const uid = signInData.user?.id;
     if (uid) {
-      const { data: roleRow } = await supabase
+      const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", uid)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (roleRow) { navigate({ to: "/admin" }); return; }
+        .eq("user_id", uid);
+      const roleSet = new Set((roles ?? []).map((r: any) => r.role));
+      if (roleSet.has("admin")) { navigate({ to: "/admin" }); return; }
+      if (roleSet.has("contractor")) { navigate({ to: "/wykonawca" }); return; }
     }
     navigate({ to: redirectTo as string });
   }
@@ -100,12 +106,32 @@ function AuthPage() {
     const pwdRe = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{8,}$/;
     if (!pwdRe.test(password)) { toast.error(t("auth.errPwdPattern")); return; }
     if (password !== password2) { toast.error(t("auth.errPwdMismatch")); return; }
+    if (accountType === "contractor") {
+      if (!companyName.trim()) { toast.error("Podaj nazwę firmy / imię i nazwisko wykonawcy."); return; }
+      if (contractorServices.length === 0) { toast.error("Wybierz co najmniej jedną kategorię usług."); return; }
+      if (!contractorNationwide && contractorCities.length === 0) {
+        toast.error("Wybierz co najmniej jedno miasto lub zaznacz zasięg ogólnopolski."); return;
+      }
+      if (contractorPhone.replace(/\D/g, "").length < 9) { toast.error("Podaj poprawny numer telefonu."); return; }
+    }
     setLoading(true);
+    const metadata: Record<string, unknown> = {
+      display_name: nick.trim(),
+      account_type: accountType,
+      preferred_language: preferredLanguage,
+    };
+    if (accountType === "contractor") {
+      metadata.company_name = companyName.trim();
+      metadata.contractor_services = contractorServices;
+      metadata.contractor_cities = contractorNationwide ? [] : contractorCities;
+      metadata.contractor_nationwide = contractorNationwide;
+      metadata.contractor_phone = contractorPhone.trim();
+    }
     const { data, error } = await supabase.auth.signUp({
       email, password,
       options: {
         emailRedirectTo: `${window.location.origin}${redirectTo}`,
-        data: { display_name: nick.trim(), account_type: accountType, preferred_language: preferredLanguage },
+        data: metadata,
       },
     });
     if (error) { setLoading(false); toast.error(mapAuthError(error.message)); return; }
@@ -200,11 +226,12 @@ function AuthPage() {
               </div>
               <div>
                 <Label>{t("auth.wantToUseAs")}</Label>
-                <div className="mt-1.5 grid grid-cols-3 gap-2">
+                <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
                   {([
                     ["najemca", t("auth.tenant")],
                     ["wynajmujacy", t("auth.landlord")],
                     ["oba", t("auth.both")],
+                    ["contractor", "Wykonawca Concierge"],
                   ] as const).map(([val, lbl]) => (
                     <button type="button" key={val} onClick={() => setAccountType(val as typeof accountType)}
                       className={`rounded-xl border px-3 py-2 text-xs font-medium transition ${accountType === val ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
@@ -214,6 +241,69 @@ function AuthPage() {
                 </div>
                 <p className="mt-1 text-[11px] text-muted-foreground">{t("auth.roleHelp")}</p>
               </div>
+
+              {accountType === "contractor" && (
+                <div className="space-y-3 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-amber-500">
+                    <Sparkles className="h-4 w-4" /> Profil Wykonawcy Concierge
+                  </div>
+                  <div>
+                    <Label htmlFor="company">Nazwa firmy / imię i nazwisko</Label>
+                    <Input id="company" value={companyName} maxLength={120}
+                      onChange={(e) => setCompanyName(e.target.value)} className="mt-1.5 rounded-xl"
+                      placeholder="np. Kancelaria Kowalski" />
+                  </div>
+                  <div>
+                    <Label htmlFor="c-phone">Telefon kontaktowy</Label>
+                    <Input id="c-phone" type="tel" inputMode="tel" value={contractorPhone}
+                      onChange={(e) => setContractorPhone(e.target.value)}
+                      className="mt-1.5 rounded-xl" placeholder="+48 …" />
+                  </div>
+                  <div>
+                    <Label>Świadczone usługi (wybierz jedną lub więcej)</Label>
+                    <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                      {CONTRACTOR_SERVICES.map((s) => {
+                        const on = contractorServices.includes(s.key);
+                        return (
+                          <button type="button" key={s.key}
+                            onClick={() => setContractorServices((prev) => on ? prev.filter((k) => k !== s.key) : [...prev, s.key])}
+                            className={`rounded-xl border px-3 py-2 text-left text-xs font-medium transition ${on ? "border-amber-500 bg-amber-500/15 text-amber-500" : "border-border text-muted-foreground hover:bg-muted/50"}`}>
+                            {s.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <div>
+                    <label className="flex items-center gap-2 rounded-xl border border-border bg-background/50 p-3 text-xs">
+                      <Checkbox checked={contractorNationwide}
+                        onCheckedChange={(v) => setContractorNationwide(v === true)} />
+                      <span className="font-semibold">Zasięg ogólnopolski (usługi zdalne)</span>
+                    </label>
+                  </div>
+                  {!contractorNationwide && (
+                    <div>
+                      <Label>Miasta obsługi</Label>
+                      <div className="mt-2 max-h-48 overflow-y-auto rounded-xl border border-border bg-background/40 p-2">
+                        <div className="grid grid-cols-2 gap-1 sm:grid-cols-3">
+                          {CONTRACTOR_CITIES.map((city) => {
+                            const on = contractorCities.includes(city);
+                            return (
+                              <button type="button" key={city}
+                                onClick={() => setContractorCities((prev) => on ? prev.filter((c) => c !== city) : [...prev, city])}
+                                className={`rounded-lg border px-2 py-1 text-[11px] transition ${on ? "border-amber-500 bg-amber-500/15 text-amber-500" : "border-transparent text-muted-foreground hover:bg-muted/50"}`}>
+                                {city}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                      <p className="mt-1 text-[11px] text-muted-foreground">Wybrano: {contractorCities.length}</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div>
                 <Label htmlFor="lang">{t("auth.preferredLang")}</Label>
                 <select

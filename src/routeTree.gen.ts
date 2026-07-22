@@ -22,6 +22,7 @@ import { Route as NajemIndexRouteImport } from './routes/najem.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
+import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -108,6 +109,11 @@ const AdminSetupRoute = AdminSetupRouteImport.update({
   id: '/admin/setup',
   path: '/admin/setup',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedWykonawcaRoute = AuthenticatedWykonawcaRouteImport.update({
+  id: '/wykonawca',
+  path: '/wykonawca',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedUstawieniaRoute = AuthenticatedUstawieniaRouteImport.update({
   id: '/ustawienia',
@@ -247,6 +253,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
+  '/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminRoute
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
+  '/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -321,6 +329,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
+  '/_authenticated/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -359,6 +368,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/messages'
     | '/ustawienia'
+    | '/wykonawca'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -395,6 +405,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/messages'
     | '/ustawienia'
+    | '/wykonawca'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/_authenticated/messages'
     | '/_authenticated/ustawienia'
+    | '/_authenticated/wykonawca'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -567,6 +579,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/setup'
       preLoaderRoute: typeof AdminSetupRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/wykonawca': {
+      id: '/_authenticated/wykonawca'
+      path: '/wykonawca'
+      fullPath: '/wykonawca'
+      preLoaderRoute: typeof AuthenticatedWykonawcaRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/ustawienia': {
       id: '/_authenticated/ustawienia'
@@ -729,6 +748,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedMessagesRoute: typeof AuthenticatedMessagesRoute
   AuthenticatedUstawieniaRoute: typeof AuthenticatedUstawieniaRoute
+  AuthenticatedWykonawcaRoute: typeof AuthenticatedWykonawcaRoute
   AuthenticatedAdminPassportStatsRoute: typeof AuthenticatedAdminPassportStatsRoute
   AuthenticatedAdminPassportsRoute: typeof AuthenticatedAdminPassportsRoute
   AuthenticatedNajemAktywneUmowyRoute: typeof AuthenticatedNajemAktywneUmowyRoute
@@ -751,6 +771,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedMessagesRoute: AuthenticatedMessagesRoute,
   AuthenticatedUstawieniaRoute: AuthenticatedUstawieniaRoute,
+  AuthenticatedWykonawcaRoute: AuthenticatedWykonawcaRoute,
   AuthenticatedAdminPassportStatsRoute: AuthenticatedAdminPassportStatsRoute,
   AuthenticatedAdminPassportsRoute: AuthenticatedAdminPassportsRoute,
   AuthenticatedNajemAktywneUmowyRoute: AuthenticatedNajemAktywneUmowyRoute,

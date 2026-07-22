@@ -142,9 +142,14 @@ export type Database = {
       concierge_leads: {
         Row: {
           admin_notes: string | null
+          assigned_at: string | null
+          assignment_status: string
           client_type: string
+          completed_at: string | null
           consent_accepted: boolean
           consent_timestamp: string | null
+          contractor_id: string | null
+          contractor_notes: string | null
           created_at: string
           email: string
           forwarded_at: string | null
@@ -159,9 +164,14 @@ export type Database = {
         }
         Insert: {
           admin_notes?: string | null
+          assigned_at?: string | null
+          assignment_status?: string
           client_type?: string
+          completed_at?: string | null
           consent_accepted?: boolean
           consent_timestamp?: string | null
+          contractor_id?: string | null
+          contractor_notes?: string | null
           created_at?: string
           email: string
           forwarded_at?: string | null
@@ -176,9 +186,14 @@ export type Database = {
         }
         Update: {
           admin_notes?: string | null
+          assigned_at?: string | null
+          assignment_status?: string
           client_type?: string
+          completed_at?: string | null
           consent_accepted?: boolean
           consent_timestamp?: string | null
+          contractor_id?: string | null
+          contractor_notes?: string | null
           created_at?: string
           email?: string
           forwarded_at?: string | null
@@ -190,6 +205,56 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "concierge_leads_contractor_id_fkey"
+            columns: ["contractor_id"]
+            isOneToOne: false
+            referencedRelation: "contractors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contractors: {
+        Row: {
+          active: boolean
+          cities: string[]
+          company_name: string
+          created_at: string
+          email: string | null
+          id: string
+          nationwide: boolean
+          phone: string | null
+          services: string[]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          cities?: string[]
+          company_name: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nationwide?: boolean
+          phone?: string | null
+          services?: string[]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          cities?: string[]
+          company_name?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          nationwide?: boolean
+          phone?: string | null
+          services?: string[]
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -2119,7 +2184,12 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "buyer" | "seller" | "admin" | "passport_verifier"
+      app_role:
+        | "buyer"
+        | "seller"
+        | "admin"
+        | "passport_verifier"
+        | "contractor"
       lease_state:
         | "matched"
         | "interested_passport_shared"
@@ -2286,7 +2356,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["buyer", "seller", "admin", "passport_verifier"],
+      app_role: ["buyer", "seller", "admin", "passport_verifier", "contractor"],
       lease_state: [
         "matched",
         "interested_passport_shared",

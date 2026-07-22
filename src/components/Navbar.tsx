@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, List, MessageCircle, Building2,
   KeyRound, Settings, ShieldCheck, Sparkles, BadgeCheck, HandHeart,
-  FileSignature, Home, FileText,
+  FileSignature, Home, FileText, Wrench,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
@@ -24,15 +24,18 @@ export function Navbar() {
   const unread = useUnreadMessages();
   const { t } = useTranslation();
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isContractor, setIsContractor] = useState(false);
   const tabs = [
     { to: "/jak-dzialamy", label: t("nav.howItWorks"), icon: Sparkles },
     { to: "/paszport-najemcy", label: t("nav.passport"), icon: BadgeCheck },
     { to: "/korzysci", label: t("nav.benefits"), icon: HandHeart },
   ] as const;
   useEffect(() => {
-    if (!user) { setIsAdmin(false); return; }
+    if (!user) { setIsAdmin(false); setIsContractor(false); return; }
     supabase.from("user_roles").select("role").eq("user_id", user.id).eq("role", "admin").maybeSingle()
       .then(({ data }) => setIsAdmin(!!data));
+    supabase.from("contractors" as any).select("id").eq("user_id", user.id).eq("active", true).maybeSingle()
+      .then(({ data }) => setIsContractor(!!data));
   }, [user]);
 
   async function handleSignOut() {
@@ -155,6 +158,12 @@ export function Navbar() {
                 <DropdownMenuItem onClick={() => navigate({ to: "/ustawienia" })}>
                   <Settings className="h-4 w-4" /> {t("nav.settings")}
                 </DropdownMenuItem>
+                {isContractor && (
+                  <DropdownMenuItem onClick={() => navigate({ to: "/wykonawca" })}
+                    className="bg-amber-500/10 font-semibold text-amber-600 focus:bg-amber-500/20">
+                    <Wrench className="h-4 w-4" /> Strefa Wykonawcy
+                  </DropdownMenuItem>
+                )}
                 {isAdmin && (
                   <DropdownMenuItem onClick={() => navigate({ to: "/admin" })}
                     className="bg-gold/10 font-semibold text-gold focus:bg-gold/20">
