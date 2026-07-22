@@ -88,13 +88,13 @@ function AuthPage() {
     toast.success(t("auth.okSignedIn"));
     const uid = signInData.user?.id;
     if (uid) {
-      const { data: roleRow } = await supabase
+      const { data: roles } = await supabase
         .from("user_roles")
         .select("role")
-        .eq("user_id", uid)
-        .eq("role", "admin")
-        .maybeSingle();
-      if (roleRow) { navigate({ to: "/admin" }); return; }
+        .eq("user_id", uid);
+      const roleSet = new Set((roles ?? []).map((r: any) => r.role));
+      if (roleSet.has("admin")) { navigate({ to: "/admin" }); return; }
+      if (roleSet.has("contractor")) { navigate({ to: "/wykonawca" }); return; }
     }
     navigate({ to: redirectTo as string });
   }
