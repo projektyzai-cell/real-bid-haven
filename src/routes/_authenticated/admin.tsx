@@ -160,6 +160,11 @@ function AdminDashboard() {
                   <Star className="h-4 w-4" /> Opinie i Oceny
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="matching" asChild>
+                <Link to="/admin" search={{ tab: "matching" }} className="flex items-center gap-1.5">
+                  <Zap className="h-4 w-4" /> Auto-Matching
+                </Link>
+              </TabsTrigger>
 
 
 
