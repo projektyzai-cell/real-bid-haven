@@ -638,6 +638,33 @@ export type Database = {
           },
         ]
       }
+      matching_settings: {
+        Row: {
+          enabled: boolean
+          id: boolean
+          max_offers_per_request: number
+          min_match_score: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          enabled?: boolean
+          id?: boolean
+          max_offers_per_request?: number
+          min_match_score?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          enabled?: boolean
+          id?: boolean
+          max_offers_per_request?: number
+          min_match_score?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           chat_id: string
