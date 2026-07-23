@@ -1620,3 +1620,125 @@ function ReviewsTab() {
   );
 }
 
+
+/* ===================== AUTO-MATCHING ===================== */
+function MatchingTab() {
+  const qc = useQueryClient();
+  const q = useQuery({
+    queryKey: ["matching-settings"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("matching_settings" as any)
+        .select("*")
+        .eq("id", true)
+        .maybeSingle();
+      if (error) throw new Error(error.message);
+      return data as any;
+    },
+  });
+
+  const [enabled, setEnabled] = useState<boolean>(true);
+  const [minScore, setMinScore] = useState<number>(70);
+  const [maxOffers, setMaxOffers] = useState<number>(20);
+  const [initialized, setInitialized] = useState(false);
+
+  if (q.data && !initialized) {
+    setEnabled(!!q.data.enabled);
+    setMinScore(q.data.min_match_score ?? 70);
+    setMaxOffers(q.data.max_offers_per_request ?? 20);
+    setInitialized(true);
+  }
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase
+        .from("matching_settings" as any)
+        .update({
+          enabled,
+          min_match_score: minScore,
+          max_offers_per_request: maxOffers,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", true);
+      if (error) throw new Error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Ustawienia zapisane.");
+      qc.invalidateQueries({ queryKey: ["matching-settings"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  if (q.isLoading) {
+    return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  }
+
+  return (
+    <Card className="p-6 space-y-6 max-w-2xl">
+      <div className="flex items-center gap-3">
+        <Zap className="h-6 w-6 text-gold" />
+        <div>
+          <h2 className="text-lg font-semibold">Silnik Auto-Matchingu</h2>
+          <p className="text-sm text-muted-foreground">
+            Steruj automatycznym dopasowywaniem ofert najmu do zapytań najemców.
+          </p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between rounded-xl border p-4">
+        <div>
+          <div className="font-medium">Silnik aktywny</div>
+          <p className="text-xs text-muted-foreground">
+            Gdy wyłączony — nowe oferty i zapytania nie generują dopasowań.
+          </p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setEnabled(!enabled)}
+          className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${enabled ? "bg-emerald-500" : "bg-slate-500"}`}
+        >
+          <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`} />
+        </button>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="min-score">Minimalny wynik dopasowania: <strong>{minScore}</strong> / 100</Label>
+        <input
+          id="min-score"
+          type="range"
+          min={0}
+          max={100}
+          step={5}
+          value={minScore}
+          onChange={(e) => setMinScore(Number(e.target.value))}
+          className="w-full accent-amber-500"
+        />
+        <p className="text-xs text-muted-foreground">
+          Oferty poniżej tego progu nie zostaną zaproponowane najemcy (70 = domyślny).
+        </p>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="max-offers">Maks. dopasowań na jedno zapytanie</Label>
+        <Input
+          id="max-offers"
+          type="number"
+          min={1}
+          max={200}
+          value={maxOffers}
+          onChange={(e) => setMaxOffers(Number(e.target.value))}
+        />
+      </div>
+
+      <div className="flex justify-end">
+        <Button
+          onClick={() => save.mutate()}
+          disabled={save.isPending}
+          className="bg-amber-500 text-slate-950 hover:bg-amber-400"
+        >
+          {save.isPending ? "Zapisuję…" : "Zapisz ustawienia"}
+        </Button>
+      </div>
+    </Card>
+  );
+}
