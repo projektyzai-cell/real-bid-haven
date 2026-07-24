@@ -19,6 +19,9 @@ export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   component: AktywneUmowyPage,
 });
 
+export default AktywneUmowyPage;
+
+
 type Txn = {
   id: string;
   state: string;
@@ -219,12 +222,18 @@ function AktywneUmowyPage() {
                       <div className="grid gap-3">
                         {items.map((t: any) => {
                           const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
+                          const DAY = 24 * 60 * 60 * 1000;
                           // treat contract as finished only the day AFTER the end date, so buttons remain active on the last day
-                          const finished = end !== null && end + 24 * 60 * 60 * 1000 < Date.now();
+                          const finished = end !== null && end + DAY < Date.now();
+                          // extending stays available during the lease and up to 30 days after end
+                          const extendable = end !== null && end + 30 * DAY > Date.now();
+                          // landlord may raise the payment-delay alert only in the 3 days after end
+                          const canReportDelay = finished && end !== null && end + 3 * DAY > Date.now();
                           const thumb = !finished ? thumbnailFor(t.listing) : null;
                           const hasPendingExtension = !!t.pending_extension_end_date;
                           const iRequestedExtension = hasPendingExtension && t.pending_extension_requested_by === user?.id;
                           const otherRequestedExtension = hasPendingExtension && !iRequestedExtension;
+
                           return (
                             <div key={t.id} className="rounded-2xl border border-border bg-card p-5 shadow-card">
                               <div className="flex flex-wrap items-start justify-between gap-3">
@@ -312,12 +321,13 @@ function AktywneUmowyPage() {
                                       <MessageCircle className="h-3.5 w-3.5" /> Czat
                                     </Link>
                                   )}
-                                  {!finished && !hasPendingExtension && (
+                                  {extendable && !hasPendingExtension && (
                                     <Button size="sm" variant="outline" className="rounded-xl"
                                       onClick={() => setExtendFor(t)}>
                                       <CalendarPlus className="mr-1 h-3.5 w-3.5" /> Przedłuż umowę
                                     </Button>
                                   )}
+
                                   {t.role === "tenant" && !finished && (
                                     <Button size="sm" variant="outline" className="rounded-xl"
                                       onClick={() => setReportFor(t.id)}>
@@ -338,12 +348,13 @@ function AktywneUmowyPage() {
                                           onClick={() => askCancelDelay(t.id)}>
                                           <Check className="mr-1 h-3.5 w-3.5" /> Cofnij alert
                                         </Button>
-                                      ) : (
+                                      ) : canReportDelay ? (
                                         <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:bg-destructive/10"
                                           onClick={() => askReportDelay(t.id)}>
                                           <AlertTriangle className="mr-1 h-3.5 w-3.5" /> Alert nieterminowości
                                         </Button>
-                                      )}
+                                      ) : null}
+
                                       {finished && (
                                         <button
                                           onClick={() => setRating({ role: "landlord", contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}

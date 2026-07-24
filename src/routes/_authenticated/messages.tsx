@@ -639,7 +639,15 @@ function AdminViewport({
       </div>
       <div className="custom-scrollbar flex-1 overflow-y-auto whitespace-pre-line p-6 text-sm leading-relaxed">
         {msg.body}
+        {!msg.read_at && (
+          <div className="mt-6 flex justify-end border-t border-border/40 pt-4">
+            <Button size="sm" variant="outline" onClick={onMarkRead}>
+              Oznacz jako przeczytane
+            </Button>
+          </div>
+        )}
       </div>
+
     </>
   );
 }

@@ -110,6 +110,10 @@ export function Navbar() {
                       <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-zapytania" })}>
                         <List className="h-4 w-4" /> {t("nav.myInquiries")}
                       </DropdownMenuItem>
+                      <DropdownMenuItem className="rounded-xl py-3" onClick={() => navigate({ to: "/najem/moje-umowy" })}>
+                        <FileSignature className="h-4 w-4" /> Moje umowy
+                      </DropdownMenuItem>
+
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
