@@ -321,12 +321,13 @@ function AktywneUmowyPage() {
                                       <MessageCircle className="h-3.5 w-3.5" /> Czat
                                     </Link>
                                   )}
-                                  {!finished && !hasPendingExtension && (
+                                  {extendable && !hasPendingExtension && (
                                     <Button size="sm" variant="outline" className="rounded-xl"
                                       onClick={() => setExtendFor(t)}>
                                       <CalendarPlus className="mr-1 h-3.5 w-3.5" /> Przedłuż umowę
                                     </Button>
                                   )}
+
                                   {t.role === "tenant" && !finished && (
                                     <Button size="sm" variant="outline" className="rounded-xl"
                                       onClick={() => setReportFor(t.id)}>
@@ -347,12 +348,13 @@ function AktywneUmowyPage() {
                                           onClick={() => askCancelDelay(t.id)}>
                                           <Check className="mr-1 h-3.5 w-3.5" /> Cofnij alert
                                         </Button>
-                                      ) : (
+                                      ) : canReportDelay ? (
                                         <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:bg-destructive/10"
                                           onClick={() => askReportDelay(t.id)}>
                                           <AlertTriangle className="mr-1 h-3.5 w-3.5" /> Alert nieterminowości
                                         </Button>
-                                      )}
+                                      ) : null}
+
                                       {finished && (
                                         <button
                                           onClick={() => setRating({ role: "landlord", contractId: t.id, tenantId: t.tenant_id, listingId: t.listing_id })}
