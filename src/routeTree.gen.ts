@@ -36,6 +36,7 @@ import { Route as AuthenticatedNajemPaszportRouteImport } from './routes/_authen
 import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
 import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
 import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
+import { Route as AuthenticatedNajemMojeUmowyRouteImport } from './routes/_authenticated/najem.moje-umowy'
 import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
 import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
 import { Route as AuthenticatedNajemGeneratorUmowRouteImport } from './routes/_authenticated/najem.generator-umow'
@@ -186,6 +187,12 @@ const AuthenticatedNajemMojeZapytaniaRoute =
     path: '/najem/moje-zapytania',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
+const AuthenticatedNajemMojeUmowyRoute =
+  AuthenticatedNajemMojeUmowyRouteImport.update({
+    id: '/najem/moje-umowy',
+    path: '/najem/moje-umowy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedNajemMojeOfertyRoute =
   AuthenticatedNajemMojeOfertyRouteImport.update({
     id: '/najem/moje-oferty',
@@ -265,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
+  '/najem/moje-umowy': typeof AuthenticatedNajemMojeUmowyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
@@ -302,6 +310,7 @@ export interface FileRoutesByTo {
   '/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
+  '/najem/moje-umowy': typeof AuthenticatedNajemMojeUmowyRoute
   '/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
@@ -341,6 +350,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/generator-umow': typeof AuthenticatedNajemGeneratorUmowRoute
   '/_authenticated/najem/moj-paszport': typeof AuthenticatedNajemMojPaszportRoute
   '/_authenticated/najem/moje-oferty': typeof AuthenticatedNajemMojeOfertyRoute
+  '/_authenticated/najem/moje-umowy': typeof AuthenticatedNajemMojeUmowyRoute
   '/_authenticated/najem/moje-zapytania': typeof AuthenticatedNajemMojeZapytaniaRoute
   '/_authenticated/najem/nowa-oferta': typeof AuthenticatedNajemNowaOfertaRoute
   '/_authenticated/najem/nowe-zapytanie': typeof AuthenticatedNajemNoweZapytanieRoute
@@ -380,6 +390,7 @@ export interface FileRouteTypes {
     | '/najem/generator-umow'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
+    | '/najem/moje-umowy'
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
@@ -417,6 +428,7 @@ export interface FileRouteTypes {
     | '/najem/generator-umow'
     | '/najem/moj-paszport'
     | '/najem/moje-oferty'
+    | '/najem/moje-umowy'
     | '/najem/moje-zapytania'
     | '/najem/nowa-oferta'
     | '/najem/nowe-zapytanie'
@@ -455,6 +467,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/generator-umow'
     | '/_authenticated/najem/moj-paszport'
     | '/_authenticated/najem/moje-oferty'
+    | '/_authenticated/najem/moje-umowy'
     | '/_authenticated/najem/moje-zapytania'
     | '/_authenticated/najem/nowa-oferta'
     | '/_authenticated/najem/nowe-zapytanie'
@@ -678,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNajemMojeZapytaniaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/najem/moje-umowy': {
+      id: '/_authenticated/najem/moje-umowy'
+      path: '/najem/moje-umowy'
+      fullPath: '/najem/moje-umowy'
+      preLoaderRoute: typeof AuthenticatedNajemMojeUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
     '/_authenticated/najem/moje-oferty': {
       id: '/_authenticated/najem/moje-oferty'
       path: '/najem/moje-oferty'
@@ -756,6 +776,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNajemGeneratorUmowRoute: typeof AuthenticatedNajemGeneratorUmowRoute
   AuthenticatedNajemMojPaszportRoute: typeof AuthenticatedNajemMojPaszportRoute
   AuthenticatedNajemMojeOfertyRoute: typeof AuthenticatedNajemMojeOfertyRoute
+  AuthenticatedNajemMojeUmowyRoute: typeof AuthenticatedNajemMojeUmowyRoute
   AuthenticatedNajemMojeZapytaniaRoute: typeof AuthenticatedNajemMojeZapytaniaRoute
   AuthenticatedNajemNowaOfertaRoute: typeof AuthenticatedNajemNowaOfertaRoute
   AuthenticatedNajemNoweZapytanieRoute: typeof AuthenticatedNajemNoweZapytanieRoute
@@ -779,6 +800,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNajemGeneratorUmowRoute: AuthenticatedNajemGeneratorUmowRoute,
   AuthenticatedNajemMojPaszportRoute: AuthenticatedNajemMojPaszportRoute,
   AuthenticatedNajemMojeOfertyRoute: AuthenticatedNajemMojeOfertyRoute,
+  AuthenticatedNajemMojeUmowyRoute: AuthenticatedNajemMojeUmowyRoute,
   AuthenticatedNajemMojeZapytaniaRoute: AuthenticatedNajemMojeZapytaniaRoute,
   AuthenticatedNajemNowaOfertaRoute: AuthenticatedNajemNowaOfertaRoute,
   AuthenticatedNajemNoweZapytanieRoute: AuthenticatedNajemNoweZapytanieRoute,
