@@ -19,6 +19,9 @@ export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   component: AktywneUmowyPage,
 });
 
+export default AktywneUmowyPage;
+
+
 type Txn = {
   id: string;
   state: string;
