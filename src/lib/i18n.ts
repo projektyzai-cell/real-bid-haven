@@ -416,8 +416,8 @@ const resources = {
         faq3a: "The basic Tenant Passport is completely free. Only optional add-ons are paid, e.g. express identity verification.",
         faq4q: "Who sees my data?",
         faq4a: "Only landlords you choose to share the Passport with — by expressing interest in a specific offer.",
-        ctaTitle: "Build your Passport — it's free",
-        ctaSub: "10 minutes. No raw documents uploaded. Valid for 12 months.",
+        ctaTitle: "Create your Passport — the gateway to the best listings",
+        ctaSub: "Just a few minutes. No raw documents stored. Valid for 90 days.",
         ctaStart: "I'm starting",
       },
       filters: {
