@@ -1221,6 +1221,7 @@ export type Database = {
           plot_area_m2: number | null
           plot_type: Database["public"]["Enums"]["plot_type"] | null
           promoted: boolean
+          promoted_until: string | null
           property_type: Database["public"]["Enums"]["property_type"] | null
           rent_base: number | null
           requires_deposit: boolean
@@ -1283,6 +1284,7 @@ export type Database = {
           plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
+          promoted_until?: string | null
           property_type?: Database["public"]["Enums"]["property_type"] | null
           rent_base?: number | null
           requires_deposit?: boolean
@@ -1345,6 +1347,7 @@ export type Database = {
           plot_area_m2?: number | null
           plot_type?: Database["public"]["Enums"]["plot_type"] | null
           promoted?: boolean
+          promoted_until?: string | null
           property_type?: Database["public"]["Enums"]["property_type"] | null
           rent_base?: number | null
           requires_deposit?: boolean
@@ -2006,6 +2009,7 @@ export type Database = {
         Returns: string
       }
       delete_my_account: { Args: never; Returns: undefined }
+      expire_rental_promotions: { Args: never; Returns: undefined }
       express_interest: {
         Args: { _listing_id: string; _request_id?: string }
         Returns: string
@@ -2121,6 +2125,10 @@ export type Database = {
       post_passport_shared_system_message: {
         Args: { _transaction_id: string }
         Returns: undefined
+      }
+      promote_rental_listing: {
+        Args: { _days: number; _id: string }
+        Returns: string
       }
       public_user_reviews: {
         Args: {

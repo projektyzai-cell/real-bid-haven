@@ -11,7 +11,7 @@ export const Route = createFileRoute("/paszport-najemcy")({
       { title: "Co to jest Paszport Najemcy — Stay Safe" },
       { name: "description", content: "Paszport Najemcy Stay Safe to cyfrowy dokument zaufania: tożsamość, dochód, LinkedIn i historia najmu — w zgodzie z RODO." },
       { property: "og:title", content: "Co to jest Paszport Najemcy — Stay Safe" },
-      { property: "og:description", content: "Twoja reputacja w jednym kliknięciu — bezpieczna, transparentna, ważna 12 miesięcy." },
+      { property: "og:description", content: "Twoja reputacja w jednym kliknięciu — bezpieczna, transparentna, ważna 90 dni." },
     ],
   }),
   component: PaszportPage,
