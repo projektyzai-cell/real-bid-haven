@@ -369,6 +369,7 @@ function PromotedStrip() {
       const { data, error } = await supabase.from("rental_listings" as never)
         .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index")
         .eq("promoted", true).eq("status", "active").gt("expires_at", new Date().toISOString())
+        .or(`promoted_until.is.null,promoted_until.gt.${new Date().toISOString()}`)
         .order("created_at", { ascending: false }).limit(6);
       if (error) throw error;
       return (data ?? []) as unknown as Promo[];
