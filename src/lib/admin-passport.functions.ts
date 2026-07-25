@@ -131,7 +131,9 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: cur } = await supabaseAdmin
-      .from("profiles").select("passport_serial, passport_count").eq("id", data.userId).maybeSingle();
+      .from("profiles")
+      .select("passport_serial, passport_count, identity_doc_urls, identity_doc_url, employment_contract_urls, employment_contract_url, bank_statement_urls")
+      .eq("id", data.userId).maybeSingle();
     let serial = (cur as any)?.passport_serial as string | null;
     const prevCount = Number((cur as any)?.passport_count ?? 0);
     if (!serial) {
@@ -152,8 +154,32 @@ export const generateTenantPassport = createServerFn({ method: "POST" })
       passport_generated_by: ctx.userId,
       passport_count: prevCount + 1,
       passport_renewal_requested: false,
+      // Post-generation: wipe URL columns so renewal requires re-uploading fresh docs.
+      identity_doc_urls: [],
+      identity_doc_url: null,
+      employment_contract_urls: [],
+      employment_contract_url: null,
+      bank_statement_urls: [],
     }).eq("id", data.userId);
     if (error) throw new Error(error.message);
+
+    // Best-effort delete of uploaded source documents from storage.
+    try {
+      const p: any = cur ?? {};
+      const paths: string[] = [
+        ...(Array.isArray(p.identity_doc_urls) ? p.identity_doc_urls : []),
+        ...(p.identity_doc_url ? [p.identity_doc_url] : []),
+        ...(Array.isArray(p.employment_contract_urls) ? p.employment_contract_urls : []),
+        ...(p.employment_contract_url ? [p.employment_contract_url] : []),
+        ...(Array.isArray(p.bank_statement_urls) ? p.bank_statement_urls : []),
+      ].filter(Boolean);
+      if (paths.length > 0) {
+        await supabaseAdmin.storage.from("passport-docs").remove(paths);
+      }
+    } catch (e) {
+      console.warn("passport-docs cleanup failed", e);
+    }
+
     return { serial, issued_at: now.toISOString(), expires_at: expires.toISOString() };
   });
 
