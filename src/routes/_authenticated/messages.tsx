@@ -885,12 +885,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Anti-ghosting countdown: 48h from last message of counterpart (or chat creation)
+  // Anti-ghosting countdown: 48h from last message of counterpart (or chat creation).
+  // Tura 12: znika trwale po pierwszej wiadomości Wynajmującego do Najemcy.
   const lastFromCounterpart = useMemo(() => {
     if (!messages) return null;
     const reversed = [...messages].reverse();
     return reversed.find((m) => m.sender_id !== user?.id) ?? null;
   }, [messages, user?.id]);
+
+  const landlordHasWritten = useMemo(() => {
+    if (!messages) return false;
+    return messages.some((m) => m.sender_id === chat.landlordId && !m.is_system);
+  }, [messages, chat.landlordId]);
 
   const ghostBase = lastFromCounterpart?.created_at ?? chat.createdAt;
   const [now, setNow] = useState(Date.now());
@@ -903,6 +909,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const ghostStr = ghostExpired
     ? "Przekroczono czas odpowiedzi"
     : formatCountdown(ghostMs);
+  const showGhostTimer = !landlordHasWritten;
 
   // Progress timeline state — persisted in DB
   const hasMessages = (messages?.length ?? 0) > 0;
@@ -971,13 +978,14 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
               <p className="truncate text-xs text-muted-foreground">{chat.subtitle}</p>
             </div>
           </div>
-          {chat.type === "smart-match" && (
+          {chat.type === "smart-match" && showGhostTimer && (
             <div
               className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold ${
                 ghostExpired
                   ? "border-destructive/40 bg-destructive/10 text-destructive"
                   : "border-gold/40 bg-gold/10 text-gold"
               }`}
+              title="Licznik pierwszego kontaktu — zniknie po pierwszej wiadomości Wynajmującego"
             >
               <Clock className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{ghostExpired ? "Brak odpowiedzi" : "Czas:"}</span>

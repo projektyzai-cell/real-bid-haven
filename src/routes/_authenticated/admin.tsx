@@ -1622,6 +1622,39 @@ function ReviewsTab() {
 
 
 /* ===================== AUTO-MATCHING ===================== */
+type MatchingCfg = {
+  enabled: boolean;
+  min_match_score: number;
+  max_offers_per_request: number;
+  hard_require_city: boolean;
+  hard_require_property_type: boolean;
+  hard_require_district: boolean;
+  hard_enforce_budget: boolean;
+  hard_enforce_floor_exclusions: boolean;
+  hard_exclude_self: boolean;
+  soft_base_score: number;
+  soft_weight_balcony: number;
+  soft_weight_dishwasher: number;
+  soft_weight_elevator: number;
+  soft_weight_parking: number;
+};
+
+const HARD_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
+  { key: "hard_require_city", label: "Zgodność miasta", desc: "Oferta musi znajdować się w tym samym mieście, co zapytanie najemcy." },
+  { key: "hard_require_property_type", label: "Zgodność typu nieruchomości", desc: "Mieszkanie ↔ mieszkanie, dom ↔ dom, pokój ↔ pokój." },
+  { key: "hard_require_district", label: "Zgodność dzielnicy", desc: "Jeśli najemca wskazał dzielnicę — oferta musi być z tej samej dzielnicy." },
+  { key: "hard_enforce_budget", label: "Limit budżetu najemcy", desc: "Cena najmu nie może przekraczać maksymalnego budżetu z zapytania." },
+  { key: "hard_enforce_floor_exclusions", label: "Wykluczenia piętra", desc: "Respektuje wykluczenia najemcy (parter, wyższe piętra bez windy)." },
+  { key: "hard_exclude_self", label: "Wyklucz własne ogłoszenia", desc: "Nie proponuje najemcy jego własnych ofert." },
+];
+
+const SOFT_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
+  { key: "soft_weight_balcony", label: "Balkon", desc: "Waga zgodności preferencji balkonu." },
+  { key: "soft_weight_dishwasher", label: "Zmywarka", desc: "Waga zgodności preferencji zmywarki." },
+  { key: "soft_weight_elevator", label: "Winda", desc: "Waga zgodności preferencji windy." },
+  { key: "soft_weight_parking", label: "Miejsce parkingowe", desc: "Waga zgodności preferencji parkingu." },
+];
+
 function MatchingTab() {
   const qc = useQueryClient();
   const q = useQuery({
@@ -1633,112 +1666,163 @@ function MatchingTab() {
         .eq("id", true)
         .maybeSingle();
       if (error) throw new Error(error.message);
-      return data as any;
+      return data as any as MatchingCfg | null;
     },
   });
 
-  const [enabled, setEnabled] = useState<boolean>(true);
-  const [minScore, setMinScore] = useState<number>(70);
-  const [maxOffers, setMaxOffers] = useState<number>(20);
-  const [initialized, setInitialized] = useState(false);
+  const [cfg, setCfg] = useState<MatchingCfg | null>(null);
 
-  if (q.data && !initialized) {
-    setEnabled(!!q.data.enabled);
-    setMinScore(q.data.min_match_score ?? 70);
-    setMaxOffers(q.data.max_offers_per_request ?? 20);
-    setInitialized(true);
-  }
+  if (q.data && !cfg) setCfg(q.data);
 
   const save = useMutation({
     mutationFn: async () => {
+      if (!cfg) return;
       const { error } = await supabase
         .from("matching_settings" as any)
-        .update({
-          enabled,
-          min_match_score: minScore,
-          max_offers_per_request: maxOffers,
-          updated_at: new Date().toISOString(),
-        })
+        .update({ ...cfg, updated_at: new Date().toISOString() } as any)
         .eq("id", true);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
-      toast.success("Ustawienia zapisane.");
+      toast.success("Ustawienia auto-matchingu zapisane.");
       qc.invalidateQueries({ queryKey: ["matching-settings"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
 
-  if (q.isLoading) {
+  if (q.isLoading || !cfg) {
     return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
+  const update = (patch: Partial<MatchingCfg>) => setCfg({ ...cfg, ...patch });
+  const softTotal =
+    (cfg.soft_weight_balcony || 0) +
+    (cfg.soft_weight_dishwasher || 0) +
+    (cfg.soft_weight_elevator || 0) +
+    (cfg.soft_weight_parking || 0);
+
   return (
-    <Card className="p-6 space-y-6 max-w-2xl">
-      <div className="flex items-center gap-3">
-        <Zap className="h-6 w-6 text-gold" />
-        <div>
-          <h2 className="text-lg font-semibold">Silnik Auto-Matchingu</h2>
-          <p className="text-sm text-muted-foreground">
-            Steruj automatycznym dopasowywaniem ofert najmu do zapytań najemców.
-          </p>
+    <div className="space-y-6">
+      <Card className="p-6 space-y-4">
+        <div className="flex items-center gap-3">
+          <Zap className="h-6 w-6 text-gold" />
+          <div>
+            <h2 className="text-lg font-semibold">Silnik Auto-Matchingu</h2>
+            <p className="text-sm text-muted-foreground">
+              Pełna kontrola nad zasadami dopasowania.
+              <strong className="text-foreground"> Twarde</strong> zasady odrzucają dopasowanie, <strong className="text-foreground">miękkie</strong> — ważą wynik %.
+            </p>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center justify-between rounded-xl border p-4">
-        <div>
-          <div className="font-medium">Silnik aktywny</div>
+        <div className="flex items-center justify-between rounded-xl border p-4">
+          <div>
+            <div className="font-medium">Silnik aktywny globalnie</div>
+            <p className="text-xs text-muted-foreground">
+              Wyłączenie zatrzymuje generowanie nowych dopasowań w całym portalu.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => update({ enabled: !cfg.enabled })}
+            className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${cfg.enabled ? "bg-emerald-500" : "bg-slate-500"}`}
+          >
+            <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${cfg.enabled ? "translate-x-6" : "translate-x-1"}`} />
+          </button>
+        </div>
+
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="space-y-2 rounded-xl border p-4">
+            <Label htmlFor="min-score">Minimalny wynik: <strong className="text-gold">{cfg.min_match_score}</strong> / 100</Label>
+            <input id="min-score" type="range" min={0} max={100} step={5}
+              value={cfg.min_match_score}
+              onChange={(e) => update({ min_match_score: Number(e.target.value) })}
+              className="w-full accent-amber-500" />
+            <p className="text-xs text-muted-foreground">Oferty poniżej progu nie są proponowane najemcy.</p>
+          </div>
+          <div className="space-y-2 rounded-xl border p-4">
+            <Label htmlFor="max-offers">Maks. dopasowań / zapytanie</Label>
+            <Input id="max-offers" type="number" min={1} max={200}
+              value={cfg.max_offers_per_request}
+              onChange={(e) => update({ max_offers_per_request: Number(e.target.value) })} />
+            <p className="text-xs text-muted-foreground">Zapobiega spamowaniu jednego najemcy setkami ofert.</p>
+          </div>
+          <div className="space-y-2 rounded-xl border p-4">
+            <Label htmlFor="base-score">Bazowy wynik: <strong className="text-gold">{cfg.soft_base_score}</strong></Label>
+            <input id="base-score" type="range" min={50} max={90} step={5}
+              value={cfg.soft_base_score}
+              onChange={(e) => update({ soft_base_score: Number(e.target.value) })}
+              className="w-full accent-amber-500" />
+            <p className="text-xs text-muted-foreground">Punkt startowy dopasowania — reszta z wag miękkich.</p>
+          </div>
+        </div>
+      </Card>
+
+      <Card className="p-0 overflow-hidden">
+        <div className="border-b bg-muted/30 px-5 py-3">
+          <h3 className="font-semibold">Zasady TWARDE (filtry blokujące)</h3>
+          <p className="text-xs text-muted-foreground">Niespełnienie którejkolwiek aktywnej zasady = brak dopasowania.</p>
+        </div>
+        <div className="divide-y">
+          {HARD_RULES.map((r) => (
+            <div key={r.key} className="flex items-center justify-between gap-4 px-5 py-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="rounded-full border-rose-400/40 bg-rose-400/10 text-rose-300">TWARDA</Badge>
+                  <span className="font-medium">{r.label}</span>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">{r.desc}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => update({ [r.key]: !cfg[r.key] } as any)}
+                className={`relative inline-flex h-7 w-12 shrink-0 items-center rounded-full transition ${cfg[r.key] ? "bg-emerald-500" : "bg-slate-500"}`}
+              >
+                <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${cfg[r.key] ? "translate-x-6" : "translate-x-1"}`} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </Card>
+
+      <Card className="p-0 overflow-hidden">
+        <div className="border-b bg-muted/30 px-5 py-3">
+          <h3 className="font-semibold">Zasady MIĘKKIE (wagi wyniku %)</h3>
           <p className="text-xs text-muted-foreground">
-            Gdy wyłączony — nowe oferty i zapytania nie generują dopasowań.
+            Wagi względne — algorytm normalizuje je do zakresu {cfg.soft_base_score}–100. Suma bieżąca: <strong className="text-foreground">{softTotal}</strong>.
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => setEnabled(!enabled)}
-          className={`relative inline-flex h-7 w-12 items-center rounded-full transition ${enabled ? "bg-emerald-500" : "bg-slate-500"}`}
-        >
-          <span className={`inline-block h-5 w-5 transform rounded-full bg-white transition ${enabled ? "translate-x-6" : "translate-x-1"}`} />
-        </button>
-      </div>
+        <div className="divide-y">
+          {SOFT_RULES.map((r) => (
+            <div key={r.key} className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="rounded-full border-sky-400/40 bg-sky-400/10 text-sky-300">MIĘKKA</Badge>
+                  <span className="font-medium">{r.label}</span>
+                </div>
+                <p className="mt-0.5 text-xs text-muted-foreground">{r.desc}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Input type="number" min={0} max={100}
+                  value={cfg[r.key] as number}
+                  onChange={(e) => update({ [r.key]: Number(e.target.value) } as any)}
+                  className="h-9 w-20 text-right" />
+                <span className="text-xs text-muted-foreground">pkt</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </Card>
 
-      <div className="space-y-2">
-        <Label htmlFor="min-score">Minimalny wynik dopasowania: <strong>{minScore}</strong> / 100</Label>
-        <input
-          id="min-score"
-          type="range"
-          min={0}
-          max={100}
-          step={5}
-          value={minScore}
-          onChange={(e) => setMinScore(Number(e.target.value))}
-          className="w-full accent-amber-500"
-        />
-        <p className="text-xs text-muted-foreground">
-          Oferty poniżej tego progu nie zostaną zaproponowane najemcy (70 = domyślny).
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="max-offers">Maks. dopasowań na jedno zapytanie</Label>
-        <Input
-          id="max-offers"
-          type="number"
-          min={1}
-          max={200}
-          value={maxOffers}
-          onChange={(e) => setMaxOffers(Number(e.target.value))}
-        />
-      </div>
-
-      <div className="flex justify-end">
-        <Button
-          onClick={() => save.mutate()}
-          disabled={save.isPending}
-          className="bg-amber-500 text-slate-950 hover:bg-amber-400"
-        >
-          {save.isPending ? "Zapisuję…" : "Zapisz ustawienia"}
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" onClick={() => q.data && setCfg(q.data)} disabled={save.isPending}>
+          Przywróć
+        </Button>
+        <Button onClick={() => save.mutate()} disabled={save.isPending}
+          className="bg-amber-500 text-slate-950 hover:bg-amber-400">
+          {save.isPending ? "Zapisuję…" : "Zapisz wszystkie ustawienia"}
         </Button>
       </div>
-    </Card>
+    </div>
   );
 }
