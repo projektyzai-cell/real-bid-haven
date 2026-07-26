@@ -333,28 +333,37 @@ function VBadge({ ok, label }: { ok: boolean; label: string }) {
   );
 }
 
-/* ---------- How it works ---------- */
+/* ---------- How it works — 5-step timeline (Tura 11) ---------- */
 function HowItWorks() {
-  const { t } = useTranslation();
-  const items = [
-    { icon: <BadgeCheck className="h-4 w-4" />, label: t("home.howPassport") },
-    { icon: <Building className="h-4 w-4" />, label: t("home.howListing") },
-    { icon: <Users className="h-4 w-4" />, label: t("home.howMatch") },
-    { icon: <FileText className="h-4 w-4" />, label: t("home.howContract") },
-    { icon: <Handshake className="h-4 w-4" />, label: t("home.howConcierge") },
+  const steps = [
+    { Icon: ShieldCheck,   title: "Paszport",    desc: "Zweryfikowana tożsamość i dochód najemcy.", color: "from-amber-400 to-yellow-500" },
+    { Icon: Magnet,        title: "Smart Match", desc: "Algorytm dopasowuje ofertę do zapytania.", color: "from-sky-400 to-blue-500" },
+    { Icon: FileSignature, title: "Umowa",       desc: "Podpis obu stron w bezpiecznym generatorze.", color: "from-emerald-400 to-teal-500" },
+    { Icon: Wrench,        title: "Serwis",      desc: "Zgłoszenia usterek i wsparcie Concierge.", color: "from-orange-400 to-red-500" },
+    { Icon: Award,         title: "Oceny",       desc: "Wzajemne opinie budują reputację obu stron.", color: "from-fuchsia-400 to-purple-500" },
   ];
   return (
-    <section className="container mx-auto px-4 py-6">
-      <div className="flex flex-wrap items-center gap-x-2 gap-y-3 text-xs sm:text-sm">
-        <span className="mr-2 text-muted-foreground">{t("home.howLabel")}</span>
-        {items.map((it, i) => (
-          <span key={it.label} className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-2 rounded-full border border-border bg-card/50 px-3 py-1.5 font-semibold uppercase tracking-wide">
-              {it.icon}{it.label}
-            </span>
-            {i < items.length - 1 && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
-          </span>
-        ))}
+    <section className="container mx-auto px-4 py-10">
+      <div className="mb-6 text-center">
+        <div className="inline-flex items-center gap-2 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-3 py-1 text-[11px] font-bold uppercase tracking-widest text-gold">
+          <Sparkles className="h-3.5 w-3.5" /> Jak działa StaySafe
+        </div>
+        <h2 className="mt-3 text-2xl font-black tracking-tight sm:text-3xl">5 kroków do bezpiecznego najmu</h2>
+      </div>
+      <div className="relative">
+        <div className="pointer-events-none absolute left-0 right-0 top-9 hidden h-px bg-gradient-to-r from-transparent via-[var(--gold)]/40 to-transparent md:block" />
+        <ol className="relative grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-5">
+          {steps.map((s, i) => (
+            <li key={s.title} className="group flex flex-col items-center text-center">
+              <div className={`relative grid h-[72px] w-[72px] place-items-center rounded-2xl bg-gradient-to-br ${s.color} shadow-lg ring-1 ring-white/10 transition group-hover:scale-105`}>
+                <s.Icon className="h-9 w-9 text-white" strokeWidth={2.2} />
+                <span className="absolute -right-1.5 -top-1.5 grid h-6 w-6 place-items-center rounded-full border border-[var(--gold)] bg-background text-[11px] font-bold text-gold">{i + 1}</span>
+              </div>
+              <h3 className="mt-3 text-sm font-bold uppercase tracking-wide">{s.title}</h3>
+              <p className="mt-1 text-xs text-muted-foreground">{s.desc}</p>
+            </li>
+          ))}
+        </ol>
       </div>
     </section>
   );
