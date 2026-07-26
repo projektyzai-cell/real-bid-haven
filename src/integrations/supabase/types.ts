@@ -641,25 +641,58 @@ export type Database = {
       matching_settings: {
         Row: {
           enabled: boolean
+          hard_enforce_budget: boolean
+          hard_enforce_floor_exclusions: boolean
+          hard_exclude_self: boolean
+          hard_require_city: boolean
+          hard_require_district: boolean
+          hard_require_property_type: boolean
           id: boolean
           max_offers_per_request: number
           min_match_score: number
+          soft_base_score: number
+          soft_weight_balcony: number
+          soft_weight_dishwasher: number
+          soft_weight_elevator: number
+          soft_weight_parking: number
           updated_at: string
           updated_by: string | null
         }
         Insert: {
           enabled?: boolean
+          hard_enforce_budget?: boolean
+          hard_enforce_floor_exclusions?: boolean
+          hard_exclude_self?: boolean
+          hard_require_city?: boolean
+          hard_require_district?: boolean
+          hard_require_property_type?: boolean
           id?: boolean
           max_offers_per_request?: number
           min_match_score?: number
+          soft_base_score?: number
+          soft_weight_balcony?: number
+          soft_weight_dishwasher?: number
+          soft_weight_elevator?: number
+          soft_weight_parking?: number
           updated_at?: string
           updated_by?: string | null
         }
         Update: {
           enabled?: boolean
+          hard_enforce_budget?: boolean
+          hard_enforce_floor_exclusions?: boolean
+          hard_exclude_self?: boolean
+          hard_require_city?: boolean
+          hard_require_district?: boolean
+          hard_require_property_type?: boolean
           id?: boolean
           max_offers_per_request?: number
           min_match_score?: number
+          soft_base_score?: number
+          soft_weight_balcony?: number
+          soft_weight_dishwasher?: number
+          soft_weight_elevator?: number
+          soft_weight_parking?: number
           updated_at?: string
           updated_by?: string | null
         }
