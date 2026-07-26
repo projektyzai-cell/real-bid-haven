@@ -885,12 +885,18 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
     onError: (e: Error) => toast.error(e.message),
   });
 
-  // Anti-ghosting countdown: 48h from last message of counterpart (or chat creation)
+  // Anti-ghosting countdown: 48h from last message of counterpart (or chat creation).
+  // Tura 12: znika trwale po pierwszej wiadomości Wynajmującego do Najemcy.
   const lastFromCounterpart = useMemo(() => {
     if (!messages) return null;
     const reversed = [...messages].reverse();
     return reversed.find((m) => m.sender_id !== user?.id) ?? null;
   }, [messages, user?.id]);
+
+  const landlordHasWritten = useMemo(() => {
+    if (!messages) return false;
+    return messages.some((m) => m.sender_id === chat.landlordId && !m.is_system);
+  }, [messages, chat.landlordId]);
 
   const ghostBase = lastFromCounterpart?.created_at ?? chat.createdAt;
   const [now, setNow] = useState(Date.now());
@@ -903,6 +909,7 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
   const ghostStr = ghostExpired
     ? "Przekroczono czas odpowiedzi"
     : formatCountdown(ghostMs);
+  const showGhostTimer = !landlordHasWritten;
 
   // Progress timeline state — persisted in DB
   const hasMessages = (messages?.length ?? 0) > 0;
