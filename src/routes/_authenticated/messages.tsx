@@ -978,13 +978,14 @@ function ChatViewport({ chat, onBack }: { chat: ChatItem; onBack: () => void }) 
               <p className="truncate text-xs text-muted-foreground">{chat.subtitle}</p>
             </div>
           </div>
-          {chat.type === "smart-match" && (
+          {chat.type === "smart-match" && showGhostTimer && (
             <div
               className={`flex shrink-0 items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-semibold ${
                 ghostExpired
                   ? "border-destructive/40 bg-destructive/10 text-destructive"
                   : "border-gold/40 bg-gold/10 text-gold"
               }`}
+              title="Licznik pierwszego kontaktu — zniknie po pierwszej wiadomości Wynajmującego"
             >
               <Clock className="h-3.5 w-3.5" />
               <span className="hidden sm:inline">{ghostExpired ? "Brak odpowiedzi" : "Czas:"}</span>
