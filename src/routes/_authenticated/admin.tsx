@@ -137,7 +137,7 @@ function AdminDashboard() {
               </TabsTrigger>
               <TabsTrigger value="reports" asChild>
                 <Link to="/admin" search={{ tab: "reports" }} className="flex items-center gap-1.5">
-                  <Flag className="h-4 w-4" /> Zgłoszenia
+                  <Flag className="h-4 w-4" /> Zgłoszone usterki
                 </Link>
               </TabsTrigger>
               <TabsTrigger value="concierge" asChild>
