@@ -209,7 +209,10 @@ function RentalDetailPage() {
             </Badge>
             <Badge variant="outline" className="rounded-full"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</Badge>
           </div>
-          <h1 className="mt-3 text-3xl font-semibold">{r.title}</h1>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-semibold">{r.title}</h1>
+            <PropertyRatingBadge listingId={r.id} />
+          </div>
           {r.kind === "room" && r.room_label && (
             <p className="mt-1 text-sm text-muted-foreground">Oznaczenie pokoju: <strong className="text-foreground">{r.room_label}</strong></p>
           )}
