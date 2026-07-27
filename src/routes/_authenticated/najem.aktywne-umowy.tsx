@@ -63,15 +63,18 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
   const [reportFor, setReportFor] = useState<string | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
-    queryKey: ["active-leases", user?.id],
+    queryKey: ["active-leases", user?.id, roleFilter ?? "all"],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("lease_transactions")
         .select("id,state,listing_id,tenant_id,landlord_id,chat_id,accepted_at,completed_at,contract_start_date,contract_end_date,landlord_hidden_from_active_at,payment_delay_reported_at,pending_extension_end_date,pending_extension_requested_by,pending_extension_requested_at,created_at")
-        .or(`tenant_id.eq.${user!.id},landlord_id.eq.${user!.id}`)
         .eq("state", "completed")
         .order("completed_at", { ascending: false });
+      if (roleFilter === "tenant") q = q.eq("tenant_id", user!.id);
+      else if (roleFilter === "landlord") q = q.eq("landlord_id", user!.id);
+      else q = q.or(`tenant_id.eq.${user!.id},landlord_id.eq.${user!.id}`);
+      const { data, error } = await q;
       if (error) throw error;
       const txns = (data ?? []) as Txn[];
       const filtered = txns.filter((t) => !(t.landlord_id === user!.id && t.landlord_hidden_from_active_at));
