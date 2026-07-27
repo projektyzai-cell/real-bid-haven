@@ -178,9 +178,11 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
           <FileSignature className="h-6 w-6 text-gold" />
         </div>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Aktywne umowy Stay Safe</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">{roleFilter === "tenant" ? "Moje umowy najmu" : "Aktywne umowy Stay Safe"}</h1>
           <p className="text-sm text-muted-foreground">
-            Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu.
+            {roleFilter === "tenant"
+              ? "Twoje umowy najmu (aktywne i zakończone) zawarte w ekosystemie Stay Safe."
+              : "Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu."}
           </p>
         </div>
       </div>
