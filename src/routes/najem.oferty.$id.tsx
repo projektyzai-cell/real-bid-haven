@@ -253,7 +253,10 @@ function RentalDetailPage() {
         </div>
         <div className="rounded-3xl bg-card p-6 shadow-card">
           <h3 className="font-semibold">{t("offers.landlord")}</h3>
-          <p className="mt-2 text-sm">{data.owner?.display_name ?? t("offers.landlordAnonymous")}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <p className="text-sm">{data.owner?.display_name ?? t("offers.landlordAnonymous")}</p>
+            <UserRatingBadge userId={r.landlord_id} kind="landlord" />
+          </div>
           <p className="mt-2 text-xs text-muted-foreground">{t("offers.landlordNote")}</p>
           {user && (
             <div className="mt-3">
