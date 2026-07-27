@@ -1028,9 +1028,11 @@ function ReportsTab() {
   });
 
   return (
+    <div className="space-y-6">
+      <AdminMaintenanceReportsSection />
     <Card className="p-4 sm:p-6">
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <h2 className="text-lg font-semibold">Zgłoszenia użytkowników</h2>
+        <h2 className="text-lg font-semibold">Zgłoszenia moderacyjne użytkowników</h2>
         <div className="ml-auto flex gap-1">
           {(["new", "in_progress", "resolved", "rejected", "all"] as const).map((s) => (
             <Button
