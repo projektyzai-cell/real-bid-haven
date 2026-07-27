@@ -16,7 +16,7 @@ import { UserRatingBadge } from "@/components/ReviewBadges";
 
 export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   head: () => ({ meta: [{ title: "Aktywne umowy Stay Safe — Stay Safe" }] }),
-  component: AktywneUmowyPage,
+  component: () => <AktywneUmowyPage roleFilter="landlord" />,
 });
 
 export default AktywneUmowyPage;
@@ -49,7 +49,7 @@ type ConfirmState = {
   onConfirm: () => Promise<void> | void;
 } | null;
 
-function AktywneUmowyPage() {
+function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" } = {}) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [rating, setRating] = useState<
@@ -63,15 +63,18 @@ function AktywneUmowyPage() {
   const [reportFor, setReportFor] = useState<string | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
-    queryKey: ["active-leases", user?.id],
+    queryKey: ["active-leases", user?.id, roleFilter ?? "all"],
     enabled: !!user,
     queryFn: async () => {
-      const { data, error } = await supabase
+      let q = supabase
         .from("lease_transactions")
         .select("id,state,listing_id,tenant_id,landlord_id,chat_id,accepted_at,completed_at,contract_start_date,contract_end_date,landlord_hidden_from_active_at,payment_delay_reported_at,pending_extension_end_date,pending_extension_requested_by,pending_extension_requested_at,created_at")
-        .or(`tenant_id.eq.${user!.id},landlord_id.eq.${user!.id}`)
         .eq("state", "completed")
         .order("completed_at", { ascending: false });
+      if (roleFilter === "tenant") q = q.eq("tenant_id", user!.id);
+      else if (roleFilter === "landlord") q = q.eq("landlord_id", user!.id);
+      else q = q.or(`tenant_id.eq.${user!.id},landlord_id.eq.${user!.id}`);
+      const { data, error } = await q;
       if (error) throw error;
       const txns = (data ?? []) as Txn[];
       const filtered = txns.filter((t) => !(t.landlord_id === user!.id && t.landlord_hidden_from_active_at));
@@ -175,9 +178,11 @@ function AktywneUmowyPage() {
           <FileSignature className="h-6 w-6 text-gold" />
         </div>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Aktywne umowy Stay Safe</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">{roleFilter === "tenant" ? "Moje umowy najmu" : "Aktywne umowy Stay Safe"}</h1>
           <p className="text-sm text-muted-foreground">
-            Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu.
+            {roleFilter === "tenant"
+              ? "Twoje umowy najmu (aktywne i zakończone) zawarte w ekosystemie Stay Safe."
+              : "Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu."}
           </p>
         </div>
       </div>

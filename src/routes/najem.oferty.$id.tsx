@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { ExpressInterestPanel } from "@/components/ExpressInterestPanel";
 import { ReportButton } from "@/components/ReportButton";
+import { PropertyRatingBadge, UserRatingBadge } from "@/components/ReviewBadges";
 
 interface SimilarRow {
   id: string; title: string; city: string; street: string;
@@ -208,7 +209,10 @@ function RentalDetailPage() {
             </Badge>
             <Badge variant="outline" className="rounded-full"><Eye className="h-3 w-3" /> {r.views_count ?? 0}</Badge>
           </div>
-          <h1 className="mt-3 text-3xl font-semibold">{r.title}</h1>
+          <div className="mt-3 flex flex-wrap items-center gap-3">
+            <h1 className="text-3xl font-semibold">{r.title}</h1>
+            <PropertyRatingBadge listingId={r.id} />
+          </div>
           {r.kind === "room" && r.room_label && (
             <p className="mt-1 text-sm text-muted-foreground">Oznaczenie pokoju: <strong className="text-foreground">{r.room_label}</strong></p>
           )}
@@ -249,7 +253,10 @@ function RentalDetailPage() {
         </div>
         <div className="rounded-3xl bg-card p-6 shadow-card">
           <h3 className="font-semibold">{t("offers.landlord")}</h3>
-          <p className="mt-2 text-sm">{data.owner?.display_name ?? t("offers.landlordAnonymous")}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            <p className="text-sm">{data.owner?.display_name ?? t("offers.landlordAnonymous")}</p>
+            <UserRatingBadge userId={r.landlord_id} kind="landlord" />
+          </div>
           <p className="mt-2 text-xs text-muted-foreground">{t("offers.landlordNote")}</p>
           {user && (
             <div className="mt-3">
