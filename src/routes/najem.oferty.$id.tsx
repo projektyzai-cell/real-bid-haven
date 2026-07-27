@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
 import { ExpressInterestPanel } from "@/components/ExpressInterestPanel";
 import { ReportButton } from "@/components/ReportButton";
+import { PropertyRatingBadge, UserRatingBadge } from "@/components/ReviewBadges";
 
 interface SimilarRow {
   id: string; title: string; city: string; street: string;
