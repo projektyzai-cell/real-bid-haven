@@ -16,7 +16,7 @@ import { UserRatingBadge } from "@/components/ReviewBadges";
 
 export const Route = createFileRoute("/_authenticated/najem/aktywne-umowy")({
   head: () => ({ meta: [{ title: "Aktywne umowy Stay Safe — Stay Safe" }] }),
-  component: AktywneUmowyPage,
+  component: () => <AktywneUmowyPage roleFilter="landlord" />,
 });
 
 export default AktywneUmowyPage;
