@@ -1119,6 +1119,106 @@ function ReportsTab() {
         </div>
       )}
     </Card>
+    </div>
+  );
+}
+
+const MAINT_STATUS_LABEL: Record<string, string> = {
+  reported: "Nowe",
+  acknowledged: "Przyjęte",
+  in_progress: "W realizacji",
+  resolved: "Rozwiązane",
+  rejected: "Odrzucone",
+};
+const MAINT_URGENCY_LABEL: Record<string, string> = {
+  low: "Niski",
+  medium: "Średni",
+  high: "Wysoki",
+  critical: "Krytyczny",
+};
+
+function AdminMaintenanceReportsSection() {
+  const [status, setStatus] = useState<"all" | "open" | "resolved">("open");
+  const { data: rows = [], isLoading } = useQuery({
+    queryKey: ["admin-maintenance-reports", status],
+    queryFn: async () => {
+      let q = supabase
+        .from("maintenance_reports" as any)
+        .select("id,title,description,category,urgency,status,images,tenant_id,landlord_id,listing_id,created_at,resolved_at,landlord_note")
+        .order("created_at", { ascending: false });
+      if (status === "open") q = q.in("status", ["reported", "acknowledged", "in_progress"]);
+      if (status === "resolved") q = q.in("status", ["resolved", "rejected"]);
+      const { data, error } = await q;
+      if (error) throw new Error(error.message);
+      const list = (data ?? []) as any[];
+      const ids = Array.from(new Set([...list.map((r) => r.tenant_id), ...list.map((r) => r.landlord_id)].filter(Boolean)));
+      const listingIds = Array.from(new Set(list.map((r) => r.listing_id).filter(Boolean))) as string[];
+      const [profs, listings] = await Promise.all([
+        ids.length ? supabase.from("profiles").select("id,display_name").in("id", ids) : Promise.resolve({ data: [] as any[] }),
+        listingIds.length ? supabase.from("rental_listings").select("id,title,city").in("id", listingIds) : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const pmap = new Map((profs.data ?? []).map((p: any) => [p.id, p.display_name]));
+      const lmap = new Map((listings.data ?? []).map((l: any) => [l.id, l]));
+      return list.map((r) => ({ ...r, tenantName: pmap.get(r.tenant_id) ?? "—", landlordName: pmap.get(r.landlord_id) ?? "—", listing: r.listing_id ? lmap.get(r.listing_id) : null }));
+    },
+  });
+
+  return (
+    <Card className="p-4 sm:p-6">
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <Wrench className="h-5 w-5 text-gold" />
+        <h2 className="text-lg font-semibold">Zgłoszone usterki</h2>
+        <div className="ml-auto flex gap-1">
+          {(["open", "resolved", "all"] as const).map((s) => (
+            <Button key={s} size="sm" variant={status === s ? "default" : "outline"} onClick={() => setStatus(s)}>
+              {s === "open" ? "Otwarte" : s === "resolved" ? "Zamknięte" : "Wszystkie"}
+            </Button>
+          ))}
+        </div>
+      </div>
+      {isLoading ? (
+        <div className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Ładowanie…</div>
+      ) : rows.length === 0 ? (
+        <p className="py-8 text-center text-sm text-muted-foreground">Brak zgłoszonych usterek.</p>
+      ) : (
+        <div className="space-y-3">
+          {rows.map((r: any) => (
+            <div key={r.id} className="rounded-xl border bg-card p-4">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge>{MAINT_STATUS_LABEL[r.status] ?? r.status}</Badge>
+                    <Badge variant="outline">Pilność: {MAINT_URGENCY_LABEL[r.urgency] ?? r.urgency}</Badge>
+                    <Badge variant="outline">{r.category}</Badge>
+                    <span className="text-xs text-muted-foreground">{new Date(r.created_at).toLocaleString("pl-PL")}</span>
+                  </div>
+                  <div className="mt-1 font-semibold">{r.title}</div>
+                  <div className="mt-1 whitespace-pre-wrap text-sm text-muted-foreground">{r.description}</div>
+                  <div className="mt-2 text-xs text-muted-foreground">
+                    Najemca: <span className="text-foreground">{r.tenantName}</span> · Wynajmujący: <span className="text-foreground">{r.landlordName}</span>
+                    {r.listing && <> · Oferta: <span className="text-foreground">{r.listing.title} ({r.listing.city})</span></>}
+                  </div>
+                  {r.landlord_note && (
+                    <div className="mt-2 rounded-lg border border-border/60 bg-muted/30 p-2 text-xs">
+                      <span className="font-semibold">Notatka wynajmującego:</span> {r.landlord_note}
+                    </div>
+                  )}
+                </div>
+              </div>
+              {r.images?.length > 0 && (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {r.images.slice(0, 6).map((src: string, i: number) => (
+                    <a key={i} href={src} target="_blank" rel="noreferrer">
+                      <img src={src} alt="" className="h-16 w-24 rounded-lg border border-border object-cover" />
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
   );
 }
 
