@@ -445,8 +445,8 @@ function NewRentalListing() {
             </div>
           )}
 
-          {/* TURA 1 – dodatkowe informacje o pokoju / mieszkaniu (nie brane pod uwagę w Auto-Matching) */}
-          {showRoomFeatures && (
+          {/* TURA C – dodatkowe informacje o pokoju: WYŁĄCZNIE przy wystawianiu pokoju */}
+          {propertyType === "room" && (
             <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
               <p className="text-xs font-medium uppercase tracking-wide text-gold">Dodatkowe informacje o pokoju</p>
 
