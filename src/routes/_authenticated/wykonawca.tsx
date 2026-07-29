@@ -397,9 +397,15 @@ function ContactAdminDialog({ lead, onClose, contractor }: {
   const open = !!lead;
   const subject = lead ? `Zlecenie #${String(lead.id).slice(0, 8)} — ${lead.service_name}` : "";
   const [msg, setMsg] = useState("");
+  const [sending, setSending] = useState(false);
+  const send = useServerFn(contactAdmin);
 
-  function submitMail() {
+  async function submitMsg() {
     if (!lead) return;
+    if (msg.trim().length < 5) {
+      toast.error("Opisz krótko sprawę (min. 5 znaków).");
+      return;
+    }
     const body = [
       `Wykonawca: ${contractor?.company_name ?? ""}`,
       `Zlecenie ID: ${lead.id}`,
@@ -407,12 +413,17 @@ function ContactAdminDialog({ lead, onClose, contractor }: {
       `Usługa: ${lead.service_name}`,
       "",
       "Wiadomość:",
-      msg || "(brak treści)",
+      msg,
     ].join("\n");
-    const href = `mailto:kontakt@staysafe.pl?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = href;
-    onClose();
-    setMsg("");
+    setSending(true);
+    try {
+      await send({ data: { subject, body } });
+      toast.success("Wiadomość została wysłana do administratora.");
+      onClose();
+      setMsg("");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally { setSending(false); }
   }
 
   return (
@@ -421,7 +432,7 @@ function ContactAdminDialog({ lead, onClose, contractor }: {
         <DialogHeader>
           <DialogTitle>Kontakt z administratorem</DialogTitle>
           <DialogDescription className="text-slate-400">
-            Wiadomość dotyczy zlecenia: <span className="text-slate-200">{lead?.service_name}</span>
+            Wiadomość dotyczy zlecenia: <span className="text-slate-200">{lead?.service_name}</span>. Trafi ona bezpośrednio do skrzynki admina w panelu Stay Safe.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -433,13 +444,15 @@ function ContactAdminDialog({ lead, onClose, contractor }: {
           </div>
         </div>
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={onClose}>Anuluj</Button>
-          <Button type="button" onClick={submitMail}
+          <Button type="button" variant="outline" onClick={onClose} disabled={sending}>Anuluj</Button>
+          <Button type="button" onClick={submitMsg} disabled={sending}
             style={{ backgroundColor: "#f59e0b", color: "#0b0f19" }}>
-            Wyślij e-mail
+            {sending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+            Wyślij wiadomość
           </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
   );
 }
+
