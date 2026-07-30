@@ -32,7 +32,9 @@ type Profile = {
   verified_linkedin: boolean;
   verified_income: boolean;
   verified_past_contract: boolean;
+  identity_change_allowed: boolean | null;
 };
+
 
 export function PassportSection({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<Profile | null>(null);
