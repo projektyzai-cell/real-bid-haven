@@ -362,7 +362,23 @@ function ApplicationDetail({ userId }: { userId: string }) {
           checked={!!flags.name}
           onChange={(v) => updateMut.mutate({ passport_name_verified: v })}
         />
+        <div className="mt-3 flex flex-wrap items-center gap-3 rounded-xl border border-amber-500/40 bg-amber-500/5 p-3">
+          <div className="min-w-0 flex-1 text-xs text-muted-foreground">
+            <span className="font-semibold text-foreground">Zanonimizowane dane tożsamości</span> — użytkownik nie może ich edytować.
+            {p.identity_change_allowed ? " Edycja jest obecnie ODBLOKOWANA (jednorazowo)." : " Odblokuj, jeśli wnioskował o zmianę (np. nowy dokument)."}
+          </div>
+          <Button
+            size="sm"
+            variant={p.identity_change_allowed ? "outline" : "default"}
+            disabled={unlockMut.isPending}
+            onClick={() => unlockMut.mutate(!p.identity_change_allowed)}
+          >
+            {unlockMut.isPending && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+            {p.identity_change_allowed ? "Zablokuj ponownie" : "Odblokuj dane tożsamości"}
+          </Button>
+        </div>
       </Section>
+
 
       {/* Income */}
       <Section title="Dochody i umowa">
