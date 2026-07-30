@@ -316,6 +316,17 @@ function ApplicationDetail({ userId }: { userId: string }) {
     onSuccess: () => detail.refetch(),
   });
 
+  const unlockFn = useServerFn(setIdentityChangeAllowed);
+  const unlockMut = useMutation({
+    mutationFn: (allowed: boolean) => unlockFn({ data: { userId, allowed } }),
+    onSuccess: (_r, allowed) => {
+      toast.success(allowed ? "Dane tożsamości odblokowane dla użytkownika." : "Dane tożsamości zablokowane.");
+      detail.refetch();
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+
   const generateMut = useMutation({
     mutationFn: () => gen({ data: { userId, score, city } }),
     onSuccess: (res) => {
