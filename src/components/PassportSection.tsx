@@ -54,8 +54,9 @@ export function PassportSection({ userId }: { userId: string }) {
     const { data } = await supabase
       .from("profiles")
       .select(
-        "first_name,last_name,date_of_birth,has_pesel,passport_serial,passport_expires_at,trusted_tenant_score,verified_identity,verified_linkedin,verified_income,verified_past_contract",
+        "first_name,last_name,date_of_birth,has_pesel,passport_serial,passport_expires_at,trusted_tenant_score,verified_identity,verified_linkedin,verified_income,verified_past_contract,identity_change_allowed",
       )
+
       .eq("id", userId)
       .maybeSingle();
     if (data) {
