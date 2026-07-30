@@ -10,6 +10,8 @@ import {
   listDuplicateAlerts,
 } from "@/lib/admin.functions";
 import { listPassportApplications } from "@/lib/admin-passport.functions";
+import { assignMaintenanceToContractor } from "@/lib/admin-maintenance.functions";
+
 import {
   adminListUsers,
   adminGetUser,
