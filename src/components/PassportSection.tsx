@@ -285,10 +285,19 @@ export function PassportSection({ userId }: { userId: string }) {
             </div>
           </>
         )}
-      </div>
+      </fieldset>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        {isActive || isExpired ? (
+        {unlocked ? (
+          <Button
+            onClick={() => issue(true)}
+            disabled={busy}
+            className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
+          >
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+            Zapisz zmienione dane tożsamości
+          </Button>
+        ) : isActive || isExpired ? (
           <RequestDataChangeDialog />
         ) : (
           <Button
@@ -301,6 +310,7 @@ export function PassportSection({ userId }: { userId: string }) {
           </Button>
         )}
       </div>
+
     </section>
   );
 }
