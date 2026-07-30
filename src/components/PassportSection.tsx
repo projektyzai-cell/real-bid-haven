@@ -160,6 +160,9 @@ export function PassportSection({ userId }: { userId: string }) {
     profile.passport_expires_at &&
     new Date(profile.passport_expires_at) > new Date();
   const isExpired = profile?.passport_serial && !isActive;
+  const unlocked = !!profile?.identity_change_allowed;
+  const fieldsLocked = !!profile?.passport_serial && !unlocked;
+
 
   return (
     <section className="mt-6 rounded-3xl border border-[var(--gold)]/30 bg-card p-6 shadow-card">
