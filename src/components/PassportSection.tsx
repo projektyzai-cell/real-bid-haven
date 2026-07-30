@@ -205,7 +205,22 @@ export function PassportSection({ userId }: { userId: string }) {
       )}
 
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      {unlocked && (
+        <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4 text-sm">
+          <div className="font-semibold text-gold">Administrator odblokował dane tożsamości</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Możesz jednorazowo poprawić imię, nazwisko, datę urodzenia oraz PESEL / dokument. Po zapisaniu sekcja zostanie ponownie zablokowana.
+          </p>
+        </div>
+      )}
+      {fieldsLocked && (
+        <div className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 text-xs text-muted-foreground">
+          Te dane są zablokowane i nie resetują się przy składaniu wniosku o nowy paszport. Aby je zmienić, wyślij prośbę do administratora — po jej akceptacji formularz zostanie odblokowany.
+        </div>
+      )}
+
+      <fieldset disabled={fieldsLocked} className={fieldsLocked ? "mt-5 grid gap-4 opacity-60 sm:grid-cols-2" : "mt-5 grid gap-4 sm:grid-cols-2"}>
+
         <div>
           <Label htmlFor="fn">Imię</Label>
           <Input id="fn" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="mt-1.5 rounded-xl" />
