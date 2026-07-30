@@ -569,7 +569,10 @@ export type Database = {
       maintenance_reports: {
         Row: {
           acknowledged_at: string | null
+          assigned_at: string | null
           category: string
+          concierge_lead_id: string | null
+          contractor_id: string | null
           created_at: string
           description: string
           id: string
@@ -587,7 +590,10 @@ export type Database = {
         }
         Insert: {
           acknowledged_at?: string | null
+          assigned_at?: string | null
           category: string
+          concierge_lead_id?: string | null
+          contractor_id?: string | null
           created_at?: string
           description: string
           id?: string
@@ -605,7 +611,10 @@ export type Database = {
         }
         Update: {
           acknowledged_at?: string | null
+          assigned_at?: string | null
           category?: string
+          concierge_lead_id?: string | null
+          contractor_id?: string | null
           created_at?: string
           description?: string
           id?: string
@@ -622,6 +631,20 @@ export type Database = {
           urgency?: Database["public"]["Enums"]["maintenance_urgency"]
         }
         Relationships: [
+          {
+            foreignKeyName: "maintenance_reports_concierge_lead_id_fkey"
+            columns: ["concierge_lead_id"]
+            isOneToOne: false
+            referencedRelation: "concierge_leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "maintenance_reports_contractor_id_fkey"
+            columns: ["contractor_id"]
+            isOneToOne: false
+            referencedRelation: "contractors"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "maintenance_reports_listing_id_fkey"
             columns: ["listing_id"]
@@ -759,6 +782,7 @@ export type Database = {
           has_tenant_insurance: boolean
           home_city: string | null
           id: string
+          identity_change_allowed: boolean
           identity_combo_hash: string | null
           identity_doc_url: string | null
           identity_doc_urls: string[] | null
@@ -841,6 +865,7 @@ export type Database = {
           has_tenant_insurance?: boolean
           home_city?: string | null
           id: string
+          identity_change_allowed?: boolean
           identity_combo_hash?: string | null
           identity_doc_url?: string | null
           identity_doc_urls?: string[] | null
@@ -923,6 +948,7 @@ export type Database = {
           has_tenant_insurance?: boolean
           home_city?: string | null
           id?: string
+          identity_change_allowed?: boolean
           identity_combo_hash?: string | null
           identity_doc_url?: string | null
           identity_doc_urls?: string[] | null

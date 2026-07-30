@@ -32,7 +32,9 @@ type Profile = {
   verified_linkedin: boolean;
   verified_income: boolean;
   verified_past_contract: boolean;
+  identity_change_allowed: boolean | null;
 };
+
 
 export function PassportSection({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -52,8 +54,9 @@ export function PassportSection({ userId }: { userId: string }) {
     const { data } = await supabase
       .from("profiles")
       .select(
-        "first_name,last_name,date_of_birth,has_pesel,passport_serial,passport_expires_at,trusted_tenant_score,verified_identity,verified_linkedin,verified_income,verified_past_contract",
+        "first_name,last_name,date_of_birth,has_pesel,passport_serial,passport_expires_at,trusted_tenant_score,verified_identity,verified_linkedin,verified_income,verified_past_contract,identity_change_allowed",
       )
+
       .eq("id", userId)
       .maybeSingle();
     if (data) {
@@ -123,7 +126,10 @@ export function PassportSection({ userId }: { userId: string }) {
       identity_combo_hash: combo,
       passport_serial: serialData as string,
       passport_expires_at: expires.toISOString(),
+      // Editing window granted by the admin is consumed after a successful update.
+      identity_change_allowed: false,
     } as const;
+
 
     const { error } = await supabase.from("profiles").update(update).eq("id", userId);
     setBusy(false);
@@ -154,6 +160,9 @@ export function PassportSection({ userId }: { userId: string }) {
     profile.passport_expires_at &&
     new Date(profile.passport_expires_at) > new Date();
   const isExpired = profile?.passport_serial && !isActive;
+  const unlocked = !!profile?.identity_change_allowed;
+  const fieldsLocked = !!profile?.passport_serial && !unlocked;
+
 
   return (
     <section className="mt-6 rounded-3xl border border-[var(--gold)]/30 bg-card p-6 shadow-card">
@@ -196,7 +205,22 @@ export function PassportSection({ userId }: { userId: string }) {
       )}
 
 
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      {unlocked && (
+        <div className="mt-4 rounded-2xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 p-4 text-sm">
+          <div className="font-semibold text-gold">Administrator odblokował dane tożsamości</div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Możesz jednorazowo poprawić imię, nazwisko, datę urodzenia oraz PESEL / dokument. Po zapisaniu sekcja zostanie ponownie zablokowana.
+          </p>
+        </div>
+      )}
+      {fieldsLocked && (
+        <div className="mt-4 rounded-2xl border border-amber-500/40 bg-amber-500/5 p-4 text-xs text-muted-foreground">
+          Te dane są zablokowane i nie resetują się przy składaniu wniosku o nowy paszport. Aby je zmienić, wyślij prośbę do administratora — po jej akceptacji formularz zostanie odblokowany.
+        </div>
+      )}
+
+      <fieldset disabled={fieldsLocked} className={fieldsLocked ? "mt-5 grid gap-4 opacity-60 sm:grid-cols-2" : "mt-5 grid gap-4 sm:grid-cols-2"}>
+
         <div>
           <Label htmlFor="fn">Imię</Label>
           <Input id="fn" value={firstName} onChange={(e) => setFirstName(e.target.value)} className="mt-1.5 rounded-xl" />
@@ -261,10 +285,19 @@ export function PassportSection({ userId }: { userId: string }) {
             </div>
           </>
         )}
-      </div>
+      </fieldset>
 
       <div className="mt-5 flex flex-wrap gap-2">
-        {isActive || isExpired ? (
+        {unlocked ? (
+          <Button
+            onClick={() => issue(true)}
+            disabled={busy}
+            className="rounded-xl bg-[var(--gold)] font-bold uppercase tracking-wide text-[var(--gold-foreground)] hover:opacity-90"
+          >
+            {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <ShieldCheck className="mr-2 h-4 w-4" />}
+            Zapisz zmienione dane tożsamości
+          </Button>
+        ) : isActive || isExpired ? (
           <RequestDataChangeDialog />
         ) : (
           <Button
@@ -277,6 +310,7 @@ export function PassportSection({ userId }: { userId: string }) {
           </Button>
         )}
       </div>
+
     </section>
   );
 }

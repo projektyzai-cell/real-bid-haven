@@ -10,6 +10,8 @@ import {
   listDuplicateAlerts,
 } from "@/lib/admin.functions";
 import { listPassportApplications } from "@/lib/admin-passport.functions";
+import { assignMaintenanceToContractor } from "@/lib/admin-maintenance.functions";
+
 import {
   adminListUsers,
   adminGetUser,
@@ -1138,14 +1140,43 @@ const MAINT_URGENCY_LABEL: Record<string, string> = {
 };
 
 function AdminMaintenanceReportsSection() {
+  const qc = useQueryClient();
   const [status, setStatus] = useState<"all" | "open" | "resolved">("open");
+  const [picked, setPicked] = useState<Record<string, string>>({});
+  const assignFn = useServerFn(assignMaintenanceToContractor);
+
+  const contractorsQ = useQuery({
+    queryKey: ["admin-contractors-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contractors" as any)
+        .select("id, company_name, services, cities, nationwide, active")
+        .eq("active", true)
+        .order("company_name");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as any[];
+    },
+  });
+
+  const assignMut = useMutation({
+    mutationFn: ({ reportId, contractorId }: { reportId: string; contractorId: string }) =>
+      assignFn({ data: { reportId, contractorId } }),
+    onSuccess: (res: any) => {
+      toast.success(`Zgłoszenie przekazane wykonawcy: ${res.contractor}`);
+      qc.invalidateQueries({ queryKey: ["admin-maintenance-reports"] });
+      qc.invalidateQueries({ queryKey: ["admin-concierge-leads"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["admin-maintenance-reports", status],
     queryFn: async () => {
       let q = supabase
         .from("maintenance_reports" as any)
-        .select("id,title,description,category,urgency,status,images,tenant_id,landlord_id,listing_id,created_at,resolved_at,landlord_note")
+        .select("id,title,description,category,urgency,status,images,tenant_id,landlord_id,listing_id,created_at,resolved_at,landlord_note,contractor_id,assigned_at")
         .order("created_at", { ascending: false });
+
       if (status === "open") q = q.in("status", ["reported", "acknowledged", "in_progress"]);
       if (status === "resolved") q = q.in("status", ["resolved", "rejected"]);
       const { data, error } = await q;
@@ -1214,7 +1245,44 @@ function AdminMaintenanceReportsSection() {
                   ))}
                 </div>
               )}
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
+                {r.contractor_id ? (
+                  <span className="text-xs text-muted-foreground">
+                    Przekazane wykonawcy:{" "}
+                    <span className="font-semibold text-foreground">
+                      {(contractorsQ.data ?? []).find((c: any) => c.id === r.contractor_id)?.company_name ?? "—"}
+                    </span>
+                    {r.assigned_at && <> · {new Date(r.assigned_at).toLocaleDateString("pl-PL")}</>}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Przekaż wykonawcy Concierge:</span>
+                    <select
+                      className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs"
+                      value={picked[r.id] ?? ""}
+                      onChange={(e) => setPicked((p) => ({ ...p, [r.id]: e.target.value }))}
+                    >
+                      <option value="">— wybierz wykonawcę —</option>
+                      {(contractorsQ.data ?? []).map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.company_name}
+                          {c.nationwide ? " (cała Polska)" : c.cities?.length ? ` (${c.cities.slice(0, 3).join(", ")})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      size="sm"
+                      disabled={!picked[r.id] || assignMut.isPending}
+                      onClick={() => assignMut.mutate({ reportId: r.id, contractorId: picked[r.id] })}
+                    >
+                      {assignMut.isPending && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+                      Przekaż zlecenie
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
+
           ))}
         </div>
       )}

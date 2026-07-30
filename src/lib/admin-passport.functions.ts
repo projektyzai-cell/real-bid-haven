@@ -251,3 +251,21 @@ export const updateTrustScoreWeights = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/**
+ * Admin unlocks (or re-locks) the anonymized identity section of a tenant profile,
+ * so the user can edit name / date of birth / PESEL / document data once.
+ */
+export const setIdentityChangeAllowed = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ userId: z.string().uuid(), allowed: z.boolean() }).parse(d))
+  .handler(async ({ data, context }) => {
+    await assertSuperAdmin(context as any);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin
+      .from("profiles")
+      .update({ identity_change_allowed: data.allowed } as any)
+      .eq("id", data.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
