@@ -12,7 +12,9 @@ import {
   generateTenantPassport,
   getTrustScoreWeights,
   updateTrustScoreWeights,
+  setIdentityChangeAllowed,
 } from "@/lib/admin-passport.functions";
+
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
