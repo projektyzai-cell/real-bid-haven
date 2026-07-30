@@ -1138,14 +1138,43 @@ const MAINT_URGENCY_LABEL: Record<string, string> = {
 };
 
 function AdminMaintenanceReportsSection() {
+  const qc = useQueryClient();
   const [status, setStatus] = useState<"all" | "open" | "resolved">("open");
+  const [picked, setPicked] = useState<Record<string, string>>({});
+  const assignFn = useServerFn(assignMaintenanceToContractor);
+
+  const contractorsQ = useQuery({
+    queryKey: ["admin-contractors-list"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("contractors" as any)
+        .select("id, company_name, services, cities, nationwide, active")
+        .eq("active", true)
+        .order("company_name");
+      if (error) throw new Error(error.message);
+      return (data ?? []) as any[];
+    },
+  });
+
+  const assignMut = useMutation({
+    mutationFn: ({ reportId, contractorId }: { reportId: string; contractorId: string }) =>
+      assignFn({ data: { reportId, contractorId } }),
+    onSuccess: (res: any) => {
+      toast.success(`Zgłoszenie przekazane wykonawcy: ${res.contractor}`);
+      qc.invalidateQueries({ queryKey: ["admin-maintenance-reports"] });
+      qc.invalidateQueries({ queryKey: ["admin-concierge-leads"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["admin-maintenance-reports", status],
     queryFn: async () => {
       let q = supabase
         .from("maintenance_reports" as any)
-        .select("id,title,description,category,urgency,status,images,tenant_id,landlord_id,listing_id,created_at,resolved_at,landlord_note")
+        .select("id,title,description,category,urgency,status,images,tenant_id,landlord_id,listing_id,created_at,resolved_at,landlord_note,contractor_id,assigned_at")
         .order("created_at", { ascending: false });
+
       if (status === "open") q = q.in("status", ["reported", "acknowledged", "in_progress"]);
       if (status === "resolved") q = q.in("status", ["resolved", "rejected"]);
       const { data, error } = await q;
