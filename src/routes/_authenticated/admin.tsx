@@ -1245,7 +1245,44 @@ function AdminMaintenanceReportsSection() {
                   ))}
                 </div>
               )}
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border/60 pt-3">
+                {r.contractor_id ? (
+                  <span className="text-xs text-muted-foreground">
+                    Przekazane wykonawcy:{" "}
+                    <span className="font-semibold text-foreground">
+                      {(contractorsQ.data ?? []).find((c: any) => c.id === r.contractor_id)?.company_name ?? "—"}
+                    </span>
+                    {r.assigned_at && <> · {new Date(r.assigned_at).toLocaleDateString("pl-PL")}</>}
+                  </span>
+                ) : (
+                  <>
+                    <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Przekaż wykonawcy Concierge:</span>
+                    <select
+                      className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs"
+                      value={picked[r.id] ?? ""}
+                      onChange={(e) => setPicked((p) => ({ ...p, [r.id]: e.target.value }))}
+                    >
+                      <option value="">— wybierz wykonawcę —</option>
+                      {(contractorsQ.data ?? []).map((c: any) => (
+                        <option key={c.id} value={c.id}>
+                          {c.company_name}
+                          {c.nationwide ? " (cała Polska)" : c.cities?.length ? ` (${c.cities.slice(0, 3).join(", ")})` : ""}
+                        </option>
+                      ))}
+                    </select>
+                    <Button
+                      size="sm"
+                      disabled={!picked[r.id] || assignMut.isPending}
+                      onClick={() => assignMut.mutate({ reportId: r.id, contractorId: picked[r.id] })}
+                    >
+                      {assignMut.isPending && <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />}
+                      Przekaż zlecenie
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
+
           ))}
         </div>
       )}
