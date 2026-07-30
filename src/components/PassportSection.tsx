@@ -126,7 +126,10 @@ export function PassportSection({ userId }: { userId: string }) {
       identity_combo_hash: combo,
       passport_serial: serialData as string,
       passport_expires_at: expires.toISOString(),
+      // Editing window granted by the admin is consumed after a successful update.
+      identity_change_allowed: false,
     } as const;
+
 
     const { error } = await supabase.from("profiles").update(update).eq("id", userId);
     setBusy(false);
