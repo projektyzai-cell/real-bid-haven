@@ -26,7 +26,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ASSIGNMENT_STATUSES, assignmentStatusColor, assignmentStatusLabel,
-  contractorServiceLabel,
+  contractorServiceLabel, canTransitionAssignment, TERMINAL_ASSIGNMENT_STATUSES,
 } from "@/lib/contractor-constants";
 
 export const Route = createFileRoute("/_authenticated/wykonawca")({
