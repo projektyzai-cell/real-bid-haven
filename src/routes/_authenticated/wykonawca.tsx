@@ -26,7 +26,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ASSIGNMENT_STATUSES, assignmentStatusColor, assignmentStatusLabel,
-  contractorServiceLabel,
+  contractorServiceLabel, canTransitionAssignment, TERMINAL_ASSIGNMENT_STATUSES,
 } from "@/lib/contractor-constants";
 
 export const Route = createFileRoute("/_authenticated/wykonawca")({
@@ -279,7 +279,9 @@ function LeadCard({ lead, onUpdate, pending, onContactAdmin }: {
   onContactAdmin: () => void;
 }) {
   const [notes, setNotes] = useState<string>(lead.contractor_notes ?? "");
+  const [confirmStatus, setConfirmStatus] = useState<string | null>(null);
   const status = lead.assignment_status ?? "new";
+  const locked = TERMINAL_ASSIGNMENT_STATUSES.includes(status);
 
   return (
     <Card className="rounded-2xl border border-slate-800 bg-slate-900/70 p-5">
@@ -324,12 +326,14 @@ function LeadCard({ lead, onUpdate, pending, onContactAdmin }: {
       <div className="mt-4 flex flex-wrap gap-2">
         {ASSIGNMENT_STATUSES.filter((s) => s.key !== "new").map((s) => {
           const active = status === s.key;
+          const allowed = canTransitionAssignment(status, s.key);
           const Icon = s.key === "completed" ? CheckCircle2 : s.key === "cancelled" ? XCircle : PlayCircle;
           return (
             <Button key={s.key} size="sm"
               variant={active ? "default" : "outline"}
-              disabled={pending || active}
-              onClick={() => onUpdate({ status: s.key })}
+              disabled={pending || !allowed}
+              title={!allowed && !active ? "Nie można cofnąć etapu zlecenia" : undefined}
+              onClick={() => setConfirmStatus(s.key)}
               style={active ? { backgroundColor: "#f59e0b", color: "#0b0f19" } : undefined}
             >
               <Icon className="mr-1 h-3.5 w-3.5" />
@@ -338,9 +342,44 @@ function LeadCard({ lead, onUpdate, pending, onContactAdmin }: {
           );
         })}
       </div>
+
+      <p className="mt-2 text-[11px] text-slate-500">
+        {locked
+          ? "Zlecenie zostało zamknięte — status jest ostateczny i nie można go zmienić."
+          : "Status zlecenia zmienia się tylko do przodu — cofnięcie etapu nie jest możliwe."}
+      </p>
+
+      <Dialog open={!!confirmStatus} onOpenChange={(o) => !o && setConfirmStatus(null)}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Potwierdź zmianę statusu</DialogTitle>
+            <DialogDescription>
+              Czy potwierdzasz, że zlecenie jest „{confirmStatus ? assignmentStatusLabel(confirmStatus) : ""}"?
+              {confirmStatus && TERMINAL_ASSIGNMENT_STATUSES.includes(confirmStatus)
+                ? " Ta zmiana jest ostateczna — po zapisaniu nie będzie można jej cofnąć."
+                : " Zmiany statusu nie można cofnąć."}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setConfirmStatus(null)}>Anuluj</Button>
+            <Button
+              disabled={pending}
+              onClick={() => {
+                if (confirmStatus) onUpdate({ status: confirmStatus });
+                setConfirmStatus(null);
+              }}
+              style={{ backgroundColor: "#f59e0b", color: "#0b0f19" }}
+            >
+              {pending ? <Loader2 className="mr-1 h-3.5 w-3.5 animate-spin" /> : null}
+              Potwierdzam
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }
+
 
 function PasswordDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [pwd, setPwd] = useState("");

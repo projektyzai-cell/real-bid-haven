@@ -44,6 +44,27 @@ export function assignmentStatusColor(key: string): string {
   return ASSIGNMENT_STATUSES.find((s) => s.key === key)?.color ?? "";
 }
 
+/** Progres statusu — im wyżej, tym dalszy etap. Cofanie jest zablokowane. */
+export const ASSIGNMENT_STATUS_RANK: Record<string, number> = {
+  new: 0,
+  assigned: 1,
+  in_progress: 2,
+  completed: 3,
+  cancelled: 3,
+};
+
+export const TERMINAL_ASSIGNMENT_STATUSES = ["completed", "cancelled"];
+
+/** Jednokierunkowa zmiana statusu: tylko do przodu i nie po zamknięciu zlecenia. */
+export function canTransitionAssignment(current: string, next: string): boolean {
+  if (current === next) return false;
+  if (TERMINAL_ASSIGNMENT_STATUSES.includes(current)) return false;
+  const from = ASSIGNMENT_STATUS_RANK[current] ?? 0;
+  const to = ASSIGNMENT_STATUS_RANK[next] ?? 0;
+  return to > from;
+}
+
+
 /** Map concierge lead service_key -> contractor service category */
 export function leadServiceToContractorService(leadKey: string): string | null {
   const map: Record<string, string> = {
