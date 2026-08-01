@@ -49,7 +49,11 @@ type ConfirmState = {
   onConfirm: () => Promise<void> | void;
 } | null;
 
-function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" } = {}) {
+function AktywneUmowyPage({
+  roleFilter,
+  mode = "active",
+}: { roleFilter?: "tenant" | "landlord"; mode?: "active" | "archive" } = {}) {
+  const isArchive = mode === "archive";
   const { user } = useAuth();
   const qc = useQueryClient();
   const [rating, setRating] = useState<
