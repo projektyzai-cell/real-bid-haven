@@ -38,6 +38,8 @@ type Txn = {
   pending_extension_end_date: string | null;
   pending_extension_requested_by: string | null;
   pending_extension_requested_at: string | null;
+  archived_at?: string | null;
+  extension_of_id?: string | null;
   created_at: string;
 };
 
