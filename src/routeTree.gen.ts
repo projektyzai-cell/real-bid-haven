@@ -22,6 +22,7 @@ import { Route as NajemIndexRouteImport } from './routes/najem.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -110,6 +111,11 @@ const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
 const AdminSetupRoute = AdminSetupRouteImport.update({
   id: '/admin/setup',
   path: '/admin/setup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedWykonawcaRoute = AuthenticatedWykonawcaRouteImport.update({
@@ -268,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -307,6 +314,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -348,6 +356,7 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/_authenticated/wykonawca': typeof AuthenticatedWykonawcaRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -389,6 +398,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/ustawienia'
     | '/wykonawca'
+    | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -428,6 +438,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/ustawienia'
     | '/wykonawca'
+    | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -468,6 +479,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/ustawienia'
     | '/_authenticated/wykonawca'
+    | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -505,6 +517,7 @@ export interface RootRouteChildren {
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
   ProfilIdRoute: typeof ProfilIdRoute
@@ -604,6 +617,13 @@ declare module '@tanstack/react-router' {
       path: '/admin/setup'
       fullPath: '/admin/setup'
       preLoaderRoute: typeof AdminSetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/wykonawca': {
@@ -862,6 +882,7 @@ const rootRouteChildren: RootRouteChildren = {
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  AdminLoginRoute: AdminLoginRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
   ProfilIdRoute: ProfilIdRoute,
@@ -872,3 +893,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
