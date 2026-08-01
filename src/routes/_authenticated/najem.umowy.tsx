@@ -54,7 +54,24 @@ function UmowyPage() {
           </div>
           <ArrowRight className="h-5 w-5 shrink-0 text-gold" />
         </Link>
+
+        <Link
+          to="/najem/zakonczone-umowy"
+          className="flex items-center justify-between rounded-2xl border-2 border-[var(--gold)]/50 bg-gradient-to-br from-[var(--gold)]/15 to-transparent p-5 shadow-card transition hover:border-[var(--gold)] hover:shadow-lg"
+        >
+          <div className="flex items-start gap-3">
+            <Archive className="mt-0.5 h-5 w-5 text-gold" />
+            <div>
+              <div className="text-lg font-semibold">Zakończone umowy Stay Safe</div>
+              <div className="text-sm text-muted-foreground">
+                Archiwum umów zakończonych i przedłużonych — z datami najmu i możliwością wystawienia opinii.
+              </div>
+            </div>
+          </div>
+          <ArrowRight className="h-5 w-5 shrink-0 text-gold" />
+        </Link>
       </div>
     </div>
   );
 }
+
