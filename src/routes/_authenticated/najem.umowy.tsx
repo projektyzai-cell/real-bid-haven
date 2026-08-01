@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { FileSignature, ArrowRight, Wallet, FileText } from "lucide-react";
+import { FileSignature, ArrowRight, Wallet, FileText, Archive } from "lucide-react";
+
 
 export const Route = createFileRoute("/_authenticated/najem/umowy")({
   head: () => ({ meta: [{ title: "Zarządzanie umowami i płatnościami — Stay Safe" }] }),
