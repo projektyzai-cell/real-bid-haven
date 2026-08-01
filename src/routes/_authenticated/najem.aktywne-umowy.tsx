@@ -406,15 +406,18 @@ function AktywneUmowyPage({
                                           <Star className="h-3 w-3" /> Oceń najemcę
                                         </button>
                                       )}
-                                      <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
-                                        onClick={() => askHide(t.id)}>
-                                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
-                                      </Button>
+                                      {!isArchive && (
+                                        <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
+                                          onClick={() => askHide(t.id)}>
+                                          <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
+                                        </Button>
+                                      )}
                                     </>
                                   )}
                                 </div>
                               </div>
-                              <MaintenanceReportsList transactionId={t.id} role={t.role} />
+                              {!isArchive && <MaintenanceReportsList transactionId={t.id} role={t.role} />}
+
                             </div>
                           );
                         })}
