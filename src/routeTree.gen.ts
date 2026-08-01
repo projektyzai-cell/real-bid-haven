@@ -22,6 +22,7 @@ import { Route as NajemIndexRouteImport } from './routes/najem.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
 import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
@@ -29,6 +30,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
+import { Route as AuthenticatedNajemZakonczoneUmowyRouteImport } from './routes/_authenticated/najem.zakonczone-umowy'
 import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
 import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authenticated/najem.umowy'
 import { Route as AuthenticatedNajemPortfelRouteImport } from './routes/_authenticated/najem.portfel'
@@ -111,6 +113,11 @@ const AdminSetupRoute = AdminSetupRouteImport.update({
   path: '/admin/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedWykonawcaRoute = AuthenticatedWykonawcaRouteImport.update({
   id: '/wykonawca',
   path: '/wykonawca',
@@ -146,6 +153,12 @@ const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
   path: '/najem/oferty/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedNajemZakonczoneUmowyRoute =
+  AuthenticatedNajemZakonczoneUmowyRouteImport.update({
+    id: '/najem/zakonczone-umowy',
+    path: '/najem/zakonczone-umowy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedNajemZainteresowaniRoute =
   AuthenticatedNajemZainteresowaniRouteImport.update({
     id: '/najem/zainteresowani',
@@ -261,6 +274,7 @@ export interface FileRoutesByFullPath {
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -280,6 +294,7 @@ export interface FileRoutesByFullPath {
   '/najem/portfel': typeof AuthenticatedNajemPortfelRoute
   '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
+  '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -299,6 +314,7 @@ export interface FileRoutesByTo {
   '/messages': typeof AuthenticatedMessagesRoute
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -318,6 +334,7 @@ export interface FileRoutesByTo {
   '/najem/portfel': typeof AuthenticatedNajemPortfelRoute
   '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
+  '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
@@ -339,6 +356,7 @@ export interface FileRoutesById {
   '/_authenticated/messages': typeof AuthenticatedMessagesRoute
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/_authenticated/wykonawca': typeof AuthenticatedWykonawcaRoute
+  '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/profil/$id': typeof ProfilIdRoute
@@ -358,6 +376,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/portfel': typeof AuthenticatedNajemPortfelRoute
   '/_authenticated/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/_authenticated/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
+  '/_authenticated/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -379,6 +398,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/ustawienia'
     | '/wykonawca'
+    | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -398,6 +418,7 @@ export interface FileRouteTypes {
     | '/najem/portfel'
     | '/najem/umowy'
     | '/najem/zainteresowani'
+    | '/najem/zakonczone-umowy'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -417,6 +438,7 @@ export interface FileRouteTypes {
     | '/messages'
     | '/ustawienia'
     | '/wykonawca'
+    | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -436,6 +458,7 @@ export interface FileRouteTypes {
     | '/najem/portfel'
     | '/najem/umowy'
     | '/najem/zainteresowani'
+    | '/najem/zakonczone-umowy'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty'
@@ -456,6 +479,7 @@ export interface FileRouteTypes {
     | '/_authenticated/messages'
     | '/_authenticated/ustawienia'
     | '/_authenticated/wykonawca'
+    | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
     | '/profil/$id'
@@ -475,6 +499,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/portfel'
     | '/_authenticated/najem/umowy'
     | '/_authenticated/najem/zainteresowani'
+    | '/_authenticated/najem/zakonczone-umowy'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -492,6 +517,7 @@ export interface RootRouteChildren {
   PolitykaPrywatnosciRoute: typeof PolitykaPrywatnosciRoute
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
+  AdminLoginRoute: typeof AdminLoginRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
   ProfilIdRoute: typeof ProfilIdRoute
@@ -593,6 +619,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/wykonawca': {
       id: '/_authenticated/wykonawca'
       path: '/wykonawca'
@@ -641,6 +674,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/najem/oferty/$id'
       preLoaderRoute: typeof NajemOfertyIdRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/najem/zakonczone-umowy': {
+      id: '/_authenticated/najem/zakonczone-umowy'
+      path: '/najem/zakonczone-umowy'
+      fullPath: '/najem/zakonczone-umowy'
+      preLoaderRoute: typeof AuthenticatedNajemZakonczoneUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/najem/zainteresowani': {
       id: '/_authenticated/najem/zainteresowani'
@@ -784,6 +824,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedNajemPortfelRoute: typeof AuthenticatedNajemPortfelRoute
   AuthenticatedNajemUmowyRoute: typeof AuthenticatedNajemUmowyRoute
   AuthenticatedNajemZainteresowaniRoute: typeof AuthenticatedNajemZainteresowaniRoute
+  AuthenticatedNajemZakonczoneUmowyRoute: typeof AuthenticatedNajemZakonczoneUmowyRoute
   AuthenticatedNajemChatsIdRoute: typeof AuthenticatedNajemChatsIdRoute
   AuthenticatedNajemUmowaTransactionIdRoute: typeof AuthenticatedNajemUmowaTransactionIdRoute
 }
@@ -808,6 +849,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedNajemPortfelRoute: AuthenticatedNajemPortfelRoute,
   AuthenticatedNajemUmowyRoute: AuthenticatedNajemUmowyRoute,
   AuthenticatedNajemZainteresowaniRoute: AuthenticatedNajemZainteresowaniRoute,
+  AuthenticatedNajemZakonczoneUmowyRoute:
+    AuthenticatedNajemZakonczoneUmowyRoute,
   AuthenticatedNajemChatsIdRoute: AuthenticatedNajemChatsIdRoute,
   AuthenticatedNajemUmowaTransactionIdRoute:
     AuthenticatedNajemUmowaTransactionIdRoute,
@@ -839,6 +882,7 @@ const rootRouteChildren: RootRouteChildren = {
   PolitykaPrywatnosciRoute: PolitykaPrywatnosciRoute,
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
+  AdminLoginRoute: AdminLoginRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
   ProfilIdRoute: ProfilIdRoute,

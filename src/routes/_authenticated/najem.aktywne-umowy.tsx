@@ -38,6 +38,8 @@ type Txn = {
   pending_extension_end_date: string | null;
   pending_extension_requested_by: string | null;
   pending_extension_requested_at: string | null;
+  archived_at?: string | null;
+  extension_of_id?: string | null;
   created_at: string;
 };
 
@@ -49,7 +51,11 @@ type ConfirmState = {
   onConfirm: () => Promise<void> | void;
 } | null;
 
-function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" } = {}) {
+function AktywneUmowyPage({
+  roleFilter,
+  mode = "active",
+}: { roleFilter?: "tenant" | "landlord"; mode?: "active" | "archive" } = {}) {
+  const isArchive = mode === "archive";
   const { user } = useAuth();
   const qc = useQueryClient();
   const [rating, setRating] = useState<
@@ -63,12 +69,12 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
   const [reportFor, setReportFor] = useState<string | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
-    queryKey: ["active-leases", user?.id, roleFilter ?? "all"],
+    queryKey: ["active-leases", user?.id, roleFilter ?? "all", mode],
     enabled: !!user,
     queryFn: async () => {
       let q = supabase
         .from("lease_transactions")
-        .select("id,state,listing_id,tenant_id,landlord_id,chat_id,accepted_at,completed_at,contract_start_date,contract_end_date,landlord_hidden_from_active_at,payment_delay_reported_at,pending_extension_end_date,pending_extension_requested_by,pending_extension_requested_at,created_at")
+        .select("id,state,listing_id,tenant_id,landlord_id,chat_id,accepted_at,completed_at,contract_start_date,contract_end_date,landlord_hidden_from_active_at,payment_delay_reported_at,pending_extension_end_date,pending_extension_requested_by,pending_extension_requested_at,archived_at,extension_of_id,created_at")
         .eq("state", "completed")
         .order("completed_at", { ascending: false });
       if (roleFilter === "tenant") q = q.eq("tenant_id", user!.id);
@@ -77,7 +83,26 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
       const { data, error } = await q;
       if (error) throw error;
       const txns = (data ?? []) as Txn[];
-      const filtered = txns.filter((t) => !(t.landlord_id === user!.id && t.landlord_hidden_from_active_at));
+      const DAY = 24 * 60 * 60 * 1000;
+      const isFinished = (t: Txn) =>
+        !!t.archived_at ||
+        (t.contract_end_date ? new Date(t.contract_end_date).getTime() + DAY < Date.now() : false);
+      const filtered = txns
+        .filter((t) => !(t.landlord_id === user!.id && t.landlord_hidden_from_active_at))
+        .filter((t) => {
+          if (isArchive) return isFinished(t);
+          // active view: hide leases replaced by an extension, keep recently finished
+          // ones for the 30-day extension window
+          if (t.archived_at) return false;
+          const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
+          return end === null || end + 30 * DAY > Date.now();
+        })
+        .sort((a, b) => {
+          const av = a.contract_start_date ?? a.created_at;
+          const bv = b.contract_start_date ?? b.created_at;
+          return isArchive ? bv.localeCompare(av) : av.localeCompare(bv);
+        });
+
       const listingIds = Array.from(new Set(filtered.map((t) => t.listing_id).filter(Boolean))) as string[];
       const otherIds = Array.from(new Set(filtered.map((t) => (t.tenant_id === user!.id ? t.landlord_id : t.tenant_id))));
       const [listings, profiles] = await Promise.all([
@@ -178,11 +203,19 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
           <FileSignature className="h-6 w-6 text-gold" />
         </div>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{roleFilter === "tenant" ? "Moje umowy najmu" : "Aktywne umowy Stay Safe"}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {isArchive
+              ? "Zakończone umowy Stay Safe"
+              : roleFilter === "tenant"
+                ? "Moje umowy najmu"
+                : "Aktywne umowy Stay Safe"}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            {roleFilter === "tenant"
-              ? "Twoje umowy najmu (aktywne i zakończone) zawarte w ekosystemie Stay Safe."
-              : "Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu."}
+            {isArchive
+              ? "Archiwum umów zakończonych — chronologicznie, z datą rozpoczęcia i zakończenia najmu. Każde przedłużenie widnieje jako osobna umowa."
+              : roleFilter === "tenant"
+                ? "Twoje umowy najmu (aktywne i zakończone) zawarte w ekosystemie Stay Safe."
+                : "Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu."}
           </p>
         </div>
       </div>
@@ -195,11 +228,16 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
             <FileSignature className="mx-auto h-8 w-8 text-muted-foreground" />
-            <div className="mt-3 font-semibold">Nie masz jeszcze aktywnych umów</div>
+            <div className="mt-3 font-semibold">
+              {isArchive ? "Brak zakończonych umów" : "Nie masz jeszcze aktywnych umów"}
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Umowy pojawią się tu automatycznie po obustronnym potwierdzeniu dat najmu.
+              {isArchive
+                ? "Umowy trafią tutaj po zakończeniu okresu najmu lub po przedłużeniu (stara umowa trafia do archiwum)."
+                : "Umowy pojawią się tu automatycznie po obustronnym potwierdzeniu dat najmu."}
             </p>
           </div>
+
         ) : (
           (() => {
             const groups = new Map<string, any[]>();
@@ -229,12 +267,13 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
                           const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
                           const DAY = 24 * 60 * 60 * 1000;
                           // treat contract as finished only the day AFTER the end date, so buttons remain active on the last day
-                          const finished = end !== null && end + DAY < Date.now();
+                          const finished = isArchive || !!t.archived_at || (end !== null && end + DAY < Date.now());
                           // extending stays available during the lease and up to 30 days after end
-                          const extendable = end !== null && end + 30 * DAY > Date.now();
+                          const extendable = !isArchive && !t.archived_at && end !== null && end + 30 * DAY > Date.now();
                           // landlord may raise the payment-delay alert only in the 3 days after end
-                          const canReportDelay = finished && end !== null && end + 3 * DAY > Date.now();
+                          const canReportDelay = !isArchive && finished && end !== null && end + 3 * DAY > Date.now();
                           const thumb = !finished ? thumbnailFor(t.listing) : null;
+
                           const hasPendingExtension = !!t.pending_extension_end_date;
                           const iRequestedExtension = hasPendingExtension && t.pending_extension_requested_by === user?.id;
                           const otherRequestedExtension = hasPendingExtension && !iRequestedExtension;
@@ -281,10 +320,23 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
                                       </span></div>
                                     </div>
                                     {finished && (
-                                      <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-muted bg-muted/30 px-2 py-0.5 text-[10px] font-bold uppercase text-foreground">
-                                        <Clock className="h-3 w-3" /> Zakończona
+                                      <div className="mt-2 flex flex-wrap gap-1">
+                                        <div className="inline-flex items-center gap-1 rounded-full border border-muted bg-muted/30 px-2 py-0.5 text-[10px] font-bold uppercase text-foreground">
+                                          <Clock className="h-3 w-3" /> Zakończona
+                                        </div>
+                                        {t.archived_at && (
+                                          <div className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
+                                            <CalendarPlus className="h-3 w-3" /> Przedłużona — nowa umowa
+                                          </div>
+                                        )}
                                       </div>
                                     )}
+                                    {t.extension_of_id && (
+                                      <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
+                                        <CalendarPlus className="h-3 w-3" /> Umowa z przedłużenia
+                                      </div>
+                                    )}
+
                                     {t.payment_delay_reported_at && (
                                       <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
                                         <AlertTriangle className="h-3 w-3" /> Zgłoszono opóźnienie płatności
@@ -367,15 +419,18 @@ function AktywneUmowyPage({ roleFilter }: { roleFilter?: "tenant" | "landlord" }
                                           <Star className="h-3 w-3" /> Oceń najemcę
                                         </button>
                                       )}
-                                      <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
-                                        onClick={() => askHide(t.id)}>
-                                        <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
-                                      </Button>
+                                      {!isArchive && (
+                                        <Button size="sm" variant="ghost" className="rounded-xl text-muted-foreground"
+                                          onClick={() => askHide(t.id)}>
+                                          <Trash2 className="mr-1 h-3.5 w-3.5" /> Usuń z listy
+                                        </Button>
+                                      )}
                                     </>
                                   )}
                                 </div>
                               </div>
-                              <MaintenanceReportsList transactionId={t.id} role={t.role} />
+                              {!isArchive && <MaintenanceReportsList transactionId={t.id} role={t.role} />}
+
                             </div>
                           );
                         })}

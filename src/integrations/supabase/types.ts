@@ -460,12 +460,14 @@ export type Database = {
       lease_transactions: {
         Row: {
           accepted_at: string | null
+          archived_at: string | null
           cancelled_at: string | null
           chat_id: string | null
           completed_at: string | null
           contract_end_date: string | null
           contract_start_date: string | null
           created_at: string
+          extension_of_id: string | null
           id: string
           landlord_dates_confirmed_at: string | null
           landlord_finalized_at: string | null
@@ -480,6 +482,7 @@ export type Database = {
           pending_extension_requested_by: string | null
           request_id: string | null
           state: Database["public"]["Enums"]["lease_state"]
+          superseded_by_id: string | null
           system_notice_sent_at: string | null
           tenant_dates_confirmed_at: string | null
           tenant_finalized_at: string | null
@@ -488,12 +491,14 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string | null
+          archived_at?: string | null
           cancelled_at?: string | null
           chat_id?: string | null
           completed_at?: string | null
           contract_end_date?: string | null
           contract_start_date?: string | null
           created_at?: string
+          extension_of_id?: string | null
           id?: string
           landlord_dates_confirmed_at?: string | null
           landlord_finalized_at?: string | null
@@ -508,6 +513,7 @@ export type Database = {
           pending_extension_requested_by?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
+          superseded_by_id?: string | null
           system_notice_sent_at?: string | null
           tenant_dates_confirmed_at?: string | null
           tenant_finalized_at?: string | null
@@ -516,12 +522,14 @@ export type Database = {
         }
         Update: {
           accepted_at?: string | null
+          archived_at?: string | null
           cancelled_at?: string | null
           chat_id?: string | null
           completed_at?: string | null
           contract_end_date?: string | null
           contract_start_date?: string | null
           created_at?: string
+          extension_of_id?: string | null
           id?: string
           landlord_dates_confirmed_at?: string | null
           landlord_finalized_at?: string | null
@@ -536,6 +544,7 @@ export type Database = {
           pending_extension_requested_by?: string | null
           request_id?: string | null
           state?: Database["public"]["Enums"]["lease_state"]
+          superseded_by_id?: string | null
           system_notice_sent_at?: string | null
           tenant_dates_confirmed_at?: string | null
           tenant_finalized_at?: string | null
@@ -551,6 +560,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "lease_transactions_extension_of_id_fkey"
+            columns: ["extension_of_id"]
+            isOneToOne: false
+            referencedRelation: "lease_transactions"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "lease_transactions_listing_id_fkey"
             columns: ["listing_id"]
             isOneToOne: false
@@ -562,6 +578,13 @@ export type Database = {
             columns: ["request_id"]
             isOneToOne: false
             referencedRelation: "rental_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lease_transactions_superseded_by_id_fkey"
+            columns: ["superseded_by_id"]
+            isOneToOne: false
+            referencedRelation: "lease_transactions"
             referencedColumns: ["id"]
           },
         ]
