@@ -320,10 +320,23 @@ function AktywneUmowyPage({
                                       </span></div>
                                     </div>
                                     {finished && (
-                                      <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-muted bg-muted/30 px-2 py-0.5 text-[10px] font-bold uppercase text-foreground">
-                                        <Clock className="h-3 w-3" /> Zakończona
+                                      <div className="mt-2 flex flex-wrap gap-1">
+                                        <div className="inline-flex items-center gap-1 rounded-full border border-muted bg-muted/30 px-2 py-0.5 text-[10px] font-bold uppercase text-foreground">
+                                          <Clock className="h-3 w-3" /> Zakończona
+                                        </div>
+                                        {t.archived_at && (
+                                          <div className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
+                                            <CalendarPlus className="h-3 w-3" /> Przedłużona — nowa umowa
+                                          </div>
+                                        )}
                                       </div>
                                     )}
+                                    {t.extension_of_id && (
+                                      <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2 py-0.5 text-[10px] font-bold uppercase text-gold">
+                                        <CalendarPlus className="h-3 w-3" /> Umowa z przedłużenia
+                                      </div>
+                                    )}
+
                                     {t.payment_delay_reported_at && (
                                       <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
                                         <AlertTriangle className="h-3 w-3" /> Zgłoszono opóźnienie płatności
