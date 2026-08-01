@@ -203,11 +203,19 @@ function AktywneUmowyPage({
           <FileSignature className="h-6 w-6 text-gold" />
         </div>
         <div>
-          <h1 className="text-3xl font-semibold tracking-tight">{roleFilter === "tenant" ? "Moje umowy najmu" : "Aktywne umowy Stay Safe"}</h1>
+          <h1 className="text-3xl font-semibold tracking-tight">
+            {isArchive
+              ? "Zakończone umowy Stay Safe"
+              : roleFilter === "tenant"
+                ? "Moje umowy najmu"
+                : "Aktywne umowy Stay Safe"}
+          </h1>
           <p className="text-sm text-muted-foreground">
-            {roleFilter === "tenant"
-              ? "Twoje umowy najmu (aktywne i zakończone) zawarte w ekosystemie Stay Safe."
-              : "Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu."}
+            {isArchive
+              ? "Archiwum umów zakończonych — chronologicznie, z datą rozpoczęcia i zakończenia najmu. Każde przedłużenie widnieje jako osobna umowa."
+              : roleFilter === "tenant"
+                ? "Twoje umowy najmu (aktywne i zakończone) zawarte w ekosystemie Stay Safe."
+                : "Umowy zawarte za pośrednictwem portalu Stay Safe, z potwierdzonym okresem najmu."}
           </p>
         </div>
       </div>
@@ -220,11 +228,16 @@ function AktywneUmowyPage({
         ) : rows.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/40 p-10 text-center">
             <FileSignature className="mx-auto h-8 w-8 text-muted-foreground" />
-            <div className="mt-3 font-semibold">Nie masz jeszcze aktywnych umów</div>
+            <div className="mt-3 font-semibold">
+              {isArchive ? "Brak zakończonych umów" : "Nie masz jeszcze aktywnych umów"}
+            </div>
             <p className="mt-1 text-sm text-muted-foreground">
-              Umowy pojawią się tu automatycznie po obustronnym potwierdzeniu dat najmu.
+              {isArchive
+                ? "Umowy trafią tutaj po zakończeniu okresu najmu lub po przedłużeniu (stara umowa trafia do archiwum)."
+                : "Umowy pojawią się tu automatycznie po obustronnym potwierdzeniu dat najmu."}
             </p>
           </div>
+
         ) : (
           (() => {
             const groups = new Map<string, any[]>();
