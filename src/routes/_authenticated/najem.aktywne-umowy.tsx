@@ -67,12 +67,12 @@ function AktywneUmowyPage({
   const [reportFor, setReportFor] = useState<string | null>(null);
 
   const { data: rows = [], isLoading } = useQuery({
-    queryKey: ["active-leases", user?.id, roleFilter ?? "all"],
+    queryKey: ["active-leases", user?.id, roleFilter ?? "all", mode],
     enabled: !!user,
     queryFn: async () => {
       let q = supabase
         .from("lease_transactions")
-        .select("id,state,listing_id,tenant_id,landlord_id,chat_id,accepted_at,completed_at,contract_start_date,contract_end_date,landlord_hidden_from_active_at,payment_delay_reported_at,pending_extension_end_date,pending_extension_requested_by,pending_extension_requested_at,created_at")
+        .select("id,state,listing_id,tenant_id,landlord_id,chat_id,accepted_at,completed_at,contract_start_date,contract_end_date,landlord_hidden_from_active_at,payment_delay_reported_at,pending_extension_end_date,pending_extension_requested_by,pending_extension_requested_at,archived_at,extension_of_id,created_at")
         .eq("state", "completed")
         .order("completed_at", { ascending: false });
       if (roleFilter === "tenant") q = q.eq("tenant_id", user!.id);
@@ -81,7 +81,26 @@ function AktywneUmowyPage({
       const { data, error } = await q;
       if (error) throw error;
       const txns = (data ?? []) as Txn[];
-      const filtered = txns.filter((t) => !(t.landlord_id === user!.id && t.landlord_hidden_from_active_at));
+      const DAY = 24 * 60 * 60 * 1000;
+      const isFinished = (t: Txn) =>
+        !!t.archived_at ||
+        (t.contract_end_date ? new Date(t.contract_end_date).getTime() + DAY < Date.now() : false);
+      const filtered = txns
+        .filter((t) => !(t.landlord_id === user!.id && t.landlord_hidden_from_active_at))
+        .filter((t) => {
+          if (isArchive) return isFinished(t);
+          // active view: hide leases replaced by an extension, keep recently finished
+          // ones for the 30-day extension window
+          if (t.archived_at) return false;
+          const end = t.contract_end_date ? new Date(t.contract_end_date).getTime() : null;
+          return end === null || end + 30 * DAY > Date.now();
+        })
+        .sort((a, b) => {
+          const av = a.contract_start_date ?? a.created_at;
+          const bv = b.contract_start_date ?? b.created_at;
+          return isArchive ? bv.localeCompare(av) : av.localeCompare(bv);
+        });
+
       const listingIds = Array.from(new Set(filtered.map((t) => t.listing_id).filter(Boolean))) as string[];
       const otherIds = Array.from(new Set(filtered.map((t) => (t.tenant_id === user!.id ? t.landlord_id : t.tenant_id))));
       const [listings, profiles] = await Promise.all([
