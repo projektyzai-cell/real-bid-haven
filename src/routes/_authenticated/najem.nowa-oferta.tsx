@@ -812,8 +812,8 @@ function NewRentalListing() {
               {form.wants_energy_cert_discount && (
                 <div className="grid gap-2 sm:grid-cols-2 pl-7">
                   <div>
-                    <Label className="text-xs">Telefon kontaktowy</Label>
-                    <Input value={form.sche_contact_phone} onChange={(e) => setF("sche_contact_phone", e.target.value)}
+                    <Label className="text-xs">Telefon kontaktowy <span className="text-destructive">*</span></Label>
+                    <Input required value={form.sche_contact_phone} onChange={(e) => setF("sche_contact_phone", e.target.value)}
                       placeholder="+48 …" className="mt-1 rounded-lg" />
                   </div>
                   <div>
@@ -821,8 +821,17 @@ function NewRentalListing() {
                     <Input type="email" value={form.sche_contact_email} onChange={(e) => setF("sche_contact_email", e.target.value)}
                       placeholder="you@example.com" className="mt-1 rounded-lg" />
                   </div>
+                  <label className="sm:col-span-2 flex items-start gap-2 rounded-lg border bg-background/60 p-2.5 text-xs">
+                    <Checkbox checked={form.sche_rodo_consent}
+                      onCheckedChange={(v) => setF("sche_rodo_consent", v === true)} className="mt-0.5" />
+                    <span>
+                      <strong>Zgoda RODO</strong> — wyrażam zgodę na przetwarzanie i przekazanie moich danych kontaktowych
+                      (telefon, e-mail) partnerom StaySafe wykonującym świadectwa charakterystyki energetycznej, w celu
+                      przedstawienia oferty. Zgodę mogę wycofać w każdej chwili, pisząc na kontakt@staysafe.pl.
+                    </span>
+                  </label>
                   <p className="sm:col-span-2 text-[11px] text-muted-foreground">
-                    Zgłoszenie trafi do administratora StaySafe, który skontaktuje się z partnerem świadczącym usługę.
+                    Zgłoszenie trafi jako lead do panelu administratora StaySafe, który przekaże je Wykonawcy usługi ŚChE.
                   </p>
                 </div>
               )}
