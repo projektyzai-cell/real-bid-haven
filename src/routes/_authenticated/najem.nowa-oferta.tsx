@@ -40,7 +40,7 @@ function NewRentalListing() {
     min_lease_months: 12,
     max_adults: 2, max_children: 0, active_days: 30,
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
-    sche_contact_email: "", sche_contact_phone: "",
+    sche_contact_email: "", sche_contact_phone: "", sche_rodo_consent: false,
     usable_area_m2: "", plot_area_m2: "", year_built: "",
   });
   const [flags, setFlags] = useState({
@@ -103,7 +103,7 @@ function NewRentalListing() {
         has_energy_cert: !!r.has_energy_cert,
         wants_energy_cert_discount: !!r.wants_energy_cert_discount,
         promoted: !!r.promoted,
-        sche_contact_email: "", sche_contact_phone: "",
+        sche_contact_email: "", sche_contact_phone: "", sche_rodo_consent: false,
         usable_area_m2: r.usable_area_m2 ?? "", plot_area_m2: r.plot_area_m2 ?? "",
         year_built: r.year_built ?? "",
       });
@@ -149,6 +149,18 @@ function NewRentalListing() {
     e.preventDefault();
     if (!user) return;
     if (!form.city.trim()) { toast.error("Podaj miasto"); return; }
+    // TURA H — ŚChE: telefon + zgoda RODO są obowiązkowe przy zgłoszeniu zniżki
+    if (form.wants_energy_cert_discount) {
+      const phone = form.sche_contact_phone.replace(/[^\d+]/g, "");
+      if (phone.replace(/\D/g, "").length < 9) {
+        toast.error("Podaj poprawny numer telefonu do kontaktu w sprawie ŚChE");
+        return;
+      }
+      if (!form.sche_rodo_consent) {
+        toast.error("Zaznacz zgodę RODO na przekazanie danych partnerowi ŚChE");
+        return;
+      }
+    }
     setBusy(true);
     const utilAdvance = form.utilities_by_usage ? 0 : (form.utilities_advance || 0);
     const totalPrice = (form.rent_base || 0) + (form.admin_fee || 0) + utilAdvance;
@@ -214,8 +226,8 @@ function NewRentalListing() {
     setBusy(false);
     if (error) { toast.error(error.message); return; }
 
-    // ŚChE lead — if consent given, insert a concierge lead for admin follow-up
-    if (form.wants_energy_cert_discount && (form.sche_contact_email.trim() || form.sche_contact_phone.trim())) {
+    // TURA H — ŚChE: zgoda + telefon → lead Concierge widoczny w panelu admina
+    if (form.wants_energy_cert_discount && form.sche_rodo_consent) {
       await supabase.from("concierge_leads" as never).insert({
         user_id: user.id,
         service_key: "energy-cert",
@@ -800,8 +812,8 @@ function NewRentalListing() {
               {form.wants_energy_cert_discount && (
                 <div className="grid gap-2 sm:grid-cols-2 pl-7">
                   <div>
-                    <Label className="text-xs">Telefon kontaktowy</Label>
-                    <Input value={form.sche_contact_phone} onChange={(e) => setF("sche_contact_phone", e.target.value)}
+                    <Label className="text-xs">Telefon kontaktowy <span className="text-destructive">*</span></Label>
+                    <Input required value={form.sche_contact_phone} onChange={(e) => setF("sche_contact_phone", e.target.value)}
                       placeholder="+48 …" className="mt-1 rounded-lg" />
                   </div>
                   <div>
@@ -809,8 +821,17 @@ function NewRentalListing() {
                     <Input type="email" value={form.sche_contact_email} onChange={(e) => setF("sche_contact_email", e.target.value)}
                       placeholder="you@example.com" className="mt-1 rounded-lg" />
                   </div>
+                  <label className="sm:col-span-2 flex items-start gap-2 rounded-lg border bg-background/60 p-2.5 text-xs">
+                    <Checkbox checked={form.sche_rodo_consent}
+                      onCheckedChange={(v) => setF("sche_rodo_consent", v === true)} className="mt-0.5" />
+                    <span>
+                      <strong>Zgoda RODO</strong> — wyrażam zgodę na przetwarzanie i przekazanie moich danych kontaktowych
+                      (telefon, e-mail) partnerom StaySafe wykonującym świadectwa charakterystyki energetycznej, w celu
+                      przedstawienia oferty. Zgodę mogę wycofać w każdej chwili, pisząc na kontakt@staysafe.pl.
+                    </span>
+                  </label>
                   <p className="sm:col-span-2 text-[11px] text-muted-foreground">
-                    Zgłoszenie trafi do administratora StaySafe, który skontaktuje się z partnerem świadczącym usługę.
+                    Zgłoszenie trafi jako lead do panelu administratora StaySafe, który przekaże je Wykonawcy usługi ŚChE.
                   </p>
                 </div>
               )}
