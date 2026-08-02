@@ -148,7 +148,8 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <RealtimeBridge />
-        <WelcomeMessageBridge />
+        <GaPageViews pathname={pathname} />
+
         <div className="min-h-screen flex flex-col">
           {!bare && <Navbar />}
           <main className="flex-1">
