@@ -132,6 +132,14 @@ function WelcomeMessageBridge() {
   return null;
 }
 
+function GaPageViews({ pathname }: { pathname: string }) {
+  useEffect(() => {
+    const w = window as unknown as { gtag?: (...a: unknown[]) => void };
+    w.gtag?.("event", "page_view", { page_path: pathname, page_location: window.location.href });
+  }, [pathname]);
+  return null;
+}
+
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
