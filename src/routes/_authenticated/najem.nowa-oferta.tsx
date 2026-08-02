@@ -103,7 +103,7 @@ function NewRentalListing() {
         has_energy_cert: !!r.has_energy_cert,
         wants_energy_cert_discount: !!r.wants_energy_cert_discount,
         promoted: !!r.promoted,
-        sche_contact_email: "", sche_contact_phone: "",
+        sche_contact_email: "", sche_contact_phone: "", sche_rodo_consent: false,
         usable_area_m2: r.usable_area_m2 ?? "", plot_area_m2: r.plot_area_m2 ?? "",
         year_built: r.year_built ?? "",
       });
@@ -226,8 +226,8 @@ function NewRentalListing() {
     setBusy(false);
     if (error) { toast.error(error.message); return; }
 
-    // ŚChE lead — if consent given, insert a concierge lead for admin follow-up
-    if (form.wants_energy_cert_discount && (form.sche_contact_email.trim() || form.sche_contact_phone.trim())) {
+    // TURA H — ŚChE: zgoda + telefon → lead Concierge widoczny w panelu admina
+    if (form.wants_energy_cert_discount && form.sche_rodo_consent) {
       await supabase.from("concierge_leads" as never).insert({
         user_id: user.id,
         service_key: "energy-cert",
