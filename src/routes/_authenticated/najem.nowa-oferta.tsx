@@ -40,7 +40,7 @@ function NewRentalListing() {
     min_lease_months: 12,
     max_adults: 2, max_children: 0, active_days: 30,
     has_energy_cert: false, wants_energy_cert_discount: false, promoted: false,
-    sche_contact_email: "", sche_contact_phone: "",
+    sche_contact_email: "", sche_contact_phone: "", sche_rodo_consent: false,
     usable_area_m2: "", plot_area_m2: "", year_built: "",
   });
   const [flags, setFlags] = useState({
@@ -149,6 +149,18 @@ function NewRentalListing() {
     e.preventDefault();
     if (!user) return;
     if (!form.city.trim()) { toast.error("Podaj miasto"); return; }
+    // TURA H — ŚChE: telefon + zgoda RODO są obowiązkowe przy zgłoszeniu zniżki
+    if (form.wants_energy_cert_discount) {
+      const phone = form.sche_contact_phone.replace(/[^\d+]/g, "");
+      if (phone.replace(/\D/g, "").length < 9) {
+        toast.error("Podaj poprawny numer telefonu do kontaktu w sprawie ŚChE");
+        return;
+      }
+      if (!form.sche_rodo_consent) {
+        toast.error("Zaznacz zgodę RODO na przekazanie danych partnerowi ŚChE");
+        return;
+      }
+    }
     setBusy(true);
     const utilAdvance = form.utilities_by_usage ? 0 : (form.utilities_advance || 0);
     const totalPrice = (form.rent_base || 0) + (form.admin_fee || 0) + utilAdvance;
