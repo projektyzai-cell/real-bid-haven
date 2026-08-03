@@ -513,9 +513,45 @@ function NewRentalRequestPage() {
           </label>
         </div>
 
+        {/* POWIADOMIENIA SMS */}
+        <SectionTitle>Powiadomienia SMS</SectionTitle>
+        <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4 space-y-3">
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={sms.enabled} onCheckedChange={() => setSms((p) => ({ ...p, enabled: !p.enabled }))} className="mt-0.5" />
+            <span>
+              Chcę otrzymywać powiadomienia SMS o nowych dopasowaniach Smart-Match
+              <span className="block text-[11px] text-muted-foreground">
+                Jednorazowa opłata {SMS_PRICE.toFixed(2)} zł za cały okres aktywności zapytania. Zapytanie zostanie opublikowane po zaksięgowaniu płatności.
+              </span>
+            </span>
+          </label>
+          {sms.enabled && (
+            <div className="space-y-3 pl-7">
+              <div>
+                <Label htmlFor="sms_phone">Numer telefonu <span className="text-destructive">*</span></Label>
+                <Input
+                  id="sms_phone"
+                  inputMode="tel"
+                  placeholder="np. 500 600 700"
+                  value={sms.phone}
+                  onChange={(e) => setSms((p) => ({ ...p, phone: e.target.value }))}
+                  className="mt-1"
+                />
+              </div>
+              <label className="flex items-start gap-3 text-xs">
+                <Checkbox checked={sms.consent} onCheckedChange={() => setSms((p) => ({ ...p, consent: !p.consent }))} className="mt-0.5" />
+                <span>
+                  Wyrażam zgodę na przetwarzanie mojego numeru telefonu przez Stay Safe w celu wysyłania powiadomień SMS o dopasowaniach ofert najmu (RODO).
+                </span>
+              </label>
+            </div>
+          )}
+        </div>
+
         <Button type="submit" disabled={submitting} size="lg" className="w-full rounded-xl">
-          {submitting ? t("request.submitting") : t("request.submit")}
+          {submitting ? t("request.submitting") : sms.enabled ? `Opublikuj i zapłać ${SMS_PRICE.toFixed(2)} zł` : t("request.submit")}
         </Button>
+
       </form>
     </div>
   );
