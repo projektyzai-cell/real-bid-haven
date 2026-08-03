@@ -120,10 +120,17 @@ function NewRentalRequestPage() {
     });
     if (!parsed.success) { toast.error(parsed.error.issues[0].message); return; }
     if (mode === "map" && !mapArea) { toast.error(t("request.pointOnMap")); return; }
+    if (sms.enabled) {
+      if (!/^(\+?48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/.test(sms.phone.trim())) {
+        toast.error("Podaj poprawny numer telefonu do powiadomień SMS.");
+        return;
+      }
+      if (!sms.consent) { toast.error("Zaznacz zgodę na otrzymywanie powiadomień SMS."); return; }
+    }
 
     setSubmitting(true);
     const expiresAt = new Date(Date.now() + parsed.data.active_days * 86_400_000).toISOString();
-    const { error } = await supabase.from("rental_requests" as never).insert({
+    const { data: inserted, error } = await supabase.from("rental_requests" as never).insert({
       tenant_id: user.id,
       ...parsed.data,
       has_children: parsed.data.children_count > 0,
@@ -135,13 +142,32 @@ function NewRentalRequestPage() {
       search_lng: mode === "map" && mapArea ? mapArea.lng : null,
       search_radius_km: mode === "map" && mapArea ? mapArea.radiusKm : null,
       expires_at: expiresAt,
-      status: "active",
+      status: sms.enabled ? "pending_payment" : "active",
+      sms_notifications: sms.enabled,
+      sms_phone: sms.enabled ? sms.phone.trim() : null,
+      sms_consent: sms.enabled ? sms.consent : false,
     } as never).select("id").single();
+    if (error) { setSubmitting(false); toast.error(error.message); return; }
+
+    if (sms.enabled) {
+      try {
+        const { checkoutUrl } = await payFn({
+          data: { kind: "smart_match_sms", targetId: (inserted as unknown as { id: string }).id },
+        });
+        window.location.href = checkoutUrl;
+        return;
+      } catch (err: any) {
+        setSubmitting(false);
+        toast.error(err?.message ?? "Nie udało się rozpocząć płatności za SMS.");
+        return;
+      }
+    }
+
     setSubmitting(false);
-    if (error) { toast.error(error.message); return; }
     toast.success(t("request.published"));
     navigate({ to: "/najem/moje-zapytania" });
   }
+
 
   const modeTabs: { id: Mode; label: string; icon: typeof Building2 }[] = [
     { id: "district" as Mode, label: t("request.modeDistrict"), icon: Building2 },
