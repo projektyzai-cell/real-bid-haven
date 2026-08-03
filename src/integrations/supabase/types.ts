@@ -776,6 +776,57 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          checkout_url: string | null
+          created_at: string
+          currency: string
+          description: string
+          id: string
+          kind: string
+          metadata: Json
+          mollie_payment_id: string | null
+          paid_at: string | null
+          status: string
+          target_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          kind: string
+          metadata?: Json
+          mollie_payment_id?: string | null
+          paid_at?: string | null
+          status?: string
+          target_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          checkout_url?: string | null
+          created_at?: string
+          currency?: string
+          description?: string
+          id?: string
+          kind?: string
+          metadata?: Json
+          mollie_payment_id?: string | null
+          paid_at?: string | null
+          status?: string
+          target_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           accepts_notarial_lease: boolean
@@ -833,6 +884,7 @@ export type Database = {
           passport_income_verified: boolean
           passport_instagram_verified: boolean
           passport_issued_at: string | null
+          passport_last_paid_at: string | null
           passport_linkedin_verified: boolean
           passport_name_verified: boolean
           passport_pdf_url: string | null
@@ -916,6 +968,7 @@ export type Database = {
           passport_income_verified?: boolean
           passport_instagram_verified?: boolean
           passport_issued_at?: string | null
+          passport_last_paid_at?: string | null
           passport_linkedin_verified?: boolean
           passport_name_verified?: boolean
           passport_pdf_url?: string | null
@@ -999,6 +1052,7 @@ export type Database = {
           passport_income_verified?: boolean
           passport_instagram_verified?: boolean
           passport_issued_at?: string | null
+          passport_last_paid_at?: string | null
           passport_linkedin_verified?: boolean
           passport_name_verified?: boolean
           passport_pdf_url?: string | null
@@ -1578,6 +1632,10 @@ export type Database = {
           search_mode: string
           search_radius_km: number | null
           search_street: string | null
+          sms_consent: boolean
+          sms_notifications: boolean
+          sms_paid_at: string | null
+          sms_phone: string | null
           status: string
           tenant_id: string
           wants_balcony: boolean
@@ -1622,6 +1680,10 @@ export type Database = {
           search_mode?: string
           search_radius_km?: number | null
           search_street?: string | null
+          sms_consent?: boolean
+          sms_notifications?: boolean
+          sms_paid_at?: string | null
+          sms_phone?: string | null
           status?: string
           tenant_id: string
           wants_balcony?: boolean
@@ -1666,6 +1728,10 @@ export type Database = {
           search_mode?: string
           search_radius_km?: number | null
           search_street?: string | null
+          sms_consent?: boolean
+          sms_notifications?: boolean
+          sms_paid_at?: string | null
+          sms_phone?: string | null
           status?: string
           tenant_id?: string
           wants_balcony?: boolean
