@@ -29,6 +29,7 @@ type Row = {
 function MyRentalListings() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const payFn = useServerFn(createMolliePayment);
   const [promoteFor, setPromoteFor] = useState<Row | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number>(7);
   const [promoting, setPromoting] = useState(false);
@@ -62,17 +63,16 @@ function MyRentalListings() {
     if (!promoteFor) return;
     try {
       setPromoting(true);
-      const { error } = await supabase.rpc("promote_rental_listing" as never, { _id: promoteFor.id, _days: selectedPlan } as never);
-      if (error) throw new Error(error.message);
-      toast.success(`Oferta promowana przez ${selectedPlan} dni. Moduł płatności zostanie podpięty wkrótce — na potrzeby testów promocja jest już aktywna.`);
-      setPromoteFor(null);
-      qc.invalidateQueries({ queryKey: ["my-rental-listings"] });
+      const { checkoutUrl } = await payFn({
+        data: { kind: "listing_promotion", targetId: promoteFor.id, days: selectedPlan },
+      });
+      window.location.href = checkoutUrl;
     } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się aktywować promocji");
-    } finally {
+      toast.error(e?.message ?? "Nie udało się rozpocząć płatności");
       setPromoting(false);
     }
   }
+
 
   return (
     <div className="container mx-auto px-4 py-10">
