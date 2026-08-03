@@ -14,6 +14,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/use-auth";
 import { supabase } from "@/integrations/supabase/client";
 import { LocationPicker } from "@/components/LocationPicker";
+import { useServerFn } from "@tanstack/react-start";
+import { createMolliePayment } from "@/lib/mollie.functions";
+import { SMS_PRICE } from "@/lib/pricing";
 
 import { MapAreaPicker, type MapArea } from "@/components/MapAreaPicker";
 
