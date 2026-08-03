@@ -75,6 +75,9 @@ function NewRentalRequestPage() {
   });
   const [hasPassport, setHasPassport] = useState<boolean | null>(null);
   const [passportChecked, setPassportChecked] = useState(false);
+  const [sms, setSms] = useState({ enabled: false, phone: "", consent: false });
+  const payFn = useServerFn(createMolliePayment);
+
 
   useEffect(() => {
     if (!user) return;
