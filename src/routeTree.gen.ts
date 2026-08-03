@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NajemIndexRouteImport } from './routes/najem.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
+import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -102,6 +103,11 @@ const NajemIndexRoute = NajemIndexRouteImport.update({
 const ProfilIdRoute = ProfilIdRouteImport.update({
   id: '/profil/$id',
   path: '/profil/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatnoscStatusRoute = PlatnoscStatusRouteImport.update({
+  id: '/platnosc/status',
+  path: '/platnosc/status',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
@@ -283,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/najem/': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
@@ -324,6 +331,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/najem': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/najem/': typeof NajemIndexRoute
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
@@ -410,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/platnosc/status'
     | '/profil/$id'
     | '/najem/'
     | '/admin/passport-stats'
@@ -451,6 +461,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/platnosc/status'
     | '/profil/$id'
     | '/najem'
     | '/admin/passport-stats'
@@ -493,6 +504,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/platnosc/status'
     | '/profil/$id'
     | '/najem/'
     | '/_authenticated/admin_/passport-stats'
@@ -532,6 +544,7 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+  PlatnoscStatusRoute: typeof PlatnoscStatusRoute
   ProfilIdRoute: typeof ProfilIdRoute
   NajemIndexRoute: typeof NajemIndexRoute
   ApiPublicMollieWebhookRoute: typeof ApiPublicMollieWebhookRoute
@@ -616,6 +629,13 @@ declare module '@tanstack/react-router' {
       path: '/profil/$id'
       fullPath: '/profil/$id'
       preLoaderRoute: typeof ProfilIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/platnosc/status': {
+      id: '/platnosc/status'
+      path: '/platnosc/status'
+      fullPath: '/platnosc/status'
+      preLoaderRoute: typeof PlatnoscStatusRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/najem/zapytania': {
@@ -905,6 +925,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+  PlatnoscStatusRoute: PlatnoscStatusRoute,
   ProfilIdRoute: ProfilIdRoute,
   NajemIndexRoute: NajemIndexRoute,
   ApiPublicMollieWebhookRoute: ApiPublicMollieWebhookRoute,

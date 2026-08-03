@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { MapPin, Plus, RefreshCw, Star, Pencil, Trash2, Sparkles, CreditCard, Loader2 } from "lucide-react";
@@ -9,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+import { PROMO_PLANS } from "@/lib/pricing";
+import { createMolliePayment } from "@/lib/mollie.functions";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-oferty")({
   head: () => ({ meta: [{ title: "Moje oferty najmu — Stay Safe" }] }),
@@ -22,11 +25,6 @@ type Row = {
   images: string[]; main_image_index: number;
 };
 
-const PROMO_PLANS: { days: number; price: number; label: string }[] = [
-  { days: 7, price: 29, label: "7 dni" },
-  { days: 14, price: 49, label: "14 dni" },
-  { days: 30, price: 79, label: "30 dni" },
-];
 
 function MyRentalListings() {
   const { user } = useAuth();
