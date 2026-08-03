@@ -43,6 +43,7 @@ import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
   Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
   Wrench, ClipboardList, Zap,
+  CreditCard,
 } from "lucide-react";
 import {
   adminListReports, adminUpdateReport, adminHideReportedTarget, adminDeleteReport,
@@ -54,7 +55,7 @@ import {
 } from "@/lib/contractor-constants";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching", "payments"]).default("apps").optional(),
 });
 
 
@@ -162,6 +163,11 @@ function AdminDashboard() {
                   <Star className="h-4 w-4" /> Opinie i Oceny
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="payments" asChild>
+                <Link to="/admin" search={{ tab: "payments" }} className="flex items-center gap-1.5">
+                  <CreditCard className="h-4 w-4" /> Płatności
+                </Link>
+              </TabsTrigger>
               <TabsTrigger value="matching" asChild>
                 <Link to="/admin" search={{ tab: "matching" }} className="flex items-center gap-1.5">
                   <Zap className="h-4 w-4" /> Auto-Matching
@@ -189,6 +195,7 @@ function AdminDashboard() {
             <TabsContent value="contractors" className="mt-6"><ContractorsTab /></TabsContent>
             <TabsContent value="assignments" className="mt-6"><AssignmentsTab /></TabsContent>
             <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
+            <TabsContent value="payments" className="mt-6"><PaymentsTab /></TabsContent>
             <TabsContent value="matching" className="mt-6"><MatchingTab /></TabsContent>
 
 
@@ -1824,6 +1831,72 @@ const SOFT_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
   { key: "soft_weight_elevator", label: "Winda", desc: "Waga zgodności preferencji windy." },
   { key: "soft_weight_parking", label: "Miejsce parkingowe", desc: "Waga zgodności preferencji parkingu." },
 ];
+
+const PAYMENT_KIND_LABEL: Record<string, string> = {
+  listing_promotion: "Promowanie oferty",
+  passport_renewal: "Odnowienie paszportu",
+  smart_match_sms: "Powiadomienia SMS",
+};
+
+function PaymentsTab() {
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["admin-payments"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("payments" as never)
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return (data ?? []) as unknown as any[];
+    },
+  });
+
+  const paidTotal = data.filter((p) => p.status === "paid").reduce((a, p) => a + Number(p.amount), 0);
+
+  if (isLoading) return <p className="text-muted-foreground">Ładowanie…</p>;
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-2xl border bg-card p-4">
+        <div className="text-xs uppercase tracking-wide text-muted-foreground">Zaksięgowane wpłaty (ostatnie 200)</div>
+        <div className="text-2xl font-semibold text-gold">{paidTotal.toFixed(2)} zł</div>
+      </div>
+      {data.length === 0 ? (
+        <p className="text-muted-foreground">Brak płatności.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="p-3">Data</th>
+                <th className="p-3">Usługa</th>
+                <th className="p-3">Kwota</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">ID Mollie</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((p) => (
+                <tr key={p.id} className="border-t">
+                  <td className="p-3 whitespace-nowrap">{new Date(p.created_at).toLocaleString("pl-PL")}</td>
+                  <td className="p-3">{PAYMENT_KIND_LABEL[p.kind] ?? p.kind}</td>
+                  <td className="p-3 whitespace-nowrap">{Number(p.amount).toFixed(2)} zł</td>
+                  <td className="p-3">
+                    <Badge variant={p.status === "paid" ? "default" : p.status === "pending" || p.status === "open" ? "outline" : "destructive"} className="rounded-full">
+                      {p.status}
+                    </Badge>
+                  </td>
+                  <td className="p-3 font-mono text-xs text-muted-foreground">{p.mollie_payment_id ?? "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function MatchingTab() {
   const qc = useQueryClient();

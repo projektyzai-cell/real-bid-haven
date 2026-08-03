@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
 import { MapPin, Plus, RefreshCw, Star, Pencil, Trash2, Sparkles, CreditCard, Loader2 } from "lucide-react";
@@ -9,6 +10,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { formatPLN } from "@/lib/format";
+import { PROMO_PLANS } from "@/lib/pricing";
+import { createMolliePayment } from "@/lib/mollie.functions";
 
 export const Route = createFileRoute("/_authenticated/najem/moje-oferty")({
   head: () => ({ meta: [{ title: "Moje oferty najmu — Stay Safe" }] }),
@@ -22,15 +25,11 @@ type Row = {
   images: string[]; main_image_index: number;
 };
 
-const PROMO_PLANS: { days: number; price: number; label: string }[] = [
-  { days: 7, price: 29, label: "7 dni" },
-  { days: 14, price: 49, label: "14 dni" },
-  { days: 30, price: 79, label: "30 dni" },
-];
 
 function MyRentalListings() {
   const { user } = useAuth();
   const qc = useQueryClient();
+  const payFn = useServerFn(createMolliePayment);
   const [promoteFor, setPromoteFor] = useState<Row | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<number>(7);
   const [promoting, setPromoting] = useState(false);
@@ -64,17 +63,16 @@ function MyRentalListings() {
     if (!promoteFor) return;
     try {
       setPromoting(true);
-      const { error } = await supabase.rpc("promote_rental_listing" as never, { _id: promoteFor.id, _days: selectedPlan } as never);
-      if (error) throw new Error(error.message);
-      toast.success(`Oferta promowana przez ${selectedPlan} dni. Moduł płatności zostanie podpięty wkrótce — na potrzeby testów promocja jest już aktywna.`);
-      setPromoteFor(null);
-      qc.invalidateQueries({ queryKey: ["my-rental-listings"] });
+      const { checkoutUrl } = await payFn({
+        data: { kind: "listing_promotion", targetId: promoteFor.id, days: selectedPlan },
+      });
+      window.location.href = checkoutUrl;
     } catch (e: any) {
-      toast.error(e?.message ?? "Nie udało się aktywować promocji");
-    } finally {
+      toast.error(e?.message ?? "Nie udało się rozpocząć płatności");
       setPromoting(false);
     }
   }
+
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -192,8 +190,9 @@ function MyRentalListings() {
           </div>
 
           <div className="rounded-xl border border-dashed border-amber-400/40 bg-amber-400/5 p-3 text-xs text-muted-foreground">
-            <strong className="text-foreground">Płatności online</strong> zostaną podpięte w kolejnym etapie. Na potrzeby testów po zatwierdzeniu promocja aktywuje się natychmiast.
+            <strong className="text-foreground">Bezpieczna płatność online</strong> — po kliknięciu przechodzisz do operatora Mollie (BLIK, karta, przelew). Promocja aktywuje się automatycznie po zaksięgowaniu wpłaty.
           </div>
+
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setPromoteFor(null)}>Anuluj</Button>

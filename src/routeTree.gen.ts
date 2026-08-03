@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NajemIndexRouteImport } from './routes/najem.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
+import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
@@ -30,6 +31,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
+import { Route as ApiPublicMollieWebhookRouteImport } from './routes/api/public/mollie-webhook'
 import { Route as AuthenticatedNajemZakonczoneUmowyRouteImport } from './routes/_authenticated/najem.zakonczone-umowy'
 import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
 import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authenticated/najem.umowy'
@@ -103,6 +105,11 @@ const ProfilIdRoute = ProfilIdRouteImport.update({
   path: '/profil/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PlatnoscStatusRoute = PlatnoscStatusRouteImport.update({
+  id: '/platnosc/status',
+  path: '/platnosc/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
   id: '/najem/zapytania',
   path: '/najem/zapytania',
@@ -151,6 +158,11 @@ const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
 const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
   id: '/najem/oferty/$id',
   path: '/najem/oferty/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMollieWebhookRoute = ApiPublicMollieWebhookRouteImport.update({
+  id: '/api/public/mollie-webhook',
+  path: '/api/public/mollie-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedNajemZakonczoneUmowyRoute =
@@ -277,6 +289,7 @@ export interface FileRoutesByFullPath {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/najem/': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
@@ -295,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
+  '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -317,6 +331,7 @@ export interface FileRoutesByTo {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/najem': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
@@ -335,6 +350,7 @@ export interface FileRoutesByTo {
   '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
+  '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
@@ -359,6 +375,7 @@ export interface FileRoutesById {
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/najem/': typeof NajemIndexRoute
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
@@ -377,6 +394,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/_authenticated/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/_authenticated/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
+  '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -401,6 +419,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/platnosc/status'
     | '/profil/$id'
     | '/najem/'
     | '/admin/passport-stats'
@@ -419,6 +438,7 @@ export interface FileRouteTypes {
     | '/najem/umowy'
     | '/najem/zainteresowani'
     | '/najem/zakonczone-umowy'
+    | '/api/public/mollie-webhook'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -441,6 +461,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/platnosc/status'
     | '/profil/$id'
     | '/najem'
     | '/admin/passport-stats'
@@ -459,6 +480,7 @@ export interface FileRouteTypes {
     | '/najem/umowy'
     | '/najem/zainteresowani'
     | '/najem/zakonczone-umowy'
+    | '/api/public/mollie-webhook'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty'
@@ -482,6 +504,7 @@ export interface FileRouteTypes {
     | '/admin/login'
     | '/admin/setup'
     | '/najem/zapytania'
+    | '/platnosc/status'
     | '/profil/$id'
     | '/najem/'
     | '/_authenticated/admin_/passport-stats'
@@ -500,6 +523,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/umowy'
     | '/_authenticated/najem/zainteresowani'
     | '/_authenticated/najem/zakonczone-umowy'
+    | '/api/public/mollie-webhook'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -520,8 +544,10 @@ export interface RootRouteChildren {
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSetupRoute: typeof AdminSetupRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+  PlatnoscStatusRoute: typeof PlatnoscStatusRoute
   ProfilIdRoute: typeof ProfilIdRoute
   NajemIndexRoute: typeof NajemIndexRoute
+  ApiPublicMollieWebhookRoute: typeof ApiPublicMollieWebhookRoute
   NajemOfertyIdRoute: typeof NajemOfertyIdRoute
   NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
 }
@@ -605,6 +631,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfilIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/platnosc/status': {
+      id: '/platnosc/status'
+      path: '/platnosc/status'
+      fullPath: '/platnosc/status'
+      preLoaderRoute: typeof PlatnoscStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/najem/zapytania': {
       id: '/najem/zapytania'
       path: '/najem/zapytania'
@@ -673,6 +706,13 @@ declare module '@tanstack/react-router' {
       path: '/najem/oferty/$id'
       fullPath: '/najem/oferty/$id'
       preLoaderRoute: typeof NajemOfertyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/mollie-webhook': {
+      id: '/api/public/mollie-webhook'
+      path: '/api/public/mollie-webhook'
+      fullPath: '/api/public/mollie-webhook'
+      preLoaderRoute: typeof ApiPublicMollieWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/najem/zakonczone-umowy': {
@@ -885,21 +925,13 @@ const rootRouteChildren: RootRouteChildren = {
   AdminLoginRoute: AdminLoginRoute,
   AdminSetupRoute: AdminSetupRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+  PlatnoscStatusRoute: PlatnoscStatusRoute,
   ProfilIdRoute: ProfilIdRoute,
   NajemIndexRoute: NajemIndexRoute,
+  ApiPublicMollieWebhookRoute: ApiPublicMollieWebhookRoute,
   NajemOfertyIdRoute: NajemOfertyIdRoute,
   NajemOfertyIndexRoute: NajemOfertyIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

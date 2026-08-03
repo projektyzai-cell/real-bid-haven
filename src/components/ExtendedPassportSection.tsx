@@ -19,6 +19,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { computeTrustScore } from "@/lib/trust-score";
 import { sanitizeFilename } from "@/lib/utils";
 import { startPassportRenewal } from "@/lib/passport-actions.functions";
+import { createMolliePayment } from "@/lib/mollie.functions";
+import { PASSPORT_RENEWAL_PRICE } from "@/lib/pricing";
 
 type Profile = Record<string, unknown> & {
   identity_source: string | null;
@@ -109,6 +111,8 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   const [uploading, setUploading] = useState<string | null>(null);
   const [paymentOpen, setPaymentOpen] = useState(false);
   const renewFn = useServerFn(startPassportRenewal);
+  const payFn = useServerFn(createMolliePayment);
+  const [payRedirecting, setPayRedirecting] = useState(false);
 
   async function load() {
     setLoading(true);
@@ -188,6 +192,23 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
     set(field, arr);
   }
 
+  function hasRecentPayment() {
+    const paidAt = (profile as any).passport_last_paid_at as string | null | undefined;
+    if (!paidAt) return false;
+    return Date.now() - new Date(paidAt).getTime() < 7 * 86_400_000;
+  }
+
+  async function goToPayment() {
+    try {
+      setPayRedirecting(true);
+      const { checkoutUrl } = await payFn({ data: { kind: "passport_renewal" } });
+      window.location.href = checkoutUrl;
+    } catch (e: any) {
+      setPayRedirecting(false);
+      toast.error(e?.message ?? "Nie udało się rozpocząć płatności.");
+    }
+  }
+
   function isPaidApplication() {
     // First passport is free. Any subsequent application (renewal) requires payment.
     return (profile.passport_count ?? 0) >= 1 || !!profile.passport_renewal_requested && !!profile.passport_serial;
@@ -235,6 +256,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
       passport_application_status: "submitted",
       passport_application_submitted_at: new Date().toISOString(),
       passport_renewal_requested: false,
+      passport_last_paid_at: null,
       personal_bio_pl: profile.personal_bio_pl,
       avatar_url: profile.avatar_url,
     };
@@ -247,7 +269,7 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
   }
 
   async function submitApplication() {
-    if (isPaidApplication()) {
+    if (isPaidApplication() && !hasRecentPayment()) {
       // Paid renewal flow — show payment placeholder dialog first
       setPaymentOpen(true);
       return;
@@ -877,21 +899,21 @@ export function ExtendedPassportSection({ userId }: { userId: string }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5 text-gold" /> Przekierowanie do płatności
+              <CreditCard className="h-5 w-5 text-gold" /> Opłata za odnowienie paszportu
             </DialogTitle>
             <DialogDescription>
-              Pierwszy Paszport Najemcy jest darmowy. Kolejny wniosek wymaga opłaty serwisowej.
+              Pierwszy Paszport Najemcy jest darmowy. Każdy kolejny wniosek wymaga opłaty serwisowej
+              w wysokości <strong>{PASSPORT_RENEWAL_PRICE} zł</strong>.
               <br /><br />
-              <strong>A teraz przekierujemy Cię do płatności.</strong>
-              <br /><br />
-              Moduł płatności zostanie podpięty w następnym etapie. Na potrzeby testów możesz teraz potwierdzić wysłanie wniosku do administratora.
+              Płatność realizuje operator Mollie (BLIK, karta, przelew). Po zaksięgowaniu wpłacenia wrócisz tutaj
+              i wyślesz wniosek do weryfikacji.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="ghost" onClick={() => setPaymentOpen(false)}>Anuluj</Button>
-            <Button onClick={doSubmit} disabled={saving} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
-              Przejdź do płatności i wyślij wniosek
+            <Button onClick={goToPayment} disabled={payRedirecting} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
+              {payRedirecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CreditCard className="mr-2 h-4 w-4" />}
+              Zapłać {PASSPORT_RENEWAL_PRICE} zł
             </Button>
           </DialogFooter>
         </DialogContent>
