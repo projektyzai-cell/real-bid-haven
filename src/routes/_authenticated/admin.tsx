@@ -43,6 +43,7 @@ import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
   Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
   Wrench, ClipboardList, Zap,
+  CreditCard,
 } from "lucide-react";
 import {
   adminListReports, adminUpdateReport, adminHideReportedTarget, adminDeleteReport,
@@ -54,7 +55,7 @@ import {
 } from "@/lib/contractor-constants";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching", "payments"]).default("apps").optional(),
 });
 
 
