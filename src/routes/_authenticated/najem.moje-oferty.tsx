@@ -190,8 +190,9 @@ function MyRentalListings() {
           </div>
 
           <div className="rounded-xl border border-dashed border-amber-400/40 bg-amber-400/5 p-3 text-xs text-muted-foreground">
-            <strong className="text-foreground">Płatności online</strong> zostaną podpięte w kolejnym etapie. Na potrzeby testów po zatwierdzeniu promocja aktywuje się natychmiast.
+            <strong className="text-foreground">Bezpieczna płatność online</strong> — po kliknięciu przechodzisz do operatora Mollie (BLIK, karta, przelew). Promocja aktywuje się automatycznie po zaksięgowaniu wpłaty.
           </div>
+
 
           <DialogFooter>
             <Button variant="ghost" onClick={() => setPromoteFor(null)}>Anuluj</Button>
