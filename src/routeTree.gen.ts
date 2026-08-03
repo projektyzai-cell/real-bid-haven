@@ -30,6 +30,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
+import { Route as ApiPublicMollieWebhookRouteImport } from './routes/api/public/mollie-webhook'
 import { Route as AuthenticatedNajemZakonczoneUmowyRouteImport } from './routes/_authenticated/najem.zakonczone-umowy'
 import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
 import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authenticated/najem.umowy'
@@ -151,6 +152,11 @@ const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
 const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
   id: '/najem/oferty/$id',
   path: '/najem/oferty/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiPublicMollieWebhookRoute = ApiPublicMollieWebhookRouteImport.update({
+  id: '/api/public/mollie-webhook',
+  path: '/api/public/mollie-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedNajemZakonczoneUmowyRoute =
@@ -295,6 +301,7 @@ export interface FileRoutesByFullPath {
   '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
+  '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -335,6 +342,7 @@ export interface FileRoutesByTo {
   '/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
+  '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
@@ -377,6 +385,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/umowy': typeof AuthenticatedNajemUmowyRoute
   '/_authenticated/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/_authenticated/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
+  '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -419,6 +428,7 @@ export interface FileRouteTypes {
     | '/najem/umowy'
     | '/najem/zainteresowani'
     | '/najem/zakonczone-umowy'
+    | '/api/public/mollie-webhook'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -459,6 +469,7 @@ export interface FileRouteTypes {
     | '/najem/umowy'
     | '/najem/zainteresowani'
     | '/najem/zakonczone-umowy'
+    | '/api/public/mollie-webhook'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty'
@@ -500,6 +511,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/umowy'
     | '/_authenticated/najem/zainteresowani'
     | '/_authenticated/najem/zakonczone-umowy'
+    | '/api/public/mollie-webhook'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -522,6 +534,7 @@ export interface RootRouteChildren {
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
   ProfilIdRoute: typeof ProfilIdRoute
   NajemIndexRoute: typeof NajemIndexRoute
+  ApiPublicMollieWebhookRoute: typeof ApiPublicMollieWebhookRoute
   NajemOfertyIdRoute: typeof NajemOfertyIdRoute
   NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
 }
@@ -673,6 +686,13 @@ declare module '@tanstack/react-router' {
       path: '/najem/oferty/$id'
       fullPath: '/najem/oferty/$id'
       preLoaderRoute: typeof NajemOfertyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/public/mollie-webhook': {
+      id: '/api/public/mollie-webhook'
+      path: '/api/public/mollie-webhook'
+      fullPath: '/api/public/mollie-webhook'
+      preLoaderRoute: typeof ApiPublicMollieWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/najem/zakonczone-umowy': {
@@ -887,6 +907,7 @@ const rootRouteChildren: RootRouteChildren = {
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
   ProfilIdRoute: ProfilIdRoute,
   NajemIndexRoute: NajemIndexRoute,
+  ApiPublicMollieWebhookRoute: ApiPublicMollieWebhookRoute,
   NajemOfertyIdRoute: NajemOfertyIdRoute,
   NajemOfertyIndexRoute: NajemOfertyIndexRoute,
 }
