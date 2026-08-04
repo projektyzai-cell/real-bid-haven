@@ -54,9 +54,9 @@ export async function sendSms(opts: {
       headers: { "App-Key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
         bulkVariant: "ECO",
-        from: sender,
-        message: opts.message,
-        to: phone,
+        sender: sender,
+        content: opts.message,
+        msisdn: phone,
       }),
     });
     const body = await res.text();
