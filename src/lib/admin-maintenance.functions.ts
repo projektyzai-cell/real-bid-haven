@@ -99,5 +99,23 @@ export const assignMaintenanceToContractor = createServerFn({ method: "POST" })
       .eq("id", r.id);
     if (uErr) throw new Error(uErr.message);
 
-    return { ok: true, leadId: (lead as any).id, contractor: (contractor as any).company_name };
+    // TURA J — Flow A: SMS do Wykonawcy o nowym zleceniu (tylko gdy wyraził zgodę)
+    let smsSent = false;
+    const c: any = contractor;
+    if (c.sms_consent && c.phone) {
+      const { sendSms } = await import("@/lib/sms.server");
+      const res = await sendSms({
+        phone: c.phone,
+        message:
+          `Stay Safe: nowe zlecenie Concierge${city ? ` (${city})` : ""} - ${r.title}. ` +
+          `Szczegoly w panelu Wykonawcy.`,
+        kind: "contractor_assignment",
+        userId: c.user_id ?? null,
+        targetId: (lead as any).id,
+      });
+      smsSent = res.ok;
+    }
+
+    return { ok: true, leadId: (lead as any).id, contractor: c.company_name, smsSent };
+
   });
