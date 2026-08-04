@@ -1894,9 +1894,72 @@ function PaymentsTab() {
           </table>
         </div>
       )}
+      <SmsLogsPanel />
     </div>
   );
 }
+
+const SMS_KIND_LABEL: Record<string, string> = {
+  contractor_assignment: "SMS do Wykonawcy (nowe zlecenie)",
+  smart_match: "SMS do Najemcy (nowe dopasowanie)",
+};
+
+function SmsLogsPanel() {
+  const { data = [], isLoading } = useQuery({
+    queryKey: ["admin-sms-logs"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("sms_logs" as never)
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(100);
+      if (error) throw error;
+      return (data ?? []) as unknown as any[];
+    },
+  });
+
+  return (
+    <div className="space-y-3 pt-4">
+      <h3 className="text-lg font-semibold">Powiadomienia SMS (JustSend)</h3>
+      {isLoading ? (
+        <p className="text-muted-foreground">Ładowanie…</p>
+      ) : data.length === 0 ? (
+        <p className="text-muted-foreground">Brak wysłanych SMS-ów.</p>
+      ) : (
+        <div className="overflow-x-auto rounded-2xl border">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <tr>
+                <th className="p-3">Data</th>
+                <th className="p-3">Typ</th>
+                <th className="p-3">Numer</th>
+                <th className="p-3">Status</th>
+                <th className="p-3">Treść</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((s) => (
+                <tr key={s.id} className="border-t align-top">
+                  <td className="p-3 whitespace-nowrap">{new Date(s.created_at).toLocaleString("pl-PL")}</td>
+                  <td className="p-3">{SMS_KIND_LABEL[s.kind] ?? s.kind}</td>
+                  <td className="p-3 whitespace-nowrap font-mono text-xs">{s.phone}</td>
+                  <td className="p-3">
+                    <Badge variant={s.status === "sent" ? "default" : "destructive"} className="rounded-full">
+                      {s.status === "sent" ? "wysłany" : "błąd"}
+                    </Badge>
+                    {s.error && <div className="mt-1 max-w-[220px] text-xs text-destructive">{s.error}</div>}
+                  </td>
+                  <td className="p-3 text-xs text-muted-foreground">{s.message}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 
 function MatchingTab() {
   const qc = useQueryClient();
