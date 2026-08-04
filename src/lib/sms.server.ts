@@ -1,5 +1,5 @@
 /**
- * TURA J — wysyłka SMS przez JustSend.pl (server-only).
+ * TUTAJ — wysyłka SMS przez JustSend.pl (server-only).
  * Każda próba wysyłki jest logowana w tabeli `sms_logs`.
  */
 
@@ -49,7 +49,7 @@ export async function sendSms(opts: {
   }
 
   try {
-    const res = await fetch("https://api.justsend.pl/api/rest/v3/message/send/simple", {
+    const res = await fetch("https://justsend.io/api/sender/singlemessage/send", {
       method: "POST",
       headers: { "App-Key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -73,8 +73,8 @@ export async function sendSms(opts: {
       ? ` | Przyczyna: ${err.cause.message || err.cause.code || JSON.stringify(err.cause)}`
       : "";
     const msg = (e instanceof Error ? e.message : "Nieznany błąd") + causeMsg;
-
+    
     await log("failed", msg);
-    return { ok: false, error: msg };
+    return { ok: false, error: "Wystąpił błąd podczas wysyłania SMS." };
   }
 }
