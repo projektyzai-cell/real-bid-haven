@@ -67,7 +67,13 @@ export async function sendSms(opts: {
     await log("sent");
     return { ok: true };
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "Nieznany błąd";
+    // Odczytanie dokładnej przyczyny błędu z Node.js (e.cause)
+    const err = e as { message?: string; cause?: any };
+    const causeMsg = err?.cause
+      ? ` | Przyczyna: ${err.cause.message || err.cause.code || JSON.stringify(err.cause)}`
+      : "";
+    const msg = (e instanceof Error ? e.message : "Nieznany błąd") + causeMsg;
+
     await log("failed", msg);
     return { ok: false, error: msg };
   }
