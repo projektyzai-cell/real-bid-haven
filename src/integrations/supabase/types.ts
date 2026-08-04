@@ -227,6 +227,7 @@ export type Database = {
           nationwide: boolean
           phone: string | null
           services: string[]
+          sms_consent: boolean
           updated_at: string
           user_id: string
         }
@@ -240,6 +241,7 @@ export type Database = {
           nationwide?: boolean
           phone?: string | null
           services?: string[]
+          sms_consent?: boolean
           updated_at?: string
           user_id: string
         }
@@ -253,6 +255,7 @@ export type Database = {
           nationwide?: boolean
           phone?: string | null
           services?: string[]
+          sms_consent?: boolean
           updated_at?: string
           user_id?: string
         }
@@ -1617,6 +1620,7 @@ export type Database = {
           has_children: boolean
           id: string
           is_student: boolean | null
+          last_sms_sent_at: string | null
           min_lease_months: number | null
           min_rooms: number | null
           notes: string | null
@@ -1665,6 +1669,7 @@ export type Database = {
           has_children?: boolean
           id?: string
           is_student?: boolean | null
+          last_sms_sent_at?: string | null
           min_lease_months?: number | null
           min_rooms?: number | null
           notes?: string | null
@@ -1713,6 +1718,7 @@ export type Database = {
           has_children?: boolean
           id?: string
           is_student?: boolean | null
+          last_sms_sent_at?: string | null
           min_lease_months?: number | null
           min_rooms?: number | null
           notes?: string | null
@@ -1923,6 +1929,42 @@ export type Database = {
           message?: string
           property_id?: string
           seller_id?: string
+        }
+        Relationships: []
+      }
+      sms_logs: {
+        Row: {
+          created_at: string
+          error: string | null
+          id: string
+          kind: string
+          message: string
+          phone: string
+          status: string
+          target_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind: string
+          message: string
+          phone: string
+          status?: string
+          target_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error?: string | null
+          id?: string
+          kind?: string
+          message?: string
+          phone?: string
+          status?: string
+          target_id?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
