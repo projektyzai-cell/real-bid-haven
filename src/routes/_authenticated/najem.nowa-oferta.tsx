@@ -11,6 +11,8 @@ import { MultiImageUpload } from "@/components/MultiImageUpload";
 import { LocationPicker } from "@/components/LocationPicker";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
+import { useServerFn } from "@tanstack/react-start";
+import { notifyMatchingTenants } from "@/lib/sms.functions";
 
 export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
   head: () => ({ meta: [{ title: "Wystaw ofertę najmu — Stay Safe" }] }),
@@ -72,6 +74,7 @@ function NewRentalListing() {
   const [images, setImages] = useState<string[]>([]);
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
+  const notifySmsFn = useServerFn(notifyMatchingTenants);
   const [loading, setLoading] = useState(isEdit);
 
 
