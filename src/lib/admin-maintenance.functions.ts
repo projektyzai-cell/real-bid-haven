@@ -35,11 +35,12 @@ export const assignMaintenanceToContractor = createServerFn({ method: "POST" })
 
     const { data: contractor, error: cErr } = await supabaseAdmin
       .from("contractors")
-      .select("id, company_name, active")
+      .select("id, company_name, active, phone, sms_consent, user_id")
       .eq("id", data.contractorId)
       .maybeSingle();
     if (cErr) throw new Error(cErr.message);
     if (!contractor) throw new Error("Nie znaleziono wykonawcy.");
+
 
     const r: any = report;
 
