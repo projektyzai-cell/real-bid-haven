@@ -49,7 +49,7 @@ export async function sendSms(opts: {
   }
 
   try {
-    const res = await fetch("https://api.justsend.pl/api/rest/v2/message/send/simple", {
+    const res = await fetch("https://api.justsend.pl/api/rest/v3/message/send/simple", {
       method: "POST",
       headers: { "App-Key": apiKey, "Content-Type": "application/json" },
       body: JSON.stringify({
