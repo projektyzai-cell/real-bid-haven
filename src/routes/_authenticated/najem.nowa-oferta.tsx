@@ -216,15 +216,29 @@ function NewRentalListing() {
     };
 
     let error;
+    let newListingId: string | null = null;
     if (isEdit && editId) {
       ({ error } = await supabase.from("rental_listings" as never)
         .update(payload as never).eq("id", editId).eq("landlord_id", user.id));
     } else {
       payload.landlord_id = user.id;
-      ({ error } = await supabase.from("rental_listings" as never).insert(payload as never));
+      const res = await supabase.from("rental_listings" as never)
+        .insert(payload as never).select("id").single();
+      error = res.error;
+      newListingId = (res.data as unknown as { id: string } | null)?.id ?? null;
     }
     setBusy(false);
     if (error) { toast.error(error.message); return; }
+
+    // TURA J — Flow B: powiadom SMS-em najemców z opłaconą usługą Smart-Match SMS
+    if (newListingId) {
+      try {
+        await notifySmsFn({ data: { listingId: newListingId } });
+      } catch {
+        /* brak SMS nie blokuje publikacji oferty */
+      }
+    }
+
 
     // TURA H — ŚChE: zgoda + telefon → lead Concierge widoczny w panelu admina
     if (form.wants_energy_cert_discount && form.sche_rodo_consent) {
