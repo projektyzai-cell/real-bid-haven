@@ -34,7 +34,7 @@ const schema = z.object({
   budget_max: z.number().positive().max(100000).optional(),
   adults_count: z.number().int().min(1).max(20),
   children_count: z.number().int().min(0).max(20),
-  active_days: z.number().int().refine((v) => [7, 14, 30].includes(v), { message: "Czas: 7, 14 lub 30 dni" }),
+  active_days: z.literal(7),
   property_type: z.enum(["apartment", "room", "house"]),
   apartment_subtype: z.enum(["studio", "2rooms", "3rooms_plus"]).optional(),
   min_lease_months: z.number().int().min(1).max(12),
@@ -466,12 +466,12 @@ function NewRentalRequestPage() {
             </div>
             <div>
               <Label>{t("request.activeFor")}</Label>
-              <select required value={form.active_days} onChange={(e) => set("active_days", e.target.value)}
-                className="mt-1.5 h-10 w-full rounded-xl border bg-background px-3 text-sm">
-                <option value="7">{t("request.days7")}</option>
-                <option value="14">{t("request.days14")}</option>
-                <option value="30">{t("request.days30")}</option>
-              </select>
+              <div className="mt-1.5 flex h-10 items-center rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 px-3 text-sm font-semibold text-gold">
+                7 dni
+              </div>
+              <p className="mt-1 text-[11px] text-muted-foreground">
+                Zapytanie jest ważne 7 dni. Po tym czasie wygasa — możesz je odświeżyć w zakładce „Moje zapytania”.
+              </p>
             </div>
           </div>
 
