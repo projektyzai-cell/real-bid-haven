@@ -13,10 +13,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/najem/")({
   head: () => ({
     meta: [
-      { title: "StaySafe — bezpieczeństwo droższe od pieniędzy" },
-      { name: "description", content: "StaySafe to PropTech: weryfikacja RODO, paszport najemcy, dopasowanie zamiast spamu i 360° obsługa najmu. Zamknięty, bezpieczny ekosystem zaufania." },
-      { property: "og:title", content: "StaySafe — bezpieczeństwo droższe od pieniędzy" },
-      { property: "og:description", content: "Paszport najemcy, weryfikacja RODO, dopasowanie zamiast spamu." },
+      { title: "StaySafe — bezpieczny najem droższy od pieniędzy" },
+      { name: "description", content: "Bezpieczny najem mieszkania, profesjonalna weryfikacja najemcy i innowacyjny paszport najemcy. Kompleksowa obsługa i ochrona wynajmu nieruchomości." },
+      { property: "og:title", content: "StaySafe — bezpieczny najem droższy od pieniędzy" },
+      { property: "og:description", content: "Bezpieczny najem, weryfikacja najemcy i paszport najemcy. Precyzyjne dopasowanie, ochrona i system Smart Match wynajmu mieszkań i pokoi. Sprawdź StaySafe" },
     ],
   }),
   component: NajemHub,
