@@ -481,10 +481,9 @@ function NewRentalListing() {
 
               <div>
                 <Label className="mb-2 block text-xs">Zamek w drzwiach pokoju</Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 gap-2">
                   {([
                     ["key", "Na klucz"],
-                    ["patent", "Zamek patentowy"],
                     ["none", "Brak zamka"],
                   ] as const).map(([v, label]) => (
                     <button key={v} type="button"
@@ -859,7 +858,10 @@ function NewRentalListing() {
             <Checkbox checked={form.promoted}
               onCheckedChange={(v) => setF("promoted", v === true)} className="mt-0.5" />
             <span>
-              <strong>Promowane ogłoszenie</strong> — Twoja oferta pojawi się także publicznie na stronie /najem.
+              <strong>Promowane ogłoszenie</strong> — Twoja oferta pojawi się także publicznie na stronie głównej.
+              Dodatkowo w ofertach dopasowanych Najemca będzie widział Twoją nieruchomość w pierwszej kolejności!
+              To zwiększy Twoje szanse na pozyskanie większej liczby sprawdzonych Najemców i wybraniu tego IDEALNEGO!
+              <span className="mt-1 block font-semibold text-gold">Koszt promowania ogłoszenia jedynie 9 zł</span>
             </span>
           </label>
         </div>
