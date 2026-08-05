@@ -75,7 +75,15 @@ function NewRentalRequestPage() {
     accepts_notarial_lease: false, accepts_deposit: false, accepts_insurance: false,
     pets_caged: false, pets_other: false,
     is_student: false,
+    offers_staysafe_passport: false,
+    wants_minor_modifications: false,
+    wants_own_furniture: false,
+    wants_separate_wc: false,
+    shared_kitchen: false, shared_living_room: false,
+    shared_balcony: false, shared_garden: false, shared_basement: false,
   });
+  const [roomLock, setRoomLock] = useState<"key" | "none" | "">("");
+  const [acceptsLiveInOwner, setAcceptsLiveInOwner] = useState<boolean | null>(null);
   const [hasPassport, setHasPassport] = useState<boolean | null>(null);
   const [passportChecked, setPassportChecked] = useState(false);
   const [sms, setSms] = useState({ enabled: false, phone: "", consent: false });
