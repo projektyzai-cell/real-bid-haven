@@ -445,6 +445,69 @@ function NewRentalRequestPage() {
               </div>
             </div>
           )}
+
+          {propertyType === "room" && (
+            <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">Informacje o pokoju</p>
+
+              <div>
+                <Label className="mb-2 block text-xs">Zamek w drzwiach pokoju</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    ["key", "Na klucz"],
+                    ["none", "Brak zamka"],
+                  ] as const).map(([v, label]) => (
+                    <button key={v} type="button"
+                      onClick={() => setRoomLock((prev) => (prev === v ? "" : v))}
+                      className={`h-9 rounded-xl border text-xs font-semibold transition ${
+                        roomLock === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <Label className="mb-2 block text-xs">Czy w mieszkaniu akceptujesz mieszkającego właściciela?</Label>
+                <div className="grid grid-cols-2 gap-2">
+                  {([
+                    [true, "Tak"],
+                    [false, "Nie"],
+                  ] as const).map(([v, label]) => (
+                    <button key={String(v)} type="button"
+                      onClick={() => setAcceptsLiveInOwner((prev) => (prev === v ? null : v))}
+                      className={`h-9 rounded-xl border text-xs font-semibold transition ${
+                        acceptsLiveInOwner === v
+                          ? "border-[var(--gold)] bg-[var(--gold)]/10 text-gold"
+                          : "border-border text-muted-foreground hover:text-foreground"
+                      }`}>{label}</button>
+                  ))}
+                </div>
+              </div>
+
+              <label className="flex items-start gap-3 text-sm">
+                <Checkbox checked={flags.wants_separate_wc} onCheckedChange={() => toggle("wants_separate_wc")} className="mt-0.5" />
+                <span>Oddzielne WC</span>
+              </label>
+
+              <div className="space-y-2">
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Dostęp do części wspólnych</p>
+                {([
+                  ["shared_kitchen", "Kuchnia"],
+                  ["shared_living_room", "Salon"],
+                  ["shared_balcony", "Balkon lub taras"],
+                  ["shared_garden", "Ogród"],
+                  ["shared_basement", "Piwnica lub komórka lokatorska"],
+                ] as [keyof typeof flags, string][]).map(([k, label]) => (
+                  <label key={k} className="flex items-start gap-3 text-sm">
+                    <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
+                    <span>{label}</span>
+                  </label>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* WARUNKI UMOWY */}
@@ -527,6 +590,23 @@ function NewRentalRequestPage() {
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.pets_other} onCheckedChange={() => toggle("pets_other")} className="mt-0.5" />
             <span>{t("request.petsOther")}</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.offers_staysafe_passport} onCheckedChange={() => toggle("offers_staysafe_passport")} className="mt-0.5" />
+            <span>Zobowiązuję się dostarczyć Wynajmującemu Paszport StaySafe</span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.wants_minor_modifications} onCheckedChange={() => toggle("wants_minor_modifications")} className="mt-0.5" />
+            <span>
+              Chcę mieć możliwość wykonania małych modyfikacji w nieruchomości
+              <span className="block text-[11px] text-muted-foreground">
+                Drobne prace: malowanie, wieszanie półek itp. — po wcześniejszym uzgodnieniu.
+              </span>
+            </span>
+          </label>
+          <label className="flex items-start gap-3 text-sm">
+            <Checkbox checked={flags.wants_own_furniture} onCheckedChange={() => toggle("wants_own_furniture")} className="mt-0.5" />
+            <span>Mam część swoich mebli i chciałbym je wstawić do wynajmowanej nieruchomości</span>
           </label>
         </div>
 
