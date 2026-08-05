@@ -68,7 +68,7 @@ function AuthPage() {
   const [password, setPassword] = useState("");
   const [password2, setPassword2] = useState("");
   const [nick, setNick] = useState("");
-  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "oba" | "contractor">("najemca");
+  const [accountType, setAccountType] = useState<"najemca" | "wynajmujacy" | "contractor">("najemca");
   const [companyName, setCompanyName] = useState("");
   const [contractorPhone, setContractorPhone] = useState("");
   const [contractorServices, setContractorServices] = useState<string[]>([]);
@@ -226,11 +226,10 @@ function AuthPage() {
               </div>
               <div>
                 <Label>{t("auth.wantToUseAs")}</Label>
-                <div className="mt-1.5 grid grid-cols-2 gap-2 sm:grid-cols-4">
+                <div className="mt-1.5 grid grid-cols-1 gap-2 sm:grid-cols-3">
                   {([
                     ["najemca", t("auth.tenant")],
                     ["wynajmujacy", t("auth.landlord")],
-                    ["oba", t("auth.both")],
                     ["contractor", "Wykonawca Concierge"],
                   ] as const).map(([val, lbl]) => (
                     <button type="button" key={val} onClick={() => setAccountType(val as typeof accountType)}

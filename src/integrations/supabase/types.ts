@@ -1603,6 +1603,7 @@ export type Database = {
         Row: {
           accepts_deposit: boolean
           accepts_insurance: boolean
+          accepts_live_in_owner: boolean | null
           accepts_notarial_lease: boolean
           accepts_tenant_report: boolean
           active_days: number
@@ -1624,6 +1625,7 @@ export type Database = {
           min_lease_months: number | null
           min_rooms: number | null
           notes: string | null
+          offers_staysafe_passport: boolean
           personal_bio_lang: string | null
           personal_bio_original: string | null
           personal_bio_pl: string | null
@@ -1631,11 +1633,17 @@ export type Database = {
           pets_other: boolean
           property_type: string | null
           requires_furnished: boolean
+          room_lock: string | null
           search_lat: number | null
           search_lng: number | null
           search_mode: string
           search_radius_km: number | null
           search_street: string | null
+          shared_balcony: boolean
+          shared_basement: boolean
+          shared_garden: boolean
+          shared_kitchen: boolean
+          shared_living_room: boolean
           sms_consent: boolean
           sms_notifications: boolean
           sms_paid_at: string | null
@@ -1646,12 +1654,16 @@ export type Database = {
           wants_basement: boolean
           wants_dishwasher: boolean
           wants_elevator: boolean
+          wants_minor_modifications: boolean
+          wants_own_furniture: boolean
           wants_parking_space: boolean
+          wants_separate_wc: boolean
           wants_washing_machine: boolean
         }
         Insert: {
           accepts_deposit?: boolean
           accepts_insurance?: boolean
+          accepts_live_in_owner?: boolean | null
           accepts_notarial_lease?: boolean
           accepts_tenant_report?: boolean
           active_days?: number
@@ -1673,6 +1685,7 @@ export type Database = {
           min_lease_months?: number | null
           min_rooms?: number | null
           notes?: string | null
+          offers_staysafe_passport?: boolean
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
@@ -1680,11 +1693,17 @@ export type Database = {
           pets_other?: boolean
           property_type?: string | null
           requires_furnished?: boolean
+          room_lock?: string | null
           search_lat?: number | null
           search_lng?: number | null
           search_mode?: string
           search_radius_km?: number | null
           search_street?: string | null
+          shared_balcony?: boolean
+          shared_basement?: boolean
+          shared_garden?: boolean
+          shared_kitchen?: boolean
+          shared_living_room?: boolean
           sms_consent?: boolean
           sms_notifications?: boolean
           sms_paid_at?: string | null
@@ -1695,12 +1714,16 @@ export type Database = {
           wants_basement?: boolean
           wants_dishwasher?: boolean
           wants_elevator?: boolean
+          wants_minor_modifications?: boolean
+          wants_own_furniture?: boolean
           wants_parking_space?: boolean
+          wants_separate_wc?: boolean
           wants_washing_machine?: boolean
         }
         Update: {
           accepts_deposit?: boolean
           accepts_insurance?: boolean
+          accepts_live_in_owner?: boolean | null
           accepts_notarial_lease?: boolean
           accepts_tenant_report?: boolean
           active_days?: number
@@ -1722,6 +1745,7 @@ export type Database = {
           min_lease_months?: number | null
           min_rooms?: number | null
           notes?: string | null
+          offers_staysafe_passport?: boolean
           personal_bio_lang?: string | null
           personal_bio_original?: string | null
           personal_bio_pl?: string | null
@@ -1729,11 +1753,17 @@ export type Database = {
           pets_other?: boolean
           property_type?: string | null
           requires_furnished?: boolean
+          room_lock?: string | null
           search_lat?: number | null
           search_lng?: number | null
           search_mode?: string
           search_radius_km?: number | null
           search_street?: string | null
+          shared_balcony?: boolean
+          shared_basement?: boolean
+          shared_garden?: boolean
+          shared_kitchen?: boolean
+          shared_living_room?: boolean
           sms_consent?: boolean
           sms_notifications?: boolean
           sms_paid_at?: string | null
@@ -1744,7 +1774,10 @@ export type Database = {
           wants_basement?: boolean
           wants_dishwasher?: boolean
           wants_elevator?: boolean
+          wants_minor_modifications?: boolean
+          wants_own_furniture?: boolean
           wants_parking_space?: boolean
+          wants_separate_wc?: boolean
           wants_washing_machine?: boolean
         }
         Relationships: []

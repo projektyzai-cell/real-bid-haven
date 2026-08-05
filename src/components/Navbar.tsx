@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, List, MessageCircle, Building2,
   KeyRound, Settings, ShieldCheck, Sparkles, BadgeCheck, HandHeart,
-  FileSignature, Home, FileText, Wrench,
+  FileSignature, Home, FileText, Wrench, Facebook,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
@@ -64,6 +64,16 @@ export function Navbar() {
         </nav>
 
         <div className="flex shrink-0 items-center gap-2">
+          <a
+            href="https://www.facebook.com/share/1QTa1ihRg8/"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Stay Safe na Facebooku"
+            title="Stay Safe na Facebooku"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border text-muted-foreground transition hover:border-[var(--gold)]/50 hover:bg-muted hover:text-gold"
+          >
+            <Facebook className="h-4 w-4" />
+          </a>
           <LanguageSwitcher />
           {user ? (
             <DropdownMenu>
