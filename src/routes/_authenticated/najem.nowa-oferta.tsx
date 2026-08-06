@@ -127,6 +127,28 @@ function NewRentalListing() {
       if (r.extra_features && typeof r.extra_features === "object") {
         setExtras((s) => ({ ...s, ...r.extra_features }));
       }
+      // TURA 3 — kolumny nadrzędne wobec starego JSON-a
+      setExtras((s) => ({
+        ...s,
+        room_lock: (r.room_lock as typeof s.room_lock) || s.room_lock,
+        owner_lives_in: r.owner_lives_in ?? s.owner_lives_in,
+        separate_wc: r.separate_wc ?? s.separate_wc,
+        common_areas: [
+          ...(r.shared_kitchen ? ["kitchen"] : []),
+          ...(r.shared_living_room ? ["living"] : []),
+          ...(r.shared_balcony ? ["balcony"] : []),
+          ...(r.shared_garden ? ["garden"] : []),
+          ...(r.shared_basement ? ["basement"] : []),
+        ].length
+          ? [
+              ...(r.shared_kitchen ? ["kitchen"] : []),
+              ...(r.shared_living_room ? ["living"] : []),
+              ...(r.shared_balcony ? ["balcony"] : []),
+              ...(r.shared_garden ? ["garden"] : []),
+              ...(r.shared_basement ? ["basement"] : []),
+            ]
+          : s.common_areas,
+      }));
       setLoading(false);
 
     })();
