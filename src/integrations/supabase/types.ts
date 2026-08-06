@@ -1335,6 +1335,8 @@ export type Database = {
           expires_at: string
           extra_features: Json
           floor_number: string | null
+          geo_lat: number | null
+          geo_lng: number | null
           has_balcony: boolean
           has_basement: boolean | null
           has_dishwasher: boolean
@@ -1406,6 +1408,8 @@ export type Database = {
           expires_at?: string
           extra_features?: Json
           floor_number?: string | null
+          geo_lat?: number | null
+          geo_lng?: number | null
           has_balcony?: boolean
           has_basement?: boolean | null
           has_dishwasher?: boolean
@@ -1477,6 +1481,8 @@ export type Database = {
           expires_at?: string
           extra_features?: Json
           floor_number?: string | null
+          geo_lat?: number | null
+          geo_lng?: number | null
           has_balcony?: boolean
           has_basement?: boolean | null
           has_dishwasher?: boolean
