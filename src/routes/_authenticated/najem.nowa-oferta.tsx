@@ -215,6 +215,15 @@ function NewRentalListing() {
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
       room_label: propertyType === "room" ? (roomLabel.trim() || null) : null,
+      // TURA 3 — pola pokoju wykorzystywane przez silnik Auto-Matchingu
+      room_lock: propertyType === "room" && extras.room_lock ? extras.room_lock : null,
+      owner_lives_in: propertyType === "room" ? extras.owner_lives_in : false,
+      separate_wc: propertyType === "room" ? extras.separate_wc : false,
+      shared_kitchen: propertyType === "room" ? extras.common_areas.includes("kitchen") : false,
+      shared_living_room: propertyType === "room" ? extras.common_areas.includes("living") : false,
+      shared_balcony: propertyType === "room" ? extras.common_areas.includes("balcony") : false,
+      shared_garden: propertyType === "room" ? extras.common_areas.includes("garden") : false,
+      shared_basement: propertyType === "room" ? extras.common_areas.includes("basement") : false,
       extra_features: buildExtraFeatures(propertyType, extras),
     };
 
