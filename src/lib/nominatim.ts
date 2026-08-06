@@ -55,3 +55,22 @@ export async function geocodeArea(city: string, district: string | undefined, si
   } catch { return null; }
 }
 
+
+// Geocode a full street address inside a Polish city — returns [lat, lng] or null.
+export async function geocodeAddress(
+  city: string,
+  street?: string,
+  district?: string,
+  signal?: AbortSignal,
+): Promise<[number, number] | null> {
+  if (!city.trim()) return null;
+  const parts = [street?.trim(), district?.trim(), city.trim(), "Polska"].filter(Boolean);
+  const url = `${BASE}/search?format=json&limit=1&accept-language=pl&countrycodes=pl&q=${encodeURIComponent(parts.join(", "))}`;
+  try {
+    const res = await fetch(url, { signal, headers: { Accept: "application/json" } });
+    if (!res.ok) return null;
+    const data = (await res.json()) as NominatimHit[];
+    if (!data.length) return geocodeArea(city, district, signal);
+    return [Number(data[0].lat), Number(data[0].lon)];
+  } catch { return null; }
+}

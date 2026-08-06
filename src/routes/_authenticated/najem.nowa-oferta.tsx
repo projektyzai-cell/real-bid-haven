@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyMatchingTenants } from "@/lib/sms.functions";
+import { geocodeAddress } from "@/lib/nominatim";
 
 export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
   head: () => ({ meta: [{ title: "Wystaw ofertę najmu — Stay Safe" }] }),
@@ -248,6 +249,11 @@ function NewRentalListing() {
       shared_basement: propertyType === "room" ? extras.common_areas.includes("basement") : false,
       extra_features: buildExtraFeatures(propertyType, extras),
     };
+
+    // TURA 5 — współrzędne oferty dla twardego warunku "obszar z mapy"
+    const coords = await geocodeAddress(form.city, form.street, form.district);
+    if (coords) { payload.geo_lat = coords[0]; payload.geo_lng = coords[1]; }
+
 
     let error;
     let newListingId: string | null = null;
