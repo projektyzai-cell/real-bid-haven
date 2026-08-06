@@ -250,6 +250,11 @@ function NewRentalListing() {
       extra_features: buildExtraFeatures(propertyType, extras),
     };
 
+    // TURA 5 — współrzędne oferty dla twardego warunku "obszar z mapy"
+    const coords = await geocodeAddress(form.city, form.street, form.district);
+    if (coords) { payload.geo_lat = coords[0]; payload.geo_lng = coords[1]; }
+
+
     let error;
     let newListingId: string | null = null;
     if (isEdit && editId) {
