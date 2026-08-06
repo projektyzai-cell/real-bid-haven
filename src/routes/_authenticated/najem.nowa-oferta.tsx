@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyMatchingTenants } from "@/lib/sms.functions";
+import { geocodeAddress } from "@/lib/nominatim";
 
 export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
   head: () => ({ meta: [{ title: "Wystaw ofertę najmu — Stay Safe" }] }),
