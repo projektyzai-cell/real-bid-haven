@@ -127,6 +127,28 @@ function NewRentalListing() {
       if (r.extra_features && typeof r.extra_features === "object") {
         setExtras((s) => ({ ...s, ...r.extra_features }));
       }
+      // TURA 3 — kolumny nadrzędne wobec starego JSON-a
+      setExtras((s) => ({
+        ...s,
+        room_lock: (r.room_lock as typeof s.room_lock) || s.room_lock,
+        owner_lives_in: r.owner_lives_in ?? s.owner_lives_in,
+        separate_wc: r.separate_wc ?? s.separate_wc,
+        common_areas: [
+          ...(r.shared_kitchen ? ["kitchen"] : []),
+          ...(r.shared_living_room ? ["living"] : []),
+          ...(r.shared_balcony ? ["balcony"] : []),
+          ...(r.shared_garden ? ["garden"] : []),
+          ...(r.shared_basement ? ["basement"] : []),
+        ].length
+          ? [
+              ...(r.shared_kitchen ? ["kitchen"] : []),
+              ...(r.shared_living_room ? ["living"] : []),
+              ...(r.shared_balcony ? ["balcony"] : []),
+              ...(r.shared_garden ? ["garden"] : []),
+              ...(r.shared_basement ? ["basement"] : []),
+            ]
+          : s.common_areas,
+      }));
       setLoading(false);
 
     })();
@@ -215,6 +237,15 @@ function NewRentalListing() {
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
       room_label: propertyType === "room" ? (roomLabel.trim() || null) : null,
+      // TURA 3 — pola pokoju wykorzystywane przez silnik Auto-Matchingu
+      room_lock: propertyType === "room" && extras.room_lock ? extras.room_lock : null,
+      owner_lives_in: propertyType === "room" ? extras.owner_lives_in : false,
+      separate_wc: propertyType === "room" ? extras.separate_wc : false,
+      shared_kitchen: propertyType === "room" ? extras.common_areas.includes("kitchen") : false,
+      shared_living_room: propertyType === "room" ? extras.common_areas.includes("living") : false,
+      shared_balcony: propertyType === "room" ? extras.common_areas.includes("balcony") : false,
+      shared_garden: propertyType === "room" ? extras.common_areas.includes("garden") : false,
+      shared_basement: propertyType === "room" ? extras.common_areas.includes("basement") : false,
       extra_features: buildExtraFeatures(propertyType, extras),
     };
 

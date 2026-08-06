@@ -1355,6 +1355,7 @@ export type Database = {
           min_lease_months: number | null
           monthly_price: number
           notarial_required: boolean
+          owner_lives_in: boolean
           pets_caged_allowed: boolean
           pets_other_allowed: boolean
           plot_area_m2: number | null
@@ -1367,7 +1368,14 @@ export type Database = {
           requires_insurance: boolean
           requires_passport: boolean
           room_label: string | null
+          room_lock: string | null
           rooms: number
+          separate_wc: boolean
+          shared_balcony: boolean
+          shared_basement: boolean
+          shared_garden: boolean
+          shared_kitchen: boolean
+          shared_living_room: boolean
           status: string
           street: string
           title: string
@@ -1418,6 +1426,7 @@ export type Database = {
           min_lease_months?: number | null
           monthly_price: number
           notarial_required?: boolean
+          owner_lives_in?: boolean
           pets_caged_allowed?: boolean
           pets_other_allowed?: boolean
           plot_area_m2?: number | null
@@ -1430,7 +1439,14 @@ export type Database = {
           requires_insurance?: boolean
           requires_passport?: boolean
           room_label?: string | null
+          room_lock?: string | null
           rooms?: number
+          separate_wc?: boolean
+          shared_balcony?: boolean
+          shared_basement?: boolean
+          shared_garden?: boolean
+          shared_kitchen?: boolean
+          shared_living_room?: boolean
           status?: string
           street: string
           title: string
@@ -1481,6 +1497,7 @@ export type Database = {
           min_lease_months?: number | null
           monthly_price?: number
           notarial_required?: boolean
+          owner_lives_in?: boolean
           pets_caged_allowed?: boolean
           pets_other_allowed?: boolean
           plot_area_m2?: number | null
@@ -1493,7 +1510,14 @@ export type Database = {
           requires_insurance?: boolean
           requires_passport?: boolean
           room_label?: string | null
+          room_lock?: string | null
           rooms?: number
+          separate_wc?: boolean
+          shared_balcony?: boolean
+          shared_basement?: boolean
+          shared_garden?: boolean
+          shared_kitchen?: boolean
+          shared_living_room?: boolean
           status?: string
           street?: string
           title?: string
@@ -2380,6 +2404,10 @@ export type Database = {
       }
       ratings_revealed: { Args: { _transaction_id: string }; Returns: boolean }
       reject_bid: { Args: { _bid_id: string }; Returns: undefined }
+      rental_match_score: {
+        Args: { _listing_id: string; _request_id: string }
+        Returns: number
+      }
       report_payment_delay: {
         Args: { _transaction_id: string }
         Returns: undefined
