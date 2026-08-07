@@ -701,9 +701,24 @@ export type Database = {
           min_match_score: number
           soft_base_score: number
           soft_weight_balcony: number
+          soft_weight_basement: number
           soft_weight_dishwasher: number
           soft_weight_elevator: number
+          soft_weight_furnished: number
+          soft_weight_insurance: number
+          soft_weight_modifications: number
+          soft_weight_own_furniture: number
           soft_weight_parking: number
+          soft_weight_pets_caged: number
+          soft_weight_pets_other: number
+          soft_weight_separate_wc: number
+          soft_weight_shared_balcony: number
+          soft_weight_shared_basement: number
+          soft_weight_shared_garden: number
+          soft_weight_shared_kitchen: number
+          soft_weight_shared_living_room: number
+          soft_weight_student: number
+          soft_weight_washing_machine: number
           updated_at: string
           updated_by: string | null
         }
@@ -720,9 +735,24 @@ export type Database = {
           min_match_score?: number
           soft_base_score?: number
           soft_weight_balcony?: number
+          soft_weight_basement?: number
           soft_weight_dishwasher?: number
           soft_weight_elevator?: number
+          soft_weight_furnished?: number
+          soft_weight_insurance?: number
+          soft_weight_modifications?: number
+          soft_weight_own_furniture?: number
           soft_weight_parking?: number
+          soft_weight_pets_caged?: number
+          soft_weight_pets_other?: number
+          soft_weight_separate_wc?: number
+          soft_weight_shared_balcony?: number
+          soft_weight_shared_basement?: number
+          soft_weight_shared_garden?: number
+          soft_weight_shared_kitchen?: number
+          soft_weight_shared_living_room?: number
+          soft_weight_student?: number
+          soft_weight_washing_machine?: number
           updated_at?: string
           updated_by?: string | null
         }
@@ -739,9 +769,24 @@ export type Database = {
           min_match_score?: number
           soft_base_score?: number
           soft_weight_balcony?: number
+          soft_weight_basement?: number
           soft_weight_dishwasher?: number
           soft_weight_elevator?: number
+          soft_weight_furnished?: number
+          soft_weight_insurance?: number
+          soft_weight_modifications?: number
+          soft_weight_own_furniture?: number
           soft_weight_parking?: number
+          soft_weight_pets_caged?: number
+          soft_weight_pets_other?: number
+          soft_weight_separate_wc?: number
+          soft_weight_shared_balcony?: number
+          soft_weight_shared_basement?: number
+          soft_weight_shared_garden?: number
+          soft_weight_shared_kitchen?: number
+          soft_weight_shared_living_room?: number
+          soft_weight_student?: number
+          soft_weight_washing_machine?: number
           updated_at?: string
           updated_by?: string | null
         }

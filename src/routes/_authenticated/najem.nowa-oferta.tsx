@@ -17,7 +17,8 @@ import { geocodeAddress } from "@/lib/nominatim";
 
 export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
   head: () => ({ meta: [{ title: "Wystaw ofertę najmu — Stay Safe" }] }),
-  validateSearch: (s: Record<string, unknown>) => ({ id: typeof s.id === "string" ? s.id : undefined }),
+  validateSearch: (s: Record<string, unknown>): { id?: string } =>
+    typeof s.id === "string" ? { id: s.id } : {},
   component: NewRentalListing,
 });
 
