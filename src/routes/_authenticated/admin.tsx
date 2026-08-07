@@ -1814,23 +1814,54 @@ type MatchingCfg = {
   soft_weight_dishwasher: number;
   soft_weight_elevator: number;
   soft_weight_parking: number;
+  soft_weight_basement: number;
+  soft_weight_furnished: number;
+  soft_weight_washing_machine: number;
+  soft_weight_insurance: number;
+  soft_weight_student: number;
+  soft_weight_pets_caged: number;
+  soft_weight_pets_other: number;
+  soft_weight_modifications: number;
+  soft_weight_own_furniture: number;
+  soft_weight_separate_wc: number;
+  soft_weight_shared_kitchen: number;
+  soft_weight_shared_living_room: number;
+  soft_weight_shared_balcony: number;
+  soft_weight_shared_garden: number;
+  soft_weight_shared_basement: number;
 };
 
 const HARD_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
   { key: "hard_require_city", label: "Zgodność miasta", desc: "Oferta musi znajdować się w tym samym mieście, co zapytanie najemcy." },
   { key: "hard_require_property_type", label: "Zgodność typu nieruchomości", desc: "Mieszkanie ↔ mieszkanie, dom ↔ dom, pokój ↔ pokój." },
-  { key: "hard_require_district", label: "Zgodność dzielnicy", desc: "Jeśli najemca wskazał dzielnicę — oferta musi być z tej samej dzielnicy." },
+  { key: "hard_require_district", label: "Zgodność dzielnicy", desc: "Jeśli najemca wskazał dzielnicę — oferta musi być z tej samej dzielnicy (obszar z mapy ma pierwszeństwo)." },
   { key: "hard_enforce_budget", label: "Limit budżetu najemcy", desc: "Cena najmu nie może przekraczać maksymalnego budżetu z zapytania." },
   { key: "hard_enforce_floor_exclusions", label: "Wykluczenia piętra", desc: "Respektuje wykluczenia najemcy (parter, wyższe piętra bez windy)." },
   { key: "hard_exclude_self", label: "Wyklucz własne ogłoszenia", desc: "Nie proponuje najemcy jego własnych ofert." },
 ];
 
 const SOFT_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
-  { key: "soft_weight_balcony", label: "Balkon", desc: "Waga zgodności preferencji balkonu." },
-  { key: "soft_weight_dishwasher", label: "Zmywarka", desc: "Waga zgodności preferencji zmywarki." },
-  { key: "soft_weight_elevator", label: "Winda", desc: "Waga zgodności preferencji windy." },
-  { key: "soft_weight_parking", label: "Miejsce parkingowe", desc: "Waga zgodności preferencji parkingu." },
+  { key: "soft_weight_balcony", label: "Balkon", desc: "Waga zgodności preferencji balkonu (mieszkanie, dom)." },
+  { key: "soft_weight_dishwasher", label: "Zmywarka", desc: "Waga zgodności preferencji zmywarki (mieszkanie, dom)." },
+  { key: "soft_weight_elevator", label: "Winda", desc: "Waga zgodności preferencji windy (mieszkanie)." },
+  { key: "soft_weight_parking", label: "Miejsce parkingowe", desc: "Waga zgodności preferencji parkingu (mieszkanie, dom)." },
+  { key: "soft_weight_basement", label: "Piwnica / komórka", desc: "Waga zgodności preferencji piwnicy (mieszkanie, dom)." },
+  { key: "soft_weight_furnished", label: "Umeblowanie", desc: "Waga zgodności wymagania umeblowanej nieruchomości." },
+  { key: "soft_weight_washing_machine", label: "Pralka", desc: "Waga zgodności preferencji pralki." },
+  { key: "soft_weight_insurance", label: "Ubezpieczenie OC najemcy", desc: "Waga zgodności deklaracji ubezpieczenia." },
+  { key: "soft_weight_student", label: "Status studenta", desc: "Waga akceptacji studentów przez wynajmującego." },
+  { key: "soft_weight_pets_caged", label: "Zwierzęta w klatce/akwarium", desc: "Waga zgody na małe zwierzęta." },
+  { key: "soft_weight_pets_other", label: "Pozostałe zwierzęta", desc: "Waga zgody na psy/koty i inne zwierzęta." },
+  { key: "soft_weight_modifications", label: "Drobne modyfikacje", desc: "Waga zgody na drobne zmiany w lokalu." },
+  { key: "soft_weight_own_furniture", label: "Własne meble", desc: "Waga zgody na dostawienie własnych mebli." },
+  { key: "soft_weight_separate_wc", label: "Osobne WC (pokój)", desc: "Waga zgodności preferencji osobnego WC w profilu pokoju." },
+  { key: "soft_weight_shared_kitchen", label: "Wspólna kuchnia (pokój)", desc: "Waga dostępu do wspólnej kuchni." },
+  { key: "soft_weight_shared_living_room", label: "Wspólny salon (pokój)", desc: "Waga dostępu do wspólnego salonu." },
+  { key: "soft_weight_shared_balcony", label: "Wspólny balkon/taras (pokój)", desc: "Waga dostępu do wspólnego balkonu." },
+  { key: "soft_weight_shared_garden", label: "Wspólny ogród (pokój)", desc: "Waga dostępu do wspólnego ogrodu." },
+  { key: "soft_weight_shared_basement", label: "Wspólna piwnica (pokój)", desc: "Waga dostępu do wspólnej piwnicy." },
 ];
+
 
 const PAYMENT_KIND_LABEL: Record<string, string> = {
   listing_promotion: "Promowanie oferty",
