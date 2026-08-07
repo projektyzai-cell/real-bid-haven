@@ -37,7 +37,7 @@ export const Route = createFileRoute("/profil/$id")({
 });
 
 function PublicProfilePage() {
-  const { profile } = Route.useLoaderData();
+  const { profile } = Route.useLoaderData() as { profile: any };
   const userId = profile.id;
 
   const summary = useQuery({
