@@ -2032,11 +2032,11 @@ function MatchingTab() {
   }
 
   const update = (patch: Partial<MatchingCfg>) => setCfg({ ...cfg, ...patch });
-  const softTotal =
-    (cfg.soft_weight_balcony || 0) +
-    (cfg.soft_weight_dishwasher || 0) +
-    (cfg.soft_weight_elevator || 0) +
-    (cfg.soft_weight_parking || 0);
+  const softTotal = SOFT_RULES.reduce(
+    (sum, r) => sum + (Number(cfg[r.key] as number) || 0),
+    0,
+  );
+
 
   return (
     <div className="space-y-6">
