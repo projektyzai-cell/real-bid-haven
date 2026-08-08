@@ -77,6 +77,7 @@ function NewRentalListing() {
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const notifySmsFn = useServerFn(notifyMatchingTenants);
+  const payFn = useServerFn(createMolliePayment);
   const [loading, setLoading] = useState(isEdit);
 
 
