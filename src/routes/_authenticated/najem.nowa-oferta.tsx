@@ -237,7 +237,8 @@ function NewRentalListing() {
       building_type: showRoomFeatures && buildingType ? buildingType : null,
       has_energy_cert: form.has_energy_cert,
       wants_energy_cert_discount: form.wants_energy_cert_discount,
-      promoted: form.promoted, images, main_image_index: mainIdx,
+      // TURA 8 — promowanie jest płatne: aktywuje je dopiero webhook po opłacie
+      promoted: false, images, main_image_index: mainIdx,
       usable_area_m2: propertyType === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
