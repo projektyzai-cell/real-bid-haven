@@ -301,6 +301,22 @@ function NewRentalListing() {
     }
 
 
+    // TURA 8 — płatność 9 zł za promowanie już przy pierwszym wystawieniu oferty
+    const promoTargetId = newListingId ?? (isEdit ? editId : null);
+    if (form.promoted && promoTargetId) {
+      try {
+        const plan = PROMO_PLANS[0]!;
+        const { checkoutUrl } = await payFn({
+          data: { kind: "listing_promotion", targetId: promoTargetId, days: plan.days },
+        });
+        toast.success("Oferta zapisana — przechodzę do płatności za promowanie (9 zł).");
+        window.location.href = checkoutUrl;
+        return;
+      } catch (e: any) {
+        toast.error(e?.message ?? "Nie udało się rozpocząć płatności za promowanie. Możesz opłacić je w „Moje oferty”.");
+      }
+    }
+
     toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
   }
