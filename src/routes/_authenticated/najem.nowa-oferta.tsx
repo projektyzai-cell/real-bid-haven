@@ -885,8 +885,9 @@ function NewRentalListing() {
                     </span>
                   </label>
                   <p className="sm:col-span-2 text-[11px] text-muted-foreground">
-                    Zgłoszenie trafi jako lead do panelu administratora StaySafe, który przekaże je Wykonawcy usługi ŚChE.
+                    Wykonawca usługi ŚChE skontaktuje się z Tobą bezpośrednio.
                   </p>
+
                 </div>
               )}
             </div>

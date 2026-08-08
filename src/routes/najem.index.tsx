@@ -58,9 +58,10 @@ function Hero() {
               {t("home.heroTitle1")}<br />{t("home.heroTitle2")}<br />
               <span className="bg-gradient-to-r from-[var(--gold)] to-amber-300 bg-clip-text text-transparent">{t("home.heroTitle3")}</span>
             </h1>
-            <p className="mt-5 max-w-xl text-base text-muted-foreground sm:text-lg">
+            <h2 className="mt-5 max-w-xl text-base font-normal text-muted-foreground sm:text-lg">
               {t("home.heroSub")}
-            </p>
+            </h2>
+
           </div>
         </div>
         {/* Right — Passport card */}
