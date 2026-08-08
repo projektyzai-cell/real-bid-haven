@@ -14,6 +14,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useServerFn } from "@tanstack/react-start";
 import { notifyMatchingTenants } from "@/lib/sms.functions";
 import { geocodeAddress } from "@/lib/nominatim";
+import { createMolliePayment } from "@/lib/mollie.functions";
+import { PROMO_PLANS } from "@/lib/pricing";
 
 export const Route = createFileRoute("/_authenticated/najem/nowa-oferta")({
   head: () => ({ meta: [{ title: "Wystaw ofertę najmu — Stay Safe" }] }),
@@ -77,6 +79,7 @@ function NewRentalListing() {
   const [mainIdx, setMainIdx] = useState(0);
   const [busy, setBusy] = useState(false);
   const notifySmsFn = useServerFn(notifyMatchingTenants);
+  const payFn = useServerFn(createMolliePayment);
   const [loading, setLoading] = useState(isEdit);
 
 
@@ -234,7 +237,8 @@ function NewRentalListing() {
       building_type: showRoomFeatures && buildingType ? buildingType : null,
       has_energy_cert: form.has_energy_cert,
       wants_energy_cert_discount: form.wants_energy_cert_discount,
-      promoted: form.promoted, images, main_image_index: mainIdx,
+      // TURA 8 — promowanie jest płatne: aktywuje je dopiero webhook po opłacie
+      promoted: false, images, main_image_index: mainIdx,
       usable_area_m2: propertyType === "house" && form.usable_area_m2 ? Number(form.usable_area_m2) : null,
       plot_area_m2: propertyType === "house" && form.plot_area_m2 ? Number(form.plot_area_m2) : null,
       year_built: form.year_built ? Number(form.year_built) : null,
@@ -296,6 +300,22 @@ function NewRentalListing() {
       } as never);
     }
 
+
+    // TURA 8 — płatność 9 zł za promowanie już przy pierwszym wystawieniu oferty
+    const promoTargetId = newListingId ?? (isEdit ? editId : null);
+    if (form.promoted && promoTargetId) {
+      try {
+        const plan = PROMO_PLANS[0]!;
+        const { checkoutUrl } = await payFn({
+          data: { kind: "listing_promotion", targetId: promoTargetId, days: plan.days },
+        });
+        toast.success("Oferta zapisana — przechodzę do płatności za promowanie (9 zł).");
+        window.location.href = checkoutUrl;
+        return;
+      } catch (e: any) {
+        toast.error(e?.message ?? "Nie udało się rozpocząć płatności za promowanie. Możesz opłacić je w „Moje oferty”.");
+      }
+    }
 
     toast.success(isEdit ? "Oferta zaktualizowana" : "Oferta wystawiona");
     navigate({ to: "/najem/moje-oferty" });
@@ -900,7 +920,9 @@ function NewRentalListing() {
               <strong>Promowane ogłoszenie</strong> — Twoja oferta pojawi się także publicznie na stronie głównej.
               Dodatkowo w ofertach dopasowanych Najemca będzie widział Twoją nieruchomość w pierwszej kolejności!
               To zwiększy Twoje szanse na pozyskanie większej liczby sprawdzonych Najemców i wybraniu tego IDEALNEGO!
-              <span className="mt-1 block font-semibold text-gold">Koszt promowania ogłoszenia jedynie 9 zł</span>
+              <span className="mt-1 block font-semibold text-gold">
+                Koszt promowania ogłoszenia jedynie 9 zł (7 dni) — po zapisaniu oferty przejdziesz do bezpiecznej płatności.
+              </span>
             </span>
           </label>
         </div>
