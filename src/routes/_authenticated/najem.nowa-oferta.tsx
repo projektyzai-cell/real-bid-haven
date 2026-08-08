@@ -920,7 +920,9 @@ function NewRentalListing() {
               <strong>Promowane ogłoszenie</strong> — Twoja oferta pojawi się także publicznie na stronie głównej.
               Dodatkowo w ofertach dopasowanych Najemca będzie widział Twoją nieruchomość w pierwszej kolejności!
               To zwiększy Twoje szanse na pozyskanie większej liczby sprawdzonych Najemców i wybraniu tego IDEALNEGO!
-              <span className="mt-1 block font-semibold text-gold">Koszt promowania ogłoszenia jedynie 9 zł</span>
+              <span className="mt-1 block font-semibold text-gold">
+                Koszt promowania ogłoszenia jedynie 9 zł (7 dni) — po zapisaniu oferty przejdziesz do bezpiecznej płatności.
+              </span>
             </span>
           </label>
         </div>
