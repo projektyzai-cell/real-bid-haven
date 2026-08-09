@@ -1862,6 +1862,29 @@ const SOFT_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
   { key: "soft_weight_shared_basement", label: "Wspólna piwnica (pokój)", desc: "Waga dostępu do wspólnej piwnicy." },
 ];
 
+/** Które wagi miękkie mają zastosowanie w danym profilu nieruchomości. */
+const SOFT_RULE_TYPES: Record<string, string[]> = {
+  soft_weight_balcony: ["apartment", "house"],
+  soft_weight_dishwasher: ["apartment", "house"],
+  soft_weight_elevator: ["apartment"],
+  soft_weight_parking: ["apartment", "house"],
+  soft_weight_basement: ["apartment", "house"],
+  soft_weight_furnished: ["apartment", "house", "room"],
+  soft_weight_washing_machine: ["apartment", "house", "room"],
+  soft_weight_insurance: ["apartment", "house", "room"],
+  soft_weight_student: ["apartment", "house", "room"],
+  soft_weight_pets_caged: ["apartment", "house", "room"],
+  soft_weight_pets_other: ["apartment", "house", "room"],
+  soft_weight_modifications: ["apartment", "house", "room"],
+  soft_weight_own_furniture: ["apartment", "house", "room"],
+  soft_weight_separate_wc: ["room"],
+  soft_weight_shared_kitchen: ["room"],
+  soft_weight_shared_living_room: ["room"],
+  soft_weight_shared_balcony: ["room"],
+  soft_weight_shared_garden: ["room"],
+  soft_weight_shared_basement: ["room"],
+};
+
 
 const PAYMENT_KIND_LABEL: Record<string, string> = {
   listing_promotion: "Promowanie oferty",
