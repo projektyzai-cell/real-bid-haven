@@ -1992,15 +1992,50 @@ function SmsLogsPanel() {
 }
 
 
+const PROPERTY_TYPES: { key: string; label: string }[] = [
+  { key: "apartment", label: "Mieszkanie" },
+  { key: "house", label: "Dom" },
+  { key: "room", label: "Pokój" },
+];
+
 function MatchingTab() {
+  const [ptype, setPtype] = useState<string>("apartment");
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-2 rounded-2xl border bg-muted/30 p-2">
+        {PROPERTY_TYPES.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            onClick={() => setPtype(p.key)}
+            className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+              ptype === p.key
+                ? "bg-amber-500 text-slate-950"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Progi, zasady twarde i wagi miękkie zapisywane są niezależnie dla każdego typu nieruchomości.
+        Algorytm dopasowania pobiera konfigurację zgodną z typem danej oferty.
+      </p>
+      <MatchingConfigEditor key={ptype} propertyType={ptype} />
+    </div>
+  );
+}
+
+function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
   const qc = useQueryClient();
   const q = useQuery({
-    queryKey: ["matching-settings"],
+    queryKey: ["matching-settings", propertyType],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("matching_settings" as any)
         .select("*")
-        .eq("id", true)
+        .eq("property_type", propertyType)
         .maybeSingle();
       if (error) throw new Error(error.message);
       return data as any as MatchingCfg | null;
@@ -2014,15 +2049,16 @@ function MatchingTab() {
   const save = useMutation({
     mutationFn: async () => {
       if (!cfg) return;
+      const { property_type: _pt, ...rest } = cfg as any;
       const { error } = await supabase
         .from("matching_settings" as any)
-        .update({ ...cfg, updated_at: new Date().toISOString() } as any)
-        .eq("id", true);
+        .update({ ...rest, updated_at: new Date().toISOString() } as any)
+        .eq("property_type", propertyType);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       toast.success("Ustawienia auto-matchingu zapisane.");
-      qc.invalidateQueries({ queryKey: ["matching-settings"] });
+      qc.invalidateQueries({ queryKey: ["matching-settings", propertyType] });
     },
     onError: (e: any) => toast.error(e.message),
   });
