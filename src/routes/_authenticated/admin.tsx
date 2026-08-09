@@ -2168,7 +2168,7 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
           </p>
         </div>
         <div className="divide-y">
-          {SOFT_RULES.map((r) => (
+          {softRules.map((r) => (
             <div key={r.key} className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
