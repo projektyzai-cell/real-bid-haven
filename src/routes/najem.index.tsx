@@ -373,18 +373,28 @@ function HowItWorks() {
 /* ---------- Promoted listings (kept from previous) ---------- */
 function PromotedStrip() {
   const { t } = useTranslation();
-  const { data: promoted = [] } = useQuery({
+  const { data: pool = [] } = useQuery({
     queryKey: ["promoted-rentals"],
     queryFn: async () => {
       const { data, error } = await supabase.from("rental_listings" as never)
         .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index")
         .eq("promoted", true).eq("status", "active").gt("expires_at", new Date().toISOString())
         .or(`promoted_until.is.null,promoted_until.gt.${new Date().toISOString()}`)
-        .order("created_at", { ascending: false }).limit(6);
+        .order("created_at", { ascending: false }).limit(50);
       if (error) throw error;
       return (data ?? []) as unknown as Promo[];
     },
   });
+
+  // 3 losowe promowane oferty — losowanie stabilne w obrębie sesji widoku
+  const promoted = useMemo(() => {
+    const arr = [...pool];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, 3);
+  }, [pool]);
 
   if (promoted.length === 0) {
     return (
@@ -403,6 +413,7 @@ function PromotedStrip() {
         <h2 className="text-xl font-bold tracking-tight">{t("offers.promoted")}</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
         {promoted.map((r) => {
           const main = r.images?.[r.main_image_index] ?? r.images?.[0];
           return (
