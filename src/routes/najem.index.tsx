@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { ShieldCheck, KeyRound, Building, ArrowRight, Search, Sparkles, Users, Linkedin, CheckCircle2, BadgeCheck, FileText, Handshake, Magnet, FileSignature, Wrench, Award } from "lucide-react";
@@ -37,6 +37,7 @@ function NajemHub() {
       <HowItWorks />
       <PromotedStrip />
       <LatestListings />
+      <SeoSection />
     </div>
   );
 }
@@ -373,18 +374,28 @@ function HowItWorks() {
 /* ---------- Promoted listings (kept from previous) ---------- */
 function PromotedStrip() {
   const { t } = useTranslation();
-  const { data: promoted = [] } = useQuery({
+  const { data: pool = [] } = useQuery({
     queryKey: ["promoted-rentals"],
     queryFn: async () => {
       const { data, error } = await supabase.from("rental_listings" as never)
         .select("id,title,city,street,monthly_price,area_m2,rooms,images,main_image_index")
         .eq("promoted", true).eq("status", "active").gt("expires_at", new Date().toISOString())
         .or(`promoted_until.is.null,promoted_until.gt.${new Date().toISOString()}`)
-        .order("created_at", { ascending: false }).limit(6);
+        .order("created_at", { ascending: false }).limit(50);
       if (error) throw error;
       return (data ?? []) as unknown as Promo[];
     },
   });
+
+  // 3 losowe promowane oferty — losowanie stabilne w obrębie sesji widoku
+  const promoted = useMemo(() => {
+    const arr = [...pool];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, 3);
+  }, [pool]);
 
   if (promoted.length === 0) {
     return (
@@ -403,6 +414,7 @@ function PromotedStrip() {
         <h2 className="text-xl font-bold tracking-tight">{t("offers.promoted")}</h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+
         {promoted.map((r) => {
           const main = r.images?.[r.main_image_index] ?? r.images?.[0];
           return (
@@ -475,6 +487,44 @@ function LatestListings() {
             </Link>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- SEO: tekst opisowy pod ofertami ---------- */
+function SeoSection() {
+  return (
+    <section className="border-t border-border/60 bg-muted/20">
+      <div className="container mx-auto grid gap-8 px-4 py-14 md:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold tracking-tight">Bezpieczny wynajem mieszkań, domów i pokoi w Polsce</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            StaySafe to zamknięty ekosystem bezpiecznego najmu 360°. Łączymy Najemców i Wynajmujących
+            na podstawie realnych parametrów nieruchomości i oczekiwań — inteligentny Smart Match
+            analizuje lokalizację, budżet, metraż, liczbę pokoi, wyposażenie oraz warunki umowy,
+            aby proponować wyłącznie trafne oferty wynajmu mieszkania, domu lub pokoju.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Każdy Najemca może wyrobić Paszport Najemcy — dokument z Trust Score potwierdzający
+            tożsamość, stabilność finansową i historię najmu. Dzięki temu Wynajmujący wynajmuje
+            świadomie, a Najemca szybciej zdobywa zaufanie i wymarzone mieszkanie.
+          </p>
+        </div>
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold tracking-tight">Umowy, weryfikacja i obsługa najmu w jednym miejscu</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            W StaySafe wygenerujesz umowę najmu, podpiszesz ją z drugą stroną, zgłosisz usterkę,
+            przedłużysz najem oraz ocenisz współpracę po zakończeniu umowy. Usługi concierge —
+            sprzątanie, remonty, przeprowadzki, świadectwo charakterystyki energetycznej —
+            realizują zweryfikowani Wykonawcy współpracujący z portalem.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Szukasz mieszkania na wynajem, pokoju dla studenta lub domu dla rodziny? Przeglądaj
+            zweryfikowane ogłoszenia najmu i dołącz do społeczności, w której bezpieczeństwo
+            transakcji jest ważniejsze niż cena.
+          </p>
+        </div>
       </div>
     </section>
   );

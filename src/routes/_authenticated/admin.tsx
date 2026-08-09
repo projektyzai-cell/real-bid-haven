@@ -1862,6 +1862,29 @@ const SOFT_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
   { key: "soft_weight_shared_basement", label: "Wspólna piwnica (pokój)", desc: "Waga dostępu do wspólnej piwnicy." },
 ];
 
+/** Które wagi miękkie mają zastosowanie w danym profilu nieruchomości. */
+const SOFT_RULE_TYPES: Record<string, string[]> = {
+  soft_weight_balcony: ["apartment", "house"],
+  soft_weight_dishwasher: ["apartment", "house"],
+  soft_weight_elevator: ["apartment"],
+  soft_weight_parking: ["apartment", "house"],
+  soft_weight_basement: ["apartment", "house"],
+  soft_weight_furnished: ["apartment", "house", "room"],
+  soft_weight_washing_machine: ["apartment", "house", "room"],
+  soft_weight_insurance: ["apartment", "house", "room"],
+  soft_weight_student: ["apartment", "house", "room"],
+  soft_weight_pets_caged: ["apartment", "house", "room"],
+  soft_weight_pets_other: ["apartment", "house", "room"],
+  soft_weight_modifications: ["apartment", "house", "room"],
+  soft_weight_own_furniture: ["apartment", "house", "room"],
+  soft_weight_separate_wc: ["room"],
+  soft_weight_shared_kitchen: ["room"],
+  soft_weight_shared_living_room: ["room"],
+  soft_weight_shared_balcony: ["room"],
+  soft_weight_shared_garden: ["room"],
+  soft_weight_shared_basement: ["room"],
+};
+
 
 const PAYMENT_KIND_LABEL: Record<string, string> = {
   listing_promotion: "Promowanie oferty",
@@ -1992,15 +2015,50 @@ function SmsLogsPanel() {
 }
 
 
+const PROPERTY_TYPES: { key: string; label: string }[] = [
+  { key: "apartment", label: "Mieszkanie" },
+  { key: "house", label: "Dom" },
+  { key: "room", label: "Pokój" },
+];
+
 function MatchingTab() {
+  const [ptype, setPtype] = useState<string>("apartment");
+  return (
+    <div className="space-y-5">
+      <div className="flex flex-wrap gap-2 rounded-2xl border bg-muted/30 p-2">
+        {PROPERTY_TYPES.map((p) => (
+          <button
+            key={p.key}
+            type="button"
+            onClick={() => setPtype(p.key)}
+            className={`rounded-xl px-4 py-2 text-sm font-medium transition ${
+              ptype === p.key
+                ? "bg-amber-500 text-slate-950"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Progi, zasady twarde i wagi miękkie zapisywane są niezależnie dla każdego typu nieruchomości.
+        Algorytm dopasowania pobiera konfigurację zgodną z typem danej oferty.
+      </p>
+      <MatchingConfigEditor key={ptype} propertyType={ptype} />
+    </div>
+  );
+}
+
+function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
   const qc = useQueryClient();
   const q = useQuery({
-    queryKey: ["matching-settings"],
+    queryKey: ["matching-settings", propertyType],
     queryFn: async () => {
       const { data, error } = await supabase
         .from("matching_settings" as any)
         .select("*")
-        .eq("id", true)
+        .eq("property_type", propertyType)
         .maybeSingle();
       if (error) throw new Error(error.message);
       return data as any as MatchingCfg | null;
@@ -2014,15 +2072,16 @@ function MatchingTab() {
   const save = useMutation({
     mutationFn: async () => {
       if (!cfg) return;
+      const { property_type: _pt, ...rest } = cfg as any;
       const { error } = await supabase
         .from("matching_settings" as any)
-        .update({ ...cfg, updated_at: new Date().toISOString() } as any)
-        .eq("id", true);
+        .update({ ...rest, updated_at: new Date().toISOString() } as any)
+        .eq("property_type", propertyType);
       if (error) throw new Error(error.message);
     },
     onSuccess: () => {
       toast.success("Ustawienia auto-matchingu zapisane.");
-      qc.invalidateQueries({ queryKey: ["matching-settings"] });
+      qc.invalidateQueries({ queryKey: ["matching-settings", propertyType] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -2031,8 +2090,10 @@ function MatchingTab() {
     return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
+  const typeLabel = PROPERTY_TYPES.find((p) => p.key === propertyType)?.label ?? propertyType;
+  const softRules = SOFT_RULES.filter((r) => SOFT_RULE_TYPES[r.key as string]?.includes(propertyType) ?? true);
   const update = (patch: Partial<MatchingCfg>) => setCfg({ ...cfg, ...patch });
-  const softTotal = SOFT_RULES.reduce(
+  const softTotal = softRules.reduce(
     (sum, r) => sum + (Number(cfg[r.key] as number) || 0),
     0,
   );
@@ -2044,9 +2105,9 @@ function MatchingTab() {
         <div className="flex items-center gap-3">
           <Zap className="h-6 w-6 text-gold" />
           <div>
-            <h2 className="text-lg font-semibold">Silnik Auto-Matchingu</h2>
+            <h2 className="text-lg font-semibold">Silnik Auto-Matchingu — {typeLabel}</h2>
             <p className="text-sm text-muted-foreground">
-              Pełna kontrola nad zasadami dopasowania.
+              Konfiguracja dotyczy wyłącznie typu: <strong className="text-foreground">{typeLabel}</strong>.
               <strong className="text-foreground"> Twarde</strong> zasady odrzucają dopasowanie, <strong className="text-foreground">miękkie</strong> — ważą wynik %.
             </p>
           </div>
@@ -2054,9 +2115,9 @@ function MatchingTab() {
 
         <div className="flex items-center justify-between rounded-xl border p-4">
           <div>
-            <div className="font-medium">Silnik aktywny globalnie</div>
+            <div className="font-medium">Silnik aktywny dla typu: {typeLabel}</div>
             <p className="text-xs text-muted-foreground">
-              Wyłączenie zatrzymuje generowanie nowych dopasowań w całym portalu.
+              Wyłączenie zatrzymuje generowanie nowych dopasowań dla tego typu nieruchomości.
             </p>
           </div>
           <button
@@ -2130,7 +2191,7 @@ function MatchingTab() {
           </p>
         </div>
         <div className="divide-y">
-          {SOFT_RULES.map((r) => (
+          {softRules.map((r) => (
             <div key={r.key} className="grid grid-cols-[1fr_auto] items-center gap-4 px-5 py-3">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
