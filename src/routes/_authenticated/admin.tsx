@@ -2067,8 +2067,10 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
     return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
 
+  const typeLabel = PROPERTY_TYPES.find((p) => p.key === propertyType)?.label ?? propertyType;
+  const softRules = SOFT_RULES.filter((r) => SOFT_RULE_TYPES[r.key as string]?.includes(propertyType) ?? true);
   const update = (patch: Partial<MatchingCfg>) => setCfg({ ...cfg, ...patch });
-  const softTotal = SOFT_RULES.reduce(
+  const softTotal = softRules.reduce(
     (sum, r) => sum + (Number(cfg[r.key] as number) || 0),
     0,
   );
@@ -2080,9 +2082,9 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
         <div className="flex items-center gap-3">
           <Zap className="h-6 w-6 text-gold" />
           <div>
-            <h2 className="text-lg font-semibold">Silnik Auto-Matchingu</h2>
+            <h2 className="text-lg font-semibold">Silnik Auto-Matchingu — {typeLabel}</h2>
             <p className="text-sm text-muted-foreground">
-              Pełna kontrola nad zasadami dopasowania.
+              Konfiguracja dotyczy wyłącznie typu: <strong className="text-foreground">{typeLabel}</strong>.
               <strong className="text-foreground"> Twarde</strong> zasady odrzucają dopasowanie, <strong className="text-foreground">miękkie</strong> — ważą wynik %.
             </p>
           </div>
@@ -2090,9 +2092,9 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
 
         <div className="flex items-center justify-between rounded-xl border p-4">
           <div>
-            <div className="font-medium">Silnik aktywny globalnie</div>
+            <div className="font-medium">Silnik aktywny dla typu: {typeLabel}</div>
             <p className="text-xs text-muted-foreground">
-              Wyłączenie zatrzymuje generowanie nowych dopasowań w całym portalu.
+              Wyłączenie zatrzymuje generowanie nowych dopasowań dla tego typu nieruchomości.
             </p>
           </div>
           <button
