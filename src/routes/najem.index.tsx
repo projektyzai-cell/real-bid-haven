@@ -37,6 +37,7 @@ function NajemHub() {
       <HowItWorks />
       <PromotedStrip />
       <LatestListings />
+      <SeoSection />
     </div>
   );
 }
@@ -486,6 +487,44 @@ function LatestListings() {
             </Link>
           );
         })}
+      </div>
+    </section>
+  );
+}
+
+/* ---------- SEO: tekst opisowy pod ofertami ---------- */
+function SeoSection() {
+  return (
+    <section className="border-t border-border/60 bg-muted/20">
+      <div className="container mx-auto grid gap-8 px-4 py-14 md:grid-cols-2">
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold tracking-tight">Bezpieczny wynajem mieszkań, domów i pokoi w Polsce</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            StaySafe to zamknięty ekosystem bezpiecznego najmu 360°. Łączymy Najemców i Wynajmujących
+            na podstawie realnych parametrów nieruchomości i oczekiwań — inteligentny Smart Match
+            analizuje lokalizację, budżet, metraż, liczbę pokoi, wyposażenie oraz warunki umowy,
+            aby proponować wyłącznie trafne oferty wynajmu mieszkania, domu lub pokoju.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Każdy Najemca może wyrobić Paszport Najemcy — dokument z Trust Score potwierdzający
+            tożsamość, stabilność finansową i historię najmu. Dzięki temu Wynajmujący wynajmuje
+            świadomie, a Najemca szybciej zdobywa zaufanie i wymarzone mieszkanie.
+          </p>
+        </div>
+        <div className="space-y-3">
+          <h2 className="text-xl font-bold tracking-tight">Umowy, weryfikacja i obsługa najmu w jednym miejscu</h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            W StaySafe wygenerujesz umowę najmu, podpiszesz ją z drugą stroną, zgłosisz usterkę,
+            przedłużysz najem oraz ocenisz współpracę po zakończeniu umowy. Usługi concierge —
+            sprzątanie, remonty, przeprowadzki, świadectwo charakterystyki energetycznej —
+            realizują zweryfikowani Wykonawcy współpracujący z portalem.
+          </p>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Szukasz mieszkania na wynajem, pokoju dla studenta lub domu dla rodziny? Przeglądaj
+            zweryfikowane ogłoszenia najmu i dołącz do społeczności, w której bezpieczeństwo
+            transakcji jest ważniejsze niż cena.
+          </p>
+        </div>
       </div>
     </section>
   );
