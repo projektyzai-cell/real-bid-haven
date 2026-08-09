@@ -79,6 +79,60 @@ export type Database = {
           },
         ]
       }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          content: string
+          cover_image_url: string | null
+          created_at: string
+          excerpt: string | null
+          id: string
+          published_at: string | null
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          status: string
+          tags: string[]
+          title: string
+          updated_at: string
+          views_count: number
+        }
+        Insert: {
+          author_id?: string | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          status?: string
+          tags?: string[]
+          title: string
+          updated_at?: string
+          views_count?: number
+        }
+        Update: {
+          author_id?: string | null
+          content?: string
+          cover_image_url?: string | null
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          published_at?: string | null
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          status?: string
+          tags?: string[]
+          title?: string
+          updated_at?: string
+          views_count?: number
+        }
+        Relationships: []
+      }
       chats: {
         Row: {
           bid_id: string | null
@@ -696,9 +750,9 @@ export type Database = {
           hard_require_city: boolean
           hard_require_district: boolean
           hard_require_property_type: boolean
-          id: boolean
           max_offers_per_request: number
           min_match_score: number
+          property_type: string
           soft_base_score: number
           soft_weight_balcony: number
           soft_weight_basement: number
@@ -730,9 +784,9 @@ export type Database = {
           hard_require_city?: boolean
           hard_require_district?: boolean
           hard_require_property_type?: boolean
-          id?: boolean
           max_offers_per_request?: number
           min_match_score?: number
+          property_type: string
           soft_base_score?: number
           soft_weight_balcony?: number
           soft_weight_basement?: number
@@ -764,9 +818,9 @@ export type Database = {
           hard_require_city?: boolean
           hard_require_district?: boolean
           hard_require_property_type?: boolean
-          id?: boolean
           max_offers_per_request?: number
           min_match_score?: number
+          property_type?: string
           soft_base_score?: number
           soft_weight_balcony?: number
           soft_weight_basement?: number
@@ -2373,6 +2427,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_blog_views: { Args: { _slug: string }; Returns: undefined }
       increment_property_views: { Args: { _id: string }; Returns: undefined }
       increment_rental_views: { Args: { _id: string }; Returns: undefined }
       is_chat_participant: {
