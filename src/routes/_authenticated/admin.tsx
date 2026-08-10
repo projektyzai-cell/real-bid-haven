@@ -2054,14 +2054,15 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["matching-settings", propertyType],
+    retry: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("matching_settings" as any)
         .select("*")
         .eq("property_type", propertyType)
-        .maybeSingle();
+        .limit(1);
       if (error) throw new Error(error.message);
-      return data as any as MatchingCfg | null;
+      return ((data ?? [])[0] ?? null) as any as MatchingCfg | null;
     },
   });
 
@@ -2086,9 +2087,42 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
     onError: (e: any) => toast.error(e.message),
   });
 
-  if (q.isLoading || !cfg) {
+  if (q.isLoading) {
     return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
+
+  if (q.isError) {
+    return (
+      <Card className="space-y-3 p-6">
+        <div className="flex items-center gap-2 text-destructive">
+          <AlertTriangle className="h-5 w-5" />
+          <span className="font-semibold">Nie udało się wczytać konfiguracji dopasowania</span>
+        </div>
+        <p className="text-sm text-muted-foreground">{(q.error as Error)?.message}</p>
+        <Button variant="outline" onClick={() => q.refetch()} className="w-fit">
+          <RefreshCw className="mr-2 h-4 w-4" /> Spróbuj ponownie
+        </Button>
+      </Card>
+    );
+  }
+
+  if (!cfg) {
+    return (
+      <Card className="space-y-3 p-6">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          <span className="font-semibold">Brak konfiguracji dla tego typu nieruchomości</span>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          W bazie nie ma jeszcze wiersza ustawień dla typu „{propertyType}”.
+        </p>
+        <Button variant="outline" onClick={() => q.refetch()} className="w-fit">
+          <RefreshCw className="mr-2 h-4 w-4" /> Odśwież
+        </Button>
+      </Card>
+    );
+  }
+
 
   const typeLabel = PROPERTY_TYPES.find((p) => p.key === propertyType)?.label ?? propertyType;
   const softRules = SOFT_RULES.filter((r) => SOFT_RULE_TYPES[r.key as string]?.includes(propertyType) ?? true);
