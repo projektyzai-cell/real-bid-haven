@@ -19,9 +19,11 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as NajemIndexRouteImport } from './routes/najem.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
@@ -100,6 +102,11 @@ const NajemIndexRoute = NajemIndexRouteImport.update({
   path: '/najem/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfilIdRoute = ProfilIdRouteImport.update({
   id: '/profil/$id',
   path: '/profil/$id',
@@ -113,6 +120,11 @@ const PlatnoscStatusRoute = PlatnoscStatusRouteImport.update({
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
   id: '/najem/zapytania',
   path: '/najem/zapytania',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminSetupRoute = AdminSetupRouteImport.update({
@@ -288,9 +300,11 @@ export interface FileRoutesByFullPath {
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/najem/': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
@@ -330,9 +344,11 @@ export interface FileRoutesByTo {
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
+  '/blog': typeof BlogIndexRoute
   '/najem': typeof NajemIndexRoute
   '/admin/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/admin/passports': typeof AuthenticatedAdminPassportsRoute
@@ -374,9 +390,11 @@ export interface FileRoutesById {
   '/_authenticated/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/login': typeof AdminLoginRoute
   '/admin/setup': typeof AdminSetupRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
+  '/blog/': typeof BlogIndexRoute
   '/najem/': typeof NajemIndexRoute
   '/_authenticated/admin_/passport-stats': typeof AuthenticatedAdminPassportStatsRoute
   '/_authenticated/admin_/passports': typeof AuthenticatedAdminPassportsRoute
@@ -418,9 +436,11 @@ export interface FileRouteTypes {
     | '/wykonawca'
     | '/admin/login'
     | '/admin/setup'
+    | '/blog/$slug'
     | '/najem/zapytania'
     | '/platnosc/status'
     | '/profil/$id'
+    | '/blog/'
     | '/najem/'
     | '/admin/passport-stats'
     | '/admin/passports'
@@ -460,9 +480,11 @@ export interface FileRouteTypes {
     | '/wykonawca'
     | '/admin/login'
     | '/admin/setup'
+    | '/blog/$slug'
     | '/najem/zapytania'
     | '/platnosc/status'
     | '/profil/$id'
+    | '/blog'
     | '/najem'
     | '/admin/passport-stats'
     | '/admin/passports'
@@ -503,9 +525,11 @@ export interface FileRouteTypes {
     | '/_authenticated/wykonawca'
     | '/admin/login'
     | '/admin/setup'
+    | '/blog/$slug'
     | '/najem/zapytania'
     | '/platnosc/status'
     | '/profil/$id'
+    | '/blog/'
     | '/najem/'
     | '/_authenticated/admin_/passport-stats'
     | '/_authenticated/admin_/passports'
@@ -543,9 +567,11 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   AdminLoginRoute: typeof AdminLoginRoute
   AdminSetupRoute: typeof AdminSetupRoute
+  BlogSlugRoute: typeof BlogSlugRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
   PlatnoscStatusRoute: typeof PlatnoscStatusRoute
   ProfilIdRoute: typeof ProfilIdRoute
+  BlogIndexRoute: typeof BlogIndexRoute
   NajemIndexRoute: typeof NajemIndexRoute
   ApiPublicMollieWebhookRoute: typeof ApiPublicMollieWebhookRoute
   NajemOfertyIdRoute: typeof NajemOfertyIdRoute
@@ -624,6 +650,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof NajemIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profil/$id': {
       id: '/profil/$id'
       path: '/profil/$id'
@@ -643,6 +676,13 @@ declare module '@tanstack/react-router' {
       path: '/najem/zapytania'
       fullPath: '/najem/zapytania'
       preLoaderRoute: typeof NajemZapytaniaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/setup': {
@@ -924,9 +964,11 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   AdminLoginRoute: AdminLoginRoute,
   AdminSetupRoute: AdminSetupRoute,
+  BlogSlugRoute: BlogSlugRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
   PlatnoscStatusRoute: PlatnoscStatusRoute,
   ProfilIdRoute: ProfilIdRoute,
+  BlogIndexRoute: BlogIndexRoute,
   NajemIndexRoute: NajemIndexRoute,
   ApiPublicMollieWebhookRoute: ApiPublicMollieWebhookRoute,
   NajemOfertyIdRoute: NajemOfertyIdRoute,

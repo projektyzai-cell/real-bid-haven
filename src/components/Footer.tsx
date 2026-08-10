@@ -13,6 +13,10 @@ export function Footer() {
           <Link to="/najem" className="text-muted-foreground hover:text-foreground">
             Strefa najmu
           </Link>
+          <Link to="/blog" className="text-muted-foreground hover:text-foreground">
+            Blog
+          </Link>
+
           <Link to="/regulamin" className="text-muted-foreground hover:text-foreground">
             Regulamin
           </Link>

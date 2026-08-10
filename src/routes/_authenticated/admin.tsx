@@ -11,6 +11,7 @@ import {
 } from "@/lib/admin.functions";
 import { listPassportApplications } from "@/lib/admin-passport.functions";
 import { assignMaintenanceToContractor } from "@/lib/admin-maintenance.functions";
+import { adminListPosts, adminSavePost, adminDeletePost } from "@/lib/admin-blog.functions";
 
 import {
   adminListUsers,
@@ -42,7 +43,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
   Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
-  Wrench, ClipboardList, Zap,
+  Wrench, ClipboardList, Zap, Newspaper, Pencil, Plus, Eye,
   CreditCard,
 } from "lucide-react";
 import {
@@ -55,7 +56,7 @@ import {
 } from "@/lib/contractor-constants";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching", "payments"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching", "payments", "blog"]).default("apps").optional(),
 });
 
 
@@ -173,6 +174,12 @@ function AdminDashboard() {
                   <Zap className="h-4 w-4" /> Auto-Matching
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="blog" asChild>
+                <Link to="/admin" search={{ tab: "blog" }} className="flex items-center gap-1.5">
+                  <Newspaper className="h-4 w-4" /> Blog
+                </Link>
+              </TabsTrigger>
+
 
 
 
@@ -197,6 +204,8 @@ function AdminDashboard() {
             <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
             <TabsContent value="payments" className="mt-6"><PaymentsTab /></TabsContent>
             <TabsContent value="matching" className="mt-6"><MatchingTab /></TabsContent>
+            <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
+
 
 
           </>
@@ -2054,14 +2063,15 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
   const qc = useQueryClient();
   const q = useQuery({
     queryKey: ["matching-settings", propertyType],
+    retry: false,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("matching_settings" as any)
         .select("*")
         .eq("property_type", propertyType)
-        .maybeSingle();
+        .limit(1);
       if (error) throw new Error(error.message);
-      return data as any as MatchingCfg | null;
+      return ((data ?? [])[0] ?? null) as any as MatchingCfg | null;
     },
   });
 
@@ -2086,9 +2096,42 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
     onError: (e: any) => toast.error(e.message),
   });
 
-  if (q.isLoading || !cfg) {
+  if (q.isLoading) {
     return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
   }
+
+  if (q.isError) {
+    return (
+      <Card className="space-y-3 p-6">
+        <div className="flex items-center gap-2 text-destructive">
+          <AlertTriangle className="h-5 w-5" />
+          <span className="font-semibold">Nie udało się wczytać konfiguracji dopasowania</span>
+        </div>
+        <p className="text-sm text-muted-foreground">{(q.error as Error)?.message}</p>
+        <Button variant="outline" onClick={() => q.refetch()} className="w-fit">
+          <RefreshCw className="mr-2 h-4 w-4" /> Spróbuj ponownie
+        </Button>
+      </Card>
+    );
+  }
+
+  if (!cfg) {
+    return (
+      <Card className="space-y-3 p-6">
+        <div className="flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-amber-500" />
+          <span className="font-semibold">Brak konfiguracji dla tego typu nieruchomości</span>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          W bazie nie ma jeszcze wiersza ustawień dla typu „{propertyType}”.
+        </p>
+        <Button variant="outline" onClick={() => q.refetch()} className="w-fit">
+          <RefreshCw className="mr-2 h-4 w-4" /> Odśwież
+        </Button>
+      </Card>
+    );
+  }
+
 
   const typeLabel = PROPERTY_TYPES.find((p) => p.key === propertyType)?.label ?? propertyType;
   const softRules = SOFT_RULES.filter((r) => SOFT_RULE_TYPES[r.key as string]?.includes(propertyType) ?? true);
@@ -2220,6 +2263,177 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
           className="bg-amber-500 text-slate-950 hover:bg-amber-400">
           {save.isPending ? "Zapisuję…" : "Zapisz wszystkie ustawienia"}
         </Button>
+      </div>
+    </div>
+  );
+}
+
+// ============================ BLOG (Tura 12) ============================
+
+type BlogRow = {
+  id: string; slug: string; title: string; excerpt: string | null; content: string;
+  cover_image_url: string | null; tags: string[] | null; status: string;
+  published_at: string | null; views_count: number;
+  seo_title: string | null; seo_description: string | null;
+};
+
+const emptyPost = {
+  id: undefined as string | undefined,
+  slug: "", title: "", excerpt: "", content: "", cover_image_url: "",
+  tags: "", status: "draft" as "draft" | "published", seo_title: "", seo_description: "",
+};
+
+function BlogTab() {
+  const qc = useQueryClient();
+  const list = useServerFn(adminListPosts);
+  const save = useServerFn(adminSavePost);
+  const del = useServerFn(adminDeletePost);
+  const [form, setForm] = useState<typeof emptyPost | null>(null);
+
+  const q = useQuery({
+    queryKey: ["admin-blog"],
+    queryFn: async () => (await list()) as unknown as BlogRow[],
+    retry: false,
+  });
+
+  const saveM = useMutation({
+    mutationFn: async () => {
+      if (!form) return;
+      await save({
+        data: {
+          id: form.id,
+          slug: form.slug,
+          title: form.title,
+          excerpt: form.excerpt || null,
+          content: form.content,
+          cover_image_url: form.cover_image_url || null,
+          tags: form.tags.split(",").map((t) => t.trim()).filter(Boolean),
+          status: form.status,
+          seo_title: form.seo_title || null,
+          seo_description: form.seo_description || null,
+        },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Artykuł zapisany.");
+      setForm(null);
+      qc.invalidateQueries({ queryKey: ["admin-blog"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const delM = useMutation({
+    mutationFn: async (id: string) => { await del({ data: { id } }); },
+    onSuccess: () => {
+      toast.success("Artykuł usunięty.");
+      qc.invalidateQueries({ queryKey: ["admin-blog"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  if (q.isLoading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
+  if (q.isError) return <div className="text-destructive">{(q.error as Error).message}</div>;
+
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-semibold">Blog StaySafe</h2>
+          <p className="text-sm text-muted-foreground">Twórz i publikuj artykuły widoczne pod adresem /blog.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" asChild><Link to="/blog"><Eye className="mr-2 h-4 w-4" /> Zobacz blog</Link></Button>
+          <Button onClick={() => setForm({ ...emptyPost })} className="bg-[var(--gold)] text-[var(--gold-foreground)] hover:opacity-90">
+            <Plus className="mr-2 h-4 w-4" /> Nowy artykuł
+          </Button>
+        </div>
+      </div>
+
+      {form && (
+        <Card className="space-y-3 p-6">
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <Label>Tytuł</Label>
+              <Input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>Slug (adres URL)</Label>
+              <Input value={form.slug} onChange={(e) => setForm({ ...form, slug: e.target.value })} placeholder="bezpieczna-umowa-najmu" className="mt-1.5 font-mono" />
+            </div>
+          </div>
+          <div>
+            <Label>Zajawka</Label>
+            <Textarea rows={2} value={form.excerpt} onChange={(e) => setForm({ ...form, excerpt: e.target.value })} className="mt-1.5" />
+          </div>
+          <div>
+            <Label>Treść</Label>
+            <Textarea rows={12} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className="mt-1.5" />
+          </div>
+          <div className="grid gap-3 md:grid-cols-2">
+            <div>
+              <Label>URL okładki</Label>
+              <Input value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>Tagi (po przecinku)</Label>
+              <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>SEO — tytuł</Label>
+              <Input value={form.seo_title} onChange={(e) => setForm({ ...form, seo_title: e.target.value })} className="mt-1.5" />
+            </div>
+            <div>
+              <Label>SEO — opis</Label>
+              <Input value={form.seo_description} onChange={(e) => setForm({ ...form, seo_description: e.target.value })} className="mt-1.5" />
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="inline-flex rounded-xl border p-1 text-sm">
+              {(["draft", "published"] as const).map((s) => (
+                <button key={s} type="button" onClick={() => setForm({ ...form, status: s })}
+                  className={`rounded-lg px-3 py-1.5 font-semibold ${form.status === s ? "bg-amber-500 text-slate-950" : "text-muted-foreground"}`}>
+                  {s === "draft" ? "Szkic" : "Opublikowany"}
+                </button>
+              ))}
+            </div>
+            <Button onClick={() => saveM.mutate()} disabled={saveM.isPending}>
+              {saveM.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} Zapisz
+            </Button>
+            <Button variant="ghost" onClick={() => setForm(null)}>Anuluj</Button>
+          </div>
+        </Card>
+      )}
+
+      <div className="space-y-2">
+        {(q.data ?? []).map((p) => (
+          <Card key={p.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="font-semibold">{p.title}</span>
+                <Badge variant={p.status === "published" ? "default" : "secondary"}>
+                  {p.status === "published" ? "Opublikowany" : "Szkic"}
+                </Badge>
+              </div>
+              <div className="text-xs text-muted-foreground">/blog/{p.slug} · {p.views_count} wyświetleń</div>
+            </div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" onClick={() => setForm({
+                id: p.id, slug: p.slug, title: p.title, excerpt: p.excerpt ?? "", content: p.content,
+                cover_image_url: p.cover_image_url ?? "", tags: (p.tags ?? []).join(", "),
+                status: (p.status === "published" ? "published" : "draft"),
+                seo_title: p.seo_title ?? "", seo_description: p.seo_description ?? "",
+              })}>
+                <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edytuj
+              </Button>
+              <Button size="sm" variant="destructive" onClick={() => delM.mutate(p.id)}>
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </Card>
+        ))}
+        {(q.data ?? []).length === 0 && (
+          <div className="rounded-2xl border border-dashed p-8 text-center text-sm text-muted-foreground">Brak artykułów.</div>
+        )}
       </div>
     </div>
   );
