@@ -203,6 +203,8 @@ function AdminDashboard() {
             <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
             <TabsContent value="payments" className="mt-6"><PaymentsTab /></TabsContent>
             <TabsContent value="matching" className="mt-6"><MatchingTab /></TabsContent>
+            <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
+
 
 
           </>
