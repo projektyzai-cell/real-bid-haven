@@ -42,7 +42,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   ShieldCheck, Users, KeyRound, AlertTriangle, FileText, Send, UserPlus, BarChart3,
   Loader2, Clock, CheckCircle2, Mail, Trash2, Sparkles, Copy, RefreshCw, Home, Search, Star, Flag,
-  Wrench, ClipboardList, Zap,
+  Wrench, ClipboardList, Zap, Newspaper, Pencil, Plus, Eye,
   CreditCard,
 } from "lucide-react";
 import {
