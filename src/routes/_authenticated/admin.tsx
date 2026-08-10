@@ -173,6 +173,12 @@ function AdminDashboard() {
                   <Zap className="h-4 w-4" /> Auto-Matching
                 </Link>
               </TabsTrigger>
+              <TabsTrigger value="blog" asChild>
+                <Link to="/admin" search={{ tab: "blog" }} className="flex items-center gap-1.5">
+                  <Newspaper className="h-4 w-4" /> Blog
+                </Link>
+              </TabsTrigger>
+
 
 
 
