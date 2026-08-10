@@ -2297,14 +2297,14 @@ function BlogTab() {
 
       // Wgrywanie pliku do bucketa 'blog' w Supabase Storage
       const { error: uploadError } = await supabase.storage
-        .from("blog")
+        .from("blog-images")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       // Pobranie publicznego URL pliku
       const { data: { publicUrl } } = supabase.storage
-        .from("blog")
+        .from("blog-images")
         .getPublicUrl(filePath);
 
       setForm({ ...form, cover_image_url: publicUrl });
