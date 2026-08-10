@@ -2270,31 +2270,51 @@ function MatchingConfigEditor({ propertyType }: { propertyType: string }) {
 
 // ============================ BLOG (Tura 12) ============================
 
-type BlogRow = {
-  id: string; slug: string; title: string; excerpt: string | null; content: string;
-  cover_image_url: string | null; tags: string[] | null; status: string;
-  published_at: string | null; views_count: number;
-  seo_title: string | null; seo_description: string | null;
-};
-
-const emptyPost = {
-  id: undefined as string | undefined,
-  slug: "", title: "", excerpt: "", content: "", cover_image_url: "",
-  tags: "", status: "draft" as "draft" | "published", seo_title: "", seo_description: "",
-};
-
 function BlogTab() {
   const qc = useQueryClient();
   const list = useServerFn(adminListPosts);
   const save = useServerFn(adminSavePost);
   const del = useServerFn(adminDeletePost);
   const [form, setForm] = useState<typeof emptyPost | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
 
   const q = useQuery({
     queryKey: ["admin-blog"],
     queryFn: async () => (await list()) as unknown as BlogRow[],
     retry: false,
   });
+
+  // Obsługa wgrywania pliku okładki do Supabase Storage
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !form) return;
+
+    try {
+      setUploadingImage(true);
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random().toString(36).substring(2)}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      // Wgrywanie pliku do bucketa 'blog' w Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from("blog")
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Pobranie publicznego URL pliku
+      const { data: { publicUrl } } = supabase.storage
+        .from("blog")
+        .getPublicUrl(filePath);
+
+      setForm({ ...form, cover_image_url: publicUrl });
+      toast.success("Zdjęcie okładki zostało wgrane.");
+    } catch (error: any) {
+      toast.error("Błąd podczas wgrywania zdjęcia: " + error.message);
+    } finally {
+      setUploadingImage(false);
+    }
+  };
 
   const saveM = useMutation({
     mutationFn: async () => {
@@ -2369,11 +2389,39 @@ function BlogTab() {
             <Label>Treść</Label>
             <Textarea rows={12} value={form.content} onChange={(e) => setForm({ ...form, content: e.target.value })} className="mt-1.5" />
           </div>
+          
           <div className="grid gap-3 md:grid-cols-2">
             <div>
-              <Label>URL okładki</Label>
-              <Input value={form.cover_image_url} onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} className="mt-1.5" />
+              <Label>Okładka artykułu (Zdjęcie)</Label>
+              <div className="mt-1.5 flex items-center gap-2">
+                <Input 
+                  value={form.cover_image_url} 
+                  onChange={(e) => setForm({ ...form, cover_image_url: e.target.value })} 
+                  placeholder="https://... lub wgraj plik" 
+                />
+                <label className="cursor-pointer shrink-0">
+                  <Button type="button" variant="outline" disabled={uploadingImage} asChild>
+                    <span>
+                      {uploadingImage ? <Loader2 className="h-4 w-4 animate-spin mr-1.5" /> : <Plus className="h-4 w-4 mr-1.5" />}
+                      Wgraj z dysku
+                    </span>
+                  </Button>
+                  <input 
+                    type="file" 
+                    accept="image/*" 
+                    className="hidden" 
+                    onChange={handleImageUpload} 
+                    disabled={uploadingImage} 
+                  />
+                </label>
+              </div>
+              {form.cover_image_url && (
+                <div className="mt-2">
+                  <img src={form.cover_image_url} alt="Podgląd okładki" className="h-20 w-auto rounded-lg object-cover border" />
+                </div>
+              )}
             </div>
+
             <div>
               <Label>Tagi (po przecinku)</Label>
               <Input value={form.tags} onChange={(e) => setForm({ ...form, tags: e.target.value })} className="mt-1.5" />
@@ -2387,7 +2435,8 @@ function BlogTab() {
               <Input value={form.seo_description} onChange={(e) => setForm({ ...form, seo_description: e.target.value })} className="mt-1.5" />
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+
+          <div className="flex flex-wrap items-center gap-3 pt-2">
             <div className="inline-flex rounded-xl border p-1 text-sm">
               {(["draft", "published"] as const).map((s) => (
                 <button key={s} type="button" onClick={() => setForm({ ...form, status: s })}
