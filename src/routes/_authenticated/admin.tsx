@@ -55,7 +55,7 @@ import {
 } from "@/lib/contractor-constants";
 
 const tabSchema = z.object({
-  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching", "payments"]).default("apps").optional(),
+  tab: z.enum(["apps", "passports", "users", "rentals", "requests", "messages", "subadmins", "stats", "reports", "concierge", "reviews", "contractors", "assignments", "matching", "payments", "blog"]).default("apps").optional(),
 });
 
 
