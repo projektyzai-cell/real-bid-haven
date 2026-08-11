@@ -266,7 +266,7 @@ function NewRentalListing() {
       ({ error } = await supabase.from("rental_listings" as never)
         .update(payload as never).eq("id", editId).eq("landlord_id", user.id));
     } else {
-      payload.landlord_id = user.id;
+      payload.landlord_id;
       const res = await supabase.from("rental_listings" as never)
         .insert(payload as never).select("id").single();
       error = res.error;
