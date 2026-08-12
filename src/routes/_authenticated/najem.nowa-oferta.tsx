@@ -255,20 +255,33 @@ function NewRentalListing() {
       extra_features: buildExtraFeatures(propertyType, extras),
     };
 
-    // TURA 5 — współrzędne oferty dla twardego warunku "obszar z mapy"
+// TURA 5 - współrzędne oferty dla twardego warunku "obszar z mapy"
     const coords = await geocodeAddress(form.city, form.street, form.district);
     if (coords) { payload.geo_lat = coords[0]; payload.geo_lng = coords[1]; }
 
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+
+    if (!currentUser) {
+      toast.error("Brak aktywnej sesji. Zaloguj się ponownie.");
+      setBusy(false);
+      return;
+    }
 
     let error;
     let newListingId: string | null = null;
     if (isEdit && editId) {
-      ({ error } = await supabase.from("rental_listings" as never)
-        .update(payload as never).eq("id", editId).eq("landlord_id", user.id));
+      ({ error } = await supabase
+        .from("rental_listings" as never)
+        .update(payload as never)
+        .eq("id", editId)
+        .eq("landlord_id", currentUser.id));
     } else {
-      payload.landlord_id;
-      const res = await supabase.from("rental_listings" as never)
-        .insert(payload as never).select("id").single();
+      payload.landlord_id = currentUser.id;
+      const res = await supabase
+        .from("rental_listings" as never)
+        .insert(payload as never)
+        .select("id")
+        .single();
       error = res.error;
       newListingId = (res.data as unknown as { id: string } | null)?.id ?? null;
     }
