@@ -64,8 +64,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 { name: "twitter:title", content: "StaySafe – Bezpieczny najem i dopasowane oferty wynajmu" },
 { name: "twitter:description", content: "Bezpieczny najem, weryfikacja Najemcy i Paszport Najemcy. Precyzyjne dopasowanie, ochrona i system Smart Match wynajmu mieszkań i pokoi. Sprawdź StaySafe" },
 { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "stylesheet", href: appCss }],
+   ],
+  links: [
+    { rel: "stylesheet", href: appCss },
+    { rel: "icon", type: "image/png", href: "/logo_2.png" },
+  ],
+   
     scripts: [
       { src: "https://www.googletagmanager.com/gtag/js?id=G-JV1HNQ3JX7", async: true },
       {
