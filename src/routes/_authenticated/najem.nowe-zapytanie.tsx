@@ -144,7 +144,7 @@ function NewRentalRequestPage() {
 
     setSubmitting(true);
     const expiresAt = new Date(Date.now() + parsed.data.active_days * 86_400_000).toISOString();
-    const { data: inserted, error } = await supabase.from("rental_requests" as never).insert({
+    const { data: inserted, error } = await supabase.from("rental_inquiries" as never).insert({
       tenant_id: user.id,
       ...parsed.data,
       has_children: parsed.data.children_count > 0,
