@@ -53,7 +53,7 @@ function BlogIndex() {
               className="group overflow-hidden rounded-3xl border border-border bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-glow"
             >
               {p.cover_image_url ? (
-                <img src={p.cover_image_url} alt={p.title} loading="lazy" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" />
+                <img src={p.cover_image_url} alt={p.title} loading="lazy" className="aspect-[16/10] w-full object-contain transition group-hover:scale-105" />
               ) : (
                 <div className="aspect-[16/10] w-full bg-muted" />
               )}
