@@ -34,6 +34,7 @@ import {
   adminResetUserPassport,
 } from "@/lib/admin-rental.functions";
 import { Card } from "@/components/ui/card";
+import { AutoMatchStatsTab } from "@/components/AutoMatchStatsTab";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -210,7 +211,7 @@ function AdminDashboard() {
             <TabsContent value="assignments" className="mt-6"><AssignmentsTab /></TabsContent>
             <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
             <TabsContent value="payments" className="mt-6"><PaymentsTab /></TabsContent>
-            <TabsContent value="matching" className="mt-6"><MatchingTab /></TabsContent>
+           <TabsContent value="matching" className="mt-6"><AutoMatchStatsTab /></TabsContent>
             <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
 
 
