@@ -43,8 +43,15 @@ export const Route = createFileRoute("/blog/$slug")({
 function BlogPostPage() {
   const post = Route.useLoaderData();
  useEffect(() => {
-  supabase.rpc('increment_blog_views', { row_id: post.id }).catch(() => {});
-}, [post.id]);
+    async function updateViews() {
+      try {
+        await supabase.rpc('increment_blog_views', { row_id: post.id });
+      } catch (err) {
+        // Ignorujemy cicho ewentualne błędy licznika
+      }
+    }
+    updateViews();
+  }, [post.id]);
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-10">
