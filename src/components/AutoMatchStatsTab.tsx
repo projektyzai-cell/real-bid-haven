@@ -18,9 +18,22 @@ export function AutoMatchStatsTab() {
 
   async function fetchStats() {
     setLoading(true);
-    const { data, error } = await supabase
+     const { data, error } = await supabase
       .from("lease_transactions")
-      .select("id, state, tenant_finalized_at, landlord_finalized_at, contract_start_date, contract_end_date, created_at");
+      .select(`
+        id, 
+        state, 
+        tenant_finalized_at, 
+        landlord_finalized_at, 
+        contract_start_date, 
+        contract_end_date, 
+        created_at,
+        rental_listings (
+          city,
+          street,
+          property_type
+        )
+      `);
 
     if (error) {
       console.error("Błąd pobierania statystyk:", error);
