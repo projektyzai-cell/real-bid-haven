@@ -18,7 +18,7 @@ export function AutoMatchStatsTab() {
 
   async function fetchStats() {
     setLoading(true);
-     const { data, error } = await supabase
+    const { data, error } = await supabase
       .from("lease_transactions")
       .select(`
         id, 
@@ -135,7 +135,7 @@ export function AutoMatchStatsTab() {
           <table className="w-full text-left text-sm text-foreground">
             <thead className="bg-muted/50 text-xs uppercase text-muted-foreground border-b border-border">
               <tr>
-                <th className="p-3.5">ID Transakcji</th>
+                <th className="p-3.5">Przedmiot najmu</th>
                 <th className="p-3.5">Najemca podpisal</th>
                 <th className="p-3.5">Wynajmujący podpisał</th>
                 <th className="p-3.5">Okres najmu</th>
@@ -157,7 +157,13 @@ export function AutoMatchStatsTab() {
 
                   return (
                     <tr key={txn.id} className="hover:bg-muted/30 transition-colors">
-                      <td className="p-3.5 font-mono text-xs text-muted-foreground">{txn.id.slice(0, 8)}...</td>
+                      <td className="p-3.5 text-xs font-medium">
+                        {txn.rental_listings ? (
+                          `${txn.rental_listings.city || ""}, ${txn.rental_listings.property_type || ""} — ${txn.rental_listings.street || ""}`
+                        ) : (
+                          <span className="text-muted-foreground font-mono">ID: {txn.id.slice(0, 8)}...</span>
+                        )}
+                      </td>
                       <td className="p-3.5">
                         {tSigned ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400">
