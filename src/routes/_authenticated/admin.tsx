@@ -947,7 +947,7 @@ function RequestsTab() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const filtered = (q.data ?? []).filter((r: any) =>
+  const filtered = (q.data ?? []).filter((r: RentalInquiry) =>
     (!filter || r.tenant_name?.toLowerCase().includes(filter.toLowerCase())) &&
     (!city || r.city?.toLowerCase().includes(city.toLowerCase())),
   );
