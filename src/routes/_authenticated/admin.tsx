@@ -1829,6 +1829,7 @@ type MatchingCfg = {
   hard_enforce_budget: boolean;
   hard_enforce_floor_exclusions: boolean;
   hard_exclude_self: boolean;
+  hard_require_rooms: boolean;
   soft_base_score: number;
   soft_weight_balcony: number;
   soft_weight_dishwasher: number;
