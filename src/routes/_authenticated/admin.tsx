@@ -1854,6 +1854,7 @@ type MatchingCfg = {
 const HARD_RULES: { key: keyof MatchingCfg; label: string; desc: string }[] = [
   { key: "hard_require_city", label: "Zgodność miasta", desc: "Oferta musi znajdować się w tym samym mieście, co zapytanie najemcy." },
   { key: "hard_require_property_type", label: "Zgodność typu nieruchomości", desc: "Mieszkanie ↔ mieszkanie, dom ↔ dom, pokój ↔ pokój." },
+  { key: "hard_require_rooms", label: "Zgodność liczby pokoi", desc: "Oferta musi posiadać dokładnie taką liczbę pokoi, jakiej wymaga najemca." },
   { key: "hard_require_district", label: "Zgodność dzielnicy", desc: "Jeśli najemca wskazał dzielnicę — oferta musi być z tej samej dzielnicy (obszar z mapy ma pierwszeństwo)." },
   { key: "hard_enforce_budget", label: "Limit budżetu najemcy", desc: "Cena najmu nie może przekraczać maksymalnego budżetu z zapytania." },
   { key: "hard_enforce_floor_exclusions", label: "Wykluczenia piętra", desc: "Respektuje wykluczenia najemcy (parter, wyższe piętra bez windy)." },
