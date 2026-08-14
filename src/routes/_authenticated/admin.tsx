@@ -55,6 +55,17 @@ import {
   assignmentStatusColor, assignmentStatusLabel, contractorServiceLabel,
   leadServiceToContractorService,
 } from "@/lib/contractor-constants";
+export interface RentalInquiry {
+  id: string;
+  city?: string;
+  district?: string;
+  budget_max?: number;
+  min_rooms?: number;
+  property_type?: string;
+  status?: string;
+  created_at?: string;
+}
+
 const emptyPost = {
   title: '',
   slug: '',
