@@ -10,25 +10,32 @@ export const Route = createFileRoute("/najem/zapytania")({
   component: RequestsListPage,
 });
 
-interface RentalRequest {
-  id: string; city: string; district: string | null;
-  budget_max: number | null; adults_count: number; has_children: boolean;
-  expires_at: string; created_at: string; tenant_id: string;
-  pets_caged: boolean; pets_other: boolean;
+interface RentalInquiry {
+  id: string; 
+  city: string; 
+  district: string | null;
+  budget_max: number | null; 
+  adults_count: number; 
+  has_children: boolean;
+  expires_at: string; 
+  created_at: string; 
+  tenant_id: string;
+  pets_caged: boolean; 
+  pets_other: boolean;
 }
 
 function RequestsListPage() {
   const { data, isLoading } = useQuery({
-    queryKey: ["rental-requests"],
-    queryFn: async (): Promise<RentalRequest[]> => {
+    queryKey: ["rental-inquiries"],
+    queryFn: async (): Promise<RentalInquiry[]> => {
       const { data, error } = await supabase
-        .from("rental_requests" as never)
+        .from("rental_inquiries" as never)
         .select("id, city, district, budget_max, adults_count, has_children, pets_caged, pets_other, expires_at, created_at, tenant_id")
         .eq("status", "active")
         .gt("expires_at", new Date().toISOString())
         .order("created_at", { ascending: false }).limit(200);
       if (error) throw error;
-      return (data ?? []) as unknown as RentalRequest[];
+      return (data ?? []) as unknown as RentalInquiry[];
     },
   });
 
@@ -62,7 +69,7 @@ function RequestsListPage() {
                   {r.budget_max ? `do ${formatPLN(r.budget_max)}/mies.` : "Budżet otwarty"}
                 </div>
                 <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  <Badge variant="outline" className="rounded-full"><Users className="h-3 w-3" /> {r.adults_count} doroślych</Badge>
+                  <Badge variant="outline" className="rounded-full"><Users className="h-3 w-3" /> {r.adults_count} dorosłych</Badge>
                   {r.has_children && <Badge variant="outline" className="rounded-full">+ dzieci</Badge>}
                   {(r.pets_caged || r.pets_other) && <Badge variant="outline" className="rounded-full">🐾 zwierzęta</Badge>}
                 </div>
@@ -73,6 +80,10 @@ function RequestsListPage() {
             );
           })}
         </div>
+      )}
+    </div>
+  );
+}
       )}
     </div>
   );
