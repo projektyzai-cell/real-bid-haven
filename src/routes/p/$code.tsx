@@ -84,12 +84,17 @@ function PublicPassportPage() {
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
       {/* STYLE DLA DRUKU / PDF (zapobiegają obcinaniu i zachowują kolory tła) */}
-      <style>{`
+  <style>{`
         @media print {
+          @page {
+            size: A4 portrait;
+            margin: 8mm;
+          }
           body, html {
             background-color: #070a12 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
+            zoom: 82%; /* Skaluje całą zawartość, żeby zmieściła się na szerokość A4 */
           }
           .print\\:hidden {
             display: none !important;
