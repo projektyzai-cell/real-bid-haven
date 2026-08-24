@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { ShieldCheck, MapPin, Users, CheckCircle2, AlertCircle, Download } from "lucide-react";
+import { ShieldCheck, MapPin, Award, CheckCircle2, AlertCircle, Download, Briefcase, Wallet } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
@@ -17,10 +17,10 @@ function PublicPassportPage() {
     queryKey: ["public-passport", code],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from("tenant_passports" as never)
+        .from("profiles" as never)
         .select("*")
-        .eq("code", code)
-        .eq("status", "active") // Pobiera tylko wtedy, gdy paszport jest aktywny
+        .eq("passport_serial", code)
+        .eq("passport_application_status", "approved")
         .maybeSingle();
 
       if (error) {
@@ -50,12 +50,17 @@ function PublicPassportPage() {
           <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
           <h1 className="mt-4 text-xl font-bold">Nie znaleziono paszportu</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Podany kod paszportu ({code}) jest nieaktywny, nieprawidłowy lub uległ przedawnieniu.
+            Podany kod paszportu ({code}) jest nieprawidłowy, niezatwierdzony lub uległ przedawnieniu.
           </p>
         </div>
       </div>
     );
   }
+
+  // Obliczenie daty wygaśnięcia (np. 90 dni od wygenerowania)
+  const generatedDate = passport.passport_generated_at ? new Date(passport.passport_generated_at) : new Date();
+  const expiresDate = new Date(generatedDate);
+  expiresDate.setDate(expiresDate.getDate() + 90);
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
@@ -75,40 +80,43 @@ function PublicPassportPage() {
             <Badge variant="secondary" className="mb-2 rounded-full bg-emerald-500/10 text-emerald-600 font-medium">
               <CheckCircle2 className="mr-1 h-3.5 w-3.5" /> Zweryfikowany Najemca
             </Badge>
-            <h1 className="text-2xl font-bold">Paszport Najemcy #{code}</h1>
+            <h1 className="text-2xl font-bold">Paszport Najemcy #{passport.passport_serial}</h1>
+            {passport.display_name && (
+              <p className="text-sm font-medium text-muted-foreground mt-1">Najemca: {passport.display_name}</p>
+            )}
           </div>
           <div className="text-right text-xs text-muted-foreground">
-            Ważny do: {new Date(passport.expires_at).toLocaleDateString("pl-PL")}
+            Ważny do: {expiresDate.toLocaleDateString("pl-PL")}
           </div>
         </div>
 
         <div className="mt-6 grid gap-6 sm:grid-cols-2">
           <div className="space-y-4">
             <div>
-              <span className="text-xs font-medium text-muted-foreground">Preferowana lokalizacja</span>
+              <span className="text-xs font-medium text-muted-foreground">Lokalizacja</span>
               <p className="text-base font-semibold flex items-center gap-1.5 mt-0.5">
-                <MapPin className="h-4 w-4 text-primary" /> {passport.city} {passport.district ? `(${passport.district})` : ""}
+                <MapPin className="h-4 w-4 text-primary" /> {passport.passport_city || "Brak danych"}
               </p>
             </div>
             <div>
-              <span className="text-xs font-medium text-muted-foreground">Maksymalny budżet</span>
-              <p className="text-base font-semibold mt-0.5">
-                {passport.budget_max ? `${passport.budget_max} PLN / mies.` : "Brak danych"}
+              <span className="text-xs font-medium text-muted-foreground">Trust Score (Wiarygodność)</span>
+              <p className="text-base font-semibold flex items-center gap-1.5 mt-0.5 text-emerald-600">
+                <Award className="h-4 w-4" /> {passport.passport_score ?? "N/A"} / 100 pkt
               </p>
             </div>
           </div>
 
           <div className="space-y-4">
             <div>
-              <span className="text-xs font-medium text-muted-foreground">Mieszkańcy</span>
+              <span className="text-xs font-medium text-muted-foreground">Deklarowany dochód netto</span>
               <p className="text-base font-semibold flex items-center gap-1.5 mt-0.5">
-                <Users className="h-4 w-4 text-primary" /> {passport.adults_count} dorosłych {passport.has_children ? "+ dzieci" : ""}
+                <Wallet className="h-4 w-4 text-primary" /> {passport.monthly_income_net ? `${passport.monthly_income_net} PLN / mies.` : "Brak danych"}
               </p>
             </div>
             <div>
-              <span className="text-xs font-medium text-muted-foreground">Zwierzęta</span>
-              <p className="text-base font-semibold mt-0.5">
-                {passport.pets_caged || passport.pets_other ? "Tak" : "Brak zwierząt"}
+              <span className="text-xs font-medium text-muted-foreground">Typ zatrudnienia</span>
+              <p className="text-base font-semibold flex items-center gap-1.5 mt-0.5 uppercase">
+                <Briefcase className="h-4 w-4 text-primary" /> {passport.employment_type || "Brak danych"}
               </p>
             </div>
           </div>
