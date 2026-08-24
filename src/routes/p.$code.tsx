@@ -20,9 +20,13 @@ function PublicPassportPage() {
         .from("tenant_passports" as never)
         .select("*")
         .eq("code", code)
-        .single();
+        .eq("status", "active") // Pobiera tylko wtedy, gdy paszport jest aktywny
+        .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Błąd pobierania paszportu z Supabase:", error);
+        throw error;
+      }
       return data;
     },
   });
@@ -46,7 +50,7 @@ function PublicPassportPage() {
           <AlertCircle className="mx-auto h-12 w-12 text-destructive" />
           <h1 className="mt-4 text-xl font-bold">Nie znaleziono paszportu</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Podany kod paszportu ({code}) jest nieprawidłowy lub uległ przedawnieniu.
+            Podany kod paszportu ({code}) jest nieaktywny, nieprawidłowy lub uległ przedawnieniu.
           </p>
         </div>
       </div>
@@ -55,7 +59,6 @@ function PublicPassportPage() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      {/* Elementy nawigacji ukrywane podczas drukowania do PDF */}
       <div className="mb-6 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-primary" />
@@ -66,7 +69,6 @@ function PublicPassportPage() {
         </Button>
       </div>
 
-      {/* Główna karta paszportu */}
       <div id="passport-card" className="rounded-3xl border bg-card p-8 shadow-xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-6">
           <div>
