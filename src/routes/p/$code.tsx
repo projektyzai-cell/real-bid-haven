@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { 
   ShieldCheck, CheckCircle2, AlertCircle, Download, 
   Fingerprint, Linkedin, Wallet, FileText, Award, Clock, 
-  Lock, Eye, Hash, MapPin
+  Lock, Eye, Hash, MapPin, User
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -85,7 +85,7 @@ function PublicPassportPage() {
           </Button>
         </div>
 
-        {/* Główna karta paszportu */}
+        {/* Główna karta paszportu 1:1 */}
         <div className="relative rounded-3xl border-2 border-[var(--gold)]/40 bg-card p-6 sm:p-8 shadow-2xl">
           <div className="absolute -inset-1 -z-10 rounded-3xl bg-gradient-to-br from-[var(--gold)]/20 via-transparent to-[var(--gold)]/5 blur-xl" />
 
@@ -106,18 +106,63 @@ function PublicPassportPage() {
             </div>
           </div>
 
-          {/* Sekcja Trust Score */}
-          <div className="mt-6 flex flex-col sm:flex-row items-center gap-6 rounded-2xl border border-[var(--gold)]/30 bg-background/40 p-6">
-            <div className="grid h-24 w-24 shrink-0 place-items-center rounded-full border-4 border-[var(--gold)]/40 bg-card text-3xl font-black text-[var(--gold)] shadow-inner">
-              {trustScore}
+          {/* Górna sekcja: Avatar oraz Kolorowy pierścień Trust Score */}
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-6 rounded-2xl border border-[var(--gold)]/30 bg-background/40 p-6">
+            
+            {/* Awatar użytkownika */}
+            <div className="flex items-center gap-4">
+              {profile.avatar_url ? (
+                <img 
+                  src={profile.avatar_url} 
+                  alt="Avatar" 
+                  className="h-16 w-16 rounded-2xl object-cover border-2 border-[var(--gold)]/40 shadow-md" 
+                />
+              ) : (
+                <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl border-2 border-[var(--gold)]/40 bg-[var(--gold)]/10 text-[var(--gold)] font-bold shadow-md">
+                  <User className="h-8 w-8" />
+                </div>
+              )}
+              <div className="space-y-1 text-center sm:text-left">
+                <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Zweryfikowany Najemca</div>
+                <div className="text-xl font-bold text-white">{profile.display_name || "Najemca Stay Safe"}</div>
+                <p className="text-xs text-emerald-400 flex items-center gap-1 justify-center sm:justify-start">
+                  <CheckCircle2 className="h-3.5 w-3.5" /> Profil zweryfikowany w systemie
+                </p>
+              </div>
             </div>
-            <div className="space-y-1 text-center sm:text-left">
-              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">Trust Score (Wiarygodność)</div>
-              <div className="text-xl font-bold text-white">{profile.display_name || "Najemca Stay Safe"}</div>
-              <p className="text-xs text-muted-foreground">
-                Wskaźnik obliczony na podstawie zweryfikowanych dokumentów, dochodu oraz historii najmu.
-              </p>
+
+            {/* Kolorowe koło punktacji (Trust Score z gradientem) */}
+            <div className="relative flex h-24 w-24 shrink-0 items-center justify-center">
+              <svg className="h-full w-full -rotate-90" viewBox="0 0 36 36">
+                <path
+                  className="text-muted/20"
+                  strokeWidth="3.5"
+                  stroke="currentColor"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <path
+                  strokeDasharray={`${trustScore}, 100`}
+                  strokeWidth="3.5"
+                  strokeLinecap="round"
+                  stroke="url(#rainbowGradient)"
+                  fill="none"
+                  d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                />
+                <defs>
+                  <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stopColor="#10b981" />
+                    <stop offset="50%" stopColor="#3b82f6" />
+                    <stop offset="100%" stopColor="#f59e0b" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                <span className="text-2xl font-black text-white">{trustScore}</span>
+                <span className="text-[9px] uppercase tracking-wider text-muted-foreground">Score</span>
+              </div>
             </div>
+
           </div>
 
           {/* Podstawowe dane */}
