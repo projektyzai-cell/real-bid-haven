@@ -68,8 +68,7 @@ function PublicPassportPage() {
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
       <div className="container mx-auto max-w-2xl">
-        
-        {/* Górny pasek akcji (ukrywany przy druku) */}
+
         <div className="mb-6 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-[var(--gold)]" />
@@ -95,7 +94,6 @@ function PublicPassportPage() {
           </div>
         </div>
 
-        {/* WSPÓŁDZIELONY KOMPONENT KARTY (IDENTYCZNY JAK W PANELU) */}
         <PassportCard profile={profile} />
 
       </div>
