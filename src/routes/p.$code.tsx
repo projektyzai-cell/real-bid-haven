@@ -27,23 +27,8 @@ function PublicPassportPage() {
     },
   });
 
-  const handleDownloadPdf = async () => {
-    const html2pdf = (await import("html2pdf.js")).default;
-    const element = document.getElementById("passport-card");
-
-    const options = {
-      margin: 10,
-      filename: `paszport-najemcy-${code}.pdf`,
-      image: { type: "jpeg", quality: 0.98 },
-      html2canvas: { 
-        scale: 2, 
-        useCORS: true,
-        windowWidth: 800 // <--- KLUCZOWE: Naprawia obcinanie prawej strony w PDF
-      },
-      jsPDF: { unit: "mm", format: "a4", orientation: "portrait" }
-    };
-
-    html2pdf().from(element).set(options).save();
+  const handlePrint = () => {
+    window.print();
   };
 
   if (isLoading) {
@@ -70,17 +55,18 @@ function PublicPassportPage() {
 
   return (
     <div className="container mx-auto max-w-3xl px-4 py-10">
-      <div className="mb-6 flex items-center justify-between">
+      {/* Elementy nawigacji ukrywane podczas drukowania do PDF */}
+      <div className="mb-6 flex items-center justify-between print:hidden">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-6 w-6 text-primary" />
           <span className="font-bold tracking-tight">Stay Safe — Zweryfikowany Paszport</span>
         </div>
-        <Button onClick={handleDownloadPdf} variant="outline" className="gap-2 rounded-full">
-          <Download className="h-4 w-4" /> Pobierz PDF
+        <Button onClick={handlePrint} variant="outline" className="gap-2 rounded-full">
+          <Download className="h-4 w-4" /> Pobierz PDF / Drukuj
         </Button>
       </div>
 
-      {/* Kontener paszportu do eksportu PDF */}
+      {/* Główna karta paszportu */}
       <div id="passport-card" className="rounded-3xl border bg-card p-8 shadow-xl">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b pb-6">
           <div>
