@@ -13,7 +13,6 @@ export const Route = createFileRoute("/p/$code")({
 function PublicPassportPage() {
   const { code } = Route.useParams();
 
-  // Pobieramy dane paszportu oraz liczniki umów z bazy
   const { data: passportPayload, isLoading, error } = useQuery({
     queryKey: ["public-passport", code],
     queryFn: async () => {
@@ -28,7 +27,6 @@ function PublicPassportPage() {
         throw profileError || new Error("Nie znaleziono paszportu");
       }
 
-      // Pobieramy liczniki umów
       const { count: extCount } = await supabase
         .from("lease_history_entries")
         .select("*", { count: "exact", head: true })
@@ -83,19 +81,17 @@ function PublicPassportPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
-      {/* STYLE DLA DRUKU / PDF (zapobiegają obcinaniu i zachowują kolory tła) */}
- {/* ZAAWANSOWANE STYLE DLA DRUKU / PDF */}
+      {/* POPRAWIONE STYLE DLA DRUKU / PDF */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 8mm;
+            margin: 6mm;
           }
           body, html {
             background-color: #070a12 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            width: 100% !important;
             height: auto !important;
           }
           .print\\:hidden {
@@ -112,22 +108,17 @@ function PublicPassportPage() {
             padding: 0 !important;
             margin: 0 !important;
           }
-          /* Zamiast transform używamy zoom, który skaluje i dopasowuje wysokość bez ucinania */
+          /* Bezpieczne pomniejszenie mieszczące cały dokument w pionie */
           .print-card-wrapper {
-            zoom: 68%;
+            zoom: 62%;
             width: 100% !important;
             margin: 0 auto !important;
-          }
-          div {
-            page-break-inside: avoid;
-            break-inside: avoid;
           }
         }
       `}</style>
 
       <div className="container mx-auto max-w-3xl">
         
-        {/* Górny pasek akcji (ukrywany automatycznie przy wydruku) */}
         <div className="mb-6 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-[var(--gold)]" />
@@ -153,15 +144,15 @@ function PublicPassportPage() {
           </div>
         </div>
 
-        {/* GŁÓWNA KARTA PASZPORTU */}
-        <TenantPassportCard data={passportPayload} />
+        <div className="print-card-wrapper">
+          <TenantPassportCard data={passportPayload} />
+        </div>
 
       </div>
     </div>
   );
 }
 
-// Funkcja mapująca profil bazy danych na typ PassportData
 function toPassport(p: any, externalLeaseCount: number, internalLeaseCount: number): PassportData {
   return {
     displayName: p.display_name ?? "—",
