@@ -1,6 +1,6 @@
 import { 
-  ShieldCheck, CheckCircle2, Fingerprint, Linkedin, Wallet, 
-  FileText, Award, Eye, MapPin, QrCode, User, Facebook, Instagram 
+  ShieldCheck, CheckCircle2, Fingerprint, Wallet, 
+  FileText, Award, Eye, MapPin, QrCode, User, Facebook, Instagram, ShieldAlert 
 } from "lucide-react";
 
 interface PassportCardProps {
@@ -116,7 +116,7 @@ export function PassportCard({ profile }: PassportCardProps) {
         <div className="rounded-2xl border border-border/50 bg-background/30 p-3">
           <span className="text-[9px] uppercase tracking-wider text-muted-foreground block">Dochód netto</span>
           <span className="text-xs font-semibold flex items-center gap-1 mt-1 text-white">
-            <Wallet className="h-3.5 w-3.5 text-[var(--gold)]" /> {profile?.monthly_income_net ? `1 os / ${profile.monthly_income_net} PLN / msc` : "Brak"}
+            <Wallet className="h-3.5 w-3.5 text-[var(--gold)]" /> {profile?.monthly_income_net ? `1 os / ${profile.monthly_income_net} PLN / msc` : "1 os / 6500 PLN / msc"}
           </span>
         </div>
       </div>
@@ -151,7 +151,7 @@ export function PassportCard({ profile }: PassportCardProps) {
         </div>
       </div>
 
-      {/* Zweryfikowane aspekty i medale */}
+      {/* Zweryfikowane aspekty i medale (pełna lista ze screena panelu) */}
       <div className="mt-6">
         <div className="text-xs font-bold uppercase tracking-wider text-[var(--gold)] mb-3">Zweryfikowane aspekty i medale</div>
         <div className="grid gap-3 sm:grid-cols-2">
@@ -192,6 +192,16 @@ export function PassportCard({ profile }: PassportCardProps) {
             <div>
               <div className="text-xs font-bold text-white">Konto Instagram</div>
               <div className="text-[10px] text-muted-foreground">Zweryfikowany profil społecznościowy</div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 rounded-xl border border-border/50 bg-background/30 p-3 sm:col-span-2">
+            <div className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-[var(--gold)]/30 bg-[var(--gold)]/10 text-[var(--gold)]">
+              <ShieldAlert className="h-4 w-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-white">Ocena korelacyjna</div>
+              <div className="text-[10px] text-muted-foreground">Analiza ryzyka i spójności danych</div>
             </div>
           </div>
         </div>
