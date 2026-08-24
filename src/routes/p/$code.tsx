@@ -81,21 +81,20 @@ function PublicPassportPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
-      {/* STYLE DLA DRUKU / PDF - BEZ OBCINANIA DOŁU */}
+      {/* STYLE WYMUSZAJĄCE IDEALNE DOPASOWANIE W ORIENTACJI POZIOMEJ */}
       <style>{`
         @media print {
           @page {
-            size: A4 portrait;
-            margin: 10mm;
+            size: A4 landscape;
+            margin: 8mm;
           }
           body, html {
             background-color: #070a12 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            height: auto !important;
-            overflow: visible !important;
+            width: 100% !important;
+            height: 100% !important;
           }
-          /* Ukrywamy elementy interfejsu */
           .print\\:hidden {
             display: none !important;
           }
@@ -110,12 +109,13 @@ function PublicPassportPage() {
             padding: 0 !important;
             margin: 0 !important;
           }
-          /* Pozwalamy karcie zachować pełną wysokość bez obcinania */
+          /* Precyzyjne skalowanie idealnie dobrane pod układ poziomy A4 */
           .print-card-wrapper {
-            width: 100% !important;
-            transform: none !important;
-            page-break-inside: avoid;
-            break-inside: avoid;
+            width: 90% !important;
+            max-width: 900px !important;
+            margin: 0 auto !important;
+            transform: scale(0.85);
+            transform-origin: top center;
           }
         }
       `}</style>
