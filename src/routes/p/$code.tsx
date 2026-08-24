@@ -84,7 +84,8 @@ function PublicPassportPage() {
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
       {/* STYLE DLA DRUKU / PDF (zapobiegają obcinaniu i zachowują kolory tła) */}
-  <style>{`
+ {/* ZAAWANSOWANE STYLE DLA DRUKU / PDF */}
+      <style>{`
         @media print {
           @page {
             size: A4 portrait;
@@ -94,23 +95,28 @@ function PublicPassportPage() {
             background-color: #070a12 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            zoom: 82%; /* Skaluje całą zawartość, żeby zmieściła się na szerokość A4 */
+            width: 100% !important;
+            height: auto !important;
           }
           .print\\:hidden {
             display: none !important;
           }
-          body {
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
+          .min-h-screen {
+            min-height: auto !important;
+            background: #070a12 !important;
             padding: 0 !important;
-            margin: 0 !important;
           }
           .container {
             max-width: 100% !important;
             width: 100% !important;
             padding: 0 !important;
             margin: 0 !important;
+          }
+          /* Zamiast transform używamy zoom, który skaluje i dopasowuje wysokość bez ucinania */
+          .print-card-wrapper {
+            zoom: 68%;
+            width: 100% !important;
+            margin: 0 auto !important;
           }
           div {
             page-break-inside: avoid;
