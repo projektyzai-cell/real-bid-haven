@@ -84,7 +84,3 @@ function RequestsListPage() {
     </div>
   );
 }
-      )}
-    </div>
-  );
-}
