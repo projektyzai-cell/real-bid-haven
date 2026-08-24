@@ -81,38 +81,41 @@ function PublicPassportPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
-      {/* PANCERNE STYLE DLA DRUKU / PDF */}
+      {/* STYLE DLA DRUKU / PDF - BEZ OBCINANIA DOŁU */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 5mm;
+            margin: 10mm;
           }
           body, html {
             background-color: #070a12 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            width: 100% !important;
-            height: 100% !important;
+            height: auto !important;
             overflow: visible !important;
           }
-          /* Ukrywamy absolutnie wszystko na stronie... */
-          body * {
-            visibility: hidden !important;
-          }
-          /* ...poza samym kontenerem karty paszportu i jego zawartością */
-          .print-card-wrapper, .print-card-wrapper * {
-            visibility: visible !important;
-          }
-          .print-card-wrapper {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            zoom: 55% !important; /* Idealne pomniejszenie mieszczące całą kartę bez ucinania */
-          }
+          /* Ukrywamy elementy interfejsu */
           .print\\:hidden {
             display: none !important;
+          }
+          .min-h-screen {
+            min-height: auto !important;
+            background: #070a12 !important;
+            padding: 0 !important;
+          }
+          .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          /* Pozwalamy karcie zachować pełną wysokość bez obcinania */
+          .print-card-wrapper {
+            width: 100% !important;
+            transform: none !important;
+            page-break-inside: avoid;
+            break-inside: avoid;
           }
         }
       `}</style>
@@ -145,7 +148,7 @@ function PublicPassportPage() {
           </div>
         </div>
 
-        {/* KARTA PASZPORTU W IZOLOWANYM KONTENERZE DO DRUKU */}
+        {/* KARTA PASZPORTU */}
         <div className="print-card-wrapper">
           <TenantPassportCard data={passportPayload} />
         </div>
