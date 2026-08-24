@@ -13,7 +13,7 @@ export const Route = createFileRoute("/p/$code")({
 function PublicPassportPage() {
   const { code } = Route.useParams();
 
-  // Pobieramy dane identycznie jak w panelu, ale szukamy po kodzie paszportu (passport_serial)
+  // Pobieramy dane paszportu oraz liczniki umów z bazy
   const { data: passportPayload, isLoading, error } = useQuery({
     queryKey: ["public-passport", code],
     queryFn: async () => {
@@ -28,7 +28,7 @@ function PublicPassportPage() {
         throw profileError || new Error("Nie znaleziono paszportu");
       }
 
-      // Pobieramy liczniki umów tak samo jak w panelu użytkownika
+      // Pobieramy liczniki umów
       const { count: extCount } = await supabase
         .from("lease_history_entries")
         .select("*", { count: "exact", head: true })
@@ -83,9 +83,40 @@ function PublicPassportPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
+      {/* STYLE DLA DRUKU / PDF (zapobiegają obcinaniu i zachowują kolory tła) */}
+      <style>{`
+        @media print {
+          body, html {
+            background-color: #070a12 !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          .print\\:hidden {
+            display: none !important;
+          }
+          body {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          .container {
+            max-width: 100% !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+          }
+          div {
+            page-break-inside: avoid;
+            break-inside: avoid;
+          }
+        }
+      `}</style>
+
       <div className="container mx-auto max-w-3xl">
         
-        {/* Górny pasek akcji (ukrywany przy wydruku) */}
+        {/* Górny pasek akcji (ukrywany automatycznie przy wydruku) */}
         <div className="mb-6 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-[var(--gold)]" />
@@ -111,7 +142,7 @@ function PublicPassportPage() {
           </div>
         </div>
 
-        {/* TEN SAM KOMPONENT CO W PANELU UŻYTKOWNIKA */}
+        {/* GŁÓWNA KARTA PASZPORTU */}
         <TenantPassportCard data={passportPayload} />
 
       </div>
@@ -119,7 +150,7 @@ function PublicPassportPage() {
   );
 }
 
-// Funkcja odwzorowująca profil na strukturę paszportu (1:1 z panelu)
+// Funkcja mapująca profil bazy danych na typ PassportData
 function toPassport(p: any, externalLeaseCount: number, internalLeaseCount: number): PassportData {
   return {
     displayName: p.display_name ?? "—",
