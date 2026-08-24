@@ -81,41 +81,39 @@ function PublicPassportPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
-      {/* STYLE WYMUSZAJĄCE IDEALNE DOPASOWANIE W ORIENTACJI POZIOMEJ */}
+      {/* AUTOMATYCZNE PROPORCJONALNE POMNIEJSZENIE DO DRUKU PIONOWEGO A4 */}
       <style>{`
         @media print {
           @page {
-            size: A4 landscape;
+            size: A4 portrait;
             margin: 8mm;
           }
-          body, html {
+          html, body {
             background-color: #070a12 !important;
-            -webkit-print-color-adjust: exact;
-            print-color-adjust: exact;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+            height: auto !important;
+            overflow: visible !important;
+            margin: 0 !important;
+            padding: 0 !important;
+          }
+          /* Ukrywamy wszystko poza właściwą kartą paszportu */
+          body * {
+            visibility: hidden !important;
+          }
+          .print-card-wrapper, .print-card-wrapper * {
+            visibility: visible !important;
+          }
+          /* Precyzyjne pozycjonowanie i proporcjonalne zmniejszenie (zoom) */
+          .print-card-wrapper {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
             width: 100% !important;
-            height: 100% !important;
+            zoom: 52% !important; /* Automatycznie skaluje w dół, aby cały dół się zmieścił */
           }
           .print\\:hidden {
             display: none !important;
-          }
-          .min-h-screen {
-            min-height: auto !important;
-            background: #070a12 !important;
-            padding: 0 !important;
-          }
-          .container {
-            max-width: 100% !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          /* Precyzyjne skalowanie idealnie dobrane pod układ poziomy A4 */
-          .print-card-wrapper {
-            width: 90% !important;
-            max-width: 900px !important;
-            margin: 0 auto !important;
-            transform: scale(0.85);
-            transform-origin: top center;
           }
         }
       `}</style>
