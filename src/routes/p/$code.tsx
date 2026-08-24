@@ -81,44 +81,45 @@ function PublicPassportPage() {
 
   return (
     <div className="min-h-screen bg-[#090d16] text-foreground py-10 px-4">
-      {/* POPRAWIONE STYLE DLA DRUKU / PDF */}
+      {/* PANCERNE STYLE DLA DRUKU / PDF */}
       <style>{`
         @media print {
           @page {
             size: A4 portrait;
-            margin: 6mm;
+            margin: 5mm;
           }
           body, html {
             background-color: #070a12 !important;
             -webkit-print-color-adjust: exact;
             print-color-adjust: exact;
-            height: auto !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow: visible !important;
+          }
+          /* Ukrywamy absolutnie wszystko na stronie... */
+          body * {
+            visibility: hidden !important;
+          }
+          /* ...poza samym kontenerem karty paszportu i jego zawartością */
+          .print-card-wrapper, .print-card-wrapper * {
+            visibility: visible !important;
+          }
+          .print-card-wrapper {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            zoom: 55% !important; /* Idealne pomniejszenie mieszczące całą kartę bez ucinania */
           }
           .print\\:hidden {
             display: none !important;
-          }
-          .min-h-screen {
-            min-height: auto !important;
-            background: #070a12 !important;
-            padding: 0 !important;
-          }
-          .container {
-            max-width: 100% !important;
-            width: 100% !important;
-            padding: 0 !important;
-            margin: 0 !important;
-          }
-          /* Bezpieczne pomniejszenie mieszczące cały dokument w pionie */
-          .print-card-wrapper {
-            zoom: 62%;
-            width: 100% !important;
-            margin: 0 auto !important;
           }
         }
       `}</style>
 
       <div className="container mx-auto max-w-3xl">
         
+        {/* Górny pasek akcji (ukrywany przy wydruku) */}
         <div className="mb-6 flex items-center justify-between print:hidden">
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-6 w-6 text-[var(--gold)]" />
@@ -144,6 +145,7 @@ function PublicPassportPage() {
           </div>
         </div>
 
+        {/* KARTA PASZPORTU W IZOLOWANYM KONTENERZE DO DRUKU */}
         <div className="print-card-wrapper">
           <TenantPassportCard data={passportPayload} />
         </div>
