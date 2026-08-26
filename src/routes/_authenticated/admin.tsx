@@ -220,11 +220,11 @@ function AdminDashboard() {
                   <Newspaper className="h-4 w-4" /> Blog
                 </Link>
               </TabsTrigger>
-
-
-
-
-            </>
+<TabsTrigger value="delays" asChild>
+  <Link to="/admin" search={{ tab: "delays" }} className="flex items-center gap-1.5">
+    <AlertCircle className="h-4 w-4" /> Zgłoszenia zaległości
+  </Link>
+</TabsTrigger>
           )}
         </TabsList>
 
@@ -249,7 +249,7 @@ function AdminDashboard() {
   <MatchingTab />
 </TabsContent>
             <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
-
+<TabsContent value="delays" className="mt-6"><PaymentDelaysTab /></TabsContent>
 
 
           </>
