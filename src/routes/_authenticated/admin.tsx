@@ -237,10 +237,14 @@ function AdminDashboard() {
             <TabsContent value="assignments" className="mt-6"><AssignmentsTab /></TabsContent>
             <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
             <TabsContent value="payments" className="mt-6"><PaymentsTab /></TabsContent>
-         <TabsContent value="matching" className="mt-6 space-y-6">
-  <AutoMatchStatsTab />
-  <MatchingTab />
-</TabsContent>
+       <TabsContent value="matching" className="mt-6 space-y-6">
+      <AutoMatchStatsTab />
+      <MatchingTab />
+    </TabsContent>
+    <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
+    <TabsContent value="delays" className="mt-6"><PaymentDelaysTab /></TabsContent>
+  </>
+)}
             <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
 <TabsContent value="delays" className="mt-6"><PaymentDelaysTab /></TabsContent>
 
