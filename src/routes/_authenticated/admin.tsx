@@ -205,8 +205,7 @@ function AdminDashboard() {
                 <Link to="/admin" search={{ tab: "payments" }} className="flex items-center gap-1.5">
                   <CreditCard className="h-4 w-4" /> Płatności
                 </Link>
-              </TabsTrigger>
-             <TabsTrigger value="matching" asChild>
+          <TabsTrigger value="matching" asChild>
   <Link to="/admin" search={{ tab: "matching" }} className="flex items-center gap-1.5">
     <Zap className="h-4 w-4" /> Auto-Matching
   </Link>
@@ -222,7 +221,6 @@ function AdminDashboard() {
   </Link>
 </TabsTrigger>
 </TabsList>
-
         <TabsContent value="apps" className="mt-6"><ApplicationsTab /></TabsContent>
         <TabsContent value="passports" className="mt-6"><PassportsListTab /></TabsContent>
         {isAdmin && (
