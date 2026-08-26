@@ -271,7 +271,7 @@ function AktywneUmowyPage({
                           // extending stays available during the lease and up to 30 days after end
                           const extendable = !isArchive && !t.archived_at && end !== null && end + 30 * DAY > Date.now();
                           // landlord may raise the payment-delay alert only in the 3 days after end
-                          const canReportDelay = !isArchive && finished && end !== null && end + 3 * DAY > Date.now();
+                         const canReportDelay = !isArchive && (end === null || end + 3 * DAY > Date.now());
                           const thumb = !finished ? thumbnailFor(t.listing) : null;
 
                           const hasPendingExtension = !!t.pending_extension_end_date;
