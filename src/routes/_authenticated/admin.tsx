@@ -225,7 +225,6 @@ function AdminDashboard() {
     <AlertCircle className="h-4 w-4" /> Zgłoszenia zaległości
   </Link>
 </TabsTrigger>
-          )}
         </TabsList>
 
         <TabsContent value="apps" className="mt-6"><ApplicationsTab /></TabsContent>
