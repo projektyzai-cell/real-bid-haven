@@ -188,6 +188,10 @@ function AdminDashboard() {
                 <Link to="/admin" search={{ tab: "payments" }} className="flex items-center gap-1.5">
                   <CreditCard className="h-4 w-4" /> Płatności
                 </Link>
+                <TabsTrigger value="delays" asChild>
+  <Link to="/admin" search={{ tab: "delays" }} className="flex items-center gap-1.5">
+    <AlertCircle className="h-4 w-4" /> Zgłoszenia zaległości
+  </Link>
               </TabsTrigger>
               <TabsTrigger value="matching" asChild>
                 <Link to="/admin" search={{ tab: "matching" }} className="flex items-center gap-1.5">
