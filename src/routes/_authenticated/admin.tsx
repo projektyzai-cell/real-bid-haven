@@ -248,6 +248,10 @@ function AdminDashboard() {
   </>
 )}
 </Tabs>
+      </Card>
+    </div>
+  );
+}
 /* ===================== APPLICATIONS ===================== */
 function ApplicationsTab() {
   const list = useServerFn(listPassportApplications);
