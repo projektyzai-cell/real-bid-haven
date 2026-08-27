@@ -11,7 +11,7 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // Pobieramy transakcje wraz z relacjami do rental_listings oraz profilami najemcy i wynajmującego
+        // Bezpieczne zapytanie pobierające transakcje i dane nieruchomości
         const { data, error } = await supabase
           .from("lease_transactions") 
           .select(`
@@ -27,14 +27,6 @@ export function PaymentDelaysTab() {
               city,
               street,
               property_type
-            ),
-            tenant:profiles!tenant_id (
-              display_name,
-              email
-            ),
-            landlord:profiles!landlord_id (
-              display_name,
-              email
             )
           `)
           .not("payment_delay_reported_at", "is", null)
@@ -44,11 +36,11 @@ export function PaymentDelaysTab() {
           console.error("Błąd pobierania danych:", error);
           setTransactions([]);
         } else {
-          console.log("Pobrane transakcje:", data);
           setTransactions(data || []);
         }
       } catch (err) {
         console.error("Wystąpił błąd:", err);
+        setTransactions([]);
       } finally {
         setLoading(false);
       }
@@ -57,32 +49,10 @@ export function PaymentDelaysTab() {
     fetchTransactions();
   }, []);
 
-  // Funkcja przekierowująca do czatu z konkretnym użytkownikiem
+  // Funkcja przekierowująca bezpośrednio do czatu z konkretnym użytkownikiem
   const handleOpenChat = (userId: string) => {
     if (!userId) return;
     window.location.href = `/admin?tab=messages&user_id=${userId}`;
-  };
-
-  // Renderowanie informacji o użytkowniku korzystające z bezpośredniej relacji
-  const renderUserInfo = (user: any, roleLabel: string, userId: string) => {
-    if (!userId) {
-      return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
-    }
-
-    // Pobieramy display_name lub e-mail z złączonego obiektu profilu
-    const displayName = user?.display_name || user?.email || `Użytkownik (${userId.slice(0, 6)})`;
-
-    return (
-      <div className="space-y-1">
-        <div className="font-medium text-xs text-foreground">{displayName}</div>
-        <button
-          onClick={() => handleOpenChat(userId)}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors"
-        >
-          <MessageSquare className="h-3 w-3" /> Czat z {roleLabel.toLowerCase()}
-        </button>
-      </div>
-    );
   };
 
   return (
@@ -115,6 +85,9 @@ export function PaymentDelaysTab() {
                   ? `${rl.city || ""}, ${rl.property_type || ""} — ${rl.street || ""}`
                   : `ID: ...${item.listing_id?.slice(-8) || item.id.slice(-8)}`;
 
+                const tenantShortId = item.tenant_id ? `ID: ...${item.tenant_id.slice(-8)}` : "Brak";
+                const landlordShortId = item.landlord_id ? `ID: ...${item.landlord_id.slice(-8)}` : "Brak";
+
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
                     <td className="p-3 font-medium text-foreground">
@@ -123,12 +96,32 @@ export function PaymentDelaysTab() {
 
                     {/* Najemca */}
                     <td className="p-3">
-                      {renderUserInfo(item.tenant, "Najemca", item.tenant_id)}
+                      <div className="space-y-1">
+                        <div className="font-mono text-xs text-muted-foreground">{tenantShortId}</div>
+                        {item.tenant_id && (
+                          <button
+                            onClick={() => handleOpenChat(item.tenant_id)}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="h-3 w-3" /> Czat z najemcą
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     {/* Wynajmujący */}
                     <td className="p-3">
-                      {renderUserInfo(item.landlord, "Wynajmujący", item.landlord_id)}
+                      <div className="space-y-1">
+                        <div className="font-mono text-xs text-muted-foreground">{landlordShortId}</div>
+                        {item.landlord_id && (
+                          <button
+                            onClick={() => handleOpenChat(item.landlord_id)}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="h-3 w-3" /> Czat z wynajmującym
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     <td className="p-3 text-xs">
