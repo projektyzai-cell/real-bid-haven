@@ -12,6 +12,7 @@ import {
 } from "@/lib/admin.functions";
 import { listPassportApplications } from "@/lib/admin-passport.functions";
 import { SubAdminTab } from "@/components/SubAdminTab";
+import { PaymentTab } from "@/components/PaymentTab";
 import { assignMaintenanceToContractor } from "@/lib/admin-maintenance.functions";
 import { adminListPosts, adminSavePost, adminDeletePost } from "@/lib/admin-blog.functions";
 
