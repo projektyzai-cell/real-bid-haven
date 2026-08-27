@@ -9,22 +9,21 @@ export function PaymentDelaysTab() {
     async function fetchTransactions() {
       try {
         setLoading(true);
-        // Pobieramy transakcje wraz z tytułem nieruchomości oraz numerem wniosku/umowy
+        // Pobieramy TYŁKO te transakcje, które mają zgłoszone opóźnienie
         const { data, error } = await supabase
           .from("lease_transactions") 
           .select(`
             id,
             request_id,
-            created_at,
-            listings (
-              title,
-              city
-            )
+            listing_id,
+            payment_delay_reported_at,
+            created_at
           `)
-          .order("id", { ascending: false });
+          .not("payment_delay_reported_at", "is", null)
+          .order("payment_delay_reported_at", { ascending: false });
 
         if (error) {
-          console.error("Błąd pobierania transakcji:", error);
+          console.error("Błąd pobierania zgłoszeń:", error);
         } else {
           setTransactions(data || []);
         }
@@ -41,42 +40,35 @@ export function PaymentDelaysTab() {
   return (
     <div className="p-6 space-y-4">
       <h2 className="text-2xl font-bold">Opóźnienia w płatnościach</h2>
-      <p className="text-muted-foreground">Panel monitorowania umów i transakcji najmu.</p>
+      <p className="text-muted-foreground">Panel monitorowania zgłoszonych opóźnień i zaległości.</p>
 
       {loading ? (
         <p>Ładowanie danych z bazy...</p>
       ) : transactions.length === 0 ? (
-        <p className="text-sm text-gray-500">Brak wpisów w tabeli lease_transactions.</p>
+        <p className="text-sm text-gray-500">Brak zgłoszonych opóźnień w płatnościach.</p>
       ) : (
         <div className="border rounded-md overflow-hidden bg-card overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="border-b bg-muted/50 text-xs uppercase text-muted-foreground">
-                <th className="p-3">Nieruchomość</th>
+                <th className="p-3">ID Nieruchomości / Oferty</th>
                 <th className="p-3">Powiązana umowa / wniosek</th>
-                <th className="p-3">Data transakcji</th>
+                <th className="p-3">Data zgłoszenia opóźnienia</th>
               </tr>
             </thead>
             <tbody>
               {transactions.map((item) => (
                 <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
-                  <td className="p-3 font-medium">
-                    {item.listings?.title ? (
-                      <div>
-                        <span className="text-primary font-semibold">{item.listings.title}</span>
-                        {item.listings.city && <span className="block text-xs text-muted-foreground">{item.listings.city}</span>}
-                      </div>
-                    ) : (
-                      <span className="text-muted-foreground italic">Nieruchomość powiązana</span>
-                    )}
+                  <td className="p-3 font-mono text-xs text-muted-foreground">
+                    {item.listing_id ? `...${item.listing_id.slice(-8)}` : "—"}
                   </td>
                   <td className="p-3">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono bg-muted text-foreground">
                       {item.request_id ? `Umowa: ...${item.request_id.slice(-8)}` : `ID: ...${item.id.slice(-8)}`}
                     </span>
                   </td>
-                  <td className="p-3 text-xs text-muted-foreground">
-                    {item.created_at ? new Date(item.created_at).toLocaleDateString("pl-PL") : "—"}
+                  <td className="p-3 text-xs font-medium text-red-600">
+                    {item.payment_delay_reported_at ? new Date(item.payment_delay_reported_at).toLocaleString("pl-PL") : "—"}
                   </td>
                 </tr>
               ))}
