@@ -247,7 +247,7 @@ function AdminDashboard() {
     <TabsContent value="delays" className="mt-6"><PaymentDelaysTab /></TabsContent>
   </>
 )}
-</div>
+</Tabs>
 /* ===================== APPLICATIONS ===================== */
 function ApplicationsTab() {
   const list = useServerFn(listPassportApplications);
