@@ -11,8 +11,8 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // Bezpieczne zapytanie pobierające transakcje i dane nieruchomości
-        const { data, error } = await supabase
+        // 1. Pobieramy transakcje z opóźnieniami i danymi nieruchomości
+        const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
           .select(`
             id,
@@ -32,15 +32,46 @@ export function PaymentDelaysTab() {
           .not("payment_delay_reported_at", "is", null)
           .order("payment_delay_reported_at", { ascending: false });
 
-        if (error) {
-          console.error("Błąd pobierania danych:", error);
+        if (delaysError || !delaysData) {
+          console.error("Błąd pobierania transakcji:", delaysError);
           setTransactions([]);
-        } else {
-          setTransactions(data || []);
+          setLoading(false);
+          return;
         }
+
+        // 2. Wyciągamy unikalne ID użytkowników (najemców i wynajmujących)
+        const userIds = Array.from(new Set([
+          ...delaysData.map(d => d.tenant_id),
+          ...delaysData.map(d => d.landlord_id)
+        ].filter(Boolean)) as string[]);
+
+        // 3. Pobieramy profile dla tych ID z tabeli profiles
+        let profilesMap: Record<string, any> = {};
+        if (userIds.length > 0) {
+          const { data: profilesData, error: profilesError } = await supabase
+            .from("profiles")
+            .select("id, display_name, email")
+            .in("id", userIds);
+
+          if (profilesError) {
+            console.error("Błąd pobierania profili:", profilesError);
+          } else if (profilesData) {
+            profilesData.forEach(p => {
+              profilesMap[p.id] = p;
+            });
+          }
+        }
+
+        // 4. Łączymy transakcje z odpowiednimi profilami
+        const combined = delaysData.map(item => ({
+          ...item,
+          tenantProfile: profilesMap[item.tenant_id] || null,
+          landlordProfile: profilesMap[item.landlord_id] || null
+        }));
+
+        setTransactions(combined);
       } catch (err) {
-        console.error("Wystąpił błąd:", err);
-        setTransactions([]);
+        console.error("Wystąpił błąd ogólny:", err);
       } finally {
         setLoading(false);
       }
@@ -49,10 +80,40 @@ export function PaymentDelaysTab() {
     fetchTransactions();
   }, []);
 
-  // Funkcja przekierowująca bezpośrednio do czatu z konkretnym użytkownikiem
-  const handleOpenChat = (userId: string) => {
+  // Funkcja przekierowująca bezpośrednio do czatu z wybraną osobą
+  const handleOpenChat = (userId: string, roleLabel: string) => {
     if (!userId) return;
-    window.location.href = `/admin?tab=messages&user_id=${userId}`;
+    
+    // Zapisujemy w localStorage, aby zakładka wiadomości mogła odczytać wybranego użytkownika
+    localStorage.setItem("active_chat_user_id", userId);
+    localStorage.setItem("active_chat_role", roleLabel);
+    
+    // Przekierowanie przekazujące różne warianty parametrów URL obsługiwane przez systemy wiadomości
+    window.location.href = `/admin?tab=messages&user_id=${userId}&recipient=${userId}&chat_with=${userId}`;
+  };
+
+  // Renderowanie informacji o użytkowniku (wyświetla display_name lub e-mail)
+  const renderUserInfo = (profile: any, userId: string, roleLabel: string) => {
+    if (!userId) {
+      return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
+    }
+
+    // Priorytet: display_name -> email -> skrócone ID
+    const displayName = profile?.display_name || profile?.email || `Użytkownik (${userId.slice(0, 6)})`;
+    const displayEmail = profile?.display_name && profile?.email ? profile.email : null;
+
+    return (
+      <div className="space-y-1">
+        <div className="font-medium text-xs text-foreground">{displayName}</div>
+        {displayEmail && <div className="text-[10px] text-muted-foreground">{displayEmail}</div>}
+        <button
+          onClick={() => handleOpenChat(userId, roleLabel)}
+          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+        >
+          <MessageSquare className="h-3 w-3" /> Czat z {roleLabel.toLowerCase()}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -85,9 +146,6 @@ export function PaymentDelaysTab() {
                   ? `${rl.city || ""}, ${rl.property_type || ""} — ${rl.street || ""}`
                   : `ID: ...${item.listing_id?.slice(-8) || item.id.slice(-8)}`;
 
-                const tenantShortId = item.tenant_id ? `ID: ...${item.tenant_id.slice(-8)}` : "Brak";
-                const landlordShortId = item.landlord_id ? `ID: ...${item.landlord_id.slice(-8)}` : "Brak";
-
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
                     <td className="p-3 font-medium text-foreground">
@@ -96,32 +154,12 @@ export function PaymentDelaysTab() {
 
                     {/* Najemca */}
                     <td className="p-3">
-                      <div className="space-y-1">
-                        <div className="font-mono text-xs text-muted-foreground">{tenantShortId}</div>
-                        {item.tenant_id && (
-                          <button
-                            onClick={() => handleOpenChat(item.tenant_id)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-                          >
-                            <MessageSquare className="h-3 w-3" /> Czat z najemcą
-                          </button>
-                        )}
-                      </div>
+                      {renderUserInfo(item.tenantProfile, item.tenant_id, "Najemca")}
                     </td>
 
                     {/* Wynajmujący */}
                     <td className="p-3">
-                      <div className="space-y-1">
-                        <div className="font-mono text-xs text-muted-foreground">{landlordShortId}</div>
-                        {item.landlord_id && (
-                          <button
-                            onClick={() => handleOpenChat(item.landlord_id)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-                          >
-                            <MessageSquare className="h-3 w-3" /> Czat z wynajmującym
-                          </button>
-                        )}
-                      </div>
+                      {renderUserInfo(item.landlordProfile, item.landlord_id, "Wynajmujący")}
                     </td>
 
                     <td className="p-3 text-xs">
