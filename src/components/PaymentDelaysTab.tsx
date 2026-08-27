@@ -11,8 +11,8 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy transakcje z opóźnieniami
-        const { data: delaysData, error: delaysError } = await supabase
+        // Pobieramy transakcje wraz z relacjami do rental_listings oraz profilami najemcy i wynajmującego
+        const { data, error } = await supabase
           .from("lease_transactions") 
           .select(`
             id,
@@ -27,49 +27,28 @@ export function PaymentDelaysTab() {
               city,
               street,
               property_type
+            ),
+            tenant:profiles!tenant_id (
+              display_name,
+              email
+            ),
+            landlord:profiles!landlord_id (
+              display_name,
+              email
             )
           `)
           .not("payment_delay_reported_at", "is", null)
           .order("payment_delay_reported_at", { ascending: false });
 
-        if (delaysError || !delaysData) {
+        if (error) {
+          console.error("Błąd pobierania danych:", error);
           setTransactions([]);
-          setLoading(false);
-          return;
+        } else {
+          console.log("Pobrane transakcje:", data);
+          setTransactions(data || []);
         }
-
-        // 2. Pobieramy profile użytkowników
-        const userIds = [
-          ...new Set([
-            ...delaysData.map(d => d.tenant_id),
-            ...delaysData.map(d => d.landlord_id)
-          ].filter(Boolean))
-        ];
-
-        let profilesMap: Record<string, any> = {};
-        if (userIds.length > 0) {
-          const { data: profilesData } = await supabase
-            .from("profiles")
-            .select("*")
-            .in("id", userIds);
-
-          if (profilesData) {
-            profilesData.forEach(p => { 
-              profilesMap[p.id] = p; 
-            });
-          }
-        }
-
-        // 3. Łączymy dane
-        const combined = delaysData.map(item => ({
-          ...item,
-          tenant: profilesMap[item.tenant_id] || null,
-          landlord: profilesMap[item.landlord_id] || null
-        }));
-
-        setTransactions(combined);
       } catch (err) {
-        console.error("Wystąpił błąd podczas pobierania danych:", err);
+        console.error("Wystąpił błąd:", err);
       } finally {
         setLoading(false);
       }
@@ -84,14 +63,14 @@ export function PaymentDelaysTab() {
     window.location.href = `/admin?tab=messages&user_id=${userId}`;
   };
 
-  // Renderowanie informacji z użyciem poprawnej kolumny display_name
+  // Renderowanie informacji o użytkowniku korzystające z bezpośredniej relacji
   const renderUserInfo = (user: any, roleLabel: string, userId: string) => {
     if (!userId) {
       return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
     }
 
-    // Pobieramy nazwę z kolumny display_name (lub fallback na inne)
-    const displayName = user?.display_name || user?.full_name || user?.name || user?.email || `Użytkownik (${userId.slice(0, 6)})`;
+    // Pobieramy display_name lub e-mail z złączonego obiektu profilu
+    const displayName = user?.display_name || user?.email || `Użytkownik (${userId.slice(0, 6)})`;
 
     return (
       <div className="space-y-1">
