@@ -10,26 +10,20 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy zgłoszone opóźnienia
+        // 1. Pobieramy zgłoszone opóźnienia wraz z datami startu i końca umowy z tabeli lease_transactions
         const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
-          .select("*")
+          .select("id, request_id, listing_id, payment_delay_reported_at, contract_start_date, contract_end_date")
           .not("payment_delay_reported_at", "is", null)
           .order("payment_delay_reported_at", { ascending: false });
 
-        if (delaysError) {
-          console.error("Błąd pobierania zgłoszeń:", delaysError);
-          setLoading(false);
-          return;
-        }
-
-        if (!delaysData || delaysData.length === 0) {
+        if (delaysError || !delaysData || delaysData.length === 0) {
           setTransactions([]);
           setLoading(false);
           return;
         }
 
-        // 2. Pobieramy pełne dane powiązanych nieruchomości
+        // 2. Pobieramy dane nieruchomości z tabeli "listings" (dla czytelnego adresu/tytułu)
         const listingIds = [...new Set(delaysData.map(item => item.listing_id).filter(Boolean))];
         let listingsMap: Record<string, any> = {};
         
@@ -40,9 +34,7 @@ export function PaymentDelaysTab() {
             .in("id", listingIds);
 
           if (listingsData) {
-            listingsData.forEach(listing => {
-              listingsMap[listing.id] = listing;
-            });
+            listingsData.forEach(l => { listingsMap[l.id] = l; });
           }
         }
 
@@ -54,7 +46,7 @@ export function PaymentDelaysTab() {
 
         setTransactions(combined);
       } catch (err) {
-        console.error("Wystąpił błąd:", err);
+        console.error("Wystąpił błąd podczas pobierania danych:", err);
       } finally {
         setLoading(false);
       }
@@ -74,10 +66,10 @@ export function PaymentDelaysTab() {
         <p className="text-sm text-gray-500">Brak zgłoszonych opóźnień w płatnościach.</p>
       ) : (
         <div className="border rounded-md overflow-hidden bg-card overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[850px]">
+          <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="border-b bg-muted/50 text-xs uppercase text-muted-foreground">
-                <th className="p-3">Adres / Nieruchomość</th>
+                <th className="p-3">Nieruchomość / Adres</th>
                 <th className="p-3">Okres umowy najmu</th>
                 <th className="p-3">Powiązana umowa</th>
                 <th className="p-3">Data zgłoszenia</th>
@@ -87,30 +79,26 @@ export function PaymentDelaysTab() {
               {transactions.map((item) => {
                 const l = item.listing;
                 
-                // Sprawdzamy różne możliwe nazwy kolumn z adresem/tytułem w tabeli listings
-                const propertyAddress = l?.address || l?.street || l?.title || l?.name || `Nieruchomość ID: ${item.listing_id?.slice(0, 8)}...`;
-                const propertyCity = [l?.city, l?.postal_code].filter(Boolean).join(" ");
-
-                // Sprawdzamy możliwe nazwy dat rozpoczęcia i zakończenia umowy
-                const startDate = item.start_date || item.lease_start || item.contract_start || l?.start_date || l?.lease_start;
-                const endDate = item.end_date || item.lease_end || item.contract_end || l?.end_date || l?.lease_end;
+                // Sprawdzamy możliwe nazwy kolumn z adresem/tytułem w tabeli listings
+                const propertyTitle = l?.title || l?.name || l?.address || l?.street || `Nieruchomość ID: ${item.listing_id?.slice(0, 8)}...`;
+                const propertyLocation = [l?.city, l?.district].filter(Boolean).join(", ");
 
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
                     <td className="p-3 font-medium">
                       <div>
-                        <span className="text-primary font-semibold">{propertyAddress}</span>
-                        {propertyCity && <span className="block text-xs text-muted-foreground">{propertyCity}</span>}
+                        <span className="text-primary font-semibold">{propertyTitle}</span>
+                        {propertyLocation && <span className="block text-xs text-muted-foreground">{propertyLocation}</span>}
                       </div>
                     </td>
                     <td className="p-3 text-xs">
-                      {startDate || endDate ? (
+                      {item.contract_start_date || item.contract_end_date ? (
                         <div className="space-y-0.5">
-                          <div><span className="text-muted-foreground">Od:</span> {startDate ? new Date(startDate).toLocaleDateString("pl-PL") : "—"}</div>
-                          <div><span className="text-muted-foreground">Do:</span> {endDate ? new Date(endDate).toLocaleDateString("pl-PL") : "—"}</div>
+                          <div><span className="text-muted-foreground">Od:</span> {item.contract_start_date ? new Date(item.contract_start_date).toLocaleDateString("pl-PL") : "—"}</div>
+                          <div><span className="text-muted-foreground">Do:</span> {item.contract_end_date ? new Date(item.contract_end_date).toLocaleDateString("pl-PL") : "—"}</div>
                         </div>
                       ) : (
-                        <span className="text-muted-foreground italic">Brak dat w bazie</span>
+                        <span className="text-muted-foreground italic">Brak dat w transakcji</span>
                       )}
                     </td>
                     <td className="p-3">
