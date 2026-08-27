@@ -9,15 +9,18 @@ export function PaymentDelaysTab() {
     async function fetchTransactions() {
       try {
         setLoading(true);
-        // Pobieramy TYŁKO te transakcje, które mają zgłoszone opóźnienie
+        // Pobieramy zgłoszenia WRAZ z tytułem i miastem nieruchomości
         const { data, error } = await supabase
           .from("lease_transactions") 
           .select(`
             id,
             request_id,
-            listing_id,
             payment_delay_reported_at,
-            created_at
+            created_at,
+            listings (
+              title,
+              city
+            )
           `)
           .not("payment_delay_reported_at", "is", null)
           .order("payment_delay_reported_at", { ascending: false });
@@ -51,7 +54,7 @@ export function PaymentDelaysTab() {
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>
               <tr className="border-b bg-muted/50 text-xs uppercase text-muted-foreground">
-                <th className="p-3">ID Nieruchomości / Oferty</th>
+                <th className="p-3">Nieruchomość</th>
                 <th className="p-3">Powiązana umowa / wniosek</th>
                 <th className="p-3">Data zgłoszenia opóźnienia</th>
               </tr>
@@ -59,8 +62,15 @@ export function PaymentDelaysTab() {
             <tbody>
               {transactions.map((item) => (
                 <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
-                  <td className="p-3 font-mono text-xs text-muted-foreground">
-                    {item.listing_id ? `...${item.listing_id.slice(-8)}` : "—"}
+                  <td className="p-3 font-medium">
+                    {item.listings?.title ? (
+                      <div>
+                        <span className="text-primary font-semibold">{item.listings.title}</span>
+                        {item.listings.city && <span className="block text-xs text-muted-foreground">{item.listings.city}</span>}
+                      </div>
+                    ) : (
+                      <span className="text-muted-foreground italic">Brak przypisanej nieruchomości</span>
+                    )}
                   </td>
                   <td className="p-3">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono bg-muted text-foreground">
