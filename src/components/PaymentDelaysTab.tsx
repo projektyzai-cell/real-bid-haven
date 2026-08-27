@@ -87,18 +87,28 @@ export function PaymentDelaysTab() {
   // Funkcja przekierowująca bezpośrednio do czatu z wybraną osobą
   const handleOpenChat = (userId: string) => {
     if (!userId) return;
+
+    // Zapisujemy pod wieloma popularnymi kluczami w localStorage, żeby panel wiadomości na pewno to odczytał
     localStorage.setItem("active_chat_user_id", userId);
-    window.location.href = `/admin?tab=messages&user_id=${userId}&recipient=${userId}&chat_with=${userId}`;
+    localStorage.setItem("chat_user_id", userId);
+    localStorage.setItem("recipient_id", userId);
+    localStorage.setItem("selected_user_id", userId);
+
+    // Wysyłamy zdarzenie systemowe dla aplikacji SPA
+    window.dispatchEvent(new CustomEvent("open-admin-chat", { detail: { userId } }));
+
+    // Przekierowanie do zakładki wiadomości z pełnym zestawem parametrów w URL
+    window.location.href = `/admin?tab=messages&user_id=${userId}&recipient=${userId}&chat_with=${userId}&selected_user=${userId}`;
   };
 
-  // Funkcja pomocnicza generująca najlepszą możliwą nazwę z fallbackami
+  // Funkcja pomocnicza wyświetlająca dane użytkownika lub bezpieczny fallback do ID
   const renderUserInfo = (profile: any, userId: string, roleLabel: string) => {
     if (!userId) {
       return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
     }
 
-    // Kolejność sprawdzania: display_name -> email -> skrócone ID bazy
-    const nameToShow = profile?.displayName || profile?.email || `Użytkownik (${userId.slice(0, 6)})`;
+    // Jeśli profil nie istnieje w tabeli profiles, pokazujemy czytelny fragment ID (np. ID: ...552fb1)
+    const nameToShow = profile?.displayName || profile?.email || `Użytkownik (...${userId.slice(-6)})`;
     const secondaryInfo = profile?.displayName && profile?.email ? profile.email : null;
 
     return (
