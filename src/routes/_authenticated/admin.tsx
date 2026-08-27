@@ -249,7 +249,6 @@ function AdminDashboard() {
 )}
 </Tabs>
       </div>
-    </Card>
   );
 }
 /* ===================== APPLICATIONS ===================== */
