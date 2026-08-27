@@ -9,27 +9,50 @@ export function PaymentDelaysTab() {
     async function fetchTransactions() {
       try {
         setLoading(true);
-        // Pobieramy zgłoszenia WRAZ z tytułem i miastem nieruchomości
-        const { data, error } = await supabase
+
+        // 1. Pobieramy transakcje ze zgłoszonym opóźnieniem
+        const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
-          .select(`
-            id,
-            request_id,
-            payment_delay_reported_at,
-            created_at,
-            listings (
-              title,
-              city
-            )
-          `)
+          .select("*")
           .not("payment_delay_reported_at", "is", null)
           .order("payment_delay_reported_at", { ascending: false });
 
-        if (error) {
-          console.error("Błąd pobierania zgłoszeń:", error);
-        } else {
-          setTransactions(data || []);
+        if (delaysError) {
+          console.error("Błąd pobierania zgłoszeń:", delaysError);
+          setLoading(false);
+          return;
         }
+
+        if (!delaysData || delaysData.length === 0) {
+          setTransactions([]);
+          setLoading(false);
+          return;
+        }
+
+        // 2. Wyciągamy unikalne ID nieruchomości z tych zgłoszeń
+        const listingIds = [...new Set(delaysData.map(item => item.listing_id).filter(Boolean))];
+
+        let listingsMap: Record<string, any> = {};
+        if (listingIds.length > 0) {
+          const { data: listingsData } = await supabase
+            .from("listings")
+            .select("id, title, city")
+            .in("id", listingIds);
+
+          if (listingsData) {
+            listingsData.forEach(listing => {
+              listingsMap[listing.id] = listing;
+            });
+          }
+        }
+
+        // 3. Łączymy dane w JavaScript, żeby nic nie zostało pominięte
+        const combined = delaysData.map(item => ({
+          ...item,
+          listing: listingsMap[item.listing_id] || null
+        }));
+
+        setTransactions(combined);
       } catch (err) {
         console.error("Wystąpił błąd:", err);
       } finally {
@@ -63,13 +86,13 @@ export function PaymentDelaysTab() {
               {transactions.map((item) => (
                 <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
                   <td className="p-3 font-medium">
-                    {item.listings?.title ? (
+                    {item.listing?.title ? (
                       <div>
-                        <span className="text-primary font-semibold">{item.listings.title}</span>
-                        {item.listings.city && <span className="block text-xs text-muted-foreground">{item.listings.city}</span>}
+                        <span className="text-primary font-semibold">{item.listing.title}</span>
+                        {item.listing.city && <span className="block text-xs text-muted-foreground">{item.listing.city}</span>}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground italic">Brak przypisanej nieruchomości</span>
+                      <span className="text-muted-foreground italic">Nieruchomość ID: {item.listing_id?.slice(0, 8)}...</span>
                     )}
                   </td>
                   <td className="p-3">
