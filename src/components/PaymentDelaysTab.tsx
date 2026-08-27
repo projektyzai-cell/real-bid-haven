@@ -10,43 +10,33 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy zgłoszone opóźnienia wraz z datami umowy
-        const { data: delaysData, error: delaysError } = await supabase
+        // Pobieramy transakcje wraz z powiązanymi danymi z tabeli rental_listings (tak jak w Auto-Matchingu)
+        const { data, error } = await supabase
           .from("lease_transactions") 
-          .select("id, request_id, listing_id, payment_delay_reported_at, contract_start_date, contract_end_date")
+          .select(`
+            id,
+            request_id,
+            listing_id,
+            payment_delay_reported_at,
+            contract_start_date,
+            contract_end_date,
+            rental_listings (
+              city,
+              street,
+              property_type
+            )
+          `)
           .not("payment_delay_reported_at", "is", null)
           .order("payment_delay_reported_at", { ascending: false });
 
-        if (delaysError || !delaysData || delaysData.length === 0) {
+        if (error) {
+          console.error("Błąd pobierania danych:", error);
           setTransactions([]);
-          setLoading(false);
-          return;
+        } else {
+          setTransactions(data || []);
         }
-
-        // 2. Pobieramy dane nieruchomości z tabeli "listings"
-        const listingIds = [...new Set(delaysData.map(item => item.listing_id).filter(Boolean))];
-        let listingsMap: Record<string, any> = {};
-        
-        if (listingIds.length > 0) {
-          const { data: listingsData } = await supabase
-            .from("listings")
-            .select("*")
-            .in("id", listingIds);
-
-          if (listingsData) {
-            listingsData.forEach(l => { listingsMap[l.id] = l; });
-          }
-        }
-
-        // 3. Łączymy dane w JavaScript
-        const combined = delaysData.map(item => ({
-          ...item,
-          listing: listingsMap[item.listing_id] || null
-        }));
-
-        setTransactions(combined);
       } catch (err) {
-        console.error("Wystąpił błąd podczas pobierania danych:", err);
+        console.error("Wystąpił błąd:", err);
       } finally {
         setLoading(false);
       }
@@ -77,12 +67,12 @@ export function PaymentDelaysTab() {
             </thead>
             <tbody>
               {transactions.map((item) => {
-                const l = item.listing;
+                const rl = item.rental_listings;
                 
-                // Formatujemy adres dokładnie tak jak w Auto-Machingu: Miasto, — Ulica/Tytuł
-                const city = l?.city || "Nieznane miasto";
-                const streetOrTitle = l?.street || l?.address || l?.title || l?.name || `ID: ${item.listing_id?.slice(0, 8)}`;
-                const formattedProperty = `${city}, — ${streetOrTitle}`;
+                // Formatowanie identyczne jak w Auto-Matchingu: Miasto, Typ — Ulica
+                const formattedProperty = rl 
+                  ? `${rl.city || ""}, ${rl.property_type || ""} — ${rl.street || ""}`
+                  : `ID: ...${item.listing_id?.slice(-8) || item.id.slice(-8)}`;
 
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
@@ -90,11 +80,9 @@ export function PaymentDelaysTab() {
                       {formattedProperty}
                     </td>
                     <td className="p-3 text-xs">
-                      {item.contract_start_date || item.contract_end_date ? (
+                      {item.contract_start_date && item.contract_end_date ? (
                         <span>
-                          {item.contract_start_date ? new Date(item.contract_start_date).toLocaleDateString("pl-PL") : "—"} 
-                          {" — "} 
-                          {item.contract_end_date ? new Date(item.contract_end_date).toLocaleDateString("pl-PL") : "—"}
+                          {item.contract_start_date} — {item.contract_end_date}
                         </span>
                       ) : (
                         <span className="text-muted-foreground italic">Brak dat</span>
