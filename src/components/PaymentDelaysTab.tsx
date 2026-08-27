@@ -11,7 +11,7 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy transakcje z opóźnieniami i danymi nieruchomości
+        // 1. Pobieramy transakcje z opóźnieniami z tabeli lease_transactions
         const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
           .select(`
@@ -39,39 +39,49 @@ export function PaymentDelaysTab() {
           return;
         }
 
-        // 2. Wyciągamy unikalne ID użytkowników (najemców i wynajmujących)
-        const userIds = Array.from(new Set([
-          ...delaysData.map(d => d.tenant_id),
-          ...delaysData.map(d => d.landlord_id)
-        ].filter(Boolean)) as string[]);
+        console.log("1. Pobrane transakcje z opóźnieniami:", delaysData);
 
-        // 3. Pobieramy profile dla tych ID z tabeli profiles
-        let profilesMap: Record<string, any> = {};
-        if (userIds.length > 0) {
+        // 2. Wyciągamy unikalne ID stron umowy (najemców i wynajmujących)
+        const tenantIds = delaysData.map(d => d.tenant_id).filter(Boolean);
+        const landlordIds = delaysData.map(d => d.landlord_id).filter(Boolean);
+        const allUserIds = Array.from(new Set([...tenantIds, ...landlordIds]));
+
+        console.log("2. ID użytkowników do pobrania z profiles:", allUserIds);
+
+        // 3. Pobieramy kolumnę display_name z tabeli profiles dla tych konkretnych ID
+        let profilesMap: Record<string, string> = {};
+        if (allUserIds.length > 0) {
           const { data: profilesData, error: profilesError } = await supabase
             .from("profiles")
-            .select("id, display_name, email")
-            .in("id", userIds);
+            .select("id, display_name")
+            .in("id", allUserIds);
 
           if (profilesError) {
             console.error("Błąd pobierania profili:", profilesError);
-          } else if (profilesData) {
-            profilesData.forEach(p => {
-              profilesMap[p.id] = p;
-            });
+          } else {
+            console.log("3. Pobrane profile z bazy:", profilesData);
+            if (profilesData) {
+              profilesData.forEach(profile => {
+                if (profile.id) {
+                  profilesMap[profile.id] = profile.display_name || "Brak nazwy";
+                }
+              });
+            }
           }
         }
 
-        // 4. Łączymy transakcje z odpowiednimi profilami
+        console.log("4. Mapa nazw użytkowników:", profilesMap);
+
+        // 4. Łączymy transakcje ze znalezionymi nazwami z profiles
         const combined = delaysData.map(item => ({
           ...item,
-          tenantProfile: profilesMap[item.tenant_id] || null,
-          landlordProfile: profilesMap[item.landlord_id] || null
+          tenantDisplayName: profilesMap[item.tenant_id] || null,
+          landlordDisplayName: profilesMap[item.landlord_id] || null
         }));
 
         setTransactions(combined);
       } catch (err) {
-        console.error("Wystąpił błąd ogólny:", err);
+        console.error("Wystąpił błąd krytyczny:", err);
       } finally {
         setLoading(false);
       }
@@ -81,39 +91,10 @@ export function PaymentDelaysTab() {
   }, []);
 
   // Funkcja przekierowująca bezpośrednio do czatu z wybraną osobą
-  const handleOpenChat = (userId: string, roleLabel: string) => {
+  const handleOpenChat = (userId: string) => {
     if (!userId) return;
-    
-    // Zapisujemy w localStorage, aby zakładka wiadomości mogła odczytać wybranego użytkownika
     localStorage.setItem("active_chat_user_id", userId);
-    localStorage.setItem("active_chat_role", roleLabel);
-    
-    // Przekierowanie przekazujące różne warianty parametrów URL obsługiwane przez systemy wiadomości
     window.location.href = `/admin?tab=messages&user_id=${userId}&recipient=${userId}&chat_with=${userId}`;
-  };
-
-  // Renderowanie informacji o użytkowniku (wyświetla display_name lub e-mail)
-  const renderUserInfo = (profile: any, userId: string, roleLabel: string) => {
-    if (!userId) {
-      return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
-    }
-
-    // Priorytet: display_name -> email -> skrócone ID
-    const displayName = profile?.display_name || profile?.email || `Użytkownik (${userId.slice(0, 6)})`;
-    const displayEmail = profile?.display_name && profile?.email ? profile.email : null;
-
-    return (
-      <div className="space-y-1">
-        <div className="font-medium text-xs text-foreground">{displayName}</div>
-        {displayEmail && <div className="text-[10px] text-muted-foreground">{displayEmail}</div>}
-        <button
-          onClick={() => handleOpenChat(userId, roleLabel)}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-        >
-          <MessageSquare className="h-3 w-3" /> Czat z {roleLabel.toLowerCase()}
-        </button>
-      </div>
-    );
   };
 
   return (
@@ -141,10 +122,13 @@ export function PaymentDelaysTab() {
             <tbody>
               {transactions.map((item) => {
                 const rl = item.rental_listings;
-                
                 const formattedProperty = rl 
                   ? `${rl.city || ""}, ${rl.property_type || ""} — ${rl.street || ""}`
                   : `ID: ...${item.listing_id?.slice(-8) || item.id.slice(-8)}`;
+
+                // Pobieramy nazwę z profiles lub fallback na ID, jeśli nazwa nie została znaleziona
+                const tenantName = item.tenantDisplayName || (item.tenant_id ? `Użytkownik (${item.tenant_id.slice(0, 6)})` : "Brak");
+                const landlordName = item.landlordDisplayName || (item.landlord_id ? `Użytkownik (${item.landlord_id.slice(0, 6)})` : "Brak");
 
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
@@ -154,12 +138,32 @@ export function PaymentDelaysTab() {
 
                     {/* Najemca */}
                     <td className="p-3">
-                      {renderUserInfo(item.tenantProfile, item.tenant_id, "Najemca")}
+                      <div className="space-y-1">
+                        <div className="font-semibold text-xs text-foreground">{tenantName}</div>
+                        {item.tenant_id && (
+                          <button
+                            onClick={() => handleOpenChat(item.tenant_id)}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="h-3 w-3" /> Czat z najemcą
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     {/* Wynajmujący */}
                     <td className="p-3">
-                      {renderUserInfo(item.landlordProfile, item.landlord_id, "Wynajmujący")}
+                      <div className="space-y-1">
+                        <div className="font-semibold text-xs text-foreground">{landlordName}</div>
+                        {item.landlord_id && (
+                          <button
+                            onClick={() => handleOpenChat(item.landlord_id)}
+                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+                          >
+                            <MessageSquare className="h-3 w-3" /> Czat z wynajmującym
+                          </button>
+                        )}
+                      </div>
                     </td>
 
                     <td className="p-3 text-xs">
