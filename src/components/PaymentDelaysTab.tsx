@@ -39,44 +39,38 @@ export function PaymentDelaysTab() {
           return;
         }
 
-        console.log("1. Pobrane transakcje z opóźnieniami:", delaysData);
-
-        // 2. Wyciągamy unikalne ID stron umowy (najemców i wynajmujących)
+        // 2. Wyciągamy unikalne ID stron umowy
         const tenantIds = delaysData.map(d => d.tenant_id).filter(Boolean);
         const landlordIds = delaysData.map(d => d.landlord_id).filter(Boolean);
         const allUserIds = Array.from(new Set([...tenantIds, ...landlordIds]));
 
-        console.log("2. ID użytkowników do pobrania z profiles:", allUserIds);
-
-        // 3. Pobieramy kolumnę display_name z tabeli profiles dla tych konkretnych ID
-        let profilesMap: Record<string, string> = {};
+        // 3. Pobieramy dane z tabeli profiles (display_name oraz email)
+        let profilesMap: Record<string, any> = {};
         if (allUserIds.length > 0) {
           const { data: profilesData, error: profilesError } = await supabase
             .from("profiles")
-            .select("id, display_name")
+            .select("id, display_name, email")
             .in("id", allUserIds);
 
           if (profilesError) {
             console.error("Błąd pobierania profili:", profilesError);
-          } else {
-            console.log("3. Pobrane profile z bazy:", profilesData);
-            if (profilesData) {
-              profilesData.forEach(profile => {
-                if (profile.id) {
-                  profilesMap[profile.id] = profile.display_name || "Brak nazwy";
-                }
-              });
-            }
+          } else if (profilesData) {
+            profilesData.forEach(profile => {
+              if (profile.id) {
+                profilesMap[profile.id] = {
+                  displayName: profile.display_name,
+                  email: profile.email
+                };
+              }
+            });
           }
         }
 
-        console.log("4. Mapa nazw użytkowników:", profilesMap);
-
-        // 4. Łączymy transakcje ze znalezionymi nazwami z profiles
+        // 4. Łączymy dane
         const combined = delaysData.map(item => ({
           ...item,
-          tenantDisplayName: profilesMap[item.tenant_id] || null,
-          landlordDisplayName: profilesMap[item.landlord_id] || null
+          tenantProfile: profilesMap[item.tenant_id] || null,
+          landlordProfile: profilesMap[item.landlord_id] || null
         }));
 
         setTransactions(combined);
@@ -95,6 +89,30 @@ export function PaymentDelaysTab() {
     if (!userId) return;
     localStorage.setItem("active_chat_user_id", userId);
     window.location.href = `/admin?tab=messages&user_id=${userId}&recipient=${userId}&chat_with=${userId}`;
+  };
+
+  // Funkcja pomocnicza generująca najlepszą możliwą nazwę z fallbackami
+  const renderUserInfo = (profile: any, userId: string, roleLabel: string) => {
+    if (!userId) {
+      return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
+    }
+
+    // Kolejność sprawdzania: display_name -> email -> skrócone ID bazy
+    const nameToShow = profile?.displayName || profile?.email || `Użytkownik (${userId.slice(0, 6)})`;
+    const secondaryInfo = profile?.displayName && profile?.email ? profile.email : null;
+
+    return (
+      <div className="space-y-1">
+        <div className="font-semibold text-xs text-foreground">{nameToShow}</div>
+        {secondaryInfo && <div className="text-[10px] text-muted-foreground">{secondaryInfo}</div>}
+        <button
+          onClick={() => handleOpenChat(userId)}
+          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+        >
+          <MessageSquare className="h-3 w-3" /> Czat z {roleLabel.toLowerCase()}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -126,10 +144,6 @@ export function PaymentDelaysTab() {
                   ? `${rl.city || ""}, ${rl.property_type || ""} — ${rl.street || ""}`
                   : `ID: ...${item.listing_id?.slice(-8) || item.id.slice(-8)}`;
 
-                // Pobieramy nazwę z profiles lub fallback na ID, jeśli nazwa nie została znaleziona
-                const tenantName = item.tenantDisplayName || (item.tenant_id ? `Użytkownik (${item.tenant_id.slice(0, 6)})` : "Brak");
-                const landlordName = item.landlordDisplayName || (item.landlord_id ? `Użytkownik (${item.landlord_id.slice(0, 6)})` : "Brak");
-
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
                     <td className="p-3 font-medium text-foreground">
@@ -138,32 +152,12 @@ export function PaymentDelaysTab() {
 
                     {/* Najemca */}
                     <td className="p-3">
-                      <div className="space-y-1">
-                        <div className="font-semibold text-xs text-foreground">{tenantName}</div>
-                        {item.tenant_id && (
-                          <button
-                            onClick={() => handleOpenChat(item.tenant_id)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-                          >
-                            <MessageSquare className="h-3 w-3" /> Czat z najemcą
-                          </button>
-                        )}
-                      </div>
+                      {renderUserInfo(item.tenantProfile, item.tenant_id, "Najemca")}
                     </td>
 
                     {/* Wynajmujący */}
                     <td className="p-3">
-                      <div className="space-y-1">
-                        <div className="font-semibold text-xs text-foreground">{landlordName}</div>
-                        {item.landlord_id && (
-                          <button
-                            onClick={() => handleOpenChat(item.landlord_id)}
-                            className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
-                          >
-                            <MessageSquare className="h-3 w-3" /> Czat z wynajmującym
-                          </button>
-                        )}
-                      </div>
+                      {renderUserInfo(item.landlordProfile, item.landlord_id, "Wynajmujący")}
                     </td>
 
                     <td className="p-3 text-xs">
