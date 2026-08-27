@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client"; 
-import { MessageSquare, ExternalLink, User } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 
 export function PaymentDelaysTab() {
   const [transactions, setTransactions] = useState<any[]>([]);
@@ -11,7 +11,7 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy transakcje z opóźnieniami, danymi nieruchomości oraz ID najemcy i wynajmującego
+        // 1. Pobieramy transakcje z opóźnieniami
         const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
           .select(`
@@ -38,7 +38,7 @@ export function PaymentDelaysTab() {
           return;
         }
 
-        // 2. Pobieramy dane profilowe użytkowników (najemców i wynajmujących)
+        // 2. Pobieramy profile użytkowników
         const userIds = [
           ...new Set([
             ...delaysData.map(d => d.tenant_id),
@@ -54,15 +54,17 @@ export function PaymentDelaysTab() {
             .in("id", userIds);
 
           if (profilesData) {
-            profilesData.forEach(p => { profilesMap[p.id] = p; });
+            profilesData.forEach(p => { 
+              profilesMap[p.id] = p; 
+            });
           }
         }
 
-        // 3. Łączymy transakcje z profilami i danymi nieruchomości
+        // 3. Łączymy dane
         const combined = delaysData.map(item => ({
           ...item,
-          tenant: profilesMap[item.tenant_id] || { id: item.tenant_id, full_name: "Najemca", email: "Brak danych" },
-          landlord: profilesMap[item.landlord_id] || { id: item.landlord_id, full_name: "Wynajmujący", email: "Brak danych" }
+          tenant: profilesMap[item.tenant_id] || null,
+          landlord: profilesMap[item.landlord_id] || null
         }));
 
         setTransactions(combined);
@@ -76,11 +78,32 @@ export function PaymentDelaysTab() {
     fetchTransactions();
   }, []);
 
-  // Funkcja obsługująca przejście do wewnętrznego czatu / zakładki wiadomości z konkretnym użytkownikiem
-  const handleOpenChat = (userId: string, role: string) => {
+  // Funkcja przekierowująca do czatu z konkretnym użytkownikiem
+  const handleOpenChat = (userId: string) => {
     if (!userId) return;
-    // Przekierowujemy do zakładki wiadomości w panelu admina (lub otwiera odpowiedni widok)
-    window.location.href = `/admin?tab=messages&user_id=${userId}&role=${role}`;
+    window.location.href = `/admin?tab=messages&user_id=${userId}`;
+  };
+
+  // Renderowanie informacji z użyciem poprawnej kolumny display_name
+  const renderUserInfo = (user: any, roleLabel: string, userId: string) => {
+    if (!userId) {
+      return <span className="text-muted-foreground italic text-xs">Brak przypisania</span>;
+    }
+
+    // Pobieramy nazwę z kolumny display_name (lub fallback na inne)
+    const displayName = user?.display_name || user?.full_name || user?.name || user?.email || `Użytkownik (${userId.slice(0, 6)})`;
+
+    return (
+      <div className="space-y-1">
+        <div className="font-medium text-xs text-foreground">{displayName}</div>
+        <button
+          onClick={() => handleOpenChat(userId)}
+          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors"
+        >
+          <MessageSquare className="h-3 w-3" /> Czat z {roleLabel.toLowerCase()}
+        </button>
+      </div>
+    );
   };
 
   return (
@@ -108,8 +131,6 @@ export function PaymentDelaysTab() {
             <tbody>
               {transactions.map((item) => {
                 const rl = item.rental_listings;
-                const tenant = item.tenant;
-                const landlord = item.landlord;
                 
                 const formattedProperty = rl 
                   ? `${rl.city || ""}, ${rl.property_type || ""} — ${rl.street || ""}`
@@ -121,30 +142,14 @@ export function PaymentDelaysTab() {
                       {formattedProperty}
                     </td>
 
-                    {/* Kolumna: Najemca + Czat */}
+                    {/* Najemca */}
                     <td className="p-3">
-                      <div className="space-y-1">
-                        <div className="font-medium text-xs">{tenant.full_name || tenant.email || "Nieznany"}</div>
-                        <button
-                          onClick={() => handleOpenChat(item.tenant_id, "tenant")}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                        >
-                          <MessageSquare className="h-3 w-3" /> Czat z najemcą
-                        </button>
-                      </div>
+                      {renderUserInfo(item.tenant, "Najemca", item.tenant_id)}
                     </td>
 
-                    {/* Kolumna: Wynajmujący + Czat */}
+                    {/* Wynajmujący */}
                     <td className="p-3">
-                      <div className="space-y-1">
-                        <div className="font-medium text-xs">{landlord.full_name || landlord.email || "Nieznany"}</div>
-                        <button
-                          onClick={() => handleOpenChat(item.landlord_id, "landlord")}
-                          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-                        >
-                          <MessageSquare className="h-3 w-3" /> Czat z wynajmującym
-                        </button>
-                      </div>
+                      {renderUserInfo(item.landlord, "Wynajmujący", item.landlord_id)}
                     </td>
 
                     <td className="p-3 text-xs">
