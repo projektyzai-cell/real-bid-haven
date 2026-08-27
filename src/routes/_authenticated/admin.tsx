@@ -248,8 +248,8 @@ function AdminDashboard() {
   </>
 )}
 </Tabs>
-      </Card>
-    </div>
+      </div>
+    </Card>
   );
 }
 /* ===================== APPLICATIONS ===================== */
