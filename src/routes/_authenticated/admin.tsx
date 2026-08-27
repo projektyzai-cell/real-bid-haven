@@ -221,41 +221,31 @@ function AdminDashboard() {
   </Link>
 </TabsTrigger>
 </TabsList>
-        <TabsContent value="apps" className="mt-6"><ApplicationsTab /></TabsContent>
-        <TabsContent value="passports" className="mt-6"><PassportsListTab /></TabsContent>
-        {isAdmin && (
-          <>
-            <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
-            <TabsContent value="rentals" className="mt-6"><RentalsTab /></TabsContent>
-            <TabsContent value="requests" className="mt-6"><RequestsTab /></TabsContent>
-            <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
-            <TabsContent value="subadmins" className="mt-6"><SubAdminsTab /></TabsContent>
-            <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
-            <TabsContent value="reports" className="mt-6"><ReportsTab /></TabsContent>
-            <TabsContent value="concierge" className="mt-6"><ConciergeLeadsTab /></TabsContent>
-            <TabsContent value="contractors" className="mt-6"><ContractorsTab /></TabsContent>
-            <TabsContent value="assignments" className="mt-6"><AssignmentsTab /></TabsContent>
-            <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
-            <TabsContent value="payments" className="mt-6"><PaymentsTab /></TabsContent>
-       <TabsContent value="matching" className="mt-6 space-y-6">
+      <TabsContent value="apps" className="mt-6"><ApplicationsTab /></TabsContent>
+<TabsContent value="passports" className="mt-6"><PassportsListTab /></TabsContent>
+{isAdmin && (
+  <>
+    <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
+    <TabsContent value="rentals" className="mt-6"><RentalsTab /></TabsContent>
+    <TabsContent value="requests" className="mt-6"><RequestsTab /></TabsContent>
+    <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
+    <TabsContent value="subadmins" className="mt-6"><SubAdminTab /></TabsContent>
+    <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
+    <TabsContent value="reports" className="mt-6"><ReportsTab /></TabsContent>
+    <TabsContent value="concierge" className="mt-6"><ConciergeLeadsTab /></TabsContent>
+    <TabsContent value="contractors" className="mt-6"><ContractorsTab /></TabsContent>
+    <TabsContent value="assignments" className="mt-6"><AssignmentsTab /></TabsContent>
+    <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
+    <TabsContent value="payments" className="mt-6"><PaymentTab /></TabsContent>
+    <TabsContent value="matching" className="mt-6 space-y-6">
       <AutoMatchStatsTab />
       <MatchingTab />
     </TabsContent>
-    <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
+  <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
     <TabsContent value="delays" className="mt-6"><PaymentDelaysTab /></TabsContent>
   </>
 )}
-            <TabsContent value="blog" className="mt-6"><BlogTab /></TabsContent>
-<TabsContent value="delays" className="mt-6"><PaymentDelaysTab /></TabsContent>
-
-
-          </>
-        )}
-      </Tabs>
-    </div>
-  );
-}
-
+</div>
 /* ===================== APPLICATIONS ===================== */
 function ApplicationsTab() {
   const list = useServerFn(listPassportApplications);
