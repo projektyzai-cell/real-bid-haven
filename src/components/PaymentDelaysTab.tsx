@@ -10,7 +10,7 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy transakcje ze zgłoszonym opóźnieniem
+        // 1. Pobieramy zgłoszone opóźnienia
         const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
           .select("*")
@@ -29,14 +29,14 @@ export function PaymentDelaysTab() {
           return;
         }
 
-        // 2. Wyciągamy unikalne ID nieruchomości z tych zgłoszeń
+        // 2. Pobieramy pełne dane powiązanych nieruchomości
         const listingIds = [...new Set(delaysData.map(item => item.listing_id).filter(Boolean))];
-
         let listingsMap: Record<string, any> = {};
+        
         if (listingIds.length > 0) {
           const { data: listingsData } = await supabase
             .from("listings")
-            .select("id, title, city")
+            .select("*")
             .in("id", listingIds);
 
           if (listingsData) {
@@ -46,7 +46,7 @@ export function PaymentDelaysTab() {
           }
         }
 
-        // 3. Łączymy dane w JavaScript, żeby nic nie zostało pominięte
+        // 3. Łączymy dane w JavaScript
         const combined = delaysData.map(item => ({
           ...item,
           listing: listingsMap[item.listing_id] || null
@@ -74,37 +74,56 @@ export function PaymentDelaysTab() {
         <p className="text-sm text-gray-500">Brak zgłoszonych opóźnień w płatnościach.</p>
       ) : (
         <div className="border rounded-md overflow-hidden bg-card overflow-x-auto">
-          <table className="w-full text-left border-collapse min-w-[700px]">
+          <table className="w-full text-left border-collapse min-w-[850px]">
             <thead>
               <tr className="border-b bg-muted/50 text-xs uppercase text-muted-foreground">
-                <th className="p-3">Nieruchomość</th>
-                <th className="p-3">Powiązana umowa / wniosek</th>
-                <th className="p-3">Data zgłoszenia opóźnienia</th>
+                <th className="p-3">Adres / Nieruchomość</th>
+                <th className="p-3">Okres umowy najmu</th>
+                <th className="p-3">Powiązana umowa</th>
+                <th className="p-3">Data zgłoszenia</th>
               </tr>
             </thead>
             <tbody>
-              {transactions.map((item) => (
-                <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
-                  <td className="p-3 font-medium">
-                    {item.listing?.title ? (
+              {transactions.map((item) => {
+                const l = item.listing;
+                
+                // Sprawdzamy różne możliwe nazwy kolumn z adresem/tytułem w tabeli listings
+                const propertyAddress = l?.address || l?.street || l?.title || l?.name || `Nieruchomość ID: ${item.listing_id?.slice(0, 8)}...`;
+                const propertyCity = [l?.city, l?.postal_code].filter(Boolean).join(" ");
+
+                // Sprawdzamy możliwe nazwy dat rozpoczęcia i zakończenia umowy
+                const startDate = item.start_date || item.lease_start || item.contract_start || l?.start_date || l?.lease_start;
+                const endDate = item.end_date || item.lease_end || item.contract_end || l?.end_date || l?.lease_end;
+
+                return (
+                  <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
+                    <td className="p-3 font-medium">
                       <div>
-                        <span className="text-primary font-semibold">{item.listing.title}</span>
-                        {item.listing.city && <span className="block text-xs text-muted-foreground">{item.listing.city}</span>}
+                        <span className="text-primary font-semibold">{propertyAddress}</span>
+                        {propertyCity && <span className="block text-xs text-muted-foreground">{propertyCity}</span>}
                       </div>
-                    ) : (
-                      <span className="text-muted-foreground italic">Nieruchomość ID: {item.listing_id?.slice(0, 8)}...</span>
-                    )}
-                  </td>
-                  <td className="p-3">
-                    <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono bg-muted text-foreground">
-                      {item.request_id ? `Umowa: ...${item.request_id.slice(-8)}` : `ID: ...${item.id.slice(-8)}`}
-                    </span>
-                  </td>
-                  <td className="p-3 text-xs font-medium text-red-600">
-                    {item.payment_delay_reported_at ? new Date(item.payment_delay_reported_at).toLocaleString("pl-PL") : "—"}
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="p-3 text-xs">
+                      {startDate || endDate ? (
+                        <div className="space-y-0.5">
+                          <div><span className="text-muted-foreground">Od:</span> {startDate ? new Date(startDate).toLocaleDateString("pl-PL") : "—"}</div>
+                          <div><span className="text-muted-foreground">Do:</span> {endDate ? new Date(endDate).toLocaleDateString("pl-PL") : "—"}</div>
+                        </div>
+                      ) : (
+                        <span className="text-muted-foreground italic">Brak dat w bazie</span>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-mono bg-muted text-foreground">
+                        {item.request_id ? `Umowa: ...${item.request_id.slice(-8)}` : `ID: ...${item.id.slice(-8)}`}
+                      </span>
+                    </td>
+                    <td className="p-3 text-xs font-medium text-red-600">
+                      {item.payment_delay_reported_at ? new Date(item.payment_delay_reported_at).toLocaleString("pl-PL") : "—"}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
