@@ -10,7 +10,7 @@ export function PaymentDelaysTab() {
       try {
         setLoading(true);
 
-        // 1. Pobieramy zgłoszone opóźnienia wraz z datami startu i końca umowy z tabeli lease_transactions
+        // 1. Pobieramy zgłoszone opóźnienia wraz z datami umowy
         const { data: delaysData, error: delaysError } = await supabase
           .from("lease_transactions") 
           .select("id, request_id, listing_id, payment_delay_reported_at, contract_start_date, contract_end_date")
@@ -23,7 +23,7 @@ export function PaymentDelaysTab() {
           return;
         }
 
-        // 2. Pobieramy dane nieruchomości z tabeli "listings" (dla czytelnego adresu/tytułu)
+        // 2. Pobieramy dane nieruchomości z tabeli "listings"
         const listingIds = [...new Set(delaysData.map(item => item.listing_id).filter(Boolean))];
         let listingsMap: Record<string, any> = {};
         
@@ -69,8 +69,8 @@ export function PaymentDelaysTab() {
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
               <tr className="border-b bg-muted/50 text-xs uppercase text-muted-foreground">
-                <th className="p-3">Nieruchomość / Adres</th>
-                <th className="p-3">Okres umowy najmu</th>
+                <th className="p-3">Przedmiot najmu</th>
+                <th className="p-3">Okres najmu</th>
                 <th className="p-3">Powiązana umowa</th>
                 <th className="p-3">Data zgłoszenia</th>
               </tr>
@@ -79,26 +79,25 @@ export function PaymentDelaysTab() {
               {transactions.map((item) => {
                 const l = item.listing;
                 
-                // Sprawdzamy możliwe nazwy kolumn z adresem/tytułem w tabeli listings
-                const propertyTitle = l?.title || l?.name || l?.address || l?.street || `Nieruchomość ID: ${item.listing_id?.slice(0, 8)}...`;
-                const propertyLocation = [l?.city, l?.district].filter(Boolean).join(", ");
+                // Formatujemy adres dokładnie tak jak w Auto-Machingu: Miasto, — Ulica/Tytuł
+                const city = l?.city || "Nieznane miasto";
+                const streetOrTitle = l?.street || l?.address || l?.title || l?.name || `ID: ${item.listing_id?.slice(0, 8)}`;
+                const formattedProperty = `${city}, — ${streetOrTitle}`;
 
                 return (
                   <tr key={item.id} className="border-b text-sm hover:bg-muted/30">
-                    <td className="p-3 font-medium">
-                      <div>
-                        <span className="text-primary font-semibold">{propertyTitle}</span>
-                        {propertyLocation && <span className="block text-xs text-muted-foreground">{propertyLocation}</span>}
-                      </div>
+                    <td className="p-3 font-medium text-foreground">
+                      {formattedProperty}
                     </td>
                     <td className="p-3 text-xs">
                       {item.contract_start_date || item.contract_end_date ? (
-                        <div className="space-y-0.5">
-                          <div><span className="text-muted-foreground">Od:</span> {item.contract_start_date ? new Date(item.contract_start_date).toLocaleDateString("pl-PL") : "—"}</div>
-                          <div><span className="text-muted-foreground">Do:</span> {item.contract_end_date ? new Date(item.contract_end_date).toLocaleDateString("pl-PL") : "—"}</div>
-                        </div>
+                        <span>
+                          {item.contract_start_date ? new Date(item.contract_start_date).toLocaleDateString("pl-PL") : "—"} 
+                          {" — "} 
+                          {item.contract_end_date ? new Date(item.contract_end_date).toLocaleDateString("pl-PL") : "—"}
+                        </span>
                       ) : (
-                        <span className="text-muted-foreground italic">Brak dat w transakcji</span>
+                        <span className="text-muted-foreground italic">Brak dat</span>
                       )}
                     </td>
                     <td className="p-3">
