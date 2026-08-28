@@ -247,7 +247,7 @@ function AdminDashboard() {
       <MatchingTab />
     </TabsContent>
   <TabsContent value="blog" className="mt-6"><BlogTab/></TabsContent>
-    <TabsContent value="delays" className="mt-6"><PaymentDelaysTab/></TabsContent>
+    <TabsContent value="delays" className="mt-12"><PaymentDelaysTab/></TabsContent>
   </>
 )}
 </Tabs>
