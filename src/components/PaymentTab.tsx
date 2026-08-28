@@ -9,38 +9,28 @@ interface Payment {
   target_id: string | null;
   amount: number;
   currency: string;
-  profiles?: {
-    full_name?: string | null;
-    email?: string | null;
-  } | null;
-  rental_listings?: {
-    title?: string | null;
-  } | null;
 }
 
 export function PaymentTab() {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchPayments() {
-      // Pobieramy płatności wraz z powiązanym profilem użytkownika oraz ogłoszeniem
+      setLoading(true);
+      setErrorMessage(null);
+
       const { data, error } = await supabase
         .from("payments")
-        .select(`
-          id,
-          user_id,
-          kind,
-          target_id,
-          amount,
-          currency,
-          profiles:user_id (full_name, email),
-          rental_listings:target_id (title)
-        `)
+        .select("*")
         .order('id', { ascending: false });
       
-      if (!error && data) {
-        setPayments(data as unknown as Payment[]);
+      if (error) {
+        console.error("Błąd pobierania płatności:", error);
+        setErrorMessage(error.message);
+      } else if (data) {
+        setPayments(data);
       }
       setLoading(false);
     }
@@ -54,14 +44,20 @@ export function PaymentTab() {
         <p className="text-muted-foreground">Panel obsługi płatności i transakcji użytkowników.</p>
       </div>
 
+      {errorMessage && (
+        <div className="p-4 bg-destructive/10 border border-destructive text-destructive rounded-md text-sm">
+          <strong>Błąd bazy danych:</strong> {errorMessage} (Może to oznaczać brak uprawnień RLS dla administratora w tabeli payments).
+        </div>
+      )}
+
       <div className="rounded-md border bg-card">
         <Table>
           <TableHeader>
             <TableRow>
               <TableHead>ID Płatności</TableHead>
-              <TableHead>Użytkownik</TableHead>
+              <TableHead>Użytkownik (ID)</TableHead>
               <TableHead>Typ (Kind)</TableHead>
-              <TableHead>Powiązany obiekt (Target)</TableHead>
+              <TableHead>Target ID</TableHead>
               <TableHead>Kwota</TableHead>
             </TableRow>
           </TableHeader>
@@ -75,34 +71,27 @@ export function PaymentTab() {
             ) : payments.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                  Brak płatności w bazie.
+                  Brak płatności w bazie lub brak uprawnień do ich odczytu.
                 </TableCell>
               </TableRow>
             ) : (
-              payments.map((p) => {
-                const userName = p.profiles?.full_name || p.profiles?.email || p.user_id;
-                const targetName = p.rental_listings?.title || (p.target_id ? `ID: ${p.target_id.slice(0, 8)}...` : "-");
-
-                return (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-mono text-xs">{p.id.slice(0, 8)}...</TableCell>
-                    <TableCell className="font-medium text-sm">
-                      {userName}
-                    </TableCell>
-                    <TableCell>
-                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground">
-                        {p.kind}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-sm text-muted-foreground">
-                      {targetName}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      {p.amount} {p.currency}
-                    </TableCell>
-                  </TableRow>
-                );
-              })
+              payments.map((p) => (
+                <TableRow key={p.id}>
+                  <TableCell className="font-mono text-xs">{p.id.slice(0, 8)}...</TableCell>
+                  <TableCell className="font-mono text-xs">{p.user_id}</TableCell>
+                  <TableCell>
+                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground">
+                      {p.kind}
+                    </span>
+                  </TableCell>
+                  <TableCell className="font-mono text-xs">
+                    {p.target_id ? `${p.target_id.slice(0, 8)}...` : "-"}
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {p.amount} {p.currency}
+                  </TableCell>
+                </TableRow>
+              ))
             )}
           </TableBody>
         </Table>
