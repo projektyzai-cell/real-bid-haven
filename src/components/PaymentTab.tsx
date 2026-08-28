@@ -9,6 +9,13 @@ interface Payment {
   target_id: string | null;
   amount: number;
   currency: string;
+  profiles?: {
+    full_name?: string | null;
+    email?: string | null;
+  } | null;
+  rental_listings?: {
+    title?: string | null;
+  } | null;
 }
 
 export function PaymentTab() {
@@ -17,12 +24,23 @@ export function PaymentTab() {
 
   useEffect(() => {
     async function fetchPayments() {
+      // Pobieramy płatności wraz z powiązanym profilem użytkownika oraz ogłoszeniem
       const { data, error } = await supabase
         .from("payments")
-        .select("*");
+        .select(`
+          id,
+          user_id,
+          kind,
+          target_id,
+          amount,
+          currency,
+          profiles:user_id (full_name, email),
+          rental_listings:target_id (title)
+        `)
+        .order('id', { ascending: false });
       
       if (!error && data) {
-        setPayments(data);
+        setPayments(data as unknown as Payment[]);
       }
       setLoading(false);
     }
@@ -43,7 +61,7 @@ export function PaymentTab() {
               <TableHead>ID Płatności</TableHead>
               <TableHead>Użytkownik</TableHead>
               <TableHead>Typ (Kind)</TableHead>
-              <TableHead>Target ID</TableHead>
+              <TableHead>Powiązany obiekt (Target)</TableHead>
               <TableHead>Kwota</TableHead>
             </TableRow>
           </TableHeader>
@@ -61,21 +79,30 @@ export function PaymentTab() {
                 </TableCell>
               </TableRow>
             ) : (
-              payments.map((p) => (
-                <TableRow key={p.id}>
-                  <TableCell className="font-mono text-xs">{p.id}</TableCell>
-                  <TableCell className="font-mono text-xs">{p.user_id}</TableCell>
-                  <TableCell>
-                    <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground">
-                      {p.kind}
-                    </span>
-                  </TableCell>
-                  <TableCell className="font-mono text-xs">{p.target_id ?? "-"}</TableCell>
-                  <TableCell className="font-medium">
-                    {p.amount} {p.currency}
-                  </TableCell>
-                </TableRow>
-              ))
+              payments.map((p) => {
+                const userName = p.profiles?.full_name || p.profiles?.email || p.user_id;
+                const targetName = p.rental_listings?.title || (p.target_id ? `ID: ${p.target_id.slice(0, 8)}...` : "-");
+
+                return (
+                  <TableRow key={p.id}>
+                    <TableCell className="font-mono text-xs">{p.id.slice(0, 8)}...</TableCell>
+                    <TableCell className="font-medium text-sm">
+                      {userName}
+                    </TableCell>
+                    <TableCell>
+                      <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold bg-secondary text-secondary-foreground">
+                        {p.kind}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {targetName}
+                    </TableCell>
+                    <TableCell className="font-medium">
+                      {p.amount} {p.currency}
+                    </TableCell>
+                  </TableRow>
+                );
+              })
             )}
           </TableBody>
         </Table>
