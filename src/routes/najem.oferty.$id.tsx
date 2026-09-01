@@ -170,7 +170,20 @@ function RentalDetailPage() {
     views_count: number;
     room_label: string | null;
     extra_features: Record<string, unknown> | null;
+    apartment_subtype: string | null; building_type: string | null; floor_number: string | null;
+    has_balcony: boolean; has_elevator: boolean; is_furnished: boolean;
+    has_parking_space: boolean; has_washing_machine: boolean; has_dishwasher: boolean;
+    pets_caged_allowed: boolean; pets_other_allowed: boolean;
+    requires_passport: boolean; accepts_students: boolean | null;
+    allows_modifications: boolean; allows_furniture_additions: boolean;
+    has_energy_cert: boolean; wants_energy_cert_discount: boolean;
+    owner_lives_in: boolean; separate_wc: boolean; room_lock: string | null;
+    shared_kitchen: boolean; shared_living_room: boolean; shared_balcony: boolean;
+    shared_garden: boolean; shared_basement: boolean;
+    max_adults: number | null; max_children: number | null;
+    admin_fee: number | null; utilities_advance: number | null; utilities_by_usage: boolean;
   };
+
 
   const images = r.images ?? [];
 

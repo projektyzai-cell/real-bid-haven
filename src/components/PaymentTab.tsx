@@ -17,8 +17,6 @@ interface Payment {
 interface Profile {
   id: string;
   display_name: string | null;
-  full_name: string | null;
-  email: string | null;
 }
 
 interface Listing {
@@ -48,13 +46,13 @@ export function PaymentTab() {
 
       setPayments(paymentsData);
 
-      const userIds = Array.from(new Set(paymentsData.map(p => p.user_id).filter(Boolean)));
-      const targetIds = Array.from(new Set(paymentsData.map(p => p.target_id).filter(Boolean)));
+      const userIds = Array.from(new Set(paymentsData.map(p => p.user_id).filter((id): id is string => Boolean(id))));
+      const targetIds = Array.from(new Set(paymentsData.map(p => p.target_id).filter((id): id is string => Boolean(id))));
 
       if (userIds.length > 0) {
         const { data: profilesData } = await supabase
           .from("profiles")
-          .select("id, display_name, full_name, email")
+          .select("id, display_name")
           .in("id", userIds);
 
         if (profilesData) {
@@ -118,7 +116,7 @@ export function PaymentTab() {
             ) : (
               payments.map((p) => {
                 const profile = profilesMap.get(p.user_id);
-                const userName = profile?.display_name || profile?.full_name || profile?.email || "Nieznany użytkownik";
+                const userName = profile?.display_name || "Nieznany użytkownik";
 
                 let targetName = "-";
                 if (p.target_id) {

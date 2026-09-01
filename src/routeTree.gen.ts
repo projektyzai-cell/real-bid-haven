@@ -22,6 +22,7 @@ import { Route as NajemIndexRouteImport } from './routes/najem.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
+import { Route as PCodeRouteImport } from './routes/p/$code'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminSetupRouteImport } from './routes/admin.setup'
@@ -115,6 +116,11 @@ const ProfilIdRoute = ProfilIdRouteImport.update({
 const PlatnoscStatusRoute = PlatnoscStatusRouteImport.update({
   id: '/platnosc/status',
   path: '/platnosc/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PCodeRoute = PCodeRouteImport.update({
+  id: '/p/$code',
+  path: '/p/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
@@ -302,6 +308,7 @@ export interface FileRoutesByFullPath {
   '/admin/setup': typeof AdminSetupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/p/$code': typeof PCodeRoute
   '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/blog/': typeof BlogIndexRoute
@@ -346,6 +353,7 @@ export interface FileRoutesByTo {
   '/admin/setup': typeof AdminSetupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/p/$code': typeof PCodeRoute
   '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/blog': typeof BlogIndexRoute
@@ -392,6 +400,7 @@ export interface FileRoutesById {
   '/admin/setup': typeof AdminSetupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
+  '/p/$code': typeof PCodeRoute
   '/platnosc/status': typeof PlatnoscStatusRoute
   '/profil/$id': typeof ProfilIdRoute
   '/blog/': typeof BlogIndexRoute
@@ -438,6 +447,7 @@ export interface FileRouteTypes {
     | '/admin/setup'
     | '/blog/$slug'
     | '/najem/zapytania'
+    | '/p/$code'
     | '/platnosc/status'
     | '/profil/$id'
     | '/blog/'
@@ -482,6 +492,7 @@ export interface FileRouteTypes {
     | '/admin/setup'
     | '/blog/$slug'
     | '/najem/zapytania'
+    | '/p/$code'
     | '/platnosc/status'
     | '/profil/$id'
     | '/blog'
@@ -527,6 +538,7 @@ export interface FileRouteTypes {
     | '/admin/setup'
     | '/blog/$slug'
     | '/najem/zapytania'
+    | '/p/$code'
     | '/platnosc/status'
     | '/profil/$id'
     | '/blog/'
@@ -569,6 +581,7 @@ export interface RootRouteChildren {
   AdminSetupRoute: typeof AdminSetupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
+  PCodeRoute: typeof PCodeRoute
   PlatnoscStatusRoute: typeof PlatnoscStatusRoute
   ProfilIdRoute: typeof ProfilIdRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -669,6 +682,13 @@ declare module '@tanstack/react-router' {
       path: '/platnosc/status'
       fullPath: '/platnosc/status'
       preLoaderRoute: typeof PlatnoscStatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/p/$code': {
+      id: '/p/$code'
+      path: '/p/$code'
+      fullPath: '/p/$code'
+      preLoaderRoute: typeof PCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/najem/zapytania': {
@@ -966,6 +986,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminSetupRoute: AdminSetupRoute,
   BlogSlugRoute: BlogSlugRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
+  PCodeRoute: PCodeRoute,
   PlatnoscStatusRoute: PlatnoscStatusRoute,
   ProfilIdRoute: ProfilIdRoute,
   BlogIndexRoute: BlogIndexRoute,
@@ -977,3 +998,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

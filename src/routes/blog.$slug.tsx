@@ -2,7 +2,6 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { ArrowLeft, Eye } from "lucide-react";
 import { getPublishedPost, registerPostView } from "@/lib/blog.functions";
-import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const post = await getPublishedPost({ data: { slug: params.slug } });
@@ -42,16 +41,9 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function BlogPostPage() {
   const post = Route.useLoaderData();
- useEffect(() => {
-    async function updateViews() {
-      try {
-        await supabase.rpc('increment_blog_views', { row_id: post.id });
-      } catch (err) {
-        // Ignorujemy cicho ewentualne błędy licznika
-      }
-    }
-    updateViews();
-  }, [post.id]);
+  useEffect(() => {
+    void registerPostView({ data: { slug: post.slug } });
+  }, [post.slug]);
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-10">
