@@ -116,7 +116,7 @@ export function PaymentTab() {
             ) : (
               payments.map((p) => {
                 const profile = profilesMap.get(p.user_id);
-                const userName = profile?.display_name || profile?.full_name || profile?.email || "Nieznany użytkownik";
+                const userName = profile?.display_name || "Nieznany użytkownik";
 
                 let targetName = "-";
                 if (p.target_id) {
