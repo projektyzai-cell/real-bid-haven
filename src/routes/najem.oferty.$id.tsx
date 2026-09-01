@@ -176,6 +176,7 @@ function RentalDetailPage() {
     pets_caged_allowed: boolean; pets_other_allowed: boolean;
     requires_passport: boolean; accepts_students: boolean | null;
     allows_modifications: boolean; allows_furniture_additions: boolean;
+    has_energy_cert: boolean; wants_energy_cert_discount: boolean;
     owner_lives_in: boolean; separate_wc: boolean; room_lock: string | null;
     shared_kitchen: boolean; shared_living_room: boolean; shared_balcony: boolean;
     shared_garden: boolean; shared_basement: boolean;
