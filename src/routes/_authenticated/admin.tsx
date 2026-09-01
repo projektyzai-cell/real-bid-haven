@@ -61,23 +61,47 @@ import {
 } from "@/lib/contractor-constants";
 export interface RentalInquiry {
   id: string;
-  city?: string;
-  district?: string;
-  budget_max?: number;
-  min_rooms?: number;
-  property_type?: string;
-  status?: string;
-  created_at?: string;
+  city?: string | null;
+  district?: string | null;
+  budget_max?: number | null;
+  min_rooms?: number | null;
+  property_type?: string | null;
+  status?: string | null;
+  created_at?: string | null;
+  tenant_name?: string | null;
+  [key: string]: unknown;
+}
+
+export interface BlogRow {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string | null;
+  content: string;
+  cover_image_url: string | null;
+  tags: string[] | null;
+  status: string;
+  published_at: string | null;
+  views_count: number | null;
+  seo_title: string | null;
+  seo_description: string | null;
+  created_at: string | null;
 }
 
 const emptyPost = {
+  id: undefined as string | undefined,
   title: '',
   slug: '',
   content: '',
   excerpt: '',
+  cover_image_url: '',
+  tags: '',
+  seo_title: '',
+  seo_description: '',
   published: false,
- status: 'draft',
+  status: 'draft',
 };
+
 const tabSchema = z.object({
   tab: z.enum([
     "apps",
