@@ -988,9 +988,9 @@ function RequestsTab() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const filtered = (q.data ?? []).filter((r: RentalInquiry) =>
-    (!filter || r.tenant_name?.toLowerCase().includes(filter.toLowerCase())) &&
-    (!city || r.city?.toLowerCase().includes(city.toLowerCase())),
+  const filtered = ((q.data ?? []) as unknown as RentalInquiry[]).filter((r) =>
+    (!filter || String(r.tenant_name ?? "").toLowerCase().includes(filter.toLowerCase())) &&
+    (!city || String(r.city ?? "").toLowerCase().includes(city.toLowerCase())),
   );
 
   return (
@@ -2531,12 +2531,13 @@ function BlogTab() {
               <div className="text-xs text-muted-foreground">/blog/{p.slug} · {p.views_count} wyświetleń</div>
             </div>
             <div className="flex gap-2">
-              <Button size="sm" variant="outline" onClick={() => setForm({
-                id: p.id, slug: p.slug, title: p.title, excerpt: p.excerpt ?? "", content: p.content,
-                cover_image_url: p.cover_image_url ?? "", tags: (p.tags ?? []).join(", "),
-                status: (p.status === "published" ? "published" : "draft"),
-                seo_title: p.seo_title ?? "", seo_description: p.seo_description ?? "",
-              })}>
+                <Button size="sm" variant="outline" onClick={() => setForm({
+                  id: p.id, slug: p.slug, title: p.title, excerpt: p.excerpt ?? "", content: p.content,
+                  cover_image_url: p.cover_image_url ?? "", tags: (p.tags ?? []).join(", "),
+                  published: p.status === "published",
+                  status: (p.status === "published" ? "published" : "draft"),
+                  seo_title: p.seo_title ?? "", seo_description: p.seo_description ?? "",
+                })}>
                 <Pencil className="mr-1.5 h-3.5 w-3.5" /> Edytuj
               </Button>
               <Button size="sm" variant="destructive" onClick={() => delM.mutate(p.id)}>

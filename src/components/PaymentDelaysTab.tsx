@@ -44,12 +44,12 @@ export function PaymentDelaysTab() {
         const landlordIds = delaysData.map(d => d.landlord_id).filter(Boolean);
         const allUserIds = Array.from(new Set([...tenantIds, ...landlordIds]));
 
-        // 3. Pobieramy dane z tabeli profiles (display_name oraz email)
+        // 3. Pobieramy dane z tabeli profiles (tabela nie przechowuje adresów e-mail)
         let profilesMap: Record<string, any> = {};
         if (allUserIds.length > 0) {
           const { data: profilesData, error: profilesError } = await supabase
             .from("profiles")
-            .select("id, display_name, email")
+            .select("id, display_name")
             .in("id", allUserIds);
 
           if (profilesError) {
@@ -57,10 +57,7 @@ export function PaymentDelaysTab() {
           } else if (profilesData) {
             profilesData.forEach(profile => {
               if (profile.id) {
-                profilesMap[profile.id] = {
-                  displayName: profile.display_name,
-                  email: profile.email
-                };
+                profilesMap[profile.id] = { displayName: profile.display_name };
               }
             });
           }
