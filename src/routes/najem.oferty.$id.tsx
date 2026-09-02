@@ -240,18 +240,9 @@ function RentalDetailPage() {
             {r.kind === "house" && r.plot_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.plot")}</dt><dd className="font-medium">{r.plot_area_m2} m²</dd></div>)}
           </dl>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            {r.accepts_pets && <Badge variant="outline" className="rounded-full">{t("offers.petsOk")}</Badge>}
-            {r.accepts_children && <Badge variant="outline" className="rounded-full">{t("offers.childrenOk")}</Badge>}
-            {r.requires_deposit && <Badge variant="outline" className="rounded-full">{t("offers.depositRequired")}</Badge>}
-            {r.notarial_required && <Badge variant="outline" className="rounded-full">{t("offers.occasionalLease")}</Badge>}
-            {r.requires_insurance && <Badge variant="outline" className="rounded-full">{t("offers.insurance")} ({r.insurance_payer})</Badge>}
-            {r.kind === "house" && r.has_basement && <Badge variant="outline" className="rounded-full">{t("offers.basement")}</Badge>}
-          </div>
+          <ListingDetailsPanel r={r} />
 
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{r.description}</p>
-
-          <ExtraFeaturesPanel kind={r.kind} extras={r.extra_features} />
         </div>
 
         <button onClick={() => window.history.back()} className="inline-block text-sm text-muted-foreground hover:text-foreground">
@@ -352,43 +343,126 @@ const SECURITY_LABEL: Record<string, string> = {
   shutters: "Rolety antywłamaniowe", fenced: "Teren ogrodzony", intercom: "Domofon / wideofon",
 };
 
-function ExtraFeaturesPanel({ kind, extras }: { kind: string; extras: Record<string, unknown> | null }) {
-  if (!extras || typeof extras !== "object") return null;
-  const rows: { label: string; value: string }[] = [];
-  const push = (label: string, value: string | undefined | null) => { if (value) rows.push({ label, value }); };
-  const arr = (k: string): string[] => Array.isArray(extras[k]) ? (extras[k] as string[]) : [];
+const APARTMENT_SUBTYPE_LABEL: Record<string, string> = {
+  studio: "Kawalerka", "2rooms": "2-pokojowe", "3rooms_plus": "3-pokojowe lub większe",
+};
+const BUILDING_TYPE_LABEL: Record<string, string> = {
+  block: "Blok", tenement: "Kamienica", house_section: "Wydzielona część domu",
+};
+const FLOOR_LABEL: Record<string, string> = { ground: "Parter", above_10: "Powyżej 10 piętra" };
+const floorLabel = (v: string) => FLOOR_LABEL[v] ?? (v ? `${v} piętro` : "");
 
-  if (kind === "room" || kind === "apartment") {
-    push("Zamek w drzwiach pokoju", ROOM_LOCK_LABEL[String(extras.room_lock ?? "")]);
-    if (typeof extras.owner_lives_in === "boolean")
-      push("Właściciel mieszka w nieruchomości", extras.owner_lives_in ? "Tak" : "Nie");
-    push("Liczba osób w pokoju", ROOM_OCCUPANCY_LABEL[String(extras.room_occupancy ?? "")]);
+function ListingDetailsPanel({ r }: { r: Record<string, unknown> & { kind: string } }) {
+  const extras = (r.extra_features && typeof r.extra_features === "object" ? r.extra_features : {}) as Record<string, unknown>;
+  const arr = (k: string): string[] => Array.isArray(extras[k]) ? (extras[k] as string[]) : [];
+  const on = (v: unknown) => v === true;
+
+  // Wspólne dla wszystkich typów — tylko opcje zaznaczone przez wynajmującego
+  const requirements: string[] = [];
+  if (on(r.requires_deposit)) requirements.push("Wymagana kaucja 1-miesięczna lub wyższa");
+  if (on(r.notarial_required)) requirements.push("Wymagana umowa najmu okazjonalnego");
+  if (on(r.requires_insurance)) requirements.push("Wymagane ubezpieczenie OC najemcy (na koszt najemcy)");
+  if (on(r.accepts_students)) requirements.push("Akceptuje studentów");
+  if (on(r.requires_passport)) requirements.push("Wymagany aktualny Paszport Najemcy StaySafe");
+  if (on(r.pets_caged_allowed)) requirements.push("Akceptuje zwierzęta klatkowe");
+  if (on(r.pets_other_allowed)) requirements.push("Akceptuje psy / koty / inne zwierzęta");
+  if (on(r.allows_modifications)) requirements.push("Drobne modyfikacje po uzgodnieniu");
+  if (on(r.allows_furniture_additions)) requirements.push("Możliwość dostawienia mebli najemcy");
+  if (on(r.has_energy_cert)) requirements.push("Dostępne świadectwo energetyczne");
+  if (on(r.wants_energy_cert_discount)) requirements.push("Zniżka za certyfikat energetyczny");
+  if (on(r.accepts_children)) requirements.push("Akceptuje dzieci");
+  if (on(r.is_furnished)) requirements.push("Umeblowane");
+
+  // Wartościowe pola — wspólne
+  const valueRows: { label: string; value: string }[] = [];
+  const push = (label: string, value: string | undefined | null) => { if (value) valueRows.push({ label, value }); };
+  if (r.max_adults != null) push("Maks. liczba osób dorosłych", String(r.max_adults));
+  if (r.accepts_children && r.max_children != null && Number(r.max_children) > 0) push("Maks. liczba dzieci", String(r.max_children));
+  if (on(r.utilities_by_usage)) push("Media", "Rozliczane wg zużycia");
+  else if (r.utilities_advance != null && Number(r.utilities_advance) > 0) push("Zaliczka na media", `${formatPLN(Number(r.utilities_advance))} / mc`);
+
+  // Cechy zależne od typu nieruchomości — tylko zaznaczone
+  const features: string[] = [];
+  if (r.kind === "apartment") {
+    if (on(r.has_balcony)) features.push("Balkon");
+    if (on(r.has_basement)) features.push("Piwnica");
+    if (on(r.has_elevator)) features.push("Winda");
+    if (on(r.has_parking_space)) features.push("Miejsce postojowe przynależne");
+    if (on(r.has_washing_machine)) features.push("Pralka");
+    if (on(r.has_dishwasher)) features.push("Zmywarka");
+  }
+  if (r.kind === "room") {
+    if (on(r.has_washing_machine)) features.push("Pralka");
+    if (on(r.has_dishwasher)) features.push("Zmywarka");
+    if (on(r.separate_wc)) features.push("Oddzielne WC");
+    if (on(r.shared_kitchen)) features.push("Dostęp: kuchnia");
+    if (on(r.shared_living_room)) features.push("Dostęp: salon");
+    if (on(r.shared_balcony)) features.push("Dostęp: balkon / taras");
+    if (on(r.shared_garden)) features.push("Dostęp: ogród");
+    if (on(r.shared_basement)) features.push("Dostęp: piwnica / komórka");
+  }
+  if (r.kind === "house") {
+    if (on(r.has_basement)) features.push("Dom z piwnicą");
+    if (on(r.is_furnished)) features.push("Dom umeblowany");
+    if (on(r.has_parking_space)) features.push("Miejsce postojowe");
+    arr("security_features").forEach((v) => features.push(SECURITY_LABEL[v] ?? v));
+  }
+
+  // Pola wartościowe — typowe dla typu
+  if (r.kind === "apartment") {
+    push("Typ mieszkania", APARTMENT_SUBTYPE_LABEL[String(r.apartment_subtype ?? "")]);
+    push("Rodzaj budynku", BUILDING_TYPE_LABEL[String(r.building_type ?? "")]);
+    push("Piętro", r.floor_number ? floorLabel(String(r.floor_number)) : null);
+  }
+  if (r.kind === "room") {
+    push("Zamek w drzwiach pokoju", ROOM_LOCK_LABEL[String(extras.room_lock ?? r.room_lock ?? "")]);
+    if (on(r.owner_lives_in)) push("Właściciel mieszka w nieruchomości", "Tak");
+    push("Pokój", ROOM_OCCUPANCY_LABEL[String(extras.room_occupancy ?? "")]);
     if (extras.max_total_occupants != null) push("Maks. liczba lokatorów w nieruchomości", String(extras.max_total_occupants));
     if (extras.shared_bathrooms_count != null) push("Wspólne łazienki", String(extras.shared_bathrooms_count));
-    if (typeof extras.separate_wc === "boolean") push("Oddzielne WC", extras.separate_wc ? "Tak" : "Nie");
-    const commons = arr("common_areas").map((v) => COMMON_AREA_LABEL[v] ?? v).join(", ");
-    push("Dostęp do części wspólnych", commons || undefined);
+    push("Rodzaj budynku", BUILDING_TYPE_LABEL[String(r.building_type ?? "")]);
+    push("Piętro", r.floor_number ? floorLabel(String(r.floor_number)) : null);
   }
-  if (kind === "house") {
+  if (r.kind === "house") {
     if (extras.house_levels != null) push("Poziomy / piętra", String(extras.house_levels));
     push("Rodzaj ogrzewania", HEATING_LABEL[String(extras.heating_type ?? "")]);
     push("Parking / garaż", PARKING_LABEL[String(extras.parking_type ?? "")]);
-    const sec = arr("security_features").map((v) => SECURITY_LABEL[v] ?? v).join(", ");
-    push("Bezpieczeństwo i zabezpieczenia", sec || undefined);
   }
 
-  if (rows.length === 0) return null;
+  if (requirements.length === 0 && features.length === 0 && valueRows.length === 0) return null;
+
   return (
-    <div className="mt-6 rounded-2xl border bg-card/50 p-4">
-      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Dodatkowe informacje</h3>
-      <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
-        {rows.map((row) => (
-          <div key={row.label}>
-            <dt className="text-xs text-muted-foreground">{row.label}</dt>
-            <dd className="font-medium">{row.value}</dd>
+    <div className="mt-4 rounded-2xl border bg-card/50 p-4">
+      <h3 className="text-xs font-bold uppercase tracking-[0.18em] text-gold">Szczegóły oferty</h3>
+
+      {valueRows.length > 0 && (
+        <dl className="mt-3 grid gap-3 text-sm sm:grid-cols-2">
+          {valueRows.map((row) => (
+            <div key={row.label}>
+              <dt className="text-xs text-muted-foreground">{row.label}</dt>
+              <dd className="font-medium">{row.value}</dd>
+            </div>
+          ))}
+        </dl>
+      )}
+
+      {features.length > 0 && (
+        <div className="mt-3">
+          {valueRows.length > 0 && <p className="mb-1.5 text-xs text-muted-foreground">Udogodnienia i cechy</p>}
+          <div className="flex flex-wrap gap-2 text-xs">
+            {features.map((f) => <Badge key={f} variant="outline" className="rounded-full">{f}</Badge>)}
           </div>
-        ))}
-      </dl>
+        </div>
+      )}
+
+      {requirements.length > 0 && (
+        <div className="mt-3">
+          <p className="mb-1.5 text-xs text-muted-foreground">Warunki wynajmującego</p>
+          <div className="flex flex-wrap gap-2 text-xs">
+            {requirements.map((q) => <Badge key={q} variant="secondary" className="rounded-full">{q}</Badge>)}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
