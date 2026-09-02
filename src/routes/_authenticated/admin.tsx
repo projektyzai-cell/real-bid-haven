@@ -122,6 +122,7 @@ const tabSchema = z.object({
     "blog",
     "delays"
   ]).default("apps").optional(),
+  recipient: z.string().optional(),
 });
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -160,7 +161,7 @@ function AdminDashboard() {
       </header>
 
       <Tabs value={tab} className="w-full">
-        <TabsList className="flex w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/40 p-1">
+        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/40 p-1">
           <TabsTrigger value="apps" asChild>
             <Link to="/admin" search={{ tab: "apps" }} className="flex items-center gap-1.5">
               <FileText className="h-4 w-4" /> Aplikacje paszportowe
