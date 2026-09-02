@@ -240,18 +240,9 @@ function RentalDetailPage() {
             {r.kind === "house" && r.plot_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.plot")}</dt><dd className="font-medium">{r.plot_area_m2} m²</dd></div>)}
           </dl>
 
-          <div className="mt-4 flex flex-wrap gap-2 text-xs">
-            {r.accepts_pets && <Badge variant="outline" className="rounded-full">{t("offers.petsOk")}</Badge>}
-            {r.accepts_children && <Badge variant="outline" className="rounded-full">{t("offers.childrenOk")}</Badge>}
-            {r.requires_deposit && <Badge variant="outline" className="rounded-full">{t("offers.depositRequired")}</Badge>}
-            {r.notarial_required && <Badge variant="outline" className="rounded-full">{t("offers.occasionalLease")}</Badge>}
-            {r.requires_insurance && <Badge variant="outline" className="rounded-full">{t("offers.insurance")} ({r.insurance_payer})</Badge>}
-            {r.kind === "house" && r.has_basement && <Badge variant="outline" className="rounded-full">{t("offers.basement")}</Badge>}
-          </div>
+          <ListingDetailsPanel r={r} />
 
           <p className="mt-4 whitespace-pre-line leading-relaxed text-muted-foreground">{r.description}</p>
-
-          <ExtraFeaturesPanel kind={r.kind} extras={r.extra_features} />
         </div>
 
         <button onClick={() => window.history.back()} className="inline-block text-sm text-muted-foreground hover:text-foreground">
