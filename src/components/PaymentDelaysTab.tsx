@@ -1,19 +1,25 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client"; 
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useNavigate } from "@tanstack/react-router";
+import { supabase } from "@/integrations/supabase/client";
 import { MessageSquare } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { adminListUsers } from "@/lib/admin-users.functions";
 
 export function PaymentDelaysTab() {
   const [transactions, setTransactions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const listUsers = useServerFn(adminListUsers);
+  const usersQ = useQuery({ queryKey: ["admin-users-for-delays"], queryFn: () => listUsers() });
 
   useEffect(() => {
     async function fetchTransactions() {
       try {
         setLoading(true);
-
-        // 1. Pobieramy transakcje z opóźnieniami z tabeli lease_transactions
         const { data: delaysData, error: delaysError } = await supabase
-          .from("lease_transactions") 
+          .from("lease_transactions")
           .select(`
             id,
             request_id,
@@ -35,42 +41,15 @@ export function PaymentDelaysTab() {
         if (delaysError || !delaysData) {
           console.error("Błąd pobierania transakcji:", delaysError);
           setTransactions([]);
-          setLoading(false);
           return;
         }
 
-        // 2. Wyciągamy unikalne ID stron umowy
-        const tenantIds = delaysData.map(d => d.tenant_id).filter(Boolean);
-        const landlordIds = delaysData.map(d => d.landlord_id).filter(Boolean);
-        const allUserIds = Array.from(new Set([...tenantIds, ...landlordIds]));
-
-        // 3. Pobieramy dane z tabeli profiles (tabela nie przechowuje adresów e-mail)
-        let profilesMap: Record<string, any> = {};
-        if (allUserIds.length > 0) {
-          const { data: profilesData, error: profilesError } = await supabase
-            .from("profiles")
-            .select("id, display_name")
-            .in("id", allUserIds);
-
-          if (profilesError) {
-            console.error("Błąd pobierania profili:", profilesError);
-          } else if (profilesData) {
-            profilesData.forEach(profile => {
-              if (profile.id) {
-                profilesMap[profile.id] = { displayName: profile.display_name };
-              }
-            });
-          }
-        }
-
-        // 4. Łączymy dane
-        const combined = delaysData.map(item => ({
+        const usersById = new Map((usersQ.data ?? []).map((user: any) => [user.id, user]));
+        setTransactions(delaysData.map(item => ({
           ...item,
-          tenantProfile: profilesMap[item.tenant_id] || null,
-          landlordProfile: profilesMap[item.landlord_id] || null
-        }));
-
-        setTransactions(combined);
+          tenantProfile: usersById.get(item.tenant_id) ?? null,
+          landlordProfile: usersById.get(item.landlord_id) ?? null,
+        })));
       } catch (err) {
         console.error("Wystąpił błąd krytyczny:", err);
       } finally {
@@ -79,23 +58,11 @@ export function PaymentDelaysTab() {
     }
 
     fetchTransactions();
-  }, []);
+  }, [usersQ.data]);
 
-  // Funkcja przekierowująca bezpośrednio do czatu z wybraną osobą
   const handleOpenChat = (userId: string) => {
     if (!userId) return;
-
-    // Zapisujemy pod wieloma popularnymi kluczami w localStorage, żeby panel wiadomości na pewno to odczytał
-    localStorage.setItem("active_chat_user_id", userId);
-    localStorage.setItem("chat_user_id", userId);
-    localStorage.setItem("recipient_id", userId);
-    localStorage.setItem("selected_user_id", userId);
-
-    // Wysyłamy zdarzenie systemowe dla aplikacji SPA
-    window.dispatchEvent(new CustomEvent("open-admin-chat", { detail: { userId } }));
-
-    // Przekierowanie do zakładki wiadomości z pełnym zestawem parametrów w URL
-    window.location.href = `/admin?tab=messages&user_id=${userId}&recipient=${userId}&chat_with=${userId}&selected_user=${userId}`;
+    void navigate({ to: "/admin", search: { tab: "messages", recipient: userId } });
   };
 
   // Funkcja pomocnicza wyświetlająca dane użytkownika lub bezpieczny fallback do ID
@@ -105,19 +72,20 @@ export function PaymentDelaysTab() {
     }
 
     // Jeśli profil nie istnieje w tabeli profiles, pokazujemy czytelny fragment ID (np. ID: ...552fb1)
-    const nameToShow = profile?.displayName || profile?.email || `Użytkownik (...${userId.slice(-6)})`;
-    const secondaryInfo = profile?.displayName && profile?.email ? profile.email : null;
+    const nameToShow = profile?.display_name || profile?.displayName || `Użytkownik (...${userId.slice(-6)})`;
 
     return (
       <div className="space-y-1">
         <div className="font-semibold text-xs text-foreground">{nameToShow}</div>
-        {secondaryInfo && <div className="text-[10px] text-muted-foreground">{secondaryInfo}</div>}
-        <button
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={() => handleOpenChat(userId)}
-          className="inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-medium bg-primary/10 text-primary hover:bg-primary/25 transition-colors cursor-pointer"
+          className="h-7 gap-1 border-primary/20 px-2 text-xs text-primary hover:bg-primary/10"
         >
           <MessageSquare className="h-3 w-3" /> Czat z {roleLabel.toLowerCase()}
-        </button>
+        </Button>
       </div>
     );
   };
