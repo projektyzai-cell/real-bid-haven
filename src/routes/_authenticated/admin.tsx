@@ -161,7 +161,7 @@ function AdminDashboard() {
       </header>
 
       <Tabs value={tab} className="w-full">
-        <TabsList className="flex h-auto w-full flex-wrap justify-start gap-1 rounded-2xl bg-muted/40 p-1">
+        <TabsList className="!h-auto min-h-9 w-full flex-wrap items-start justify-start gap-x-1 gap-y-2 rounded-2xl bg-muted/40 p-1 pb-2">
           <TabsTrigger value="apps" asChild>
             <Link to="/admin" search={{ tab: "apps" }} className="flex items-center gap-1.5">
               <FileText className="h-4 w-4" /> Aplikacje paszportowe
@@ -251,28 +251,28 @@ function AdminDashboard() {
 </>
 )}
 </TabsList>
-      <TabsContent value="apps" className="mt-6"><ApplicationsTab /></TabsContent>
-<TabsContent value="passports" className="mt-6"><PassportsListTab /></TabsContent>
+      <TabsContent value="apps" className="mt-10"><ApplicationsTab /></TabsContent>
+ <TabsContent value="passports" className="mt-10"><PassportsListTab /></TabsContent>
 {isAdmin && (
   <>
-    <TabsContent value="users" className="mt-6"><UsersTab /></TabsContent>
-    <TabsContent value="rentals" className="mt-6"><RentalsTab /></TabsContent>
-    <TabsContent value="requests" className="mt-6"><RequestsTab /></TabsContent>
-    <TabsContent value="messages" className="mt-6"><MessagesTab /></TabsContent>
-    <TabsContent value="subadmins" className="mt-6"><SubAdminTab /></TabsContent>
-    <TabsContent value="stats" className="mt-6"><StatsTab /></TabsContent>
-    <TabsContent value="reports" className="mt-6"><ReportsTab /></TabsContent>
-    <TabsContent value="concierge" className="mt-6"><ConciergeLeadsTab /></TabsContent>
-    <TabsContent value="contractors" className="mt-6"><ContractorsTab /></TabsContent>
-    <TabsContent value="assignments" className="mt-6"><AssignmentsTab /></TabsContent>
-    <TabsContent value="reviews" className="mt-6"><ReviewsTab /></TabsContent>
-    <TabsContent value="payments" className="mt-6"><PaymentTab /></TabsContent>
-    <TabsContent value="matching" className="mt-6 space-y-6">
+    <TabsContent value="users" className="mt-10"><UsersTab /></TabsContent>
+    <TabsContent value="rentals" className="mt-10"><RentalsTab /></TabsContent>
+    <TabsContent value="requests" className="mt-10"><RequestsTab /></TabsContent>
+    <TabsContent value="messages" className="mt-10"><MessagesTab /></TabsContent>
+    <TabsContent value="subadmins" className="mt-10"><SubAdminTab /></TabsContent>
+    <TabsContent value="stats" className="mt-10"><StatsTab /></TabsContent>
+    <TabsContent value="reports" className="mt-10"><ReportsTab /></TabsContent>
+    <TabsContent value="concierge" className="mt-10"><ConciergeLeadsTab /></TabsContent>
+    <TabsContent value="contractors" className="mt-10"><ContractorsTab /></TabsContent>
+    <TabsContent value="assignments" className="mt-10"><AssignmentsTab /></TabsContent>
+    <TabsContent value="reviews" className="mt-10"><ReviewsTab /></TabsContent>
+    <TabsContent value="payments" className="mt-10"><PaymentTab /></TabsContent>
+    <TabsContent value="matching" className="mt-10 space-y-6">
       <AutoMatchStatsTab />
       <MatchingTab />
     </TabsContent>
-  <TabsContent value="blog" className="mt-6"><BlogTab/></TabsContent>
-    <TabsContent value="delays" className="mt-12"><PaymentDelaysTab/></TabsContent>
+  <TabsContent value="blog" className="mt-10"><BlogTab/></TabsContent>
+    <TabsContent value="delays" className="mt-10"><PaymentDelaysTab/></TabsContent>
   </>
 )}
 </Tabs>
