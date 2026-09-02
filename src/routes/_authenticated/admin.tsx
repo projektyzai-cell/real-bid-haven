@@ -673,7 +673,11 @@ function MessagesTab() {
   const usersQ = useQuery({ queryKey: ["admin-users"], queryFn: () => users() });
   const msgs = useQuery({ queryKey: ["admin-messages"], queryFn: () => list() });
 
-  const [recipient, setRecipient] = useState<string>("");
+  const { recipient: recipientParam } = Route.useSearch();
+  const [recipient, setRecipient] = useState<string>(recipientParam ?? "");
+  useEffect(() => {
+    if (recipientParam) setRecipient(recipientParam);
+  }, [recipientParam]);
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
 
