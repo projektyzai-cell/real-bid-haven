@@ -11,7 +11,6 @@ import {
   listDuplicateAlerts,
 } from "@/lib/admin.functions";
 import { listPassportApplications } from "@/lib/admin-passport.functions";
-import { SubAdminTab } from "@/components/SubAdminTab";
 import { PaymentTab } from "@/components/PaymentTab";
 import { PaymentDelaysTab } from "@/components/PaymentDelaysTab";
 import { assignMaintenanceToContractor } from "@/lib/admin-maintenance.functions";
@@ -23,6 +22,7 @@ import {
   adminListStaff,
   adminCreateStaff,
   adminRevokeStaffRole,
+  adminGrantStaffRole,
   adminSendMessage,
   adminListMessages,
   adminDeleteUser,
@@ -259,7 +259,7 @@ function AdminDashboard() {
     <TabsContent value="rentals" className="mt-10"><RentalsTab /></TabsContent>
     <TabsContent value="requests" className="mt-10"><RequestsTab /></TabsContent>
     <TabsContent value="messages" className="mt-10"><MessagesTab /></TabsContent>
-    <TabsContent value="subadmins" className="mt-10"><SubAdminTab /></TabsContent>
+    <TabsContent value="subadmins" className="mt-10"><SubAdminsTab /></TabsContent>
     <TabsContent value="stats" className="mt-10"><StatsTab /></TabsContent>
     <TabsContent value="reports" className="mt-10"><ReportsTab /></TabsContent>
     <TabsContent value="concierge" className="mt-10"><ConciergeLeadsTab /></TabsContent>
@@ -748,14 +748,19 @@ function MessagesTab() {
 function SubAdminsTab() {
   const qc = useQueryClient();
   const list = useServerFn(adminListStaff);
+  const listUsers = useServerFn(adminListUsers);
   const create = useServerFn(adminCreateStaff);
   const revoke = useServerFn(adminRevokeStaffRole);
+  const grant = useServerFn(adminGrantStaffRole);
   const staff = useQuery({ queryKey: ["admin-staff"], queryFn: () => list() });
+  const users = useQuery({ queryKey: ["admin-users-for-role-grant"], queryFn: () => listUsers() });
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [role, setRole] = useState<"passport_verifier" | "admin">("passport_verifier");
+  const [existingUserId, setExistingUserId] = useState("");
+  const [existingRole, setExistingRole] = useState<"passport_verifier" | "admin">("admin");
 
   const createMut = useMutation({
     mutationFn: () => create({ data: { email, password, display_name: displayName, role }}),
@@ -763,6 +768,17 @@ function SubAdminsTab() {
       toast.success("Sub-admin utworzony.");
       setEmail(""); setPassword(""); setDisplayName("");
       qc.invalidateQueries({ queryKey: ["admin-staff"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const grantMut = useMutation({
+    mutationFn: () => grant({ data: { userId: existingUserId, role: existingRole } }),
+    onSuccess: () => {
+      toast.success("Uprawnienie nadane.");
+      setExistingUserId("");
+      qc.invalidateQueries({ queryKey: ["admin-staff"] });
+      qc.invalidateQueries({ queryKey: ["admin-users-for-role-grant"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
@@ -811,6 +827,46 @@ function SubAdminsTab() {
       </Card>
 
       <Card className="rounded-2xl p-5">
+        <div className="mb-5 space-y-3 border-b pb-5">
+          <div>
+            <h2 className="text-lg font-semibold">Nadaj uprawnienie istniejącemu kontu</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Wybierz konto użytkownika, aby nadać mu rolę bez tworzenia nowego loginu.
+            </p>
+          </div>
+          <select
+            value={existingUserId}
+            onChange={(e) => setExistingUserId(e.target.value)}
+            className="h-10 w-full rounded-xl border bg-background px-3 text-sm"
+          >
+            <option value="">Wybierz konto użytkownika</option>
+            {(users.data ?? [])
+              .filter((u: any) => !(u.roles ?? []).includes(existingRole))
+              .map((u: any) => (
+                <option key={u.id} value={u.id}>
+                  {u.display_name || u.email} — {u.email}
+                </option>
+              ))}
+          </select>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <select
+              value={existingRole}
+              onChange={(e) => setExistingRole(e.target.value as "admin" | "passport_verifier")}
+              className="h-10 flex-1 rounded-xl border bg-background px-3 text-sm"
+            >
+              <option value="admin">Admin (pełen dostęp)</option>
+              <option value="passport_verifier">Passport verifier (tylko paszporty)</option>
+            </select>
+            <Button
+              disabled={!existingUserId || grantMut.isPending}
+              onClick={() => grantMut.mutate()}
+              className="sm:shrink-0"
+            >
+              {grantMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
+              Nadaj rolę
+            </Button>
+          </div>
+        </div>
         <h2 className="text-lg font-semibold">Konta administracyjne ({staff.data?.length ?? 0})</h2>
         <ul className="mt-3 space-y-2">
           {(staff.data ?? []).map((s: any) => (

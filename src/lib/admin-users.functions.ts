@@ -293,6 +293,31 @@ export const adminRevokeStaffRole = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Grant an administrative role to an existing account. Admin-only. */
+export const adminGrantStaffRole = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({
+      userId: z.string().uuid(),
+      role: z.enum(["admin", "passport_verifier"]),
+    }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertRole(context as any, ["admin"]);
+    const { supabaseAdmin } = await import(
+      "@/integrations/supabase/client.server"
+    );
+    const { data: target } = await supabaseAdmin.auth.admin.getUserById(data.userId);
+    if (!target?.user) throw new Error("Nie znaleziono wybranego konta.");
+    const { error } = await supabaseAdmin
+      .from("user_roles")
+      .upsert({ user_id: data.userId, role: data.role } as any, {
+        onConflict: "user_id,role",
+      });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
 /** ---------------- MESSAGES (admin → user) ---------------- */
 export const adminSendMessage = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
