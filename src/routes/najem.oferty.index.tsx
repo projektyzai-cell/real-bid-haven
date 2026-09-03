@@ -94,9 +94,10 @@ function RentalListingsPage() {
                   <div className="aspect-[4/3] bg-muted" />
                 )}
                 <div className="space-y-2 p-5">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <Badge className="rounded-full">{r.area_m2} m²</Badge>
                     {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>}
+                    <ListingReviewedBadge listingId={r.id} />
                   </div>
                   <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                   <div className="flex items-center gap-1 text-xs text-muted-foreground">
