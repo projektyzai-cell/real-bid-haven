@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPLN } from "@/lib/format";
 import { ListingReviewedBadge } from "@/components/ReviewBadges";
+import { ListingReviewedBadge } from "@/components/ReviewBadges";
 
 export const Route = createFileRoute("/najem/oferty/")({
   head: () => ({
