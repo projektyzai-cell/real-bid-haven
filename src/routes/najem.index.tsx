@@ -475,7 +475,10 @@ function LatestListings() {
                 {r.promoted ? (
                   <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
                 ) : (
-                  <Badge variant="outline" className="rounded-full">{t("home.badgeNew")}</Badge>
+                  <ListingReviewedBadge
+                    listingId={r.id}
+                    fallback={<Badge variant="outline" className="rounded-full">{t("home.badgeNew")}</Badge>}
+                  />
                 )}
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
