@@ -63,3 +63,28 @@ export function UserRatingBadge({ userId, kind }: { userId: string; kind: "landl
   );
 }
 
+
+/**
+ * Card badge: shows the property rating with "Oceniona przez Najemców!" when at
+ * least one active review exists, otherwise falls back to the provided node
+ * (e.g. the "Nowość" badge).
+ */
+export function ListingReviewedBadge({ listingId, fallback }: { listingId: string; fallback?: React.ReactNode }) {
+  const { data } = useQuery({
+    queryKey: ["listing-review-summary", listingId],
+    staleTime: 5 * 60 * 1000,
+    queryFn: async () => {
+      const { data } = await supabase.rpc("listing_review_summary" as never, { _listing_id: listingId } as never);
+      const row = (data as any)?.[0];
+      return { avg: row?.avg_overall ? Number(row.avg_overall) : null, total: row?.total ?? 0 };
+    },
+  });
+  const total = data?.total ?? 0;
+  const avg = data?.avg ?? null;
+  if (total < 1 || avg == null) return <>{fallback ?? null}</>;
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--gold)]/50 bg-[var(--gold)]/10 px-2 py-0.5 text-[11px] font-bold text-gold">
+      ★ {avg.toFixed(1)} · Oceniona przez Najemców!
+    </span>
+  );
+}
