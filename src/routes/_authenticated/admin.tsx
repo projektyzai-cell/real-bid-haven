@@ -23,6 +23,7 @@ import {
   adminListStaff,
   adminCreateStaff,
   adminRevokeStaffRole,
+  adminGrantStaffRole,
   adminSendMessage,
   adminListMessages,
   adminDeleteUser,
