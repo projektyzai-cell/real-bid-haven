@@ -423,7 +423,10 @@ function PromotedStrip() {
               className="group overflow-hidden rounded-3xl border border-[var(--gold)]/30 bg-card/60 shadow-card transition hover:-translate-y-0.5 hover:shadow-glow">
               {main ? <img src={main} alt="" className="aspect-[16/10] w-full object-cover transition group-hover:scale-105" /> : <div className="aspect-[16/10] bg-muted" />}
               <div className="space-y-2 p-4">
-                <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="rounded-full bg-[var(--gold)]/20 text-gold"><Sparkles className="h-3 w-3" /> {t("offers.promoted")}</Badge>
+                  <ListingReviewedBadge listingId={r.id} />
+                </div>
                 <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
                 <div className="text-xs text-muted-foreground">{r.city} · {r.street}</div>
                 <div className="flex items-center justify-between text-sm">
