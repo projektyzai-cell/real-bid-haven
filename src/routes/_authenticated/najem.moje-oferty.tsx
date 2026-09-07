@@ -126,8 +126,13 @@ function MyRentalListings() {
                     <Button variant="secondary" size="sm" className="w-full rounded-xl">Zobacz ofertę</Button>
                   </Link>
                   {expired && (
+                    <div className="rounded-xl border border-dashed border-amber-400/40 bg-amber-400/5 p-2.5 text-xs text-muted-foreground">
+                      Oferta wygasła i nie jest widoczna na stronie. Odnów ją jako zwykłe ogłoszenie (bezpłatnie) lub jako promowane — promowanie wymaga nowej opłaty.
+                    </div>
+                  )}
+                  {expired && (
                     <Button onClick={() => extend(r.id)} variant="outline" className="w-full rounded-xl">
-                      <RefreshCw className="h-4 w-4" /> Przedłuż o 30 dni
+                      <RefreshCw className="h-4 w-4" /> Odnów jako zwykłe ogłoszenie (30 dni)
                     </Button>
                   )}
                   <Button
@@ -135,7 +140,8 @@ function MyRentalListings() {
                     variant="outline"
                     className="w-full rounded-xl border-amber-400/50 text-amber-600 hover:bg-amber-400/10"
                   >
-                    <Sparkles className="h-4 w-4" /> {promoActive ? "Przedłuż promocję" : "Promuj ofertę"}
+                    <Sparkles className="h-4 w-4" />{" "}
+                    {expired ? "Odnów jako promowane (płatne)" : promoActive ? "Przedłuż promocję" : "Promuj ofertę"}
                   </Button>
                   <div className="flex gap-2 pt-1">
                     <Link to="/najem/nowa-oferta" search={{ id: r.id }} className="flex-1">
