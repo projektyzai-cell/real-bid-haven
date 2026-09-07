@@ -38,6 +38,7 @@ import {
   adminResetUserPassport,
 } from "@/lib/admin-rental.functions";
 import { Card } from "@/components/ui/card";
+import { CsvExportPanel } from "@/components/CsvExportPanel";
 import { AutoMatchStatsTab } from "@/components/AutoMatchStatsTab";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -906,6 +907,7 @@ function StatsTab() {
 
   return (
     <div className="space-y-6">
+      <CsvExportPanel />
       <section className="grid grid-cols-2 gap-4 md:grid-cols-4">
         {Object.entries(q.data ?? {}).map(([k, v]) => (
           <Card key={k} className="rounded-2xl p-5">

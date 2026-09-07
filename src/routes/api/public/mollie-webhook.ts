@@ -57,9 +57,21 @@ export const Route = createFileRoute("/api/public/mollie-webhook")({
             ? new Date(listing.promoted_until)
             : new Date();
           const until = new Date(base.getTime() + days * 86_400_000).toISOString();
+          // Odnowienie: promowana oferta musi być aktywna i widoczna co najmniej
+          // przez cały okres promocji (min. 30 dni od teraz).
+          const { data: cur } = await supabaseAdmin
+            .from("rental_listings")
+            .select("expires_at")
+            .eq("id", row.target_id)
+            .maybeSingle();
+          const minExpiry = new Date(Date.now() + 30 * 86_400_000);
+          const curExpiry = cur?.expires_at ? new Date(cur.expires_at) : new Date(0);
+          const expiresAt = new Date(
+            Math.max(curExpiry.getTime(), minExpiry.getTime(), new Date(until).getTime()),
+          ).toISOString();
           await supabaseAdmin
             .from("rental_listings")
-            .update({ promoted: true, promoted_until: until })
+            .update({ promoted: true, promoted_until: until, status: "active", expires_at: expiresAt })
             .eq("id", row.target_id);
         } else if (row.kind === "passport_renewal") {
           await supabaseAdmin

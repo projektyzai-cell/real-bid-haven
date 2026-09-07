@@ -2,3 +2,7 @@
 
 - [x] Odznaka oceny „Oceniona przez Najemców!" zamiast „Nowość" dla ocenionych ofert
 - [x] Zakładka „Sub-adminowie" — dodawanie adminów i nadawanie uprawnień istniejącym kontom
+- [x] Wygasłe oferty promowane: odnowienie jako zwykłe (bez opłaty) lub jako promowane (nowa płatność)
+
+- [x] Eksport CSV danych z każdej zakładki panelu admina
+- [x] Auto-matching: każdy admin widzi wszystkie transakcje w systemie

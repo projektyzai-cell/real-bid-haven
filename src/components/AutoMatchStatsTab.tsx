@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useServerFn } from "@tanstack/react-start";
+import { adminListAllTransactions } from "@/lib/admin-export.functions";
 import { Loader2, FileCheck, Users, Clock, CheckCircle2, AlertCircle } from "lucide-react";
 
 export function AutoMatchStatsTab() {
@@ -12,63 +13,46 @@ export function AutoMatchStatsTab() {
   });
   const [transactions, setTransactions] = useState<any[]>([]);
 
+  const fetchAll = useServerFn(adminListAllTransactions);
+
   useEffect(() => {
     fetchStats();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function fetchStats() {
     setLoading(true);
-    const { data, error } = await supabase
-      .from("lease_transactions")
-      .select(`
-        id, 
-        state, 
-        tenant_finalized_at, 
-        landlord_finalized_at, 
-        contract_start_date, 
-        contract_end_date, 
-        created_at,
-        rental_listings (
-          city,
-          street,
-          property_type
-        )
-      `);
-
-    if (error) {
+    let data: any[] = [];
+    try {
+      data = (await fetchAll()) as any[];
+    } catch (error) {
       console.error("Błąd pobierania statystyk:", error);
       setLoading(false);
       return;
     }
 
-    if (data) {
-      setTransactions(data);
-      
-      let matched = 0;
-      let oneSigned = 0;
-      let completed = 0;
+    setTransactions(data);
 
-      data.forEach((txn: any) => {
-        const tSigned = !!txn.tenant_finalized_at;
-        const lSigned = !!txn.landlord_finalized_at;
-        const isCompleted = txn.state === "completed" || (tSigned && lSigned);
+    let matched = 0;
+    let oneSigned = 0;
+    let completed = 0;
 
-        if (isCompleted) {
-          completed++;
-        } else if (tSigned || lSigned) {
-          oneSigned++;
-        } else {
-          matched++;
-        }
-      });
+    data.forEach((txn: any) => {
+      const tSigned = !!txn.tenant_finalized_at;
+      const lSigned = !!txn.landlord_finalized_at;
+      const isCompleted = txn.state === "completed" || (tSigned && lSigned);
 
-      setStats({
-        total: data.length,
-        onlyMatched: matched,
-        onePartySigned: oneSigned,
-        bothCompleted: completed,
-      });
-    }
+      if (isCompleted) completed++;
+      else if (tSigned || lSigned) oneSigned++;
+      else matched++;
+    });
+
+    setStats({
+      total: data.length,
+      onlyMatched: matched,
+      onePartySigned: oneSigned,
+      bothCompleted: completed,
+    });
     setLoading(false);
   }
 
@@ -84,7 +68,7 @@ export function AutoMatchStatsTab() {
     <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-foreground">Statusy Auto-Matchingu i Umów</h2>
-        <p className="text-sm text-muted-foreground">Monitoruj postępy transakcji najmu na każdym etapie.</p>
+        <p className="text-sm text-muted-foreground">Wszystkie transakcje w systemie — od dopasowania po zawartą umowę.</p>
       </div>
 
       {/* Kafelki podsumowujące */}
