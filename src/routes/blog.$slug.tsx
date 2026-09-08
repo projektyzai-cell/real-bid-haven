@@ -69,7 +69,7 @@ function BlogPostPage() {
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">{post.title}</h1>
       <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
         <span>{post.published_at ? new Date(post.published_at).toLocaleDateString("pl-PL") : ""}</span>
-        <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {post.views_count}</span>
+        <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {views}</span>
         {post.tags?.length > 0 && <span>{post.tags.join(" · ")}</span>}
       </div>
       {post.cover_image_url && (
