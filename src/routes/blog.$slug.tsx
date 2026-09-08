@@ -42,9 +42,24 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function BlogPostPage() {
   const post = Route.useLoaderData();
+  const [views, setViews] = useState<number>(post.views_count ?? 0);
+
   useEffect(() => {
-    void registerPostView({ data: { slug: post.slug } });
-  }, [post.slug]);
+    setViews(post.views_count ?? 0);
+    let cancelled = false;
+    (async () => {
+      const { error } = await supabase.rpc("increment_blog_views" as never, { _slug: post.slug } as never);
+      if (error) { console.warn("blog views:", error.message); return; }
+      const { data } = await supabase
+        .from("blog_posts" as never)
+        .select("views_count")
+        .eq("slug", post.slug)
+        .maybeSingle();
+      const fresh = (data as unknown as { views_count?: number } | null)?.views_count;
+      if (!cancelled && typeof fresh === "number") setViews(fresh);
+    })();
+    return () => { cancelled = true; };
+  }, [post.slug, post.views_count]);
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-10">
