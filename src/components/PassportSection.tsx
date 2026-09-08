@@ -12,13 +12,9 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { requestPassportDataChange } from "@/lib/passport-actions.functions";
-import {
-  isValidPesel,
-  normalizePesel,
-  peselHash,
-  documentHash,
-  identityComboHash,
-} from "@/lib/passport";
+import { submitIdentityHashes } from "@/lib/identity.functions";
+import { isValidPesel } from "@/lib/passport";
+
 
 type Profile = {
   first_name: string | null;
