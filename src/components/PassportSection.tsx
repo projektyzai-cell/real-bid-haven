@@ -36,6 +36,8 @@ export function PassportSection({ userId }: { userId: string }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const submitIdentity = useServerFn(submitIdentityHashes);
+
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
