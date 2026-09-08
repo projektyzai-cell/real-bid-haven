@@ -51,8 +51,8 @@ export function Navbar() {
   const tenantItems = [
     { to: "/najem/paszport", label: t("nav.createPassport"), icon: ShieldCheck, gold: true },
     { to: "/najem/moj-paszport", label: t("nav.myPassport"), icon: BadgeCheck, gold: true },
-    { to: "/najem/moje-zapytania", label: t("nav.myInquiries"), icon: List },
-    { to: "/najem/moje-umowy", label: "Moje umowy", icon: FileSignature },
+    { to: "/najem/moje-zapytania", label: t("nav.myInquiries"), icon: List, gold: false },
+    { to: "/najem/moje-umowy", label: "Moje umowy", icon: FileSignature, gold: false },
   ] as const;
 
   const landlordItems = [
@@ -62,10 +62,10 @@ export function Navbar() {
   ] as const;
 
   const generalItems = [
-    { to: "/najem/generator-umow", label: t("nav.contractGen"), icon: FileText },
-    { to: "/najem/concierge", label: t("nav.concierge"), icon: Sparkles },
+    { to: "/najem/generator-umow", label: t("nav.contractGen"), icon: FileText, badge: false },
+    { to: "/najem/concierge", label: t("nav.concierge"), icon: Sparkles, badge: false },
     { to: "/messages", label: t("nav.messages"), icon: MessageCircle, badge: true },
-    { to: "/ustawienia", label: t("nav.settings"), icon: Settings },
+    { to: "/ustawienia", label: t("nav.settings"), icon: Settings, badge: false },
   ] as const;
 
   function go(to: string) {
