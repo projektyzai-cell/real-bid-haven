@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Eye } from "lucide-react";
-import { getPublishedPost, registerPostView } from "@/lib/blog.functions";
+import { getPublishedPost } from "@/lib/blog.functions";
+import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const post = await getPublishedPost({ data: { slug: params.slug } });
