@@ -74,18 +74,11 @@ export function PassportSection({ userId }: { userId: string }) {
       toast.error("Uzupełnij imię, nazwisko i datę urodzenia.");
       return;
     }
-    let pesel_hash: string | null = null;
-    let document_number_hash: string | null = null;
-    let document_country_code: string | null = null;
-    let secret = "";
     if (mode === "pesel") {
       if (!isValidPesel(pesel)) {
         toast.error("Nieprawidłowy PESEL.");
         return;
       }
-      const n = normalizePesel(pesel);
-      pesel_hash = await peselHash(n);
-      secret = n;
     } else {
       if (!country.trim() || country.trim().length !== 2) {
         toast.error("Kod kraju ISO 2-literowy (np. UA, DE).");
@@ -95,50 +88,32 @@ export function PassportSection({ userId }: { userId: string }) {
         toast.error("Numer dokumentu jest za krótki.");
         return;
       }
-      document_country_code = country.toUpperCase();
-      document_number_hash = await documentHash(country, docNum);
-      secret = `${country.toUpperCase()}:${docNum.replace(/\s+/g, "").toUpperCase()}`;
     }
-    const combo = await identityComboHash({ firstName, lastName, dob, secret });
 
     setBusy(true);
-    const { data: serialData, error: serialErr } = await supabase.rpc("gen_passport_serial");
-    if (serialErr || !serialData) {
+    try {
+      // Hashing happens server-side with a secret pepper — raw identity
+      // numbers are never stored, and the digests cannot be brute-forced.
+      await submitIdentity({
+        data: {
+          firstName: firstName.trim(),
+          lastName: lastName.trim(),
+          dob,
+          mode,
+          pesel: mode === "pesel" ? pesel : undefined,
+          country: mode === "doc" ? country.toUpperCase() : undefined,
+          docNum: mode === "doc" ? docNum : undefined,
+        },
+      });
+    } catch (e) {
       setBusy(false);
-      toast.error("Nie udało się wygenerować numeru paszportu.");
+      toast.error((e as Error).message);
       return;
     }
-    const expires = new Date();
-    expires.setDate(expires.getDate() + 90);
-
-    const update = {
-      first_name: firstName.trim(),
-      last_name: lastName.trim(),
-      date_of_birth: dob,
-      has_pesel: mode === "pesel",
-      pesel_hash,
-      document_country_code,
-      document_number_hash,
-      identity_combo_hash: combo,
-      passport_serial: serialData as string,
-      passport_expires_at: expires.toISOString(),
-      // Editing window granted by the admin is consumed after a successful update.
-      identity_change_allowed: false,
-    } as const;
-
-
-    const { error } = await supabase.from("profiles").update(update).eq("id", userId);
     setBusy(false);
-    if (error) {
-      if (error.message.toLowerCase().includes("duplicate") || error.code === "23505") {
-        toast.error("Te dane tożsamości są już powiązane z innym kontem.");
-      } else {
-        toast.error(error.message);
-      }
-      return;
-    }
     toast.success(renew ? "Dane zostały ponownie zanonimizowane w naszym systemie." : "Dane zostały zanonimizowane w naszym systemie.");
     load();
+
   }
 
   if (loading) {
