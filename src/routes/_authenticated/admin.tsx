@@ -1776,7 +1776,7 @@ function ReviewsTab() {
       const list = (data ?? []) as any[];
       const userIds = Array.from(new Set(list.flatMap((r) => [r.reviewer_id, r.reviewee_id])));
       const { data: profs } = userIds.length
-        ? await supabase.from("profiles").select("id,display_name").in("id", userIds)
+        ? await supabase.from("profiles_public").select("id,display_name").in("id", userIds)
         : { data: [] as any[] };
       const nameMap = new Map((profs ?? []).map((p: any) => [p.id, p.display_name]));
       return list.map((r) => {
