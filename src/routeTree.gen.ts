@@ -25,7 +25,6 @@ import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
 import { Route as PCodeRouteImport } from './routes/p/$code'
 import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as AdminSetupRouteImport } from './routes/admin.setup'
 import { Route as AdminLoginRouteImport } from './routes/admin.login'
 import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
 import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
@@ -131,11 +130,6 @@ const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
 const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminSetupRoute = AdminSetupRouteImport.update({
-  id: '/admin/setup',
-  path: '/admin/setup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminLoginRoute = AdminLoginRouteImport.update({
@@ -305,7 +299,6 @@ export interface FileRoutesByFullPath {
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/setup': typeof AdminSetupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/p/$code': typeof PCodeRoute
@@ -350,7 +343,6 @@ export interface FileRoutesByTo {
   '/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/setup': typeof AdminSetupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/p/$code': typeof PCodeRoute
@@ -397,7 +389,6 @@ export interface FileRoutesById {
   '/_authenticated/ustawienia': typeof AuthenticatedUstawieniaRoute
   '/_authenticated/wykonawca': typeof AuthenticatedWykonawcaRoute
   '/admin/login': typeof AdminLoginRoute
-  '/admin/setup': typeof AdminSetupRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/najem/zapytania': typeof NajemZapytaniaRouteWithChildren
   '/p/$code': typeof PCodeRoute
@@ -444,7 +435,6 @@ export interface FileRouteTypes {
     | '/ustawienia'
     | '/wykonawca'
     | '/admin/login'
-    | '/admin/setup'
     | '/blog/$slug'
     | '/najem/zapytania'
     | '/p/$code'
@@ -489,7 +479,6 @@ export interface FileRouteTypes {
     | '/ustawienia'
     | '/wykonawca'
     | '/admin/login'
-    | '/admin/setup'
     | '/blog/$slug'
     | '/najem/zapytania'
     | '/p/$code'
@@ -535,7 +524,6 @@ export interface FileRouteTypes {
     | '/_authenticated/ustawienia'
     | '/_authenticated/wykonawca'
     | '/admin/login'
-    | '/admin/setup'
     | '/blog/$slug'
     | '/najem/zapytania'
     | '/p/$code'
@@ -578,7 +566,6 @@ export interface RootRouteChildren {
   RegulaminRoute: typeof RegulaminRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   AdminLoginRoute: typeof AdminLoginRoute
-  AdminSetupRoute: typeof AdminSetupRoute
   BlogSlugRoute: typeof BlogSlugRoute
   NajemZapytaniaRoute: typeof NajemZapytaniaRouteWithChildren
   PCodeRoute: typeof PCodeRoute
@@ -703,13 +690,6 @@ declare module '@tanstack/react-router' {
       path: '/blog/$slug'
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/setup': {
-      id: '/admin/setup'
-      path: '/admin/setup'
-      fullPath: '/admin/setup'
-      preLoaderRoute: typeof AdminSetupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/login': {
@@ -983,7 +963,6 @@ const rootRouteChildren: RootRouteChildren = {
   RegulaminRoute: RegulaminRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   AdminLoginRoute: AdminLoginRoute,
-  AdminSetupRoute: AdminSetupRoute,
   BlogSlugRoute: BlogSlugRoute,
   NajemZapytaniaRoute: NajemZapytaniaRouteWithChildren,
   PCodeRoute: PCodeRoute,
