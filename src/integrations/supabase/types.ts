@@ -2309,7 +2309,141 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      profiles_public: {
+        Row: {
+          accepts_notarial_lease: boolean | null
+          accepts_one_month_deposit: boolean | null
+          account_type: string | null
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          has_completed_internal_staysafe_lease: boolean | null
+          has_guarantor: boolean | null
+          has_tenant_insurance: boolean | null
+          home_city: string | null
+          id: string | null
+          instagram_username: string | null
+          is_student: boolean | null
+          linkedin_url: string | null
+          passport_application_status: string | null
+          passport_city: string | null
+          passport_contract_valid: boolean | null
+          passport_expires_at: string | null
+          passport_facebook_verified: boolean | null
+          passport_generated_at: string | null
+          passport_income_verified: boolean | null
+          passport_instagram_verified: boolean | null
+          passport_issued_at: string | null
+          passport_linkedin_verified: boolean | null
+          passport_name_verified: boolean | null
+          passport_score: number | null
+          passport_serial: string | null
+          passport_social_verified: boolean | null
+          personal_bio_pl: string | null
+          serial_num: number | null
+          social_facebook_url: string | null
+          staysafe_completed_rentals_count: number | null
+          student_status: string | null
+          trusted_tenant_score: number | null
+          verified_employer: boolean | null
+          verified_facebook: boolean | null
+          verified_identity: boolean | null
+          verified_income: boolean | null
+          verified_instagram: boolean | null
+          verified_linkedin: boolean | null
+          verified_past_contract: boolean | null
+          willing_tenant_insurance: boolean | null
+        }
+        Insert: {
+          accepts_notarial_lease?: boolean | null
+          accepts_one_month_deposit?: boolean | null
+          account_type?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          has_completed_internal_staysafe_lease?: boolean | null
+          has_guarantor?: boolean | null
+          has_tenant_insurance?: boolean | null
+          home_city?: string | null
+          id?: string | null
+          instagram_username?: string | null
+          is_student?: boolean | null
+          linkedin_url?: string | null
+          passport_application_status?: string | null
+          passport_city?: string | null
+          passport_contract_valid?: boolean | null
+          passport_expires_at?: string | null
+          passport_facebook_verified?: boolean | null
+          passport_generated_at?: string | null
+          passport_income_verified?: boolean | null
+          passport_instagram_verified?: boolean | null
+          passport_issued_at?: string | null
+          passport_linkedin_verified?: boolean | null
+          passport_name_verified?: boolean | null
+          passport_score?: number | null
+          passport_serial?: string | null
+          passport_social_verified?: boolean | null
+          personal_bio_pl?: string | null
+          serial_num?: number | null
+          social_facebook_url?: string | null
+          staysafe_completed_rentals_count?: number | null
+          student_status?: string | null
+          trusted_tenant_score?: number | null
+          verified_employer?: boolean | null
+          verified_facebook?: boolean | null
+          verified_identity?: boolean | null
+          verified_income?: boolean | null
+          verified_instagram?: boolean | null
+          verified_linkedin?: boolean | null
+          verified_past_contract?: boolean | null
+          willing_tenant_insurance?: boolean | null
+        }
+        Update: {
+          accepts_notarial_lease?: boolean | null
+          accepts_one_month_deposit?: boolean | null
+          account_type?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          has_completed_internal_staysafe_lease?: boolean | null
+          has_guarantor?: boolean | null
+          has_tenant_insurance?: boolean | null
+          home_city?: string | null
+          id?: string | null
+          instagram_username?: string | null
+          is_student?: boolean | null
+          linkedin_url?: string | null
+          passport_application_status?: string | null
+          passport_city?: string | null
+          passport_contract_valid?: boolean | null
+          passport_expires_at?: string | null
+          passport_facebook_verified?: boolean | null
+          passport_generated_at?: string | null
+          passport_income_verified?: boolean | null
+          passport_instagram_verified?: boolean | null
+          passport_issued_at?: string | null
+          passport_linkedin_verified?: boolean | null
+          passport_name_verified?: boolean | null
+          passport_score?: number | null
+          passport_serial?: string | null
+          passport_social_verified?: boolean | null
+          personal_bio_pl?: string | null
+          serial_num?: number | null
+          social_facebook_url?: string | null
+          staysafe_completed_rentals_count?: number | null
+          student_status?: string | null
+          trusted_tenant_score?: number | null
+          verified_employer?: boolean | null
+          verified_facebook?: boolean | null
+          verified_identity?: boolean | null
+          verified_income?: boolean | null
+          verified_instagram?: boolean | null
+          verified_linkedin?: boolean | null
+          verified_past_contract?: boolean | null
+          willing_tenant_insurance?: boolean | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_bid: { Args: { _bid_id: string }; Returns: string }
@@ -2531,6 +2665,21 @@ export type Database = {
         Returns: string
       }
       review_pair_revealed: { Args: { _contract_id: string }; Returns: boolean }
+      set_identity_hashes: {
+        Args: {
+          _dob: string
+          _document_country_code: string
+          _document_number_hash: string
+          _first_name: string
+          _has_pesel: boolean
+          _identity_combo_hash: string
+          _last_name: string
+          _passport_expires_at: string
+          _passport_serial: string
+          _pesel_hash: string
+        }
+        Returns: undefined
+      }
       sign_lease_with_dates: {
         Args: {
           _end_date: string
@@ -2574,6 +2723,7 @@ export type Database = {
           total: number
         }[]
       }
+      writer_is_trusted: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role:
