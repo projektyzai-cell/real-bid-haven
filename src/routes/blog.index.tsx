@@ -6,6 +6,8 @@ import { listPublishedPosts } from "@/lib/blog.functions";
 const postsQuery = queryOptions({
   queryKey: ["blog", "published"],
   queryFn: () => listPublishedPosts(),
+  staleTime: 0,
+  refetchOnMount: "always" as const,
 });
 
 export const Route = createFileRoute("/blog/")({

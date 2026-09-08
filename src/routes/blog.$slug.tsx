@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ArrowLeft, Eye } from "lucide-react";
-import { getPublishedPost, registerPostView } from "@/lib/blog.functions";
+import { getPublishedPost } from "@/lib/blog.functions";
+import { supabase } from "@/integrations/supabase/client";
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const post = await getPublishedPost({ data: { slug: params.slug } });
@@ -41,9 +42,24 @@ export const Route = createFileRoute("/blog/$slug")({
 
 function BlogPostPage() {
   const post = Route.useLoaderData();
+  const [views, setViews] = useState<number>(post.views_count ?? 0);
+
   useEffect(() => {
-    void registerPostView({ data: { slug: post.slug } });
-  }, [post.slug]);
+    setViews(post.views_count ?? 0);
+    let cancelled = false;
+    (async () => {
+      const { error } = await supabase.rpc("increment_blog_views" as never, { _slug: post.slug } as never);
+      if (error) { console.warn("blog views:", error.message); return; }
+      const { data } = await supabase
+        .from("blog_posts" as never)
+        .select("views_count")
+        .eq("slug", post.slug)
+        .maybeSingle();
+      const fresh = (data as unknown as { views_count?: number } | null)?.views_count;
+      if (!cancelled && typeof fresh === "number") setViews(fresh);
+    })();
+    return () => { cancelled = true; };
+  }, [post.slug, post.views_count]);
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-10">
@@ -53,7 +69,7 @@ function BlogPostPage() {
       <h1 className="mt-3 text-3xl font-semibold tracking-tight">{post.title}</h1>
       <div className="mt-2 flex items-center gap-3 text-xs text-muted-foreground">
         <span>{post.published_at ? new Date(post.published_at).toLocaleDateString("pl-PL") : ""}</span>
-        <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {post.views_count}</span>
+        <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" /> {views}</span>
         {post.tags?.length > 0 && <span>{post.tags.join(" · ")}</span>}
       </div>
       {post.cover_image_url && (
