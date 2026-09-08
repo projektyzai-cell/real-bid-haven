@@ -42,7 +42,8 @@ export const startPassportRenewal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     const ctx = context as { supabase: any; userId: string };
-    const { error } = await ctx.supabase.from("profiles").update({
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("profiles").update({
       passport_renewal_requested: true,
       passport_application_status: "draft",
       // re-open verifications — admin must re-approve
@@ -54,5 +55,6 @@ export const startPassportRenewal = createServerFn({ method: "POST" })
       passport_social_verified: false,
     }).eq("id", ctx.userId);
     if (error) throw new Error(error.message);
+
     return { ok: true };
   });
