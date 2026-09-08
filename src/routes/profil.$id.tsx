@@ -15,7 +15,7 @@ export const Route = createFileRoute("/profil/$id")({
   }),
   loader: async ({ params }) => {
     const { data: profile } = await supabase
-      .from("profiles")
+      .from("profiles_public")
       .select("id, display_name, avatar_url, home_city, passport_city, personal_bio_pl, passport_serial, passport_expires_at")
       .eq("id", params.id)
       .maybeSingle();

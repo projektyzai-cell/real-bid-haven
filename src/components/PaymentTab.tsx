@@ -51,7 +51,7 @@ export function PaymentTab() {
 
       if (userIds.length > 0) {
         const { data: profilesData } = await supabase
-          .from("profiles")
+          .from("profiles_public")
           .select("id, display_name")
           .in("id", userIds);
 

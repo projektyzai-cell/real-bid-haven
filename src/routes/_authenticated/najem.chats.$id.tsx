@@ -44,7 +44,7 @@ function RentalChatPage() {
       const { data: offer } = await supabase
         .from("rental_offers" as never).select("monthly_price, property_address, listing_id").eq("id", c.offer_id).maybeSingle();
       const { data: profs } = await supabase
-        .from("profiles").select("id, display_name").in("id", [c.tenant_id, c.landlord_id]);
+        .from("profiles_public").select("id, display_name").in("id", [c.tenant_id, c.landlord_id]);
       // link this chat with a lease_transaction (if any) so landlord can view the shared passport
       const listingId = (offer as any)?.listing_id ?? null;
       let txn: { id: string; passport_shared_at: string | null } | null = null;

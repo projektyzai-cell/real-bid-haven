@@ -79,7 +79,7 @@ function MyRequestsPage() {
       const listingIds = Array.from(new Set(rows.map((o) => o.listing_id).filter(Boolean))) as string[];
       const [profsRes, listingsRes] = await Promise.all([
         landlordIds.length
-          ? supabase.from("profiles").select("id, display_name").in("id", landlordIds)
+          ? supabase.from("profiles_public").select("id, display_name").in("id", landlordIds)
           : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),
         listingIds.length
           ? supabase.from("rental_listings" as never)

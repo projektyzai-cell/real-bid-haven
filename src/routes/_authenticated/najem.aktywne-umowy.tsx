@@ -110,7 +110,7 @@ function AktywneUmowyPage({
           ? supabase.from("rental_listings").select("id,title,city,monthly_price,images,main_image_index").in("id", listingIds)
           : Promise.resolve({ data: [] as any[] }),
         otherIds.length
-          ? supabase.from("profiles").select("id,display_name").in("id", otherIds)
+          ? supabase.from("profiles_public").select("id,display_name").in("id", otherIds)
           : Promise.resolve({ data: [] as any[] }),
       ]);
       const listingMap = new Map((listings.data ?? []).map((l: any) => [l.id, l]));
