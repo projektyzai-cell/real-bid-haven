@@ -1327,7 +1327,7 @@ function AdminMaintenanceReportsSection() {
       const ids = Array.from(new Set([...list.map((r) => r.tenant_id), ...list.map((r) => r.landlord_id)].filter(Boolean)));
       const listingIds = Array.from(new Set(list.map((r) => r.listing_id).filter(Boolean))) as string[];
       const [profs, listings] = await Promise.all([
-        ids.length ? supabase.from("profiles").select("id,display_name").in("id", ids) : Promise.resolve({ data: [] as any[] }),
+        ids.length ? supabase.from("profiles_public").select("id,display_name").in("id", ids) : Promise.resolve({ data: [] as any[] }),
         listingIds.length ? supabase.from("rental_listings").select("id,title,city").in("id", listingIds) : Promise.resolve({ data: [] as any[] }),
       ]);
       const pmap = new Map((profs.data ?? []).map((p: any) => [p.id, p.display_name]));
@@ -1776,7 +1776,7 @@ function ReviewsTab() {
       const list = (data ?? []) as any[];
       const userIds = Array.from(new Set(list.flatMap((r) => [r.reviewer_id, r.reviewee_id])));
       const { data: profs } = userIds.length
-        ? await supabase.from("profiles").select("id,display_name").in("id", userIds)
+        ? await supabase.from("profiles_public").select("id,display_name").in("id", userIds)
         : { data: [] as any[] };
       const nameMap = new Map((profs ?? []).map((p: any) => [p.id, p.display_name]));
       return list.map((r) => {

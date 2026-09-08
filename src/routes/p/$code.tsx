@@ -17,7 +17,7 @@ function PublicPassportPage() {
     queryKey: ["public-passport", code],
     queryFn: async () => {
       const { data: profile, error: profileError } = await supabase
-        .from("profiles")
+        .from("profiles_public")
         .select("*")
         .eq("passport_serial", code)
         .eq("passport_application_status", "approved")

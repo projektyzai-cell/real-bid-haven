@@ -47,7 +47,7 @@ function RequestDetailPage() {
       if (!req) throw notFound();
       const r = req as unknown as Record<string, unknown> & { tenant_id: string };
       const { data: tenant } = await supabase
-        .from("profiles").select("display_name").eq("id", r.tenant_id).maybeSingle();
+        .from("profiles_public").select("display_name").eq("id", r.tenant_id).maybeSingle();
       return { request: r, tenantName: tenant?.display_name ?? "Najemca" };
     },
   });

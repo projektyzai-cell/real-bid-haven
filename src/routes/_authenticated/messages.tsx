@@ -165,7 +165,7 @@ function MessagesPage() {
           : Promise.resolve({ data: [] as OfferRow[] }),
         otherIds.length
           ? supabase
-              .from("profiles")
+              .from("profiles_public")
               .select("id, display_name")
               .in("id", otherIds)
           : Promise.resolve({ data: [] as { id: string; display_name: string }[] }),

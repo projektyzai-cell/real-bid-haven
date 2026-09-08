@@ -147,7 +147,7 @@ function RentalDetailPage() {
       if (error) throw error;
       if (!data) throw notFound();
       const r = data as unknown as { landlord_id: string };
-      const { data: owner } = await supabase.from("profiles").select("display_name").eq("id", r.landlord_id).maybeSingle();
+      const { data: owner } = await supabase.from("profiles_public").select("display_name").eq("id", r.landlord_id).maybeSingle();
       return { listing: data as unknown as Record<string, unknown>, owner };
     },
   });
