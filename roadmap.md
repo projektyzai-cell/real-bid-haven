@@ -10,3 +10,5 @@
 - [x] Odnowione oferty trafiają na początek listy najnowszych na stronie głównej
 - [x] Licznik wyświetleń artykułów na blogu
 - [x] Wygodne menu użytkownika na telefonie (panel boczny zamiast pod-menu)
+- [x] Zakładka „Blog" w górnym menu + usunięcie „Strefa najmu" ze stopki
+- [x] Belka kosztów w ogłoszeniu: łączna kwota na złoto od lewej
