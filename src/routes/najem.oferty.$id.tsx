@@ -232,8 +232,13 @@ function RentalDetailPage() {
 
 
           <dl className="mt-4 grid grid-cols-2 gap-3 rounded-2xl border bg-card/50 p-4 text-sm sm:grid-cols-3">
+            <div>
+              <dt className="text-xs text-muted-foreground">{t("offers.totalCost")}</dt>
+              <dd className="text-lg font-bold tabular-nums text-gold">{formatPLN(Number(r.monthly_price))} {t("offers.perMonth")}</dd>
+            </div>
             {r.rent_base != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.rentBase")}</dt><dd className="font-medium">{formatPLN(r.rent_base)} {t("offers.perMonth")}</dd></div>)}
-            {r.utilities_fee != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.utilities")}</dt><dd className="font-medium">{formatPLN(r.utilities_fee)} {t("offers.perMonth")}</dd></div>)}
+            {r.admin_fee != null && Number(r.admin_fee) > 0 && (<div><dt className="text-xs text-muted-foreground">{t("offers.utilities")}</dt><dd className="font-medium">{formatPLN(Number(r.admin_fee))} {t("offers.perMonth")}</dd></div>)}
+            {!r.utilities_by_usage && r.utilities_advance != null && Number(r.utilities_advance) > 0 && (<div><dt className="text-xs text-muted-foreground">{t("offers.utilitiesAdvance")}</dt><dd className="font-medium">{formatPLN(Number(r.utilities_advance))} {t("offers.perMonth")}</dd></div>)}
             {r.min_lease_months && (<div><dt className="text-xs text-muted-foreground">{t("offers.minLease")}</dt><dd className="font-medium">{r.min_lease_months} {t("offers.months")}</dd></div>)}
             {r.year_built && (<div><dt className="text-xs text-muted-foreground">{t("offers.yearBuilt")}</dt><dd className="font-medium">{r.year_built}</dd></div>)}
             {r.kind === "house" && r.usable_area_m2 != null && (<div><dt className="text-xs text-muted-foreground">{t("offers.usableArea")}</dt><dd className="font-medium">{r.usable_area_m2} m²</dd></div>)}
