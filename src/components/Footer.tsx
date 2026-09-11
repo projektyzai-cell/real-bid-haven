@@ -10,9 +10,6 @@ export function Footer() {
           <span>© {new Date().getFullYear()} Stay Safe · staysafe.pl</span>
         </div>
         <nav className="flex flex-wrap gap-x-5 gap-y-2 text-sm">
-          <Link to="/najem" className="text-muted-foreground hover:text-foreground">
-            Strefa najmu
-          </Link>
           <Link to="/blog" className="text-muted-foreground hover:text-foreground">
             Blog
           </Link>

@@ -2,7 +2,7 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import {
   Plus, LogOut, User as UserIcon, List, MessageCircle, Building2,
   KeyRound, Settings, ShieldCheck, Sparkles, BadgeCheck, HandHeart,
-  FileSignature, Home, FileText, Wrench, Facebook,
+  FileSignature, Home, FileText, Wrench, Facebook, Newspaper,
 } from "lucide-react";
 import logo from "@/assets/logo.jpg";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,7 @@ export function Navbar() {
     { to: "/jak-dzialamy", label: t("nav.howItWorks"), icon: Sparkles },
     { to: "/paszport-najemcy", label: t("nav.passport"), icon: BadgeCheck },
     { to: "/korzysci", label: t("nav.benefits"), icon: HandHeart },
+    { to: "/blog", label: t("nav.blog"), icon: Newspaper },
   ] as const;
   useEffect(() => {
     if (!user) { setIsAdmin(false); setIsContractor(false); return; }
