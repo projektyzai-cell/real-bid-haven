@@ -384,7 +384,6 @@ function ListingDetailsPanel({ r }: { r: Record<string, unknown> & { kind: strin
   if (r.max_adults != null) push("Maks. liczba osób dorosłych", String(r.max_adults));
   if (r.accepts_children && r.max_children != null && Number(r.max_children) > 0) push("Maks. liczba dzieci", String(r.max_children));
   if (on(r.utilities_by_usage)) push("Media", "Rozliczane wg zużycia");
-  else if (r.utilities_advance != null && Number(r.utilities_advance) > 0) push("Zaliczka na media", `${formatPLN(Number(r.utilities_advance))} / mc`);
 
   // Cechy zależne od typu nieruchomości — tylko zaznaczone
   const features: string[] = [];
