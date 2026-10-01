@@ -28,7 +28,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
     if (authErr) throw new Error(authErr.message);
 
     const ids = authList.users.map((u) => u.id);
-    const [{ data: profs }, { data: roles }, { data: reqs }] =
+    const [{ data: profs }, { data: roles }, { data: reqs }, { data: listings }] =
       await Promise.all([
         supabaseAdmin.from("profiles").select("*").in("id", ids),
         supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids),
@@ -36,7 +36,17 @@ export const adminListUsers = createServerFn({ method: "GET" })
           .from("rental_requests")
           .select("tenant_id, status, expires_at")
           .in("tenant_id", ids),
+        supabaseAdmin
+          .from("rental_listings")
+          .select("landlord_id, status")
+          .in("landlord_id", ids),
       ]);
+    const activeListingsMap = new Map<string, number>();
+    (listings ?? []).forEach((l: any) => {
+      if (l.status === "active") {
+        activeListingsMap.set(l.landlord_id, (activeListingsMap.get(l.landlord_id) ?? 0) + 1);
+      }
+    });
     const profMap = new Map((profs ?? []).map((p: any) => [p.id, p]));
     const roleMap = new Map<string, string[]>();
     (roles ?? []).forEach((r: any) => {
@@ -75,6 +85,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
         past_requests: r.past,
         concierge_subscription: !!p.concierge_subscription,
         concierge_subscription_until: p.concierge_subscription_until ?? null,
+        active_listings: activeListingsMap.get(u.id) ?? 0,
       };
     });
   });

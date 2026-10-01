@@ -438,6 +438,7 @@ function UsersTab() {
                 <th className="px-2 py-2 text-left">Założono</th>
                 <th className="px-2 py-2 text-left">Paszport</th>
                 <th className="px-2 py-2 text-left">Concierge</th>
+                <th className="px-2 py-2 text-left">Oferty</th>
                 <th className="px-2 py-2 text-left">Zapyt.</th>
                 <th className="px-2 py-2"></th>
               </tr>
@@ -464,6 +465,7 @@ function UsersTab() {
                       ? <Badge className="bg-amber-500/15 text-amber-700 border-amber-500/40 text-[10px] gap-1"><Sparkles className="h-3 w-3" />Concierge</Badge>
                       : <span className="text-muted-foreground">—</span>}
                   </td>
+                  <td className="px-2 py-1.5 font-semibold text-gold">{u.active_listings ?? 0}</td>
                   <td className="px-2 py-1.5">{u.active_requests} / {u.past_requests}</td>
                   <td className="px-2 py-1.5 text-right">
                     <Button size="sm" variant="ghost" onClick={() => setOpenId(u.id)}>Otwórz</Button>
@@ -472,7 +474,7 @@ function UsersTab() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
+                <tr><td colSpan={10} className="px-3 py-8 text-center text-muted-foreground">Brak użytkowników.</td></tr>
               )}
             </tbody>
           </table>
