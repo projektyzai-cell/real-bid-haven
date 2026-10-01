@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { MapPin, Clock, MessageCircle, Pencil, Trash2, FileSignature } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -44,6 +45,7 @@ interface ListingThumb {
 
 function MyRequestsPage() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState<MyRequest | null>(null);
   const [signTxn, setSignTxn] = useState<string | null>(null);
@@ -91,7 +93,7 @@ function MyRequestsPage() {
       const listingMap = new Map(((listingsRes.data ?? []) as unknown as ListingThumb[]).map((l) => [l.id, l]));
       return rows.map((o) => ({
         ...o,
-        landlord_name: profMap.get(o.landlord_id) ?? "Wynajmujący",
+        landlord_name: profMap.get(o.landlord_id) ?? t("myreq.landlord"),
         listing: o.listing_id ? listingMap.get(o.listing_id) ?? null : null,
       }));
     },
@@ -121,7 +123,7 @@ function MyRequestsPage() {
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "rental_offers" }, (payload) => {
         const row = payload.new as { request_id?: string };
         if (row.request_id && ids.has(row.request_id)) {
-          toast.success("🎯 Smart Match: nowa oferta na Twoje zapytanie!");
+          toast.success(t("myreq.smartMatchToast"));
         }
         queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
       })
@@ -129,6 +131,7 @@ function MyRequestsPage() {
         queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
       }).subscribe();
     return () => { supabase.removeChannel(ch); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reqIds.join(","), queryClient]);
 
   async function acceptOffer(offerId: string) {
@@ -142,7 +145,7 @@ function MyRequestsPage() {
     setIsModalOpen(false);
     const { data, error } = await supabase.rpc("accept_rental_offer" as never, { _offer_id: offerId } as never);
     if (error) { toast.error(error.message); setPendingOfferId(null); return; }
-    toast.success("Oferta zaakceptowana — chat aktywny");
+    toast.success(t("myreq.offerAcceptedToast"));
     queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
     setPendingOfferId(null);
     if (data) window.location.href = `/messages?tab=smart-match&chat=${data}`;
@@ -151,27 +154,27 @@ function MyRequestsPage() {
   async function expressInterest(listingId: string, requestId: string) {
     const { error } = await supabase.rpc("express_interest" as never, { _listing_id: listingId, _request_id: requestId } as never);
     if (error) { toast.error(error.message); return; }
-    toast.success("Wynajmujący otrzymał Twój Paszport Najemcy");
+    toast.success(t("myreq.passportSentToast"));
     queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
   }
 
   async function deleteRequest(id: string) {
-    if (!window.confirm("Usunąć zapytanie? Tej operacji nie można cofnąć.")) return;
+    if (!window.confirm(t("myreq.deleteConfirm"))) return;
     const { error } = await supabase.from("rental_requests" as never).delete().eq("id", id);
     if (error) toast.error(error.message);
-    else { toast.success("Zapytanie usunięte"); refetchRequests(); }
+    else { toast.success(t("myreq.deletedToast")); refetchRequests(); }
   }
 
   return (
     <div className="container mx-auto max-w-4xl px-4 py-10">
       <div className="flex items-center justify-between gap-3">
-        <h1 className="text-3xl font-bold">Moje zapytania najmu</h1>
-        <Link to="/najem/nowe-zapytanie"><Button className="rounded-2xl">+ Nowe zapytanie</Button></Link>
+        <h1 className="text-3xl font-bold">{t("myreq.title")}</h1>
+        <Link to="/najem/nowe-zapytanie"><Button className="rounded-2xl">{t("myreq.newRequest")}</Button></Link>
       </div>
 
       {!requests || requests.length === 0 ? (
         <div className="mt-8 rounded-3xl border border-dashed bg-card p-12 text-center">
-          <p className="text-muted-foreground">Nie masz jeszcze zapytań.</p>
+          <p className="text-muted-foreground">{t("myreq.empty")}</p>
         </div>
       ) : (
         <div className="mt-8 space-y-6">
@@ -188,31 +191,31 @@ function MyRequestsPage() {
                       <span className="font-semibold">{r.city}{r.district ? ` · ${r.district}` : ""}</span>
                     </div>
                     <div className="mt-1 text-xl font-bold tabular-nums">
-                      {r.budget_max ? `do ${formatPLN(r.budget_max)}/mies.` : "Budżet otwarty"}
+                      {r.budget_max ? t("myreq.budgetUpTo", { amount: formatPLN(r.budget_max) }) : t("myreq.budgetOpen")}
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant={expired ? "outline" : "default"} className="rounded-full">
                       <Clock className="h-3 w-3" />
-                      {expired ? "Zakończone" : `aktywne ${daysLeft}d`}
+                      {expired ? t("myreq.ended") : t("myreq.activeDays", { days: daysLeft })}
                     </Badge>
                     {!expired && (
                       <Button size="sm" variant="outline" className="rounded-xl"
                         onClick={() => setEditing(r)}>
-                        <Pencil className="h-3.5 w-3.5" /> Edytuj
+                        <Pencil className="h-3.5 w-3.5" /> {t("myreq.edit")}
                       </Button>
                     )}
                     <Button size="sm" variant="outline" className="rounded-xl text-destructive"
                       onClick={() => deleteRequest(r.id)}>
-                      <Trash2 className="h-3.5 w-3.5" /> Usuń
+                      <Trash2 className="h-3.5 w-3.5" /> {t("myreq.delete")}
                     </Button>
                   </div>
                 </div>
 
                 <div className="mt-5">
-                  <h4 className="text-sm font-semibold">Otrzymane oferty ({myOffers.length})</h4>
+                  <h4 className="text-sm font-semibold">{t("myreq.receivedOffers", { count: myOffers.length })}</h4>
                   {myOffers.length === 0 ? (
-                    <p className="mt-2 text-sm text-muted-foreground">Brak ofert. System automatycznie wyśle Ci dopasowania, gdy pojawi się pasująca oferta najmu.</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{t("myreq.noOffers")}</p>
                   ) : (
                     <ul className="mt-3 space-y-3">
                       {myOffers.map((o) => {
@@ -236,16 +239,16 @@ function MyRequestsPage() {
                                   <Badge
                                     variant="outline"
                                     className={`rounded-full text-[10px] font-bold uppercase tracking-wider ${o.match_score >= 90 ? "border-emerald-500/50 bg-emerald-500/10 text-emerald-600" : o.match_score >= 75 ? "border-amber-500/50 bg-amber-500/10 text-amber-600" : "border-muted-foreground/30 text-muted-foreground"}`}
-                                    title="Smart Match: 70% twarde reguły (lokalizacja/budżet) + 30% miękkie (udogodnienia)"
+                                    title={t("myreq.matchHint")}
                                   >
-                                    Dopasowanie {o.match_score}%
+                                    {t("myreq.match", { score: o.match_score })}
                                   </Badge>
                                 )}
                               </div>
                               <div className="text-xs text-muted-foreground">{o.landlord_name}</div>
                               {o.listing && (
                                 <Link to="/najem/oferty/$id" params={{ id: o.listing.id }} className="mt-1 block text-sm font-medium hover:text-primary">
-                                  {o.listing.title} <span className="text-xs text-muted-foreground">· {o.listing.rooms} pok. · {o.listing.area_m2} m²</span>
+                                  {o.listing.title} <span className="text-xs text-muted-foreground">· {o.listing.rooms} {t("myreq.rooms")} · {o.listing.area_m2} m²</span>
                                 </Link>
                               )}
                               {o.property_address && <div className="mt-1 text-xs">📍 {o.property_address}</div>}
@@ -254,7 +257,7 @@ function MyRequestsPage() {
                             <div className="flex flex-col items-end gap-2">
                               {o.status === "accepted" ? (
                                 <>
-                                  <Badge className="rounded-full">Zaakceptowana</Badge>
+                                  <Badge className="rounded-full">{t("myreq.accepted")}</Badge>
                                   {o.listing && (txnMap as any)[o.listing.id] && (
                                     <>
                                       <div className="mt-1"><LeaseStageBar t={(txnMap as any)[o.listing.id]} /></div>
@@ -262,18 +265,18 @@ function MyRequestsPage() {
                                         {(txnMap as any)[o.listing.id].chat_id && (
                                           <Link to="/najem/chats/$id" params={{ id: (txnMap as any)[o.listing.id].chat_id }}
                                             className="inline-flex items-center gap-1 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20">
-                                            <MessageCircle className="h-3 w-3" /> Czat tej oferty
+                                            <MessageCircle className="h-3 w-3" /> {t("myreq.offerChat")}
                                           </Link>
                                         )}
                                         <Link to="/najem/umowa/$transactionId" params={{ transactionId: (txnMap as any)[o.listing.id].id }}
                                           className="inline-flex items-center gap-1 rounded-xl border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide hover:bg-muted">
-                                          <FileSignature className="h-3 w-3" /> Przejdź do generatora umowy
+                                          <FileSignature className="h-3 w-3" /> {t("myreq.goContract")}
                                         </Link>
                                         {(txnMap as any)[o.listing.id].state !== "completed" && (
                                           <button
                                             onClick={() => setSignTxn((txnMap as any)[o.listing!.id].id)}
                                             className="inline-flex items-center gap-1 rounded-xl bg-[var(--gold)] px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
-                                            <FileSignature className="h-3 w-3" /> Umowa podpisana
+                                            <FileSignature className="h-3 w-3" /> {t("myreq.contractSigned")}
                                           </button>
                                         )}
                                       </div>
@@ -281,10 +284,10 @@ function MyRequestsPage() {
                                   )}
                                 </>
                               ) : o.status === "rejected" ? (
-                                <Badge variant="outline" className="rounded-full">Odrzucona</Badge>
+                                <Badge variant="outline" className="rounded-full">{t("myreq.rejected")}</Badge>
                               ) : (
                                 <Button size="sm" className="rounded-xl bg-[var(--gold)] text-black hover:bg-[var(--gold)]/90" onClick={() => acceptOffer(o.id)}>
-                                  <MessageCircle className="h-4 w-4" /> Wstępnie zainteresowany
+                                  <MessageCircle className="h-4 w-4" /> {t("myreq.interestedBtn")}
                                 </Button>
                               )}
                             </div>
@@ -330,6 +333,7 @@ function MyRequestsPage() {
 }
 
 function TenantLeasesSection({ userId }: { userId: string | undefined }) {
+  const { t } = useTranslation();
   const [rating, setRating] = useState<{ contractId: string; landlordId: string; listingId: string | null } | null>(null);
   const { data: leases = [] } = useQuery({
     queryKey: ["tenant-active-leases", userId],
@@ -357,56 +361,56 @@ function TenantLeasesSection({ userId }: { userId: string | undefined }) {
 
   return (
     <div className="mt-12">
-      <h2 className="text-3xl font-bold">Aktywne i zakończone umowy najmu</h2>
+      <h2 className="text-3xl font-bold">{t("myreq.leasesTitle")}</h2>
       <div className="mt-6 space-y-4">
-        {leases.map((t: any) => {
-          const start = t.contract_start_date ? new Date(t.contract_start_date) : null;
-          const end = t.contract_end_date ? new Date(t.contract_end_date) : null;
+        {leases.map((t2: any) => {
+          const start = t2.contract_start_date ? new Date(t2.contract_start_date) : null;
+          const end = t2.contract_end_date ? new Date(t2.contract_end_date) : null;
           const active = start && end && start.getTime() <= today && today <= end.getTime();
           const finished = end && today > end.getTime();
           return (
-            <div key={t.id} className="rounded-3xl border bg-card p-6 shadow-card">
+            <div key={t2.id} className="rounded-3xl border bg-card p-6 shadow-card">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex items-center gap-2 text-sm">
                     <MapPin className="h-4 w-4 text-primary" />
                     <span className="font-semibold">
-                      {t.listing?.title ?? "Umowa najmu"}{t.listing?.city ? ` · ${t.listing.city}` : ""}
+                      {t2.listing?.title ?? t("myreq.leasePeriod")}{t2.listing?.city ? ` · ${t2.listing.city}` : ""}
                     </span>
                   </div>
-                  {t.listing?.street && (
-                    <div className="mt-0.5 text-xs text-muted-foreground">{t.listing.street}{t.listing.apt_no ? ` / ${t.listing.apt_no}` : ""}</div>
+                  {t2.listing?.street && (
+                    <div className="mt-0.5 text-xs text-muted-foreground">{t2.listing.street}{t2.listing.apt_no ? ` / ${t2.listing.apt_no}` : ""}</div>
                   )}
-                  {t.listing?.monthly_price && (
-                    <div className="mt-1 text-xl font-bold tabular-nums">{formatPLN(t.listing.monthly_price)}/mies.</div>
+                  {t2.listing?.monthly_price && (
+                    <div className="mt-1 text-xl font-bold tabular-nums">{formatPLN(t2.listing.monthly_price)}/mies.</div>
                   )}
                   <div className="mt-2 text-sm">
-                    Okres najmu: <span className="font-semibold">
+                    {t("myreq.leasePeriod")} <span className="font-semibold">
                       {start ? start.toLocaleDateString("pl-PL") : "—"} → {end ? end.toLocaleDateString("pl-PL") : "—"}
                     </span>
                   </div>
-                  {t.payment_delay_reported_at && (
+                  {t2.payment_delay_reported_at && (
                     <div className="mt-2 inline-flex items-center gap-1 rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold uppercase text-destructive">
-                      ⚠ Zgłoszono opóźnienie płatności — 72 h na uregulowanie
+                      {t("myreq.paymentDelay")}
                     </div>
                   )}
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <Badge className={`rounded-full ${finished ? "bg-muted text-foreground" : active ? "" : ""}`} variant={finished ? "outline" : "default"}>
                     <Clock className="h-3 w-3" />
-                    {finished ? "Zakończona" : active ? "Aktywna" : "Nadchodząca"}
+                    {finished ? t("myreq.finished") : active ? t("myreq.active") : t("myreq.upcoming")}
                   </Badge>
-                  {t.chat_id && (
-                    <Link to="/najem/chats/$id" params={{ id: t.chat_id }}
+                  {t2.chat_id && (
+                    <Link to="/najem/chats/$id" params={{ id: t2.chat_id }}
                       className="inline-flex items-center gap-1 rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/10 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-gold hover:bg-[var(--gold)]/20">
-                      <MessageCircle className="h-3 w-3" /> Czat
+                      <MessageCircle className="h-3 w-3" /> {t("myreq.chat")}
                     </Link>
                   )}
                   {finished && (
                     <button
-                      onClick={() => setRating({ contractId: t.id, landlordId: t.landlord_id, listingId: t.listing_id })}
+                      onClick={() => setRating({ contractId: t2.id, landlordId: t2.landlord_id, listingId: t2.listing_id })}
                       className="inline-flex items-center gap-1 rounded-xl bg-[#f59e0b] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wide text-black hover:opacity-90">
-                      <Star className="h-3 w-3" /> Oceń wynajmującego i lokal
+                      <Star className="h-3 w-3" /> {t("myreq.rateLandlord")}
                     </button>
                   )}
                 </div>
@@ -428,6 +432,7 @@ function TenantLeasesSection({ userId }: { userId: string | undefined }) {
 
 
 function EditRequestDialog({ request, onClose, onSaved }: { request: MyRequest; onClose: () => void; onSaved: () => void }) {
+  const { t } = useTranslation();
   const [city, setCity] = useState(request.city);
   const [district, setDistrict] = useState(request.district ?? "");
   const [budget, setBudget] = useState(request.budget_max?.toString() ?? "");
@@ -448,16 +453,16 @@ function EditRequestDialog({ request, onClose, onSaved }: { request: MyRequest; 
     } as never).eq("id", request.id);
     setBusy(false);
     if (error) toast.error(error.message);
-    else { toast.success("Zapisano zmiany"); onSaved(); }
+    else { toast.success(t("myreq.savedToast")); onSaved(); }
   }
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-lg">
-        <DialogHeader><DialogTitle>Edytuj zapytanie</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>{t("myreq.editTitle")}</DialogTitle></DialogHeader>
         <div className="space-y-4">
           <div>
-            <Label className="mb-2 block">Lokalizacja</Label>
+            <Label className="mb-2 block">{t("myreq.location")}</Label>
             <LocationPicker
               value={{ city, district, street: "" }}
               onChange={(v) => { setCity(v.city); setDistrict(v.district); }}
@@ -465,26 +470,26 @@ function EditRequestDialog({ request, onClose, onSaved }: { request: MyRequest; 
           </div>
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <Label>Budżet max (PLN/mc)</Label>
+              <Label>{t("myreq.budgetMax")}</Label>
               <Input type="number" value={budget} onChange={(e) => setBudget(e.target.value)} className="mt-1.5 rounded-xl" />
             </div>
             <div>
-              <Label>Liczba dorosłych</Label>
+              <Label>{t("myreq.adults")}</Label>
               <Input type="number" min={1} value={adults} onChange={(e) => setAdults(e.target.value)} className="mt-1.5 rounded-xl" />
             </div>
           </div>
           <div>
-            <Label>Preferowany obszar (opis)</Label>
+            <Label>{t("myreq.area")}</Label>
             <Input value={area} onChange={(e) => setArea(e.target.value)} className="mt-1.5 rounded-xl" />
           </div>
           <div>
-            <Label>Notatka</Label>
+            <Label>{t("myreq.note")}</Label>
             <Textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={3} className="mt-1.5 rounded-xl" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="rounded-xl">Anuluj</Button>
-          <Button onClick={save} disabled={busy} className="rounded-xl">{busy ? "Zapisuję…" : "Zapisz"}</Button>
+          <Button variant="outline" onClick={onClose} className="rounded-xl">{t("myreq.cancel")}</Button>
+          <Button onClick={save} disabled={busy} className="rounded-xl">{busy ? t("myreq.saving") : t("myreq.save")}</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
