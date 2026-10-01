@@ -85,6 +85,7 @@ export const adminListUsers = createServerFn({ method: "GET" })
         past_requests: r.past,
         concierge_subscription: !!p.concierge_subscription,
         concierge_subscription_until: p.concierge_subscription_until ?? null,
+        active_listings: activeListingsMap.get(u.id) ?? 0,
       };
     });
   });
