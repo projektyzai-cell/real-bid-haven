@@ -119,6 +119,7 @@ function NewRentalRequestPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (!form.city.trim() || form.city.trim().length < 2) { toast.error(t("request.cityRequired")); return; }
     const parsed = schema.safeParse({
       city: form.city.trim(),
       district: mode === "district" && form.district.trim() ? form.district.trim() : undefined,
@@ -136,10 +137,10 @@ function NewRentalRequestPage() {
     if (mode === "map" && !mapArea) { toast.error(t("request.pointOnMap")); return; }
     if (sms.enabled) {
       if (!/^(\+?48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/.test(sms.phone.trim())) {
-        toast.error("Podaj poprawny numer telefonu do powiadomień SMS.");
+        toast.error(t("request.smsPhoneInvalid"));
         return;
       }
-      if (!sms.consent) { toast.error("Zaznacz zgodę na otrzymywanie powiadomień SMS."); return; }
+      if (!sms.consent) { toast.error(t("request.smsConsentRequired")); return; }
     }
 
     setSubmitting(true);
@@ -196,7 +197,7 @@ function NewRentalRequestPage() {
         return;
       } catch (err: any) {
         setSubmitting(false);
-        toast.error(err?.message ?? "Nie udało się rozpocząć płatności za SMS.");
+        toast.error(err?.message ?? t("request.smsPayFail"));
         return;
       }
     }
@@ -463,14 +464,14 @@ function NewRentalRequestPage() {
 
           {propertyType === "room" && (
             <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-gold">Informacje o pokoju</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">{t("request.roomInfo")}</p>
 
               <div>
-                <Label className="mb-2 block text-xs">Zamek w drzwiach pokoju</Label>
+                <Label className="mb-2 block text-xs">{t("request.roomLockLabel")}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    ["key", "Na klucz"],
-                    ["none", "Brak zamka"],
+                    ["key", t("request.lockKey")],
+                    ["none", t("request.lockNone")],
                   ] as const).map(([v, label]) => (
                     <button key={v} type="button"
                       onClick={() => setRoomLock((prev) => (prev === v ? "" : v))}
@@ -484,11 +485,11 @@ function NewRentalRequestPage() {
               </div>
 
               <div>
-                <Label className="mb-2 block text-xs">Czy w mieszkaniu akceptujesz mieszkającego właściciela?</Label>
+                <Label className="mb-2 block text-xs">{t("request.liveInOwner")}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    [true, "Tak"],
-                    [false, "Nie"],
+                    [true, t("request.yes")],
+                    [false, t("request.no")],
                   ] as const).map(([v, label]) => (
                     <button key={String(v)} type="button"
                       onClick={() => setAcceptsLiveInOwner((prev) => (prev === v ? null : v))}
@@ -503,17 +504,17 @@ function NewRentalRequestPage() {
 
               <label className="flex items-start gap-3 text-sm">
                 <Checkbox checked={flags.wants_separate_wc} onCheckedChange={() => toggle("wants_separate_wc")} className="mt-0.5" />
-                <span>Oddzielne WC</span>
+                <span>{t("request.separateWc")}</span>
               </label>
 
               <div className="space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Dostęp do części wspólnych</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("request.sharedAccess")}</p>
                 {([
-                  ["shared_kitchen", "Kuchnia"],
-                  ["shared_living_room", "Salon"],
-                  ["shared_balcony", "Balkon lub taras"],
-                  ["shared_garden", "Ogród"],
-                  ["shared_basement", "Piwnica lub komórka lokatorska"],
+                  ["shared_kitchen", t("request.kitchen")],
+                  ["shared_living_room", t("request.livingRoom")],
+                  ["shared_balcony", t("request.balconyTerrace")],
+                  ["shared_garden", t("request.garden")],
+                  ["shared_basement", t("request.storage")],
                 ] as [keyof typeof flags, string][]).map(([k, label]) => (
                   <label key={k} className="flex items-start gap-3 text-sm">
                     <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
