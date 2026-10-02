@@ -9,78 +9,57 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as RegulaminRouteImport } from './routes/regulamin'
-import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
-import { Route as PaszportNajemcyRouteImport } from './routes/paszport-najemcy'
-import { Route as KorzysciRouteImport } from './routes/korzysci'
-import { Route as JakDzialamyRouteImport } from './routes/jak-dzialamy'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as NajemIndexRouteImport } from './routes/najem.index'
-import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as ProfilIdRouteImport } from './routes/profil.$id'
-import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
-import { Route as PCodeRouteImport } from './routes/p/$code'
-import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
-import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as AdminLoginRouteImport } from './routes/admin.login'
-import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
-import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
-import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as JakDzialamyRouteImport } from './routes/jak-dzialamy'
+import { Route as KorzysciRouteImport } from './routes/korzysci'
+import { Route as PaszportNajemcyRouteImport } from './routes/paszport-najemcy'
+import { Route as PolitykaPrywatnosciRouteImport } from './routes/polityka-prywatnosci'
+import { Route as RegulaminRouteImport } from './routes/regulamin'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
-import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
-import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
-import { Route as ApiPublicMollieWebhookRouteImport } from './routes/api/public/mollie-webhook'
-import { Route as AuthenticatedNajemZakonczoneUmowyRouteImport } from './routes/_authenticated/najem.zakonczone-umowy'
-import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
-import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authenticated/najem.umowy'
-import { Route as AuthenticatedNajemPortfelRouteImport } from './routes/_authenticated/najem.portfel'
-import { Route as AuthenticatedNajemPaszportRouteImport } from './routes/_authenticated/najem.paszport'
-import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
-import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
-import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
-import { Route as AuthenticatedNajemMojeUmowyRouteImport } from './routes/_authenticated/najem.moje-umowy'
-import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
-import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
-import { Route as AuthenticatedNajemGeneratorUmowRouteImport } from './routes/_authenticated/najem.generator-umow'
-import { Route as AuthenticatedNajemConciergeRouteImport } from './routes/_authenticated/najem.concierge'
-import { Route as AuthenticatedNajemAktywneUmowyRouteImport } from './routes/_authenticated/najem.aktywne-umowy'
-import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
+import { Route as AuthenticatedMessagesRouteImport } from './routes/_authenticated/messages'
+import { Route as AuthenticatedUstawieniaRouteImport } from './routes/_authenticated/ustawienia'
+import { Route as AuthenticatedWykonawcaRouteImport } from './routes/_authenticated/wykonawca'
+import { Route as AdminLoginRouteImport } from './routes/admin.login'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as NajemIndexRouteImport } from './routes/najem.index'
+import { Route as NajemZapytaniaRouteImport } from './routes/najem.zapytania'
+import { Route as PCodeRouteImport } from './routes/p/$code'
+import { Route as PlatnoscStatusRouteImport } from './routes/platnosc.status'
+import { Route as ProfilIdRouteImport } from './routes/profil.$id'
 import { Route as AuthenticatedAdminPassportStatsRouteImport } from './routes/_authenticated/admin_.passport-stats'
-import { Route as AuthenticatedNajemUmowaTransactionIdRouteImport } from './routes/_authenticated/najem.umowa.$transactionId'
+import { Route as AuthenticatedAdminPassportsRouteImport } from './routes/_authenticated/admin_.passports'
+import { Route as AuthenticatedNajemAktywneUmowyRouteImport } from './routes/_authenticated/najem.aktywne-umowy'
+import { Route as AuthenticatedNajemConciergeRouteImport } from './routes/_authenticated/najem.concierge'
+import { Route as AuthenticatedNajemGeneratorUmowRouteImport } from './routes/_authenticated/najem.generator-umow'
+import { Route as AuthenticatedNajemMojPaszportRouteImport } from './routes/_authenticated/najem.moj-paszport'
+import { Route as AuthenticatedNajemMojeOfertyRouteImport } from './routes/_authenticated/najem.moje-oferty'
+import { Route as AuthenticatedNajemMojeUmowyRouteImport } from './routes/_authenticated/najem.moje-umowy'
+import { Route as AuthenticatedNajemMojeZapytaniaRouteImport } from './routes/_authenticated/najem.moje-zapytania'
+import { Route as AuthenticatedNajemNowaOfertaRouteImport } from './routes/_authenticated/najem.nowa-oferta'
+import { Route as AuthenticatedNajemNoweZapytanieRouteImport } from './routes/_authenticated/najem.nowe-zapytanie'
+import { Route as AuthenticatedNajemPaszportRouteImport } from './routes/_authenticated/najem.paszport'
+import { Route as AuthenticatedNajemPortfelRouteImport } from './routes/_authenticated/najem.portfel'
+import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authenticated/najem.umowy'
+import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
+import { Route as AuthenticatedNajemZakonczoneUmowyRouteImport } from './routes/_authenticated/najem.zakonczone-umowy'
+import { Route as ApiPublicMollieWebhookRouteImport } from './routes/api/public/mollie-webhook'
+import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
+import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
+import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
 import { Route as AuthenticatedNajemChatsIdRouteImport } from './routes/_authenticated/najem.chats.$id'
+import { Route as AuthenticatedNajemUmowaTransactionIdRouteImport } from './routes/_authenticated/najem.umowa.$transactionId'
 
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const RegulaminRoute = RegulaminRouteImport.update({
-  id: '/regulamin',
-  path: '/regulamin',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
-  id: '/polityka-prywatnosci',
-  path: '/polityka-prywatnosci',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PaszportNajemcyRoute = PaszportNajemcyRouteImport.update({
-  id: '/paszport-najemcy',
-  path: '/paszport-najemcy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const KorzysciRoute = KorzysciRouteImport.update({
-  id: '/korzysci',
-  path: '/korzysci',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const JakDzialamyRoute = JakDzialamyRouteImport.update({
-  id: '/jak-dzialamy',
-  path: '/jak-dzialamy',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -88,63 +67,39 @@ const AuthRoute = AuthRouteImport.update({
   path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const JakDzialamyRoute = JakDzialamyRouteImport.update({
+  id: '/jak-dzialamy',
+  path: '/jak-dzialamy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const KorzysciRoute = KorzysciRouteImport.update({
+  id: '/korzysci',
+  path: '/korzysci',
   getParentRoute: () => rootRouteImport,
 } as any)
-const NajemIndexRoute = NajemIndexRouteImport.update({
-  id: '/najem/',
-  path: '/najem/',
+const PaszportNajemcyRoute = PaszportNajemcyRouteImport.update({
+  id: '/paszport-najemcy',
+  path: '/paszport-najemcy',
   getParentRoute: () => rootRouteImport,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/blog/',
-  path: '/blog/',
+const PolitykaPrywatnosciRoute = PolitykaPrywatnosciRouteImport.update({
+  id: '/polityka-prywatnosci',
+  path: '/polityka-prywatnosci',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ProfilIdRoute = ProfilIdRouteImport.update({
-  id: '/profil/$id',
-  path: '/profil/$id',
+const RegulaminRoute = RegulaminRouteImport.update({
+  id: '/regulamin',
+  path: '/regulamin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PlatnoscStatusRoute = PlatnoscStatusRouteImport.update({
-  id: '/platnosc/status',
-  path: '/platnosc/status',
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
-const PCodeRoute = PCodeRouteImport.update({
-  id: '/p/$code',
-  path: '/p/$code',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
-  id: '/najem/zapytania',
-  path: '/najem/zapytania',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/blog/$slug',
-  path: '/blog/$slug',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AdminLoginRoute = AdminLoginRouteImport.update({
-  id: '/admin/login',
-  path: '/admin/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedWykonawcaRoute = AuthenticatedWykonawcaRouteImport.update({
-  id: '/wykonawca',
-  path: '/wykonawca',
-  getParentRoute: () => AuthenticatedRoute,
-} as any)
-const AuthenticatedUstawieniaRoute = AuthenticatedUstawieniaRouteImport.update({
-  id: '/ustawienia',
-  path: '/ustawienia',
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
@@ -152,112 +107,60 @@ const AuthenticatedMessagesRoute = AuthenticatedMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
+const AuthenticatedUstawieniaRoute = AuthenticatedUstawieniaRouteImport.update({
+  id: '/ustawienia',
+  path: '/ustawienia',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const NajemOfertyIndexRoute = NajemOfertyIndexRouteImport.update({
-  id: '/najem/oferty/',
-  path: '/najem/oferty/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => NajemZapytaniaRoute,
-} as any)
-const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
-  id: '/najem/oferty/$id',
-  path: '/najem/oferty/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiPublicMollieWebhookRoute = ApiPublicMollieWebhookRouteImport.update({
-  id: '/api/public/mollie-webhook',
-  path: '/api/public/mollie-webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedNajemZakonczoneUmowyRoute =
-  AuthenticatedNajemZakonczoneUmowyRouteImport.update({
-    id: '/najem/zakonczone-umowy',
-    path: '/najem/zakonczone-umowy',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemZainteresowaniRoute =
-  AuthenticatedNajemZainteresowaniRouteImport.update({
-    id: '/najem/zainteresowani',
-    path: '/najem/zainteresowani',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemUmowyRoute = AuthenticatedNajemUmowyRouteImport.update({
-  id: '/najem/umowy',
-  path: '/najem/umowy',
+const AuthenticatedWykonawcaRoute = AuthenticatedWykonawcaRouteImport.update({
+  id: '/wykonawca',
+  path: '/wykonawca',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
-const AuthenticatedNajemPortfelRoute =
-  AuthenticatedNajemPortfelRouteImport.update({
-    id: '/najem/portfel',
-    path: '/najem/portfel',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemPaszportRoute =
-  AuthenticatedNajemPaszportRouteImport.update({
-    id: '/najem/paszport',
-    path: '/najem/paszport',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemNoweZapytanieRoute =
-  AuthenticatedNajemNoweZapytanieRouteImport.update({
-    id: '/najem/nowe-zapytanie',
-    path: '/najem/nowe-zapytanie',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemNowaOfertaRoute =
-  AuthenticatedNajemNowaOfertaRouteImport.update({
-    id: '/najem/nowa-oferta',
-    path: '/najem/nowa-oferta',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemMojeZapytaniaRoute =
-  AuthenticatedNajemMojeZapytaniaRouteImport.update({
-    id: '/najem/moje-zapytania',
-    path: '/najem/moje-zapytania',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemMojeUmowyRoute =
-  AuthenticatedNajemMojeUmowyRouteImport.update({
-    id: '/najem/moje-umowy',
-    path: '/najem/moje-umowy',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemMojeOfertyRoute =
-  AuthenticatedNajemMojeOfertyRouteImport.update({
-    id: '/najem/moje-oferty',
-    path: '/najem/moje-oferty',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemMojPaszportRoute =
-  AuthenticatedNajemMojPaszportRouteImport.update({
-    id: '/najem/moj-paszport',
-    path: '/najem/moj-paszport',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemGeneratorUmowRoute =
-  AuthenticatedNajemGeneratorUmowRouteImport.update({
-    id: '/najem/generator-umow',
-    path: '/najem/generator-umow',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemConciergeRoute =
-  AuthenticatedNajemConciergeRouteImport.update({
-    id: '/najem/concierge',
-    path: '/najem/concierge',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemAktywneUmowyRoute =
-  AuthenticatedNajemAktywneUmowyRouteImport.update({
-    id: '/najem/aktywne-umowy',
-    path: '/najem/aktywne-umowy',
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin/login',
+  path: '/admin/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NajemIndexRoute = NajemIndexRouteImport.update({
+  id: '/najem/',
+  path: '/najem/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NajemZapytaniaRoute = NajemZapytaniaRouteImport.update({
+  id: '/najem/zapytania',
+  path: '/najem/zapytania',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PCodeRoute = PCodeRouteImport.update({
+  id: '/p/$code',
+  path: '/p/$code',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PlatnoscStatusRoute = PlatnoscStatusRouteImport.update({
+  id: '/platnosc/status',
+  path: '/platnosc/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfilIdRoute = ProfilIdRouteImport.update({
+  id: '/profil/$id',
+  path: '/profil/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminPassportStatsRoute =
+  AuthenticatedAdminPassportStatsRouteImport.update({
+    id: '/admin_/passport-stats',
+    path: '/admin/passport-stats',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedAdminPassportsRoute =
@@ -266,22 +169,119 @@ const AuthenticatedAdminPassportsRoute =
     path: '/admin/passports',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
-const AuthenticatedAdminPassportStatsRoute =
-  AuthenticatedAdminPassportStatsRouteImport.update({
-    id: '/admin_/passport-stats',
-    path: '/admin/passport-stats',
+const AuthenticatedNajemAktywneUmowyRoute =
+  AuthenticatedNajemAktywneUmowyRouteImport.update({
+    id: '/najem/aktywne-umowy',
+    path: '/najem/aktywne-umowy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemConciergeRoute =
+  AuthenticatedNajemConciergeRouteImport.update({
+    id: '/najem/concierge',
+    path: '/najem/concierge',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemGeneratorUmowRoute =
+  AuthenticatedNajemGeneratorUmowRouteImport.update({
+    id: '/najem/generator-umow',
+    path: '/najem/generator-umow',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemMojPaszportRoute =
+  AuthenticatedNajemMojPaszportRouteImport.update({
+    id: '/najem/moj-paszport',
+    path: '/najem/moj-paszport',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemMojeOfertyRoute =
+  AuthenticatedNajemMojeOfertyRouteImport.update({
+    id: '/najem/moje-oferty',
+    path: '/najem/moje-oferty',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemMojeUmowyRoute =
+  AuthenticatedNajemMojeUmowyRouteImport.update({
+    id: '/najem/moje-umowy',
+    path: '/najem/moje-umowy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemMojeZapytaniaRoute =
+  AuthenticatedNajemMojeZapytaniaRouteImport.update({
+    id: '/najem/moje-zapytania',
+    path: '/najem/moje-zapytania',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemNowaOfertaRoute =
+  AuthenticatedNajemNowaOfertaRouteImport.update({
+    id: '/najem/nowa-oferta',
+    path: '/najem/nowa-oferta',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemNoweZapytanieRoute =
+  AuthenticatedNajemNoweZapytanieRouteImport.update({
+    id: '/najem/nowe-zapytanie',
+    path: '/najem/nowe-zapytanie',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemPaszportRoute =
+  AuthenticatedNajemPaszportRouteImport.update({
+    id: '/najem/paszport',
+    path: '/najem/paszport',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemPortfelRoute =
+  AuthenticatedNajemPortfelRouteImport.update({
+    id: '/najem/portfel',
+    path: '/najem/portfel',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemUmowyRoute = AuthenticatedNajemUmowyRouteImport.update({
+  id: '/najem/umowy',
+  path: '/najem/umowy',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedNajemZainteresowaniRoute =
+  AuthenticatedNajemZainteresowaniRouteImport.update({
+    id: '/najem/zainteresowani',
+    path: '/najem/zainteresowani',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedNajemZakonczoneUmowyRoute =
+  AuthenticatedNajemZakonczoneUmowyRouteImport.update({
+    id: '/najem/zakonczone-umowy',
+    path: '/najem/zakonczone-umowy',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const ApiPublicMollieWebhookRoute = ApiPublicMollieWebhookRouteImport.update({
+  id: '/api/public/mollie-webhook',
+  path: '/api/public/mollie-webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NajemOfertyIndexRoute = NajemOfertyIndexRouteImport.update({
+  id: '/najem/oferty/',
+  path: '/najem/oferty/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NajemOfertyIdRoute = NajemOfertyIdRouteImport.update({
+  id: '/najem/oferty/$id',
+  path: '/najem/oferty/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NajemZapytaniaIdRoute = NajemZapytaniaIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => NajemZapytaniaRoute,
+} as any)
+const AuthenticatedNajemChatsIdRoute =
+  AuthenticatedNajemChatsIdRouteImport.update({
+    id: '/najem/chats/$id',
+    path: '/najem/chats/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 const AuthenticatedNajemUmowaTransactionIdRoute =
   AuthenticatedNajemUmowaTransactionIdRouteImport.update({
     id: '/najem/umowa/$transactionId',
     path: '/najem/umowa/$transactionId',
-    getParentRoute: () => AuthenticatedRoute,
-  } as any)
-const AuthenticatedNajemChatsIdRoute =
-  AuthenticatedNajemChatsIdRouteImport.update({
-    id: '/najem/chats/$id',
-    path: '/najem/chats/$id',
     getParentRoute: () => AuthenticatedRoute,
   } as any)
 
@@ -580,53 +580,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/regulamin': {
-      id: '/regulamin'
-      path: '/regulamin'
-      fullPath: '/regulamin'
-      preLoaderRoute: typeof RegulaminRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/polityka-prywatnosci': {
-      id: '/polityka-prywatnosci'
-      path: '/polityka-prywatnosci'
-      fullPath: '/polityka-prywatnosci'
-      preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/paszport-najemcy': {
-      id: '/paszport-najemcy'
-      path: '/paszport-najemcy'
-      fullPath: '/paszport-najemcy'
-      preLoaderRoute: typeof PaszportNajemcyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/korzysci': {
-      id: '/korzysci'
-      path: '/korzysci'
-      fullPath: '/korzysci'
-      preLoaderRoute: typeof KorzysciRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/jak-dzialamy': {
-      id: '/jak-dzialamy'
-      path: '/jak-dzialamy'
-      fullPath: '/jak-dzialamy'
-      preLoaderRoute: typeof JakDzialamyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -636,81 +594,60 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/najem/': {
-      id: '/najem/'
-      path: '/najem'
-      fullPath: '/najem/'
-      preLoaderRoute: typeof NajemIndexRouteImport
+    '/jak-dzialamy': {
+      id: '/jak-dzialamy'
+      path: '/jak-dzialamy'
+      fullPath: '/jak-dzialamy'
+      preLoaderRoute: typeof JakDzialamyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog/': {
-      id: '/blog/'
-      path: '/blog'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
+    '/korzysci': {
+      id: '/korzysci'
+      path: '/korzysci'
+      fullPath: '/korzysci'
+      preLoaderRoute: typeof KorzysciRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/profil/$id': {
-      id: '/profil/$id'
-      path: '/profil/$id'
-      fullPath: '/profil/$id'
-      preLoaderRoute: typeof ProfilIdRouteImport
+    '/paszport-najemcy': {
+      id: '/paszport-najemcy'
+      path: '/paszport-najemcy'
+      fullPath: '/paszport-najemcy'
+      preLoaderRoute: typeof PaszportNajemcyRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/platnosc/status': {
-      id: '/platnosc/status'
-      path: '/platnosc/status'
-      fullPath: '/platnosc/status'
-      preLoaderRoute: typeof PlatnoscStatusRouteImport
+    '/polityka-prywatnosci': {
+      id: '/polityka-prywatnosci'
+      path: '/polityka-prywatnosci'
+      fullPath: '/polityka-prywatnosci'
+      preLoaderRoute: typeof PolitykaPrywatnosciRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/p/$code': {
-      id: '/p/$code'
-      path: '/p/$code'
-      fullPath: '/p/$code'
-      preLoaderRoute: typeof PCodeRouteImport
+    '/regulamin': {
+      id: '/regulamin'
+      path: '/regulamin'
+      fullPath: '/regulamin'
+      preLoaderRoute: typeof RegulaminRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/najem/zapytania': {
-      id: '/najem/zapytania'
-      path: '/najem/zapytania'
-      fullPath: '/najem/zapytania'
-      preLoaderRoute: typeof NajemZapytaniaRouteImport
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/blog/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/admin/login': {
-      id: '/admin/login'
-      path: '/admin/login'
-      fullPath: '/admin/login'
-      preLoaderRoute: typeof AdminLoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/wykonawca': {
-      id: '/_authenticated/wykonawca'
-      path: '/wykonawca'
-      fullPath: '/wykonawca'
-      preLoaderRoute: typeof AuthenticatedWykonawcaRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/ustawienia': {
-      id: '/_authenticated/ustawienia'
-      path: '/ustawienia'
-      fullPath: '/ustawienia'
-      preLoaderRoute: typeof AuthenticatedUstawieniaRouteImport
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/messages': {
@@ -720,137 +657,81 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMessagesRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+    '/_authenticated/ustawienia': {
+      id: '/_authenticated/ustawienia'
+      path: '/ustawienia'
+      fullPath: '/ustawienia'
+      preLoaderRoute: typeof AuthenticatedUstawieniaRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/najem/oferty/': {
-      id: '/najem/oferty/'
-      path: '/najem/oferty'
-      fullPath: '/najem/oferty/'
-      preLoaderRoute: typeof NajemOfertyIndexRouteImport
+    '/_authenticated/wykonawca': {
+      id: '/_authenticated/wykonawca'
+      path: '/wykonawca'
+      fullPath: '/wykonawca'
+      preLoaderRoute: typeof AuthenticatedWykonawcaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/admin/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/najem/zapytania/$id': {
-      id: '/najem/zapytania/$id'
-      path: '/$id'
-      fullPath: '/najem/zapytania/$id'
-      preLoaderRoute: typeof NajemZapytaniaIdRouteImport
-      parentRoute: typeof NajemZapytaniaRoute
-    }
-    '/najem/oferty/$id': {
-      id: '/najem/oferty/$id'
-      path: '/najem/oferty/$id'
-      fullPath: '/najem/oferty/$id'
-      preLoaderRoute: typeof NajemOfertyIdRouteImport
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/api/public/mollie-webhook': {
-      id: '/api/public/mollie-webhook'
-      path: '/api/public/mollie-webhook'
-      fullPath: '/api/public/mollie-webhook'
-      preLoaderRoute: typeof ApiPublicMollieWebhookRouteImport
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/najem/zakonczone-umowy': {
-      id: '/_authenticated/najem/zakonczone-umowy'
-      path: '/najem/zakonczone-umowy'
-      fullPath: '/najem/zakonczone-umowy'
-      preLoaderRoute: typeof AuthenticatedNajemZakonczoneUmowyRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/najem/': {
+      id: '/najem/'
+      path: '/najem'
+      fullPath: '/najem/'
+      preLoaderRoute: typeof NajemIndexRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/najem/zainteresowani': {
-      id: '/_authenticated/najem/zainteresowani'
-      path: '/najem/zainteresowani'
-      fullPath: '/najem/zainteresowani'
-      preLoaderRoute: typeof AuthenticatedNajemZainteresowaniRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/najem/zapytania': {
+      id: '/najem/zapytania'
+      path: '/najem/zapytania'
+      fullPath: '/najem/zapytania'
+      preLoaderRoute: typeof NajemZapytaniaRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/najem/umowy': {
-      id: '/_authenticated/najem/umowy'
-      path: '/najem/umowy'
-      fullPath: '/najem/umowy'
-      preLoaderRoute: typeof AuthenticatedNajemUmowyRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/p/$code': {
+      id: '/p/$code'
+      path: '/p/$code'
+      fullPath: '/p/$code'
+      preLoaderRoute: typeof PCodeRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/najem/portfel': {
-      id: '/_authenticated/najem/portfel'
-      path: '/najem/portfel'
-      fullPath: '/najem/portfel'
-      preLoaderRoute: typeof AuthenticatedNajemPortfelRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/platnosc/status': {
+      id: '/platnosc/status'
+      path: '/platnosc/status'
+      fullPath: '/platnosc/status'
+      preLoaderRoute: typeof PlatnoscStatusRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/najem/paszport': {
-      id: '/_authenticated/najem/paszport'
-      path: '/najem/paszport'
-      fullPath: '/najem/paszport'
-      preLoaderRoute: typeof AuthenticatedNajemPaszportRouteImport
-      parentRoute: typeof AuthenticatedRoute
+    '/profil/$id': {
+      id: '/profil/$id'
+      path: '/profil/$id'
+      fullPath: '/profil/$id'
+      preLoaderRoute: typeof ProfilIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/najem/nowe-zapytanie': {
-      id: '/_authenticated/najem/nowe-zapytanie'
-      path: '/najem/nowe-zapytanie'
-      fullPath: '/najem/nowe-zapytanie'
-      preLoaderRoute: typeof AuthenticatedNajemNoweZapytanieRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/nowa-oferta': {
-      id: '/_authenticated/najem/nowa-oferta'
-      path: '/najem/nowa-oferta'
-      fullPath: '/najem/nowa-oferta'
-      preLoaderRoute: typeof AuthenticatedNajemNowaOfertaRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/moje-zapytania': {
-      id: '/_authenticated/najem/moje-zapytania'
-      path: '/najem/moje-zapytania'
-      fullPath: '/najem/moje-zapytania'
-      preLoaderRoute: typeof AuthenticatedNajemMojeZapytaniaRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/moje-umowy': {
-      id: '/_authenticated/najem/moje-umowy'
-      path: '/najem/moje-umowy'
-      fullPath: '/najem/moje-umowy'
-      preLoaderRoute: typeof AuthenticatedNajemMojeUmowyRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/moje-oferty': {
-      id: '/_authenticated/najem/moje-oferty'
-      path: '/najem/moje-oferty'
-      fullPath: '/najem/moje-oferty'
-      preLoaderRoute: typeof AuthenticatedNajemMojeOfertyRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/moj-paszport': {
-      id: '/_authenticated/najem/moj-paszport'
-      path: '/najem/moj-paszport'
-      fullPath: '/najem/moj-paszport'
-      preLoaderRoute: typeof AuthenticatedNajemMojPaszportRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/generator-umow': {
-      id: '/_authenticated/najem/generator-umow'
-      path: '/najem/generator-umow'
-      fullPath: '/najem/generator-umow'
-      preLoaderRoute: typeof AuthenticatedNajemGeneratorUmowRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/concierge': {
-      id: '/_authenticated/najem/concierge'
-      path: '/najem/concierge'
-      fullPath: '/najem/concierge'
-      preLoaderRoute: typeof AuthenticatedNajemConciergeRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/aktywne-umowy': {
-      id: '/_authenticated/najem/aktywne-umowy'
-      path: '/najem/aktywne-umowy'
-      fullPath: '/najem/aktywne-umowy'
-      preLoaderRoute: typeof AuthenticatedNajemAktywneUmowyRouteImport
+    '/_authenticated/admin_/passport-stats': {
+      id: '/_authenticated/admin_/passport-stats'
+      path: '/admin/passport-stats'
+      fullPath: '/admin/passport-stats'
+      preLoaderRoute: typeof AuthenticatedAdminPassportStatsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/admin_/passports': {
@@ -860,11 +741,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPassportsRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/admin_/passport-stats': {
-      id: '/_authenticated/admin_/passport-stats'
-      path: '/admin/passport-stats'
-      fullPath: '/admin/passport-stats'
-      preLoaderRoute: typeof AuthenticatedAdminPassportStatsRouteImport
+    '/_authenticated/najem/aktywne-umowy': {
+      id: '/_authenticated/najem/aktywne-umowy'
+      path: '/najem/aktywne-umowy'
+      fullPath: '/najem/aktywne-umowy'
+      preLoaderRoute: typeof AuthenticatedNajemAktywneUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/concierge': {
+      id: '/_authenticated/najem/concierge'
+      path: '/najem/concierge'
+      fullPath: '/najem/concierge'
+      preLoaderRoute: typeof AuthenticatedNajemConciergeRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/generator-umow': {
+      id: '/_authenticated/najem/generator-umow'
+      path: '/najem/generator-umow'
+      fullPath: '/najem/generator-umow'
+      preLoaderRoute: typeof AuthenticatedNajemGeneratorUmowRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/moj-paszport': {
+      id: '/_authenticated/najem/moj-paszport'
+      path: '/najem/moj-paszport'
+      fullPath: '/najem/moj-paszport'
+      preLoaderRoute: typeof AuthenticatedNajemMojPaszportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/moje-oferty': {
+      id: '/_authenticated/najem/moje-oferty'
+      path: '/najem/moje-oferty'
+      fullPath: '/najem/moje-oferty'
+      preLoaderRoute: typeof AuthenticatedNajemMojeOfertyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/moje-umowy': {
+      id: '/_authenticated/najem/moje-umowy'
+      path: '/najem/moje-umowy'
+      fullPath: '/najem/moje-umowy'
+      preLoaderRoute: typeof AuthenticatedNajemMojeUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/moje-zapytania': {
+      id: '/_authenticated/najem/moje-zapytania'
+      path: '/najem/moje-zapytania'
+      fullPath: '/najem/moje-zapytania'
+      preLoaderRoute: typeof AuthenticatedNajemMojeZapytaniaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/nowa-oferta': {
+      id: '/_authenticated/najem/nowa-oferta'
+      path: '/najem/nowa-oferta'
+      fullPath: '/najem/nowa-oferta'
+      preLoaderRoute: typeof AuthenticatedNajemNowaOfertaRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/nowe-zapytanie': {
+      id: '/_authenticated/najem/nowe-zapytanie'
+      path: '/najem/nowe-zapytanie'
+      fullPath: '/najem/nowe-zapytanie'
+      preLoaderRoute: typeof AuthenticatedNajemNoweZapytanieRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/paszport': {
+      id: '/_authenticated/najem/paszport'
+      path: '/najem/paszport'
+      fullPath: '/najem/paszport'
+      preLoaderRoute: typeof AuthenticatedNajemPaszportRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/portfel': {
+      id: '/_authenticated/najem/portfel'
+      path: '/najem/portfel'
+      fullPath: '/najem/portfel'
+      preLoaderRoute: typeof AuthenticatedNajemPortfelRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/umowy': {
+      id: '/_authenticated/najem/umowy'
+      path: '/najem/umowy'
+      fullPath: '/najem/umowy'
+      preLoaderRoute: typeof AuthenticatedNajemUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/zainteresowani': {
+      id: '/_authenticated/najem/zainteresowani'
+      path: '/najem/zainteresowani'
+      fullPath: '/najem/zainteresowani'
+      preLoaderRoute: typeof AuthenticatedNajemZainteresowaniRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/najem/zakonczone-umowy': {
+      id: '/_authenticated/najem/zakonczone-umowy'
+      path: '/najem/zakonczone-umowy'
+      fullPath: '/najem/zakonczone-umowy'
+      preLoaderRoute: typeof AuthenticatedNajemZakonczoneUmowyRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/api/public/mollie-webhook': {
+      id: '/api/public/mollie-webhook'
+      path: '/api/public/mollie-webhook'
+      fullPath: '/api/public/mollie-webhook'
+      preLoaderRoute: typeof ApiPublicMollieWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/najem/oferty/': {
+      id: '/najem/oferty/'
+      path: '/najem/oferty'
+      fullPath: '/najem/oferty/'
+      preLoaderRoute: typeof NajemOfertyIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/najem/oferty/$id': {
+      id: '/najem/oferty/$id'
+      path: '/najem/oferty/$id'
+      fullPath: '/najem/oferty/$id'
+      preLoaderRoute: typeof NajemOfertyIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/najem/zapytania/$id': {
+      id: '/najem/zapytania/$id'
+      path: '/$id'
+      fullPath: '/najem/zapytania/$id'
+      preLoaderRoute: typeof NajemZapytaniaIdRouteImport
+      parentRoute: typeof NajemZapytaniaRoute
+    }
+    '/_authenticated/najem/chats/$id': {
+      id: '/_authenticated/najem/chats/$id'
+      path: '/najem/chats/$id'
+      fullPath: '/najem/chats/$id'
+      preLoaderRoute: typeof AuthenticatedNajemChatsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/najem/umowa/$transactionId': {
@@ -872,13 +879,6 @@ declare module '@tanstack/react-router' {
       path: '/najem/umowa/$transactionId'
       fullPath: '/najem/umowa/$transactionId'
       preLoaderRoute: typeof AuthenticatedNajemUmowaTransactionIdRouteImport
-      parentRoute: typeof AuthenticatedRoute
-    }
-    '/_authenticated/najem/chats/$id': {
-      id: '/_authenticated/najem/chats/$id'
-      path: '/najem/chats/$id'
-      fullPath: '/najem/chats/$id'
-      preLoaderRoute: typeof AuthenticatedNajemChatsIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
   }
