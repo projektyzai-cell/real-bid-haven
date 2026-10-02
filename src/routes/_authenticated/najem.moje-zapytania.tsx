@@ -304,7 +304,7 @@ function MyRequestsPage() {
         </div>
       )}
 
-      
+      <TenantLeasesSection userId={user?.id} />
 
       <InterestModal
         isOpen={isModalOpen}

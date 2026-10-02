@@ -119,6 +119,7 @@ function NewRentalRequestPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!user) return;
+    if (!form.city.trim() || form.city.trim().length < 2) { toast.error(t("request.cityRequired")); return; }
     const parsed = schema.safeParse({
       city: form.city.trim(),
       district: mode === "district" && form.district.trim() ? form.district.trim() : undefined,
@@ -136,10 +137,10 @@ function NewRentalRequestPage() {
     if (mode === "map" && !mapArea) { toast.error(t("request.pointOnMap")); return; }
     if (sms.enabled) {
       if (!/^(\+?48)?[\s-]?\d{3}[\s-]?\d{3}[\s-]?\d{3}$/.test(sms.phone.trim())) {
-        toast.error("Podaj poprawny numer telefonu do powiadomień SMS.");
+        toast.error(t("request.smsPhoneInvalid"));
         return;
       }
-      if (!sms.consent) { toast.error("Zaznacz zgodę na otrzymywanie powiadomień SMS."); return; }
+      if (!sms.consent) { toast.error(t("request.smsConsentRequired")); return; }
     }
 
     setSubmitting(true);
@@ -196,7 +197,7 @@ function NewRentalRequestPage() {
         return;
       } catch (err: any) {
         setSubmitting(false);
-        toast.error(err?.message ?? "Nie udało się rozpocząć płatności za SMS.");
+        toast.error(err?.message ?? t("request.smsPayFail"));
         return;
       }
     }
@@ -463,14 +464,14 @@ function NewRentalRequestPage() {
 
           {propertyType === "room" && (
             <div className="space-y-4 rounded-2xl border border-white/5 bg-background/30 p-4">
-              <p className="text-xs font-medium uppercase tracking-wide text-gold">Informacje o pokoju</p>
+              <p className="text-xs font-medium uppercase tracking-wide text-gold">{t("request.roomInfo")}</p>
 
               <div>
-                <Label className="mb-2 block text-xs">Zamek w drzwiach pokoju</Label>
+                <Label className="mb-2 block text-xs">{t("request.roomLockLabel")}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    ["key", "Na klucz"],
-                    ["none", "Brak zamka"],
+                    ["key", t("request.lockKey")],
+                    ["none", t("request.lockNone")],
                   ] as const).map(([v, label]) => (
                     <button key={v} type="button"
                       onClick={() => setRoomLock((prev) => (prev === v ? "" : v))}
@@ -484,11 +485,11 @@ function NewRentalRequestPage() {
               </div>
 
               <div>
-                <Label className="mb-2 block text-xs">Czy w mieszkaniu akceptujesz mieszkającego właściciela?</Label>
+                <Label className="mb-2 block text-xs">{t("request.liveInOwner")}</Label>
                 <div className="grid grid-cols-2 gap-2">
                   {([
-                    [true, "Tak"],
-                    [false, "Nie"],
+                    [true, t("request.yes")],
+                    [false, t("request.no")],
                   ] as const).map(([v, label]) => (
                     <button key={String(v)} type="button"
                       onClick={() => setAcceptsLiveInOwner((prev) => (prev === v ? null : v))}
@@ -503,17 +504,17 @@ function NewRentalRequestPage() {
 
               <label className="flex items-start gap-3 text-sm">
                 <Checkbox checked={flags.wants_separate_wc} onCheckedChange={() => toggle("wants_separate_wc")} className="mt-0.5" />
-                <span>Oddzielne WC</span>
+                <span>{t("request.separateWc")}</span>
               </label>
 
               <div className="space-y-2">
-                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">Dostęp do części wspólnych</p>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t("request.sharedAccess")}</p>
                 {([
-                  ["shared_kitchen", "Kuchnia"],
-                  ["shared_living_room", "Salon"],
-                  ["shared_balcony", "Balkon lub taras"],
-                  ["shared_garden", "Ogród"],
-                  ["shared_basement", "Piwnica lub komórka lokatorska"],
+                  ["shared_kitchen", t("request.kitchen")],
+                  ["shared_living_room", t("request.livingRoom")],
+                  ["shared_balcony", t("request.balconyTerrace")],
+                  ["shared_garden", t("request.garden")],
+                  ["shared_basement", t("request.storage")],
                 ] as [keyof typeof flags, string][]).map(([k, label]) => (
                   <label key={k} className="flex items-start gap-3 text-sm">
                     <Checkbox checked={flags[k]} onCheckedChange={() => toggle(k)} className="mt-0.5" />
@@ -562,10 +563,10 @@ function NewRentalRequestPage() {
             <div>
               <Label>{t("request.activeFor")}</Label>
               <div className="mt-1.5 flex h-10 items-center rounded-xl border border-[var(--gold)]/40 bg-[var(--gold)]/5 px-3 text-sm font-semibold text-gold">
-                7 dni
+                {t("request.activeDaysVal")}
               </div>
               <p className="mt-1 text-[11px] text-muted-foreground">
-                Zapytanie jest ważne 7 dni. Po tym czasie wygasa — możesz je odświeżyć w zakładce „Moje zapytania”.
+                {t("request.activeDaysHelp")}
               </p>
             </div>
           </div>
@@ -608,43 +609,43 @@ function NewRentalRequestPage() {
           </label>
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.offers_staysafe_passport} onCheckedChange={() => toggle("offers_staysafe_passport")} className="mt-0.5" />
-            <span>Zobowiązuję się dostarczyć Wynajmującemu Paszport StaySafe</span>
+            <span>{t("request.providePassport")}</span>
           </label>
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.wants_minor_modifications} onCheckedChange={() => toggle("wants_minor_modifications")} className="mt-0.5" />
             <span>
-              Chcę mieć możliwość wykonania małych modyfikacji w nieruchomości
+              {t("request.wantsMods")}
               <span className="block text-[11px] text-muted-foreground">
-                Drobne prace: malowanie, wieszanie półek itp. — po wcześniejszym uzgodnieniu.
+                {t("request.wantsModsSub")}
               </span>
             </span>
           </label>
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={flags.wants_own_furniture} onCheckedChange={() => toggle("wants_own_furniture")} className="mt-0.5" />
-            <span>Mam część swoich mebli i chciałbym je wstawić do wynajmowanej nieruchomości</span>
+            <span>{t("request.ownFurniture")}</span>
           </label>
         </div>
 
         {/* POWIADOMIENIA SMS */}
-        <SectionTitle>Powiadomienia SMS</SectionTitle>
+        <SectionTitle>{t("request.smsTitle")}</SectionTitle>
         <div className="rounded-2xl border border-[var(--gold)]/30 bg-[var(--gold)]/5 p-4 space-y-3">
           <label className="flex items-start gap-3 text-sm">
             <Checkbox checked={sms.enabled} onCheckedChange={() => setSms((p) => ({ ...p, enabled: !p.enabled }))} className="mt-0.5" />
             <span>
-              Chcę otrzymywać powiadomienia SMS o nowych dopasowaniach Smart-Match
+              {t("request.smsOptIn")}
               <span className="block text-[11px] text-muted-foreground">
-                Jednorazowa opłata {SMS_PRICE.toFixed(2)} zł za cały okres aktywności zapytania. Zapytanie zostanie opublikowane po zaksięgowaniu płatności.
+                {t("request.smsFee", { price: SMS_PRICE.toFixed(2) })}
               </span>
             </span>
           </label>
           {sms.enabled && (
             <div className="space-y-3 pl-7">
               <div>
-                <Label htmlFor="sms_phone">Numer telefonu <span className="text-destructive">*</span></Label>
+                <Label htmlFor="sms_phone">{t("request.smsPhone")} <span className="text-destructive">*</span></Label>
                 <Input
                   id="sms_phone"
                   inputMode="tel"
-                  placeholder="np. 500 600 700"
+                  placeholder={t("request.smsPhonePh")}
                   value={sms.phone}
                   onChange={(e) => setSms((p) => ({ ...p, phone: e.target.value }))}
                   className="mt-1"
@@ -653,7 +654,7 @@ function NewRentalRequestPage() {
               <label className="flex items-start gap-3 text-xs">
                 <Checkbox checked={sms.consent} onCheckedChange={() => setSms((p) => ({ ...p, consent: !p.consent }))} className="mt-0.5" />
                 <span>
-                  Wyrażam zgodę na przetwarzanie mojego numeru telefonu przez Stay Safe w celu wysyłania powiadomień SMS o dopasowaniach ofert najmu (RODO).
+                  {t("request.smsRodo")}
                 </span>
               </label>
             </div>
@@ -661,7 +662,7 @@ function NewRentalRequestPage() {
         </div>
 
         <Button type="submit" disabled={submitting} size="lg" className="w-full rounded-xl">
-          {submitting ? t("request.submitting") : sms.enabled ? `Opublikuj i zapłać ${SMS_PRICE.toFixed(2)} zł` : t("request.submit")}
+          {submitting ? t("request.submitting") : sms.enabled ? t("request.publishAndPay", { price: SMS_PRICE.toFixed(2) }) : t("request.submit")}
         </Button>
 
       </form>
