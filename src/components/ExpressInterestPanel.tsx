@@ -69,6 +69,9 @@ export function ExpressInterestPanel({
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Udostępniłeś Paszport — wynajmujący zobaczy Twój score.");
+    import("@/lib/interest-email.functions")
+      .then((m) => m.notifyLandlordOfInterest({ data: { listingId } }))
+      .catch(() => {});
     if (data) load();
   }
 
