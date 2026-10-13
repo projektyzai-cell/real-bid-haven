@@ -31,7 +31,7 @@ export const Route = createFileRoute("/blog/$slug")({
     return { meta };
   },
   component: BlogPostPage,
-  errorComponent: ({ error }) => <div className="container mx-auto px-4 py-10 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="container mx-auto px-4 py-10 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => (
     <div className="container mx-auto px-4 py-10">
       <p>Nie znaleziono artykułu.</p>

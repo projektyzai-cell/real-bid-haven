@@ -41,7 +41,7 @@ export const Route = createFileRoute("/_authenticated/admin_/passports")({
     if (!data || data.length === 0) throw redirect({ to: "/" });
   },
   component: AdminPassportsPage,
-  errorComponent: ({ error }) => <div className="p-6 text-destructive">{error.message}</div>,
+  errorComponent: ({ error }) => <div className="p-6 text-destructive">{error instanceof Error ? error.message : String(error)}</div>,
   notFoundComponent: () => <div className="p-6">404</div>,
 });
 
