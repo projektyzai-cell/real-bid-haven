@@ -31,7 +31,7 @@ export const Route = createFileRoute("/profil/$id")({
   ),
   errorComponent: ({ error }) => (
     <div className="container mx-auto max-w-3xl px-4 py-16 text-center">
-      <p className="text-sm text-red-400">{error.message}</p>
+      <p className="text-sm text-red-400">{error instanceof Error ? error.message : String(error)}</p>
     </div>
   ),
 });
