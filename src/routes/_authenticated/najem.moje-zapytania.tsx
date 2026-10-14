@@ -155,9 +155,7 @@ function MyRequestsPage() {
     const { error } = await supabase.rpc("express_interest" as never, { _listing_id: listingId, _request_id: requestId } as never);
     if (error) { toast.error(error.message); return; }
     toast.success(t("myreq.passportSentToast"));
-    import("@/lib/interest-email.functions")
-      .then((m) => m.notifyLandlordOfInterest({ data: { listingId } }))
-      .catch(() => {});
+    import("@/lib/interest-email").then((m) => m.notifyLandlordOfInterest(listingId));
     queryClient.invalidateQueries({ queryKey: ["my-rental-offers"] });
   }
 
