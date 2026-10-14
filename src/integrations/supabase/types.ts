@@ -2573,6 +2573,10 @@ export type Database = {
       increment_blog_views: { Args: { _slug: string }; Returns: undefined }
       increment_property_views: { Args: { _id: string }; Returns: undefined }
       increment_rental_views: { Args: { _id: string }; Returns: undefined }
+      interest_notification_email: {
+        Args: { _listing_id: string }
+        Returns: string
+      }
       is_chat_participant: {
         Args: { _chat_id: string; _user_id: string }
         Returns: boolean
