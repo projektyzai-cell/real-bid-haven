@@ -1,12 +1,8 @@
-// Vercel Serverless Function (Node.js) — sends the Smart Match landlord email via SMTP.
-// Env vars are optional: SMTP_* and SUPABASE_* fall back to the defaults below.
-import nodemailer from "nodemailer";
+// Vercel Serverless Function (Node.js) — sends the Smart Match landlord email via Resend.
+// Requires RESEND_API_KEY in the Vercel environment.
+import { Resend } from "resend";
 
-const SMTP_HOST = process.env.SMTP_HOST || "web3.aftermarket.hosting";
-const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
-const SMTP_USER = process.env.SMTP_USER || "noreply@staysafe.pl";
-const SMTP_PASSWORD = process.env.SMTP_PASSWORD || "Staysafe";
-const SMTP_FROM = process.env.SMTP_FROM || "noreply@staysafe.pl";
+const FROM = '"StaySafe" <noreply@staysafe.pl>';
 
 const SUPABASE_URL =
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://yufwrbqcnutmxgzlekfa.supabase.co";
@@ -51,27 +47,24 @@ export default async function handler(req: any, res: any) {
   }
   if (!to || typeof to !== "string") return res.status(200).json({ sent: false, error: "No recipient" });
 
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error("[send-email] RESEND_API_KEY is not configured");
+    return res.status(500).json({ sent: false, error: "RESEND_API_KEY missing" });
+  }
+
   try {
-    const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_PORT === 465,
-      auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
-    });
-    const info = await transporter.sendMail({
-      from: `"StaySafe" <${SMTP_FROM}>`,
-      to,
-      subject: SUBJECT,
-      text: BODY,
-    });
-    console.log(`[send-email] sent via ${SMTP_HOST}:${SMTP_PORT}, messageId=${info.messageId}`);
+    const resend = new Resend(apiKey);
+    console.log("[send-email] sending via Resend …");
+    const { data, error } = await resend.emails.send({ from: FROM, to: [to], subject: SUBJECT, text: BODY });
+    if (error) {
+      console.error("[send-email] Resend rejected:", error);
+      return res.status(502).json({ sent: false, error: error.message });
+    }
+    console.log(`[send-email] sent via Resend, id=${data?.id}`);
     return res.status(200).json({ sent: true });
   } catch (err: any) {
-    console.error(
-      `[send-email] SMTP failed (${SMTP_HOST}:${SMTP_PORT}, user ${SMTP_USER}):`,
-      err?.code ?? "",
-      err?.message ?? err,
-    );
-    return res.status(500).json({ sent: false, error: err?.message ?? "SMTP error" });
+    console.error("[send-email] Resend failed:", err?.message ?? err);
+    return res.status(500).json({ sent: false, error: err?.message ?? "Resend error" });
   }
 }

@@ -14,4 +14,4 @@
 - [x] Belka kosztów w ogłoszeniu: łączna kwota na złoto od lewej
 - [x] Tłumaczenia EN/UK: zakładka "Korzyści", panel użytkownika (ustawienia), "Moje zapytania i dopasowania", "Nowe zapytanie"
 - [x] Panel admina — konta użytkownik: liczba wystawionych ofert do wynajmu (kolumna "Oferty")
-- [x] Automatyczny e-mail do Wynajmującego przy nowym zainteresowaniu Najemcy — przez własny SMTP (noreply@staysafe.pl)
+- [x] Automatyczny e-mail do Wynajmującego przy nowym zainteresowaniu Najemcy — przez własny Resend (noreply@staysafe.pl)
