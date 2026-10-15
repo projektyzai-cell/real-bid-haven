@@ -1,12 +1,8 @@
-// Vercel Serverless Function (Node.js) — sends the Smart Match landlord email via SMTP.
-// Env vars are optional: SMTP_* and SUPABASE_* fall back to the defaults below.
-import nodemailer from "nodemailer";
+// Vercel Serverless Function (Node.js) — sends the Smart Match landlord email via Resend.
+// Requires RESEND_API_KEY in the Vercel environment.
+import { Resend } from "resend";
 
-const SMTP_HOST = process.env.SMTP_HOST || "web3.aftermarket.hosting";
-const SMTP_PORT = Number(process.env.SMTP_PORT || 465);
-const SMTP_USER = process.env.SMTP_USER || "noreply@staysafe.pl";
-const SMTP_PASSWORD = process.env.SMTP_PASSWORD || "Staysafe";
-const SMTP_FROM = process.env.SMTP_FROM || "noreply@staysafe.pl";
+const FROM = '"StaySafe" <noreply@staysafe.pl>';
 
 const SUPABASE_URL =
   process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || "https://yufwrbqcnutmxgzlekfa.supabase.co";
