@@ -47,27 +47,24 @@ export default async function handler(req: any, res: any) {
   }
   if (!to || typeof to !== "string") return res.status(200).json({ sent: false, error: "No recipient" });
 
+  const apiKey = process.env.RESEND_API_KEY;
+  if (!apiKey) {
+    console.error("[send-email] RESEND_API_KEY is not configured");
+    return res.status(500).json({ sent: false, error: "RESEND_API_KEY missing" });
+  }
+
   try {
-    const transporter = nodemailer.createTransport({
-      host: SMTP_HOST,
-      port: SMTP_PORT,
-      secure: SMTP_PORT === 465,
-      auth: { user: SMTP_USER, pass: SMTP_PASSWORD },
-    });
-    const info = await transporter.sendMail({
-      from: `"StaySafe" <${SMTP_FROM}>`,
-      to,
-      subject: SUBJECT,
-      text: BODY,
-    });
-    console.log(`[send-email] sent via ${SMTP_HOST}:${SMTP_PORT}, messageId=${info.messageId}`);
+    const resend = new Resend(apiKey);
+    console.log("[send-email] sending via Resend …");
+    const { data, error } = await resend.emails.send({ from: FROM, to: [to], subject: SUBJECT, text: BODY });
+    if (error) {
+      console.error("[send-email] Resend rejected:", error);
+      return res.status(502).json({ sent: false, error: error.message });
+    }
+    console.log(`[send-email] sent via Resend, id=${data?.id}`);
     return res.status(200).json({ sent: true });
   } catch (err: any) {
-    console.error(
-      `[send-email] SMTP failed (${SMTP_HOST}:${SMTP_PORT}, user ${SMTP_USER}):`,
-      err?.code ?? "",
-      err?.message ?? err,
-    );
-    return res.status(500).json({ sent: false, error: err?.message ?? "SMTP error" });
+    console.error("[send-email] Resend failed:", err?.message ?? err);
+    return res.status(500).json({ sent: false, error: err?.message ?? "Resend error" });
   }
 }
