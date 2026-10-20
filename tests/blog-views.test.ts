@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { createBlogViewRecorder } from "./blog-views";
+import { createBlogViewRecorder } from "../src/lib/blog-views";
 
 describe("blog visits", () => {
   test("one displayed article records one visit despite repeated effects", async () => {
