@@ -1,6 +1,7 @@
 # Roadmap
 
-- [ ] Niezawodny zapis i odczyt rzeczywistych odwiedzin artykułów bloga
+- [x] Zapis i odczyt odwiedzin przez serwer, bez podwójnego naliczania przy ponownym uruchomieniu efektu
+- [ ] Potwierdzenie zapisu na rzeczywistym artykule — blokada: w podłączonej bazie brak artykułów bloga
 
 - [x] Odznaka oceny „Oceniona przez Najemców!" zamiast „Nowość" dla ocenionych ofert
 - [x] Zakładka „Sub-adminowie" — dodawanie adminów i nadawanie uprawnień istniejącym kontom
