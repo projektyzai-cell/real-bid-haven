@@ -1,5 +1,7 @@
 # Roadmap
 
+- [ ] Niezawodny zapis i odczyt rzeczywistych odwiedzin artykułów bloga
+
 - [x] Odznaka oceny „Oceniona przez Najemców!" zamiast „Nowość" dla ocenionych ofert
 - [x] Zakładka „Sub-adminowie" — dodawanie adminów i nadawanie uprawnień istniejącym kontom
 - [x] Wygasłe oferty promowane: odnowienie jako zwykłe (bez opłaty) lub jako promowane (nowa płatność)
