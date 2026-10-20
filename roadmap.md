@@ -18,3 +18,4 @@
 - [x] Tłumaczenia EN/UK: zakładka "Korzyści", panel użytkownika (ustawienia), "Moje zapytania i dopasowania", "Nowe zapytanie"
 - [x] Panel admina — konta użytkownik: liczba wystawionych ofert do wynajmu (kolumna "Oferty")
 - [x] Automatyczny e-mail do Wynajmującego przy nowym zainteresowaniu Najemcy — przez własny Resend (noreply@staysafe.pl)
+- [x] Link powrotu do listy artykułów na dole każdego artykułu (taki sam jak na górze)
