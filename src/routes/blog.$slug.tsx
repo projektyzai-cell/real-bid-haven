@@ -87,7 +87,13 @@ function BlogPostPage() {
       <div className="prose prose-invert mt-6 max-w-none whitespace-pre-wrap text-[15px] leading-relaxed text-foreground/90">
         {post.content}
       </div>
+      <div className="mt-10 border-t border-border pt-6">
+        <Link to="/blog" className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground">
+          <ArrowLeft className="h-3.5 w-3.5" /> Blog
+        </Link>
+      </div>
       <script
+
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify({
