@@ -1,8 +1,10 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft, Eye } from "lucide-react";
-import { getPublishedPost } from "@/lib/blog.functions";
-import { supabase } from "@/integrations/supabase/client";
+import { getPublishedPost, registerPostView } from "@/lib/blog.functions";
+import { createBlogViewRecorder } from "@/lib/blog-views";
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
     const post = await getPublishedPost({ data: { slug: params.slug } });
@@ -43,23 +45,30 @@ export const Route = createFileRoute("/blog/$slug")({
 function BlogPostPage() {
   const post = Route.useLoaderData();
   const [views, setViews] = useState<number>(post.views_count ?? 0);
+  const queryClient = useQueryClient();
+  const registerView = useServerFn(registerPostView);
+  const sendView = useRef(registerView);
+  sendView.current = registerView;
+  const recorder = useRef<ReturnType<typeof createBlogViewRecorder> | null>(null);
+  if (!recorder.current) {
+    recorder.current = createBlogViewRecorder(async (slug) => {
+      const result = await sendView.current({ data: { slug } });
+      return result.views_count;
+    });
+  }
 
   useEffect(() => {
     setViews(post.views_count ?? 0);
     let cancelled = false;
-    (async () => {
-      const { error } = await supabase.rpc("increment_blog_views" as never, { _slug: post.slug } as never);
-      if (error) { console.warn("blog views:", error.message); return; }
-      const { data } = await supabase
-        .from("blog_posts" as never)
-        .select("views_count")
-        .eq("slug", post.slug)
-        .maybeSingle();
-      const fresh = (data as unknown as { views_count?: number } | null)?.views_count;
-      if (!cancelled && typeof fresh === "number") setViews(fresh);
-    })();
+    recorder.current?.(post.slug).then((fresh) => {
+      if (cancelled) return;
+      setViews(fresh);
+      void queryClient.invalidateQueries({ queryKey: ["blog", "published"] });
+    }).catch((error) => {
+      console.error("[blog-views]", error);
+    });
     return () => { cancelled = true; };
-  }, [post.slug, post.views_count]);
+  }, [post.slug, queryClient]);
 
   return (
     <article className="container mx-auto max-w-3xl px-4 py-10">
