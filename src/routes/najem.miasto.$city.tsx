@@ -1,7 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MapPin, Eye, ArrowLeft, SearchX, ShieldCheck } from "lucide-react";
+import { MapPin, Eye, ArrowLeft, SearchX, ShieldCheck, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPLN } from "@/lib/format";
@@ -73,6 +74,8 @@ function CityLandingPage() {
       <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{city.h1}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">{city.intro}</p>
 
+      <PromotedPolandStrip />
+
       {isLoading ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-72 animate-pulse rounded-3xl bg-muted" />)}
@@ -116,6 +119,82 @@ function CityLandingPage() {
         </div>
       )}
     </div>
+  );
+}
+
+/** 3 losowe promowane oferty z całej Polski — nad ofertami danego miasta. */
+function PromotedPolandStrip() {
+  const { t } = useTranslation();
+  const { data: pool = [] } = useQuery({
+    queryKey: ["promoted-rentals"],
+    queryFn: async (): Promise<RentalRow[]> => {
+      const { data, error } = await supabase
+        .from("rental_listings" as never)
+        .select("id, title, city, district, street, rooms, area_m2, monthly_price, images, main_image_index, promoted, views_count")
+        .eq("status", "active")
+        .eq("promoted", true)
+        .gt("expires_at", new Date().toISOString())
+        .or(`promoted_until.is.null,promoted_until.gt.${new Date().toISOString()}`)
+        .order("created_at", { ascending: false })
+        .limit(50);
+      if (error) throw error;
+      return (data ?? []) as unknown as RentalRow[];
+    },
+  });
+
+  // losowanie stabilne w obrębie sesji widoku
+  const promoted = useMemo(() => {
+    const arr = [...pool];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    return arr.slice(0, 3);
+  }, [pool]);
+
+  if (promoted.length === 0) return null;
+
+  return (
+    <section className="mt-10">
+      <div className="mb-5 flex items-center gap-2">
+        <Sparkles className="h-5 w-5 text-gold" />
+        <h2 className="text-xl font-bold tracking-tight">{t("offers.promoted")}</h2>
+      </div>
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {promoted.map((r) => {
+          const main = r.images?.[r.main_image_index] ?? r.images?.[0];
+          return (
+            <Link key={r.id} to="/najem/oferty/$id" params={{ id: r.id }}
+              className="group block overflow-hidden rounded-3xl bg-card shadow-card ring-2 ring-amber-400 transition hover:-translate-y-0.5 hover:shadow-glow">
+              {main ? (
+                <img src={main} alt={r.title} loading="lazy" className="aspect-[4/3] w-full object-cover transition group-hover:scale-105" />
+              ) : (
+                <div className="aspect-[4/3] bg-muted" />
+              )}
+              <div className="space-y-2 p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge className="rounded-full">{r.area_m2} m²</Badge>
+                  <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>
+                  <ListingReviewedBadge listingId={r.id} />
+                </div>
+                <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}
+                </div>
+                <div className="flex items-baseline justify-between">
+                  <span className="text-2xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)}</span>
+                  <span className="text-xs text-muted-foreground">{t("offers.perMonth")}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span>{r.rooms} {t("offers.rooms")}</span>
+                  <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{r.views_count ?? 0}</span>
+                </div>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+    </section>
   );
 }
 
