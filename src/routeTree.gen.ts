@@ -47,6 +47,7 @@ import { Route as AuthenticatedNajemUmowyRouteImport } from './routes/_authentic
 import { Route as AuthenticatedNajemZainteresowaniRouteImport } from './routes/_authenticated/najem.zainteresowani'
 import { Route as AuthenticatedNajemZakonczoneUmowyRouteImport } from './routes/_authenticated/najem.zakonczone-umowy'
 import { Route as ApiPublicMollieWebhookRouteImport } from './routes/api/public/mollie-webhook'
+import { Route as NajemMiastoCityRouteImport } from './routes/najem.miasto.$city'
 import { Route as NajemOfertyIndexRouteImport } from './routes/najem.oferty.index'
 import { Route as NajemOfertyIdRouteImport } from './routes/najem.oferty.$id'
 import { Route as NajemZapytaniaIdRouteImport } from './routes/najem.zapytania.$id'
@@ -257,6 +258,11 @@ const ApiPublicMollieWebhookRoute = ApiPublicMollieWebhookRouteImport.update({
   path: '/api/public/mollie-webhook',
   getParentRoute: () => rootRouteImport,
 } as any)
+const NajemMiastoCityRoute = NajemMiastoCityRouteImport.update({
+  id: '/najem/miasto/$city',
+  path: '/najem/miasto/$city',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const NajemOfertyIndexRoute = NajemOfertyIndexRouteImport.update({
   id: '/najem/oferty/',
   path: '/najem/oferty/',
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
   '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
+  '/najem/miasto/$city': typeof NajemMiastoCityRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -367,6 +374,7 @@ export interface FileRoutesByTo {
   '/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
   '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
+  '/najem/miasto/$city': typeof NajemMiastoCityRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty': typeof NajemOfertyIndexRoute
@@ -413,6 +421,7 @@ export interface FileRoutesById {
   '/_authenticated/najem/zainteresowani': typeof AuthenticatedNajemZainteresowaniRoute
   '/_authenticated/najem/zakonczone-umowy': typeof AuthenticatedNajemZakonczoneUmowyRoute
   '/api/public/mollie-webhook': typeof ApiPublicMollieWebhookRoute
+  '/najem/miasto/$city': typeof NajemMiastoCityRoute
   '/najem/oferty/$id': typeof NajemOfertyIdRoute
   '/najem/zapytania/$id': typeof NajemZapytaniaIdRoute
   '/najem/oferty/': typeof NajemOfertyIndexRoute
@@ -459,6 +468,7 @@ export interface FileRouteTypes {
     | '/najem/zainteresowani'
     | '/najem/zakonczone-umowy'
     | '/api/public/mollie-webhook'
+    | '/najem/miasto/$city'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -503,6 +513,7 @@ export interface FileRouteTypes {
     | '/najem/zainteresowani'
     | '/najem/zakonczone-umowy'
     | '/api/public/mollie-webhook'
+    | '/najem/miasto/$city'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/_authenticated/najem/zainteresowani'
     | '/_authenticated/najem/zakonczone-umowy'
     | '/api/public/mollie-webhook'
+    | '/najem/miasto/$city'
     | '/najem/oferty/$id'
     | '/najem/zapytania/$id'
     | '/najem/oferty/'
@@ -574,6 +586,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   NajemIndexRoute: typeof NajemIndexRoute
   ApiPublicMollieWebhookRoute: typeof ApiPublicMollieWebhookRoute
+  NajemMiastoCityRoute: typeof NajemMiastoCityRoute
   NajemOfertyIdRoute: typeof NajemOfertyIdRoute
   NajemOfertyIndexRoute: typeof NajemOfertyIndexRoute
 }
@@ -846,6 +859,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicMollieWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/najem/miasto/$city': {
+      id: '/najem/miasto/$city'
+      path: '/najem/miasto/$city'
+      fullPath: '/najem/miasto/$city'
+      preLoaderRoute: typeof NajemMiastoCityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/najem/oferty/': {
       id: '/najem/oferty/'
       path: '/najem/oferty'
@@ -971,6 +991,7 @@ const rootRouteChildren: RootRouteChildren = {
   BlogIndexRoute: BlogIndexRoute,
   NajemIndexRoute: NajemIndexRoute,
   ApiPublicMollieWebhookRoute: ApiPublicMollieWebhookRoute,
+  NajemMiastoCityRoute: NajemMiastoCityRoute,
   NajemOfertyIdRoute: NajemOfertyIdRoute,
   NajemOfertyIndexRoute: NajemOfertyIndexRoute,
 }

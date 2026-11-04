@@ -19,3 +19,4 @@
 - [x] Panel admina — konta użytkownik: liczba wystawionych ofert do wynajmu (kolumna "Oferty")
 - [x] Automatyczny e-mail do Wynajmującego przy nowym zainteresowaniu Najemcy — przez własny Resend (noreply@staysafe.pl)
 - [x] Link powrotu do listy artykułów na dole każdego artykułu (taki sam jak na górze)
+- [x] Sekcja „City Connector" na /najem (Warszawa zawsze 1., 3 losowe miasta) + 9 stron SEO miast pod /najem/miasto/[miasto] z pustym stanem
