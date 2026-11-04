@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPLN } from "@/lib/format";
 import { ListingReviewedBadge } from "@/components/ReviewBadges";
+import { CityConnector } from "@/components/CityConnector";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/najem/")({
@@ -37,6 +38,7 @@ function NajemHub() {
       <QuickVerify />
       <HowItWorks />
       <PromotedStrip />
+      <CityConnector />
       <LatestListings />
       <SeoSection />
     </div>
