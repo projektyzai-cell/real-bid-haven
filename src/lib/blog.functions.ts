@@ -69,6 +69,45 @@ export const getPublishedPost = createServerFn({ method: "GET" })
     return (row ?? null) as unknown as BlogPost | null;
   });
 
+export type BlogNavItem = {
+  slug: string;
+  title: string;
+};
+
+export const getPreviousPost = createServerFn({ method: "GET" })
+  .inputValidator((d) => z.object({ slug: z.string().min(1) }).parse(d))
+  .handler(async ({ data }): Promise<BlogNavItem | null> => {
+    const client = publicClient();
+    const { data: current, error: currentError } = await client
+      .from("blog_posts")
+      .select("id,published_at")
+      .eq("slug", data.slug)
+      .eq("status", "published")
+      .maybeSingle();
+    if (currentError) throw new Error(currentError.message);
+    if (!current) return null;
+    if (current.published_at) {
+      const { data: older, error: olderError } = await client
+        .from("blog_posts")
+        .select("slug,title")
+        .eq("status", "published")
+        .lt("published_at", current.published_at)
+        .order("published_at", { ascending: false })
+        .limit(1);
+      if (olderError) throw new Error(olderError.message);
+      if (older && older.length > 0) return older[0] as unknown as BlogNavItem;
+    }
+    const { data: other, error: otherError } = await client
+      .from("blog_posts")
+      .select("slug,title")
+      .eq("status", "published")
+      .neq("slug", data.slug)
+      .order("published_at", { ascending: false })
+      .limit(1);
+    if (otherError) throw new Error(otherError.message);
+    return (other && other.length > 0 ? other[0] : null) as unknown as BlogNavItem | null;
+  });
+
 export const registerPostView = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ slug: z.string().min(1) }).parse(d))
   .handler(async ({ data }) => {
