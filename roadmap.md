@@ -21,3 +21,4 @@
 - [x] Link powrotu do listy artykułów na dole każdego artykułu (taki sam jak na górze)
 - [x] Sekcja „City Connector" na /najem (Warszawa zawsze 1., 3 losowe miasta) + 9 stron SEO miast pod /najem/miasto/[miasto] z pustym stanem
 - [x] Strony miast: złoty przycisk „Zobacz oferty", filtr rodzaju (mieszkanie/pokój/dom), bez promowanych na górze, 3 najnowsze oferty z całego serwisu pod listą
+- [x] Artykuł bloga: u góry link do bloga + „Zobacz kolejny artykuł: [tytuł]", na dole link do bloga + „Zobacz także" z linkiem do poprzedniego artykułu
