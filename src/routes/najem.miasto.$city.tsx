@@ -1,8 +1,8 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import { MapPin, Eye, ArrowLeft, SearchX, ShieldCheck, Sparkles } from "lucide-react";
+import { MapPin, Eye, ArrowLeft, SearchX, ShieldCheck, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { formatPLN } from "@/lib/format";
@@ -13,8 +13,13 @@ interface RentalRow {
   id: string; title: string; city: string; district: string | null; street: string;
   rooms: number; area_m2: number; monthly_price: number;
   images: string[]; main_image_index: number;
-  promoted: boolean; views_count: number;
+  promoted: boolean; views_count: number; kind: string;
 }
+
+type KindFilter = "all" | "apartment" | "room" | "house";
+
+const LISTING_SELECT =
+  "id, title, city, district, street, rooms, area_m2, monthly_price, images, main_image_index, promoted, views_count, kind";
 
 export const Route = createFileRoute("/najem/miasto/$city")({
   beforeLoad: ({ params }) => {
@@ -45,13 +50,14 @@ function CityLandingPage() {
   const { city: slug } = Route.useParams();
   const { t } = useTranslation();
   const city = CITIES[slug];
+  const [kind, setKind] = useState<KindFilter>("all");
 
-  const { data = [], isLoading } = useQuery({
+  const { data: cityListings = [], isLoading } = useQuery({
     queryKey: ["city-listings", slug],
     queryFn: async (): Promise<RentalRow[]> => {
       const { data, error } = await supabase
         .from("rental_listings" as never)
-        .select("id, title, city, district, street, rooms, area_m2, monthly_price, images, main_image_index, promoted, views_count")
+        .select(LISTING_SELECT)
         .eq("status", "active")
         .gt("expires_at", new Date().toISOString())
         .order("promoted", { ascending: false })
@@ -61,6 +67,18 @@ function CityLandingPage() {
       return ((data ?? []) as unknown as RentalRow[]).filter((r) => cityMatchesSlug(r.city, slug));
     },
   });
+
+  const filtered = useMemo(
+    () => (kind === "all" ? cityListings : cityListings.filter((r) => r.kind === kind)),
+    [cityListings, kind],
+  );
+
+  const kindOptions: { value: KindFilter; label: string }[] = [
+    { value: "all", label: t("offers.all") },
+    { value: "apartment", label: t("offers.apartment") },
+    { value: "room", label: t("offers.room") },
+    { value: "house", label: t("offers.house") },
+  ];
 
   return (
     <div className="container mx-auto px-4 py-10">
@@ -74,125 +92,103 @@ function CityLandingPage() {
       <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{city.h1}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">{city.intro}</p>
 
-      <PromotedPolandStrip />
+      {/* Filtr rodzaju nieruchomości */}
+      <div className="mt-6 flex flex-wrap gap-2">
+        {kindOptions.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => setKind(opt.value)}
+            className={`rounded-full border px-4 py-1.5 text-sm font-semibold transition ${
+              kind === opt.value
+                ? "border-amber-400 bg-amber-400 text-amber-950"
+                : "border-border bg-card/40 text-muted-foreground hover:border-amber-400/50 hover:text-foreground"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
 
       {isLoading ? (
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-72 animate-pulse rounded-3xl bg-muted" />)}
         </div>
-      ) : data.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <CityEmptyState />
       ) : (
         <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {data.map((r) => {
-            const main = r.images?.[r.main_image_index] ?? r.images?.[0];
-            return (
-              <Link key={r.id} to="/najem/oferty/$id" params={{ id: r.id }}
-                className={`group block overflow-hidden rounded-3xl bg-card shadow-card transition hover:-translate-y-0.5 hover:shadow-glow ${r.promoted ? "ring-2 ring-amber-400" : ""}`}>
-                {main ? (
-                  <img src={main} alt={r.title} loading="lazy" className="aspect-[4/3] w-full object-cover transition group-hover:scale-105" />
-                ) : (
-                  <div className="aspect-[4/3] bg-muted" />
-                )}
-                <div className="space-y-2 p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge className="rounded-full">{r.area_m2} m²</Badge>
-                    {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>}
-                    <ListingReviewedBadge listingId={r.id} />
-                  </div>
-                  <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}
-                  </div>
-                  <div className="flex items-baseline justify-between">
-                    <span className="text-2xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)}</span>
-                    <span className="text-xs text-muted-foreground">{t("offers.perMonth")}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>{r.rooms} {t("offers.rooms")}</span>
-                    <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{r.views_count ?? 0}</span>
-                  </div>
-                </div>
-              </Link>
-            );
-          })}
+          {filtered.map((r) => <ListingCard key={r.id} r={r} />)}
         </div>
       )}
+
+      <LatestSiteWide />
     </div>
   );
 }
 
-/** 3 losowe promowane oferty z całej Polski — nad ofertami danego miasta. */
-function PromotedPolandStrip() {
+function ListingCard({ r }: { r: RentalRow }) {
   const { t } = useTranslation();
-  const { data: pool = [] } = useQuery({
-    queryKey: ["promoted-rentals"],
+  const main = r.images?.[r.main_image_index] ?? r.images?.[0];
+  return (
+    <Link to="/najem/oferty/$id" params={{ id: r.id }}
+      className={`group block overflow-hidden rounded-3xl bg-card shadow-card transition hover:-translate-y-0.5 hover:shadow-glow ${r.promoted ? "ring-2 ring-amber-400" : ""}`}>
+      {main ? (
+        <img src={main} alt={r.title} loading="lazy" className="aspect-[4/3] w-full object-cover transition group-hover:scale-105" />
+      ) : (
+        <div className="aspect-[4/3] bg-muted" />
+      )}
+      <div className="space-y-2 p-5">
+        <div className="flex flex-wrap items-center gap-2">
+          <Badge className="rounded-full">{r.area_m2} m²</Badge>
+          {r.promoted && <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>}
+          <ListingReviewedBadge listingId={r.id} />
+        </div>
+        <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}
+        </div>
+        <div className="flex items-baseline justify-between">
+          <span className="text-2xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)}</span>
+          <span className="text-xs text-muted-foreground">{t("offers.perMonth")}</span>
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>{r.rooms} {t("offers.rooms")}</span>
+          <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{r.views_count ?? 0}</span>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+/** 3 najnowsze aktywne oferty z całego serwisu — pod ofertami miasta / komunikatem o braku. */
+function LatestSiteWide() {
+  const { t } = useTranslation();
+  const { data: latest = [] } = useQuery({
+    queryKey: ["latest-rentals-sitewide-3"],
     queryFn: async (): Promise<RentalRow[]> => {
       const { data, error } = await supabase
         .from("rental_listings" as never)
-        .select("id, title, city, district, street, rooms, area_m2, monthly_price, images, main_image_index, promoted, views_count")
+        .select(LISTING_SELECT)
         .eq("status", "active")
-        .eq("promoted", true)
         .gt("expires_at", new Date().toISOString())
-        .or(`promoted_until.is.null,promoted_until.gt.${new Date().toISOString()}`)
         .order("created_at", { ascending: false })
-        .limit(50);
+        .limit(3);
       if (error) throw error;
       return (data ?? []) as unknown as RentalRow[];
     },
   });
 
-  // losowanie stabilne w obrębie sesji widoku
-  const promoted = useMemo(() => {
-    const arr = [...pool];
-    for (let i = arr.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [arr[i], arr[j]] = [arr[j], arr[i]];
-    }
-    return arr.slice(0, 3);
-  }, [pool]);
-
-  if (promoted.length === 0) return null;
+  if (latest.length === 0) return null;
 
   return (
-    <section className="mt-10">
+    <section className="mt-14 border-t border-border/60 pt-10">
       <div className="mb-5 flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-gold" />
-        <h2 className="text-xl font-bold tracking-tight">{t("offers.promoted")}</h2>
+        <Clock className="h-5 w-5 text-gold" />
+        <h2 className="text-xl font-bold tracking-tight">{t("offers.latestSiteWide")}</h2>
       </div>
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {promoted.map((r) => {
-          const main = r.images?.[r.main_image_index] ?? r.images?.[0];
-          return (
-            <Link key={r.id} to="/najem/oferty/$id" params={{ id: r.id }}
-              className="group block overflow-hidden rounded-3xl bg-card shadow-card ring-2 ring-amber-400 transition hover:-translate-y-0.5 hover:shadow-glow">
-              {main ? (
-                <img src={main} alt={r.title} loading="lazy" className="aspect-[4/3] w-full object-cover transition group-hover:scale-105" />
-              ) : (
-                <div className="aspect-[4/3] bg-muted" />
-              )}
-              <div className="space-y-2 p-5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge className="rounded-full">{r.area_m2} m²</Badge>
-                  <Badge className="rounded-full bg-amber-400 text-amber-950">{t("offers.promoted")}</Badge>
-                  <ListingReviewedBadge listingId={r.id} />
-                </div>
-                <h3 className="line-clamp-1 font-semibold">{r.title}</h3>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <MapPin className="h-3 w-3" /> {r.city}{r.district ? ` · ${r.district}` : ""} · {r.street}
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-2xl font-bold tabular-nums text-primary">{formatPLN(r.monthly_price)}</span>
-                  <span className="text-xs text-muted-foreground">{t("offers.perMonth")}</span>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>{r.rooms} {t("offers.rooms")}</span>
-                  <span className="inline-flex items-center gap-1"><Eye className="h-3 w-3" />{r.views_count ?? 0}</span>
-                </div>
-              </div>
-            </Link>
-          );
-        })}
+        {latest.map((r) => <ListingCard key={r.id} r={r} />)}
       </div>
     </section>
   );
