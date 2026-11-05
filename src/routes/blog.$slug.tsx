@@ -2,17 +2,20 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowLeft, Eye } from "lucide-react";
-import { getPublishedPost, registerPostView } from "@/lib/blog.functions";
+import { ArrowLeft, ArrowRight, Eye } from "lucide-react";
+import { getPreviousPost, getPublishedPost, registerPostView } from "@/lib/blog.functions";
 import { createBlogViewRecorder } from "@/lib/blog-views";
 export const Route = createFileRoute("/blog/$slug")({
   loader: async ({ params }) => {
-    const post = await getPublishedPost({ data: { slug: params.slug } });
+    const [post, prev] = await Promise.all([
+      getPublishedPost({ data: { slug: params.slug } }),
+      getPreviousPost({ data: { slug: params.slug } }),
+    ]);
     if (!post) throw notFound();
-    return post;
+    return { post, prev };
   },
   head: ({ loaderData }) => {
-    const p = loaderData;
+    const p = loaderData?.post;
     if (!p) return { meta: [{ title: "Artykuł – Blog StaySafe" }] };
     const title = p.seo_title || `${p.title} – Blog StaySafe`;
     const desc = p.seo_description || p.excerpt || "Poradnik bezpiecznego najmu StaySafe.";
@@ -43,7 +46,7 @@ export const Route = createFileRoute("/blog/$slug")({
 });
 
 function BlogPostPage() {
-  const post = Route.useLoaderData();
+  const { post, prev } = Route.useLoaderData();
   const [views, setViews] = useState<number>(post.views_count ?? 0);
   const queryClient = useQueryClient();
   const registerView = useServerFn(registerPostView);
