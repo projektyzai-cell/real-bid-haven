@@ -1,20 +1,30 @@
-import { useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { CITIES, CITY_SLUGS, type CitySeo } from "@/lib/cities";
 
-/**
- * City Connector — 4 karty miast między sekcją „Promowane" a „Najnowsze oferty".
- * Pozycja 1 to zawsze Warszawa; pozycje 2–4 to 3 losowe miasta z pozostałej puli.
- */
-export function CityConnector() {
-  const cities = useMemo<CitySeo[]>(() => {
-    const rest = CITY_SLUGS.filter((s) => s !== "warszawa");
+/** Warszawa zawsze na pozycji 1; pozycje 2–4 to 3 losowe miasta z pozostałej puli. */
+function pickCities(randomize: boolean): CitySeo[] {
+  const rest = CITY_SLUGS.filter((s) => s !== "warszawa");
+  if (randomize) {
     for (let i = rest.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [rest[i], rest[j]] = [rest[j], rest[i]];
     }
-    return ["warszawa", ...rest.slice(0, 3)].map((s) => CITIES[s]);
+  }
+  return ["warszawa", ...rest.slice(0, 3)].map((s) => CITIES[s]);
+}
+
+/**
+ * City Connector — 4 karty miast między sekcją „Promowane" a „Najnowsze oferty".
+ * Losowanie dopiero po zamontowaniu (SSR renderuje kolejność deterministyczną,
+ * żeby uniknąć niezgodności hydratacji).
+ */
+export function CityConnector() {
+  const [cities, setCities] = useState<CitySeo[]>(() => pickCities(false));
+
+  useEffect(() => {
+    setCities(pickCities(true));
   }, []);
 
   return (
