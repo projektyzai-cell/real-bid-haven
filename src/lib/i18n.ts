@@ -166,6 +166,8 @@ const resources = {
         house: "Dom",
         room: "Pokój",
         apartment: "Mieszkanie",
+        all: "Wszystkie",
+        latestSiteWide: "Najnowsze oferty z całej Polski",
       },
       howItWorks: {
         badge: "PropTech dla najmu",
@@ -634,6 +636,8 @@ const resources = {
         house: "House",
         room: "Room",
         apartment: "Apartment",
+        all: "All",
+        latestSiteWide: "Latest listings from all of Poland",
       },
       howItWorks: {
         badge: "PropTech for rentals",
@@ -1102,6 +1106,8 @@ const resources = {
         house: "Будинок",
         room: "Кімната",
         apartment: "Квартира",
+        all: "Усі",
+        latestSiteWide: "Найновіші пропозиції з усієї Польщі",
       },
       howItWorks: {
         badge: "PropTech для оренди",

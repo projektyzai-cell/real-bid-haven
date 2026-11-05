@@ -46,7 +46,7 @@ export function CityConnector() {
               <p className="text-xs text-muted-foreground">
                 Sprawdzone oferty dla zweryfikowanych najemców
               </p>
-              <span className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500 px-3 py-1.5 text-xs font-bold text-emerald-950 transition group-hover:bg-emerald-400">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-400 px-3 py-1.5 text-xs font-bold text-amber-950 transition group-hover:bg-amber-300">
                 Zobacz oferty <ArrowRight className="h-3.5 w-3.5" />
               </span>
             </div>
