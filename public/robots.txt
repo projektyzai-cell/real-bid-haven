@@ -4,3 +4,5 @@ Disallow: /auth
 Disallow: /new-listing
 Disallow: /my-listings
 Disallow: /my-bids
+
+Sitemap: https://staysafe.pl/sitemap.xml
