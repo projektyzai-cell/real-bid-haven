@@ -59,10 +59,11 @@ function CityLandingPage() {
         .from("rental_listings" as never)
         .select(LISTING_SELECT)
         .eq("status", "active")
+        .ilike("city", city.name)
         .gt("expires_at", new Date().toISOString())
         .order("promoted", { ascending: false })
         .order("created_at", { ascending: false })
-        .limit(200);
+        ;
       if (error) throw error;
       return ((data ?? []) as unknown as RentalRow[]).filter((r) => cityMatchesSlug(r.city, slug));
     },
