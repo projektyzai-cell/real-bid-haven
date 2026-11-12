@@ -7,6 +7,9 @@ import zyrardowImg from "@/assets/cities/zyrardow.jpg";
 import katowiceImg from "@/assets/cities/katowice.jpg";
 import szczecinImg from "@/assets/cities/szczecin.jpg";
 import lodzImg from "@/assets/cities/lodz.jpg";
+import residentialImg from "@/assets/cities/residential-poland.jpg";
+import { CITY_CATALOG, cityNameMatchesSlug } from "./city-catalog";
+export { normalizeCityName } from "./city-catalog";
 
 export type CitySeo = {
   slug: string;
@@ -19,7 +22,7 @@ export type CitySeo = {
   intro: string;
 };
 
-export const CITIES: Record<string, CitySeo> = {
+const FEATURED_CITIES: Record<string, CitySeo> = {
   warszawa: {
     slug: "warszawa",
     name: "Warszawa",
@@ -130,21 +133,22 @@ export const CITIES: Record<string, CitySeo> = {
   },
 };
 
-export const CITY_SLUGS = Object.keys(CITIES);
+export const CITIES: Record<string, CitySeo> = Object.fromEntries(
+  CITY_CATALOG.map(({ name, slug }) => [slug, FEATURED_CITIES[slug] ?? {
+    slug,
+    name,
+    image: residentialImg,
+    cardTitle: `Mieszkania na wynajem ${name}`,
+    title: `Mieszkania, pokoje i domy na wynajem — ${name} | StaySafe`,
+    description: `Oferty najmu — ${name}. Przeglądaj mieszkania, pokoje i domy na StaySafe oraz wybierz nieruchomość dla siebie.`,
+    h1: `Nieruchomości na wynajem — ${name}`,
+    intro: `Sprawdź aktualne ogłoszenia najmu w lokalizacji ${name}. Wybierz mieszkanie, pokój lub dom i skontaktuj się z wynajmującym przez StaySafe.`,
+  }]),
+);
 
-/** Normalizuje nazwę miasta (diakrytyki, wielkość liter) do porównań. */
-export function normalizeCityName(value: string): string {
-  return value
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[̀-ͯ]/g, "")
-    .replace(/ł/g, "l")
-    .trim();
-}
+export const CITY_SLUGS = ["warszawa", ...CITY_CATALOG.map((city) => city.slug).filter((slug) => slug !== "warszawa")];
 
 /** Czy nazwa miasta z ogłoszenia odpowiada danemu sluowi (np. "Łódź" === "lodz"). */
 export function cityMatchesSlug(cityName: string, slug: string): boolean {
-  const city = CITIES[slug];
-  if (!city) return false;
-  return normalizeCityName(cityName) === normalizeCityName(city.name);
+  return cityNameMatchesSlug(cityName, slug);
 }
