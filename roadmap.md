@@ -1,7 +1,7 @@
 # Roadmap
 
-- [ ] Osobne strony ogłoszeń dla wszystkich 51 miast z list rozwijanych
-- [ ] Przewijanie kart miast strzałkami w lewo i prawo
+- [x] Osobne strony ogłoszeń dla wszystkich 51 miast z list rozwijanych
+- [x] Przewijanie kart miast strzałkami w lewo i prawo
 
 - [x] Zapis i odczyt odwiedzin przez serwer, bez podwójnego naliczania przy ponownym uruchomieniu efektu
 - [ ] Potwierdzenie zapisu na rzeczywistym artykule — blokada: w podłączonej bazie brak artykułów bloga
