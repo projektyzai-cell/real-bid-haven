@@ -42,7 +42,7 @@ function RequestDetailPage() {
     queryKey: ["rental-request", id],
     queryFn: async () => {
       const { data: req, error } = await supabase
-        .from("rental_requests" as never).select("*").eq("id", id).maybeSingle();
+        .from("rental_requests" as never).select("id, tenant_id, city, district, area_description, budget_max, adults_count, has_children, pets_caged, pets_other, accepts_deposit, accepts_tenant_report, requires_furnished, accepts_insurance, accepts_notarial_lease, notes, active_days, expires_at, status, created_at, personal_bio_original, personal_bio_pl, personal_bio_lang, children_count, search_mode, search_street, search_lat, search_lng, search_radius_km, property_type, apartment_subtype, wants_balcony, wants_basement, wants_elevator, floor_preference, building_type, min_lease_months, is_student, min_rooms, wants_parking_space, wants_washing_machine, wants_dishwasher, offers_staysafe_passport, wants_minor_modifications, wants_own_furniture, room_lock, accepts_live_in_owner, wants_separate_wc, shared_kitchen, shared_living_room, shared_balcony, shared_garden, shared_basement").eq("id", id).maybeSingle();
       if (error) throw error;
       if (!req) throw notFound();
       const r = req as unknown as Record<string, unknown> & { tenant_id: string };
