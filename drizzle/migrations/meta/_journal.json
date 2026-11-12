@@ -15,6 +15,13 @@
       "when": 1794478312066,
       "tag": "0001_restrict_internal_scoring_configuration",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794478337672,
+      "tag": "0002_scope_bid_reads_to_participants",
+      "breakpoints": true
     }
   ]
 }

@@ -13,11 +13,7 @@ export function UserStars({ userId, className }: Props) {
     queryKey: ["user-stars", userId],
     enabled: !!userId,
     queryFn: async () => {
-      const { count, error } = await supabase
-        .from("bids")
-        .select("id", { count: "exact", head: true })
-        .eq("bidder_id", userId)
-        .eq("status", "accepted");
+      const { data: count, error } = await supabase.rpc("get_user_stars", { _user_id: userId });
       if (error) return 0;
       return count ?? 0;
     },
