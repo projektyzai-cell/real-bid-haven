@@ -22,6 +22,13 @@
       "when": 1794478337672,
       "tag": "0002_scope_bid_reads_to_participants",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1794479048893,
+      "tag": "0003_restrict_rental_request_phone_reads",
+      "breakpoints": true
     }
   ]
 }
