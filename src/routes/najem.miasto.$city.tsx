@@ -198,8 +198,8 @@ function LatestSiteWide() {
 function CityEmptyState() {
   return (
     <div className="mt-10 flex flex-col items-center rounded-3xl border border-white/10 bg-[#111827] px-6 py-16 text-center">
-      <div className="grid h-16 w-16 place-items-center rounded-2xl border border-emerald-500/30 bg-emerald-500/10">
-        <SearchX className="h-8 w-8 text-emerald-400" />
+      <div className="grid h-16 w-16 place-items-center rounded-2xl border border-amber-400/30 bg-amber-400/10">
+        <SearchX className="h-8 w-8 text-amber-400" />
       </div>
       <h2 className="mt-5 text-xl font-bold">Brak dostępnych ofert w tym mieście</h2>
       <p className="mt-3 max-w-xl text-sm text-muted-foreground">
@@ -209,7 +209,7 @@ function CityEmptyState() {
       </p>
       <Link
         to="/najem/nowe-zapytanie"
-        className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-2.5 text-sm font-bold text-emerald-950 transition hover:bg-emerald-400"
+        className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-amber-950 transition hover:bg-amber-300"
       >
         Zostaw zapytanie najemcy
       </Link>
