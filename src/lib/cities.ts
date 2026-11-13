@@ -137,7 +137,7 @@ const FEATURED_CITIES: Record<string, Omit<CitySeo, "seoDescription">> = {
 
 export const CITIES: Record<string, CitySeo> = Object.fromEntries(
   CITY_CATALOG.map(({ name, slug }) => {
-    const base: CitySeo = FEATURED_CITIES[slug] ?? {
+    const base: Omit<CitySeo, "seoDescription"> = FEATURED_CITIES[slug] ?? {
       slug,
       name,
       image: residentialImg,
