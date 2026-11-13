@@ -120,11 +120,20 @@ export const getPaymentStatus = createServerFn({ method: "POST" })
     const ctx = context as { supabase: any; userId: string };
     const { data: row, error } = await ctx.supabase
       .from("payments")
-      .select("id, kind, amount, status, description, paid_at, target_id")
+      .select("id, kind, amount, status, description, paid_at, target_id, mollie_payment_id")
       .eq("id", data.paymentId)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Nie znaleziono płatności.");
+    // Webhook mógł nie dotrzeć (np. podgląd lub inny host) — sprawdzamy u Mollie sami.
+    if (row.status !== "paid" && row.mollie_payment_id) {
+      const { syncMolliePayment } = await import("@/lib/mollie-sync.server");
+      const synced = await syncMolliePayment(row.mollie_payment_id);
+      if (synced) {
+        row.status = synced;
+        if (synced === "paid" && !row.paid_at) row.paid_at = new Date().toISOString();
+      }
+    }
     void ctx.userId;
     return row as {
       id: string;
