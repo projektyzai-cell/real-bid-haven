@@ -92,6 +92,9 @@ function CityLandingPage() {
       </div>
       <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">{city.h1}</h1>
       <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">{city.intro}</p>
+      {city.seoDescription && (
+        <p className="mt-3 max-w-2xl text-sm text-muted-foreground sm:text-base">{city.seoDescription}</p>
+      )}
 
       {/* Filtr rodzaju nieruchomości */}
       <div className="mt-6 flex flex-wrap gap-2">

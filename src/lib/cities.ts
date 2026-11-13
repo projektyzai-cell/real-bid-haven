@@ -9,6 +9,7 @@ import szczecinImg from "@/assets/cities/szczecin.jpg";
 import lodzImg from "@/assets/cities/lodz.jpg";
 import residentialImg from "@/assets/cities/residential-poland.jpg";
 import { CITY_CATALOG, cityNameMatchesSlug } from "./city-catalog";
+import { citySeoDescriptions } from "./city-descriptions";
 export { normalizeCityName } from "./city-catalog";
 
 export type CitySeo = {
@@ -20,9 +21,10 @@ export type CitySeo = {
   description: string;
   h1: string;
   intro: string;
+  seoDescription: string; // unikalny opis miasta pod ogólnym intro
 };
 
-const FEATURED_CITIES: Record<string, CitySeo> = {
+const FEATURED_CITIES: Record<string, Omit<CitySeo, "seoDescription">> = {
   warszawa: {
     slug: "warszawa",
     name: "Warszawa",
@@ -134,16 +136,20 @@ const FEATURED_CITIES: Record<string, CitySeo> = {
 };
 
 export const CITIES: Record<string, CitySeo> = Object.fromEntries(
-  CITY_CATALOG.map(({ name, slug }) => [slug, FEATURED_CITIES[slug] ?? {
-    slug,
-    name,
-    image: residentialImg,
-    cardTitle: `Mieszkania na wynajem ${name}`,
-    title: `Mieszkania, pokoje i domy na wynajem — ${name} | StaySafe`,
-    description: `Oferty najmu — ${name}. Przeglądaj mieszkania, pokoje i domy na StaySafe oraz wybierz nieruchomość dla siebie.`,
-    h1: `Nieruchomości na wynajem — ${name}`,
-    intro: `Sprawdź aktualne ogłoszenia najmu w lokalizacji ${name}. Wybierz mieszkanie, pokój lub dom i skontaktuj się z wynajmującym przez StaySafe.`,
-  }]),
+  CITY_CATALOG.map(({ name, slug }) => {
+    const base: Omit<CitySeo, "seoDescription"> = FEATURED_CITIES[slug] ?? {
+      slug,
+      name,
+      image: residentialImg,
+      cardTitle: `Mieszkania na wynajem ${name}`,
+      title: `Mieszkania, pokoje i domy na wynajem — ${name} | StaySafe`,
+      description: `Oferty najmu — ${name}. Przeglądaj mieszkania, pokoje i domy na StaySafe oraz wybierz nieruchomość dla siebie.`,
+      h1: `Nieruchomości na wynajem — ${name}`,
+      intro: `Sprawdź aktualne ogłoszenia najmu w lokalizacji ${name}. Wybierz mieszkanie, pokój lub dom i skontaktuj się z wynajmującym przez StaySafe.`,
+      seoDescription: "",
+    };
+    return [slug, { ...base, seoDescription: citySeoDescriptions[slug] ?? "" }];
+  }),
 );
 
 export const CITY_SLUGS = ["warszawa", ...CITY_CATALOG.map((city) => city.slug).filter((slug) => slug !== "warszawa")];
