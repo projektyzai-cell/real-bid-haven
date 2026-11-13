@@ -70,9 +70,15 @@ function PaymentStatusPage() {
         )}
 
         <div className="mt-6 flex flex-wrap justify-center gap-2">
-          <Link to="/najem">
-            <Button variant="outline" className="rounded-xl">Wróć do najmu</Button>
-          </Link>
+          {data?.kind === "listing_promotion" && data.target_id ? (
+            <Link to="/najem/oferty/$id" params={{ id: data.target_id }}>
+              <Button variant="outline" className="rounded-xl">Podgląd ogłoszenia</Button>
+            </Link>
+          ) : (
+            <Link to="/najem">
+              <Button variant="outline" className="rounded-xl">Wróć do najmu</Button>
+            </Link>
+          )}
           {data?.kind === "listing_promotion" && (
             <Link to="/najem/moje-oferty"><Button className="rounded-xl">Moje oferty</Button></Link>
           )}
