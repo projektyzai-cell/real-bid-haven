@@ -9,6 +9,7 @@ import szczecinImg from "@/assets/cities/szczecin.jpg";
 import lodzImg from "@/assets/cities/lodz.jpg";
 import residentialImg from "@/assets/cities/residential-poland.jpg";
 import { CITY_CATALOG, cityNameMatchesSlug } from "./city-catalog";
+import { citySeoDescriptions } from "./city-descriptions";
 export { normalizeCityName } from "./city-catalog";
 
 export type CitySeo = {
@@ -20,6 +21,7 @@ export type CitySeo = {
   description: string;
   h1: string;
   intro: string;
+  seoDescription: string; // unikalny opis miasta pod ogólnym intro
 };
 
 const FEATURED_CITIES: Record<string, CitySeo> = {
