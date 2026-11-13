@@ -24,7 +24,7 @@ export type CitySeo = {
   seoDescription: string; // unikalny opis miasta pod ogólnym intro
 };
 
-const FEATURED_CITIES: Record<string, CitySeo> = {
+const FEATURED_CITIES: Record<string, Omit<CitySeo, "seoDescription">> = {
   warszawa: {
     slug: "warszawa",
     name: "Warszawa",
