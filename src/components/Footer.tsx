@@ -25,6 +25,9 @@ export function Footer() {
           </a>
         </nav>
       </div>
+      <p className="container mx-auto px-4 pb-6 text-xs text-muted-foreground">
+        Strona oraz grafiki zostały utworzone z pomocą sztucznej inteligencji (AI).
+      </p>
     </footer>
   );
 }
