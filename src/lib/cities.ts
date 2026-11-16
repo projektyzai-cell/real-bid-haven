@@ -8,6 +8,13 @@ import katowiceImg from "@/assets/cities/katowice.jpg";
 import szczecinImg from "@/assets/cities/szczecin.jpg";
 import lodzImg from "@/assets/cities/lodz.jpg";
 import residentialImg from "@/assets/cities/residential-poland.jpg";
+
+/** Spersonalizowane grafiki miast: src/assets/cities/<slug>.jpg */
+const CITY_IMAGES: Record<string, string> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob<string>("@/assets/cities/*.jpg", { eager: true, import: "default" }),
+  ).map(([path, url]) => [path.split("/").pop()!.replace(/\.jpg$/, ""), url]),
+);
 import { CITY_CATALOG, cityNameMatchesSlug } from "./city-catalog";
 import { citySeoDescriptions } from "./city-descriptions";
 export { normalizeCityName } from "./city-catalog";
@@ -140,7 +147,7 @@ export const CITIES: Record<string, CitySeo> = Object.fromEntries(
     const base: Omit<CitySeo, "seoDescription"> = FEATURED_CITIES[slug] ?? {
       slug,
       name,
-      image: residentialImg,
+      image: CITY_IMAGES[slug] ?? residentialImg,
       cardTitle: `Mieszkania na wynajem ${name}`,
       title: `Mieszkania, pokoje i domy na wynajem — ${name} | StaySafe`,
       description: `Oferty najmu — ${name}. Przeglądaj mieszkania, pokoje i domy na StaySafe oraz wybierz nieruchomość dla siebie.`,
