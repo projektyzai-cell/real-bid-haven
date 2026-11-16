@@ -206,16 +206,24 @@ function CityEmptyState() {
       </div>
       <h2 className="mt-5 text-xl font-bold">Brak dostępnych ofert w tym mieście</h2>
       <p className="mt-3 max-w-xl text-sm text-muted-foreground">
-        Aktualnie wszystkie oferty w tej lokalizacji zostały wynajęte. Nowe mieszkania pojawią się wkrótce!
+        W chwili obecnej nie ma dostępnych nieruchomości do wynajmu. Nowe mieszkania pojawią się wkrótce!
         Odwiedzaj nas na bieżąco lub stwórz własne <strong className="text-foreground">Zapytanie Najemcy</strong> —
         gdy pojawi się dopasowana oferta, poinformujemy Cię bezpośrednio na Twoim koncie.
       </p>
+      <div className="mt-6 flex flex-wrap justify-center gap-3">
       <Link
         to="/najem/nowe-zapytanie"
-        className="mt-6 inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-amber-950 transition hover:bg-amber-300"
+        className="inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-amber-950 transition hover:bg-amber-300"
       >
         Zostaw zapytanie najemcy
       </Link>
+      <Link
+        to="/najem/nowa-oferta"
+        className="inline-flex items-center gap-2 rounded-2xl bg-amber-400 px-5 py-2.5 text-sm font-bold text-amber-950 transition hover:bg-amber-300"
+      >
+        Wystaw nieruchomość do wynajmu
+      </Link>
+      </div>
     </div>
   );
 }
