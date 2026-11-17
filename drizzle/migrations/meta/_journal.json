@@ -29,6 +29,13 @@
       "when": 1794479048893,
       "tag": "0003_restrict_rental_request_phone_reads",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794906205003,
+      "tag": "0004_scope_profiles_public_and_rental_listings_select",
+      "breakpoints": true
     }
   ]
 }
